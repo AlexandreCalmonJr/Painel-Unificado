@@ -717,7 +717,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
             _loadUnits();
             _loadBssidMappings();
             _loadDevices();
-          },
+          }, authService: widget.authService,
         );
       case 9: // MaintenanceTab
         return MaintenanceTab(

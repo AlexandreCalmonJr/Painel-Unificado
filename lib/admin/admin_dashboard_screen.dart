@@ -1,9 +1,8 @@
+// File: lib/admin/admin_dashboard_screen.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/admin/tabs/admin_locations_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/widgets/menu_item.dart';
-
 
 class AdminDashboardScreen extends StatefulWidget {
   final AuthService authService;
@@ -19,69 +18,105 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: Row(
-        children: [
-          if (_isSidebarVisible) _buildSidebar(),
-          Expanded(
-            child: Column(
-              children: [
-                _buildAppBar(),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: _buildTabContent(),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.purple.shade50, Colors.blue.shade50],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Row(
+          children: [
+            if (_isSidebarVisible) _buildSidebar(),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildAppBar(),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: _buildTabContent(),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSidebar() {
     return Container(
-      width: 200,
-      color: const Color(0xFF2D3748),
+      width: 250,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [const Color(0xFF2D3748), const Color(0xFF1A202C)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(2, 0),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
-            child: const Text('Administrativo',
-                style: TextStyle(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.white24)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.admin_panel_settings, color: Colors.white, size: 32),
+                const SizedBox(width: 12),
+                const Text(
+                  'Administrativo',
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold)),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                MenuItem(
+                _buildMenuItem(
                   icon: Icons.people,
                   title: 'Utilizadores',
                   subtitle: 'Gerir acessos',
                   index: 0,
-                  selectedIndex: selectedIndex,
+                  selected: selectedIndex == 0,
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
-                MenuItem(
+                _buildMenuItem(
                   icon: Icons.location_on,
-                  title: 'Localizações',
+                  title: 'Localização',
                   subtitle: 'Mapeamento de IP',
                   index: 1,
-                  selectedIndex: selectedIndex,
+                  selected: selectedIndex == 1,
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
                 const Divider(color: Colors.white24, indent: 16, endIndent: 16),
-                MenuItem(
+                _buildMenuItem(
                   icon: Icons.arrow_back,
                   title: 'Voltar',
                   subtitle: 'Menu Principal',
                   index: 99,
-                  selectedIndex: -1, // Para nunca ficar selecionado
+                  selected: false,
                   onTap: (_) => Navigator.of(context).pop(),
                 ),
               ],
@@ -92,41 +127,121 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required int index,
+    required bool selected,
+    required Function(int) onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      color: selected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Icon(icon, color: selected ? Colors.blue : Colors.white70),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: selected ? Colors.blue : Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(
+            color: selected ? Colors.blue : Colors.white70,
+            fontSize: 12,
+          ),
+        ),
+        trailing: selected ? const Icon(Icons.chevron_right, color: Colors.blue) : null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        onTap: () => onTap(index),
+      ),
+    );
+  }
+
   Widget _buildAppBar() {
     final currentUser = widget.authService.currentUser;
     final username = currentUser?['username'] ?? 'Usuário';
 
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 1)),
-        ],
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(_isSidebarVisible ? Icons.menu_open : Icons.menu,
-                color: Colors.grey[600]),
-            onPressed: () =>
-                setState(() => _isSidebarVisible = !_isSidebarVisible),
-            tooltip: 'Esconder/Mostrar Menu',
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          const SizedBox(width: 10),
-          Text('Gestão do Sistema',
-              style: TextStyle(
-                  color: Colors.blueGrey[800],
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold)),
-          const Spacer(),
-          Text('Bem-vindo, $username'),
         ],
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  _isSidebarVisible ? Icons.menu_open : Icons.menu,
+                  color: Colors.grey[600],
+                ),
+              ),
+              onPressed: () => setState(() => _isSidebarVisible = !_isSidebarVisible),
+              tooltip: 'Esconder/Mostrar Menu',
+            ),
+            const SizedBox(width: 12),
+            Icon(Icons.dashboard, color: Colors.blue, size: 28),
+            const SizedBox(width: 12),
+            Text(
+              'Gestão do Sistema',
+              style: TextStyle(
+                color: Colors.blueGrey[800],
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  child: Icon(Icons.person, color: Colors.blue, size: 20),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Bem-vindo,',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                    Text(
+                      username,
+                      style: TextStyle(
+                        color: Colors.blueGrey[800],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

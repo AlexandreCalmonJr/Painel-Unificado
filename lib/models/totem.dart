@@ -8,6 +8,7 @@ class Totem {
   final String model;
   final String serviceTag;
   final String ip;
+  final String macAddress; // ADICIONADO: Endereço MAC para mapeamento de localização
   final String location;
   final List<String> installedPrograms;
   final String printerStatus;
@@ -28,6 +29,7 @@ class Totem {
     required this.model,
     required this.serviceTag,
     required this.ip,
+    required this.macAddress, // ADICIONADO
     required this.location,
     required this.installedPrograms,
     required this.printerStatus,
@@ -53,6 +55,7 @@ class Totem {
       model: json['model'] ?? 'N/A',
       serviceTag: json['serviceTag'] ?? 'N/A',
       ip: json['ip'] ?? 'N/A',
+      macAddress: json['macAddress'] ?? '', // ADICIONADO: Pode vir da API ou ficar vazio
       location: json['unitRoutes'] ?? 'Desconhecida',
       installedPrograms: List<String>.from(json['installedPrograms'] ?? []),
       printerStatus: json['printerStatus'] ?? 'N/A',
@@ -65,6 +68,51 @@ class Totem {
       hdStorage: json['hdStorage'] ?? 'N/A',
       zebraStatus: json['zebraStatus'] ?? 'Não detectado',
       bematechStatus: json['bematechStatus'] ?? 'Não detectado',
+    );
+  }
+
+  // ADICIONADO: Método copyWith para facilitar atualizações
+  Totem copyWith({
+    String? id,
+    String? hostname,
+    String? serialNumber,
+    String? model,
+    String? serviceTag,
+    String? ip,
+    String? macAddress,
+    String? location,
+    List<String>? installedPrograms,
+    String? printerStatus,
+    DateTime? lastSeen,
+    String? status,
+    String? biometricReaderStatus,
+    String? totemType,
+    String? ram,
+    String? hdType,
+    String? hdStorage,
+    String? zebraStatus,
+    String? bematechStatus,
+  }) {
+    return Totem(
+      id: id ?? this.id,
+      hostname: hostname ?? this.hostname,
+      serialNumber: serialNumber ?? this.serialNumber,
+      model: model ?? this.model,
+      serviceTag: serviceTag ?? this.serviceTag,
+      ip: ip ?? this.ip,
+      macAddress: macAddress ?? this.macAddress,
+      location: location ?? this.location,
+      installedPrograms: installedPrograms ?? this.installedPrograms,
+      printerStatus: printerStatus ?? this.printerStatus,
+      lastSeen: lastSeen ?? this.lastSeen,
+      status: status ?? this.status,
+      biometricReaderStatus: biometricReaderStatus ?? this.biometricReaderStatus,
+      totemType: totemType ?? this.totemType,
+      ram: ram ?? this.ram,
+      hdType: hdType ?? this.hdType,
+      hdStorage: hdStorage ?? this.hdStorage,
+      zebraStatus: zebraStatus ?? this.zebraStatus,
+      bematechStatus: bematechStatus ?? this.bematechStatus,
     );
   }
 

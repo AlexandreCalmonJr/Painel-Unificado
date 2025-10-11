@@ -1,3 +1,4 @@
+// File: lib/widgets/tabs/users_tab.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -71,7 +72,14 @@ class _UsersTabState extends State<UsersTab> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(isEditing ? 'Editar Utilizador' : 'Criar Utilizador'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(isEditing ? Icons.edit : Icons.add, color: isEditing ? Colors.blue : Colors.green),
+              const SizedBox(width: 8),
+              Text(isEditing ? 'Editar Utilizador' : 'Criar Utilizador'),
+            ],
+          ),
           content: SizedBox(
             width: 500,
             child: SingleChildScrollView(
@@ -80,24 +88,40 @@ class _UsersTabState extends State<UsersTab> {
                 children: [
                   TextFormField(
                     controller: usernameController,
-                    decoration: const InputDecoration(labelText: 'Nome de Utilizador', prefixIcon: Icon(Icons.person), border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: 'Nome de Utilizador',
+                      prefixIcon: const Icon(Icons.person),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: emailController,
-                    decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email), border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: const Icon(Icons.email),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   if (!isEditing)
                     TextFormField(
                       controller: passwordController,
                       obscureText: true,
-                      decoration: const InputDecoration(labelText: 'Senha', prefixIcon: Icon(Icons.lock), border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Senha',
+                        prefixIcon: const Icon(Icons.lock),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
                     ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: selectedRole,
-                    decoration: const InputDecoration(labelText: 'Papel', prefixIcon: Icon(Icons.security), border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: 'Papel',
+                      prefixIcon: const Icon(Icons.security),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
                     items: const [
                       DropdownMenuItem(value: 'user', child: Text('Utilizador')),
                       DropdownMenuItem(value: 'admin', child: Text('Administrador')),
@@ -110,10 +134,10 @@ class _UsersTabState extends State<UsersTab> {
                   if (selectedRole == 'user')
                     TextFormField(
                       controller: sectorController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Prefixos de Dispositivos Visíveis',
-                        prefixIcon: Icon(Icons.visibility),
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.visibility),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                         hintText: 'Separados por vírgula (ex: Enfermagem, UTI)',
                       ),
                     ),
@@ -164,9 +188,13 @@ class _UsersTabState extends State<UsersTab> {
                   }
                 }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
               child: isLoadingDialog
                   ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(isEditing ? 'Atualizar' : 'Criar'),
+                  : Text(isEditing ? 'Atualizar' : 'Criar', style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -178,7 +206,14 @@ class _UsersTabState extends State<UsersTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar Exclusão'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.red),
+            const SizedBox(width: 8),
+            const Text('Confirmar Exclusão'),
+          ],
+        ),
         content: Text('Tem certeza que deseja excluir o utilizador "${user['username']}"?'),
         actions: [
           TextButton(
@@ -198,8 +233,8 @@ class _UsersTabState extends State<UsersTab> {
                 }
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[600], foregroundColor: Colors.white),
-            child: const Text('Excluir'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[600], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+            child: const Text('Excluir', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -210,97 +245,176 @@ class _UsersTabState extends State<UsersTab> {
   Widget build(BuildContext context) {
     if (!widget.authService.isAdmin) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.security, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text('Acesso Restrito', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[700])),
-            const SizedBox(height: 8),
-            Text('Apenas administradores podem gerenciar utilizadores.', style: TextStyle(fontSize: 16, color: Colors.grey[600]), textAlign: TextAlign.center),
-          ],
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.security, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text('Acesso Restrito', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                const SizedBox(height: 8),
+                Text('Apenas administradores podem gerenciar utilizadores.', style: TextStyle(fontSize: 16, color: Colors.grey[600]), textAlign: TextAlign.center),
+              ],
+            ),
+          ),
         ),
       );
     }
 
     return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Gerenciamento de Utilizadores', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800])),
-              Row(
+          Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(onPressed: _loadUsers, icon: const Icon(Icons.refresh), tooltip: 'Atualizar'),
-                  const SizedBox(width: 8),
-                  ElevatedButton.icon(onPressed: _showUserDialog, icon: const Icon(Icons.add), label: const Text('Novo Utilizador')),
+                  Row(
+                    children: [
+                      Icon(Icons.people, color: Colors.blue, size: 28),
+                      const SizedBox(width: 8),
+                      const Text('Utilizadores', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: _loadUsers,
+                        icon: const Icon(Icons.refresh),
+                        tooltip: 'Atualizar',
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.blue.withOpacity(0.1),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton.icon(
+                        onPressed: _showUserDialog,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Novo Utilizador'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           
           if (_errorMessage != null)
-            Container(
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(color: Colors.red[50], border: Border.all(color: Colors.red[300]!), borderRadius: BorderRadius.circular(8)),
-              child: Row(
-                children: [
-                  Icon(Icons.error, color: Colors.red[600], size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(_errorMessage!, style: TextStyle(color: Colors.red[700]))),
-                ],
+            Card(
+              color: Colors.red[50],
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Icon(Icons.error, color: Colors.red[600], size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(_errorMessage!, style: TextStyle(color: Colors.red[700]))),
+                  ],
+                ),
               ),
             ),
 
           if (_isLoading)
-            const Center(child: Padding(padding: EdgeInsets.all(32.0), child: CircularProgressIndicator()))
+            const Center(child: Padding(padding: EdgeInsets.all(32.0), child: CircularProgressIndicator(color: Colors.blue)))
+          else if (_users.isEmpty)
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.info_outline, color: Colors.grey),
+                title: const Text('Nenhum utilizador encontrado.'),
+                subtitle: const Text('Crie um novo utilizador para começar.'),
+              ),
+            )
           else
             Expanded(
-              child: SingleChildScrollView(
-                child: DataTable(
-                  columns: const [
-                    DataColumn(label: Text('Utilizador')),
-                    DataColumn(label: Text('Email')),
-                    DataColumn(label: Text('Papel')),
-                    DataColumn(label: Text('Visibilidade (Prefixos)')),
-                    DataColumn(label: Text('Criado em')),
-                    DataColumn(label: Text('Ações')),
-                  ],
-                  rows: _users.map((user) {
-                    final createdAt = DateTime.tryParse(user['created_at'] ?? '') ?? DateTime.now();
-                    final formattedDate = '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year}';
-                    
-                    return DataRow(
-                      cells: [
-                        DataCell(Row(children: [
-                          CircleAvatar(radius: 16, backgroundColor: user['role'] == 'admin' ? Colors.red[600] : Colors.blue[600],
-                            child: Text(user['username'][0].toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold))),
-                          const SizedBox(width: 8),
-                          Text(user['username']),
-                        ])),
-                        DataCell(Text(user['email'])),
-                        DataCell(Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: user['role'] == 'admin' ? Colors.red[100] : Colors.blue[100], borderRadius: BorderRadius.circular(12)),
-                          child: Text(user['role'] == 'admin' ? 'Admin' : 'Utilizador',
-                            style: TextStyle(color: user['role'] == 'admin' ? Colors.red[700] : Colors.blue[700], fontSize: 12, fontWeight: FontWeight.w600)),
-                        )),
-                        DataCell(Text(user['sector'] ?? 'N/A')),
-                        DataCell(Text(formattedDate)),
-                        DataCell(Row(mainAxisSize: MainAxisSize.min, children: [
-                          IconButton(onPressed: () => _showUserDialog(user: user), icon: Icon(Icons.edit, color: Colors.blue[600]), tooltip: 'Editar'),
-                          IconButton(onPressed: () => _showDeleteUserDialog(user), icon: Icon(Icons.delete, color: Colors.red[600]), tooltip: 'Excluir'),
-                        ])),
-                      ],
-                    );
-                  }).toList(),
-                ),
+              child: ListView.builder(
+                itemCount: _users.length,
+                itemBuilder: (context, index) {
+                  final user = _users[index];
+                  final createdAt = DateTime.tryParse(user['created_at'] ?? '') ?? DateTime.now();
+                  final formattedDate = '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year}';
+                  
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: user['role'] == 'admin' ? Colors.red[600] : Colors.blue[600],
+                        child: Text(
+                          user['username'][0].toUpperCase(),
+                          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      title: Text(
+                        user['username'],
+                        style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey[800]),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user['email'],
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                          Text(
+                            user['role'] == 'admin' ? 'Admin' : 'Utilizador',
+                            style: TextStyle(
+                              color: user['role'] == 'admin' ? Colors.red[700] : Colors.blue[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            'Visibilidade: ${user['sector'] ?? 'N/A'}',
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          ),
+                          Text(
+                            'Criado: $formattedDate',
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          ),
+                        ],
+                      ),
+                      trailing: PopupMenuButton<String>(
+                        icon: const Icon(Icons.more_vert, color: Colors.grey),
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            _showUserDialog(user: user);
+                          } else if (value == 'delete') {
+                            _showDeleteUserDialog(user);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: Row(children: [Icon(Icons.edit, color: Colors.blue), SizedBox(width: 8), Text('Editar')]),
+                          ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text('Excluir')]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
         ],

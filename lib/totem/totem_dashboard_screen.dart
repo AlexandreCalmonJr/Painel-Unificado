@@ -68,7 +68,10 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     setState(() => isLoading = true);
     try {
       // Usa o MonitoringService para buscar os totens
-      final fetchedTotems = await _monitoringService.getTotems();
+      // ATUALIZADO: Adiciona refreshMappings para atualizar mapeamentos no load inicial
+      final fetchedTotems = await _monitoringService.getTotems(
+        refreshMappings: isInitialLoad,
+      );
       
       if (mounted) {
         if (!isInitialLoad) {
@@ -366,6 +369,15 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           const SizedBox(width: 15),
+          // NOVO: Botão para forçar atualização dos mapeamentos
+          IconButton(
+            icon: Icon(Icons.location_on, color: Colors.grey[600]),
+            onPressed: () {
+              _monitoringService.invalidateMappingsCache();
+              _loadTotems(isInitialLoad: true);
+            },
+            tooltip: 'Atualizar Mapeamentos de Localização',
+          ),
           IconButton(
             icon: Icon(Icons.refresh, color: Colors.grey[600]),
             onPressed: () => _loadTotems(isInitialLoad: true),

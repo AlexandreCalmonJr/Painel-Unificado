@@ -107,20 +107,16 @@ class ManagedDevicesCard extends StatelessWidget {
     if (kIsWeb) {
       // No web: Gera bytes e força download via file_saver
       final bytes = Uint8List.fromList(utf8.encode(csvContent));
-      final result = await FileSaver.instance.saveFile(
+      await FileSaver.instance.saveFile(
         name: fileName,
         bytes: bytes,
         fileExtension: 'csv',
         mimeType: MimeType.csv,
       );
-      if (result != null) {
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('CSV baixado com sucesso!')),
-        );
-      } else {
-        throw Exception('Falha no download');
-      }
-    } else {
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('CSV baixado com sucesso!')),
+      );
+        } else {
       // Em mobile/desktop: Usa path_provider como antes
       final directory = await getApplicationDocumentsDirectory();
       final path = '${directory.path}${Platform.pathSeparator}$fileName';

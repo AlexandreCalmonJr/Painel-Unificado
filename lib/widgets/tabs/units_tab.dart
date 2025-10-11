@@ -1,11 +1,15 @@
-import 'dart:convert';
+// File: lib/widgets/units_tab.dart
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:excel/excel.dart' as xls;
 import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
 import 'package:painel_windowns/utils/helpers.dart';
 import 'package:path_provider/path_provider.dart';
@@ -14,6 +18,7 @@ class UnitsTab extends StatefulWidget {
   final List<Unit> units;
   final List<BssidMapping> bssidMappings;
   final String token;
+  final AuthService authService;
   final VoidCallback onDataUpdate;
 
   const UnitsTab({
@@ -21,6 +26,7 @@ class UnitsTab extends StatefulWidget {
     required this.units,
     required this.bssidMappings,
     required this.token,
+    required this.authService,
     required this.onDataUpdate,
   });
 
@@ -42,7 +48,14 @@ class _UnitsTabState extends State<UnitsTab> {
     );
   }
 
+  bool get _isAdmin => widget.authService.isAdmin;
+
   void _showUnitDialog({Unit? unit}) {
+    if (!_isAdmin) {
+      _showSnackbar('Acesso negado. Contate o administrador.', isError: true);
+      return;
+    }
+
     final isEditing = unit != null;
     final nameController = TextEditingController(text: unit?.name);
     final startIpController = TextEditingController(text: unit?.ipRangeStart);
@@ -51,20 +64,51 @@ class _UnitsTabState extends State<UnitsTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isEditing ? 'Editar Unidade' : 'Adicionar Unidade'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(isEditing ? Icons.edit : Icons.add, color: Colors.blue),
+            const SizedBox(width: 8),
+            Text(isEditing ? 'Editar Unidade' : 'Adicionar Unidade'),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Nome da Unidade')),
-            const SizedBox(height: 10),
-            TextField(controller: startIpController, decoration: const InputDecoration(labelText: 'IP Inicial (ex: 192.168.1.1)')),
-            const SizedBox(height: 10),
-            TextField(controller: endIpController, decoration: const InputDecoration(labelText: 'IP Final (ex: 192.168.1.254)')),
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                labelText: 'Nome da Unidade',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                prefixIcon: const Icon(Icons.home),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: startIpController,
+              decoration: InputDecoration(
+                labelText: 'IP Inicial (ex: 192.168.1.1)',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                prefixIcon: const Icon(Icons.start),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: endIpController,
+              decoration: InputDecoration(
+                labelText: 'IP Final (ex: 192.168.1.254)',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                prefixIcon: const Icon(Icons.stop),
+              ),
+            ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
           TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
             onPressed: () async {
               final name = nameController.text.trim();
               final startIp = startIpController.text.trim();
@@ -75,63 +119,42 @@ class _UnitsTabState extends State<UnitsTab> {
                 return;
               }
               if (!isValidIp(startIp) || !isValidIp(endIp)) {
-                _showSnackbar('Um ou mais endereços IP são inválidos.', isError: true);
+                _showSnackbar('IPs inválidos.', isError: true);
                 return;
               }
 
               try {
                 final newUnit = Unit(name: name, ipRangeStart: startIp, ipRangeEnd: endIp);
-                String message;
                 if (isEditing) {
-                  message = await _deviceService.updateUnit(widget.token, unit.name, newUnit);
+                  await _deviceService.updateUnit(widget.token, unit.name, newUnit);
+                  _showSnackbar('Unidade atualizada!');
                 } else {
-                  message = await _deviceService.createUnit(widget.token, newUnit);
+                  await _deviceService.createUnit(widget.token, newUnit);
+                  _showSnackbar('Unidade criada!');
                 }
-                
-                if (!mounted) return;
                 Navigator.of(context).pop();
-                _showSnackbar(message);
                 widget.onDataUpdate();
-
               } catch (e) {
-                _showSnackbar('Erro ao salvar unidade: $e', isError: true);
+                _showSnackbar('Erro ao salvar: $e', isError: true);
               }
             },
-            child: const Text('Salvar'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Salvar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
   }
 
-  void _deleteUnit(Unit unit) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar Exclusão'),
-        content: Text('Tem certeza que deseja excluir a unidade "${unit.name}"?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
-          TextButton(
-            onPressed: () async {
-              try {
-                final message = await _deviceService.deleteUnit(widget.token, unit.name);
-                if (!mounted) return;
-                Navigator.of(context).pop();
-                _showSnackbar(message);
-                widget.onDataUpdate();
-              } catch (e) {
-                _showSnackbar('Erro ao excluir unidade: $e', isError: true);
-              }
-            },
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-  
   void _showBssidMappingDialog({BssidMapping? mapping}) {
+    if (!_isAdmin) {
+      _showSnackbar('Acesso negado. Contate o administrador.', isError: true);
+      return;
+    }
+
     final isEditing = mapping != null;
     final macController = TextEditingController(text: mapping?.macAddressRadio);
     final sectorController = TextEditingController(text: mapping?.sector);
@@ -140,54 +163,127 @@ class _UnitsTabState extends State<UnitsTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isEditing ? 'Editar Mapeamento' : 'Adicionar Mapeamento'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(isEditing ? Icons.edit_location : Icons.add_location_alt, color: Colors.blue),
+            const SizedBox(width: 8),
+            Text(isEditing ? 'Editar Mapeamento' : 'Adicionar Mapeamento'),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: macController, decoration: const InputDecoration(labelText: 'BSSID (MAC do Rádio)')),
-            const SizedBox(height: 10),
-            TextField(controller: sectorController, decoration: const InputDecoration(labelText: 'Setor')),
-            const SizedBox(height: 10),
-            TextField(controller: floorController, decoration: const InputDecoration(labelText: 'Andar')),
+            TextField(
+              controller: macController,
+              decoration: InputDecoration(
+                labelText: 'BSSID (MAC)',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                prefixIcon: const Icon(Icons.wifi),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: sectorController,
+              decoration: InputDecoration(
+                labelText: 'Setor',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                prefixIcon: const Icon(Icons.business),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: floorController,
+              decoration: InputDecoration(
+                labelText: 'Andar',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                prefixIcon: const Icon(Icons.layers),
+              ),
+            ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
           TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
             onPressed: () async {
-              final mac = macController.text.trim();
+              final mac = macController.text.trim().toUpperCase().replaceAll('-', ':');
               final sector = sectorController.text.trim();
               final floor = floorController.text.trim();
-              final macRegex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
 
               if (mac.isEmpty || sector.isEmpty || floor.isEmpty) {
                 _showSnackbar('Todos os campos são obrigatórios.', isError: true);
                 return;
               }
-              if (!macRegex.hasMatch(mac)) {
-                _showSnackbar('O formato do BSSID é inválido.', isError: true);
+              if (!RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$').hasMatch(mac)) {
+                _showSnackbar('MAC inválido.', isError: true);
                 return;
               }
 
               try {
                 final newMapping = BssidMapping(macAddressRadio: mac, sector: sector, floor: floor);
-                String message;
                 if (isEditing) {
-                  message = await _deviceService.updateBssidMapping(widget.token, mapping.macAddressRadio, newMapping);
+                  await _deviceService.updateBssidMapping(widget.token, mapping.macAddressRadio, newMapping);
+                  _showSnackbar('Mapeamento atualizado!');
                 } else {
-                  message = await _deviceService.createBssidMapping(widget.token, newMapping);
+                  await _deviceService.createBssidMapping(widget.token, newMapping);
+                  _showSnackbar('Mapeamento criado!');
                 }
-                
-                if (!mounted) return;
                 Navigator.of(context).pop();
-                _showSnackbar(message);
                 widget.onDataUpdate();
-
               } catch (e) {
-                _showSnackbar('Erro ao salvar mapeamento: $e', isError: true);
+                _showSnackbar('Erro ao salvar: $e', isError: true);
               }
             },
-            child: const Text('Salvar'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Salvar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteUnit(Unit unit) {
+    if (!_isAdmin) {
+      _showSnackbar('Acesso negado. Contate o administrador.', isError: true);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.red),
+            const SizedBox(width: 8),
+            const Text('Confirmar Exclusão'),
+          ],
+        ),
+        content: Text('Excluir unidade "${unit.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await _deviceService.deleteUnit(widget.token, unit.name);
+                _showSnackbar('Unidade excluída!');
+                Navigator.of(context).pop();
+                widget.onDataUpdate();
+              } catch (e) {
+                _showSnackbar('Erro ao excluir: $e', isError: true);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Excluir', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -195,26 +291,41 @@ class _UnitsTabState extends State<UnitsTab> {
   }
 
   void _deleteBssidMapping(BssidMapping mapping) {
+    if (!_isAdmin) {
+      _showSnackbar('Acesso negado. Contate o administrador.', isError: true);
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar Exclusão'),
-        content: Text('Tem certeza que deseja excluir o mapeamento para "${mapping.macAddressRadio}"?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.red),
+            const SizedBox(width: 8),
+            const Text('Confirmar Exclusão'),
+          ],
+        ),
+        content: Text('Excluir mapeamento para "${mapping.macAddressRadio}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
           TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
             onPressed: () async {
               try {
-                final message = await _deviceService.deleteBssidMapping(widget.token, mapping.macAddressRadio);
-                if (!mounted) return;
+                await _deviceService.deleteBssidMapping(widget.token, mapping.macAddressRadio);
+                _showSnackbar('Mapeamento excluído!');
                 Navigator.of(context).pop();
-                _showSnackbar(message);
                 widget.onDataUpdate();
               } catch (e) {
-                _showSnackbar('Erro ao excluir mapeamento: $e', isError: true);
+                _showSnackbar('Erro ao excluir: $e', isError: true);
               }
             },
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Excluir', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -222,188 +333,348 @@ class _UnitsTabState extends State<UnitsTab> {
   }
 
   Future<void> _importData() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['json', 'xlsx']);
-    if (result == null || result.files.single.path == null) return;
+    if (!_isAdmin) {
+      _showSnackbar('Acesso negado. Contate o administrador.', isError: true);
+      return;
+    }
 
-    final file = File(result.files.single.path!);
-    final extension = result.files.single.extension?.toLowerCase();
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['xlsx'],
+    );
+    if (result == null) return;
 
     try {
-      if (extension == 'json') {
-        await _importFromJson(file);
-      } else if (extension == 'xlsx') await _importFromExcel(file);
-      else throw Exception('Formato de arquivo não suportado.');
-      
-      _showSnackbar('Dados importados com sucesso! Atualizando...');
-    } catch (e) {
-      _showSnackbar('Erro ao importar arquivo: $e', isError: true);
-    } finally {
+      final bytes = result.files.single.bytes!;
+      final excel = xls.Excel.decodeBytes(bytes);
+
+      int importedUnits = 0;
+      int importedBssids = 0;
+
+      // Processa aba "Units"
+      var unitsSheet = excel.tables['Units'];
+      if (unitsSheet != null) {
+        for (int row = 1; row < unitsSheet.maxRows; row++) {
+          final name = unitsSheet.cell(xls.CellIndex.indexByString('A$row')).value?.toString().trim();
+          final startIp = unitsSheet.cell(xls.CellIndex.indexByString('B$row')).value?.toString().trim();
+          final endIp = unitsSheet.cell(xls.CellIndex.indexByString('C$row')).value?.toString().trim();
+
+          if (name == null || startIp == null || endIp == null || name.isEmpty) continue;
+
+          if (!isValidIp(startIp) || !isValidIp(endIp)) {
+            _showSnackbar('IP inválido na linha $row (Units). Pulando.', isError: true);
+            continue;
+          }
+
+          try {
+            final newUnit = Unit(name: name, ipRangeStart: startIp, ipRangeEnd: endIp);
+            await _deviceService.createUnit(widget.token, newUnit);
+            importedUnits++;
+          } catch (e) {
+            _showSnackbar('Erro ao importar unidade "$name": $e', isError: true);
+          }
+        }
+      }
+
+      // Processa aba "BSSID_Mappings"
+      var bssidSheet = excel.tables['BSSID_Mappings'];
+      if (bssidSheet != null) {
+        for (int row = 1; row < bssidSheet.maxRows; row++) {
+          final mac = bssidSheet.cell(xls.CellIndex.indexByString('A$row')).value?.toString().trim().toUpperCase().replaceAll('-', ':');
+          final sector = bssidSheet.cell(xls.CellIndex.indexByString('B$row')).value?.toString().trim();
+          final floor = bssidSheet.cell(xls.CellIndex.indexByString('C$row')).value?.toString().trim();
+
+          if (mac == null || sector == null || floor == null || mac.isEmpty || !RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$').hasMatch(mac)) continue;
+
+          try {
+            final newMapping = BssidMapping(macAddressRadio: mac, sector: sector, floor: floor);
+            await _deviceService.createBssidMapping(widget.token, newMapping);
+            importedBssids++;
+          } catch (e) {
+            _showSnackbar('Erro ao importar BSSID "$mac": $e', isError: true);
+          }
+        }
+      }
+
       widget.onDataUpdate();
+      _showSnackbar('Importação concluída! $importedUnits unidades e $importedBssids mapeamentos adicionados.');
+    } catch (e) {
+      _showSnackbar('Erro na importação: $e', isError: true);
     }
   }
 
-  Future<void> _importFromJson(File file) async {
-    final data = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-    if (data['unidades'] is List) {
-      for (final item in data['unidades']) {
-        final unit = Unit.fromJson(item);
-        await _deviceService.createUnit(widget.token, unit)
-          .catchError((_) => _deviceService.updateUnit(widget.token, unit.name, unit));
-      }
-    }
-    if (data['mapeamentos_bssid'] is List) {
-      for (final item in data['mapeamentos_bssid']) {
-        final mapping = BssidMapping.fromJson(item);
-        await _deviceService.createBssidMapping(widget.token, mapping)
-          .catchError((_) => _deviceService.updateBssidMapping(widget.token, mapping.macAddressRadio, mapping));
-      }
-    }
-  }
-
-  Future<void> _importFromExcel(File file) async {
-    final excel = xls.Excel.decodeBytes(await file.readAsBytes());
-
-    final xls.Sheet? unitSheet = excel.tables['Unidades'];
-    if (unitSheet != null) {
-      for (var i = 1; i < unitSheet.rows.length; i++) {
-        final row = unitSheet.rows[i];
-        if (row.length >= 3 && row[0] != null && row[1] != null && row[2] != null) {
-          final unit = Unit(name: row[0]!.value.toString(), ipRangeStart: row[1]!.value.toString(), ipRangeEnd: row[2]!.value.toString());
-          if (unit.name.isNotEmpty) {
-            await _deviceService.createUnit(widget.token, unit)
-              .catchError((_) => _deviceService.updateUnit(widget.token, unit.name, unit));
-          }
-        }
-      }
-    }
-
-    final xls.Sheet? bssidSheet = excel.tables['Mapeamentos BSSID'];
-    if (bssidSheet != null) {
-      for (var i = 1; i < bssidSheet.rows.length; i++) {
-        final row = bssidSheet.rows[i];
-        if (row.length >= 3 && row[0] != null && row[1] != null && row[2] != null) {
-          final mapping = BssidMapping(
-            macAddressRadio: row[0]!.value.toString(),
-            sector: row[1]!.value.toString(),
-            floor: row[2]!.value.toString(),
-          );
-          if (mapping.macAddressRadio.isNotEmpty) {
-            await _deviceService.createBssidMapping(widget.token, mapping)
-              .catchError((_) => _deviceService.updateBssidMapping(widget.token, mapping.macAddressRadio, mapping));
-          }
-        }
-      }
-    }
-  }
-  
-  void _showExportDialog() {
-    showDialog(
+  Future<void> _showExportDialog() async {
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Exportar Dados de Localização'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.download, color: Colors.green),
+            const SizedBox(width: 8),
+            const Text('Exportar Dados'),
+          ],
+        ),
+        content: const Text('Exportar unidades e mapeamentos para Excel?'),
         actions: [
-          TextButton(onPressed: () { Navigator.of(context).pop(); _exportDataAsJson(); }, child: const Text('JSON')),
-          TextButton(onPressed: () { Navigator.of(context).pop(); _exportDataAsExcel(); }, child: const Text('Excel')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('Exportar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    try {
+      final excel = xls.Excel.createExcel();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+
+      // Aba Units
+      var unitsSheet = excel['Units'];
+      unitsSheet.appendRow(['Nome da Unidade', 'IP Inicial', 'IP Final']);
+      for (var unit in widget.units) {
+        unitsSheet.appendRow([unit.name, unit.ipRangeStart, unit.ipRangeEnd]);
+      }
+
+      // Aba BSSID_Mappings
+      var bssidSheet = excel['BSSID_Mappings'];
+      bssidSheet.appendRow(['BSSID (MAC)', 'Setor', 'Andar']);
+      for (var mapping in widget.bssidMappings) {
+        bssidSheet.appendRow([mapping.macAddressRadio, mapping.sector, mapping.floor]);
+      }
+
+      final encodedBytes = excel.encode()!;
+      final bytes = Uint8List.fromList(encodedBytes);
+      final fileName = 'mapeamentos_$timestamp.xlsx';
+
+      if (kIsWeb) {
+        final result = await FileSaver.instance.saveFile(
+          name: fileName,
+          bytes: bytes,
+          fileExtension: 'xlsx',
+          mimeType: MimeType.microsoftExcel,
+        );
+        // ignore: unnecessary_null_comparison
+        if (result != null) {
+          _showSnackbar('Exportação concluída! Baixado: $fileName');
+        } else {
+          _showSnackbar('Falha no download.', isError: true);
+        }
+      } else {
+        final directory = await getApplicationDocumentsDirectory();
+        final path = '${directory.path}/$fileName';
+        final file = File(path);
+        await file.writeAsBytes(bytes);
+        _showSnackbar('Exportação salva em: $path');
+      }
+    } catch (e) {
+      _showSnackbar('Erro na exportação: $e', isError: true);
+    }
+  }
+
+  Widget _buildActionButtons() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: [
+          ElevatedButton.icon(
+            onPressed: _isAdmin ? () => _showUnitDialog() : null,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text('Adicionar Unidade'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _isAdmin ? Colors.blue : Colors.grey,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: _isAdmin ? () => _showBssidMappingDialog() : null,
+            icon: const Icon(Icons.add_location_alt, color: Colors.white),
+            label: const Text('Adicionar Mapeamento'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _isAdmin ? Colors.blue : Colors.grey,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: _isAdmin ? _importData : null,
+            icon: const Icon(Icons.upload_file, color: Colors.white),
+            label: const Text('Importar Dados'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _isAdmin ? Colors.orange : Colors.grey,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: _showExportDialog,
+            icon: const Icon(Icons.download, color: Colors.white),
+            label: const Text('Exportar Dados'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Future<void> _exportDataAsJson() async {
-    final Map<String, dynamic> exportData = {
-      'unidades': widget.units.map((u) => u.toJson()).toList(),
-      'mapeamentos_bssid': widget.bssidMappings.map((m) => m.toJson()).toList(),
-    };
-    await _saveFile(JsonEncoder.withIndent('  ').convert(exportData), 'dados_localizacao', 'json');
+  Widget _buildUnitsList() {
+    if (widget.units.isEmpty) {
+      return Card(
+        child: ListTile(
+          leading: const Icon(Icons.info_outline, color: Colors.grey),
+          title: const Text('Nenhuma unidade cadastrada'),
+          subtitle: const Text('Adicione uma unidade para começar.'),
+        ),
+      );
+    }
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.home, color: Colors.blue),
+            title: const Text('Unidades (Faixas de IP)', style: TextStyle(fontWeight: FontWeight.bold)),
+            trailing: Text('${widget.units.length} itens'),
+          ),
+          ...widget.units.map((unit) => ListTile(
+                leading: const Icon(Icons.router, color: Colors.grey),
+                title: Text(unit.name),
+                subtitle: Text('${unit.ipRangeStart} - ${unit.ipRangeEnd}'),
+                trailing: _isAdmin
+                    ? PopupMenuButton<IconData>(
+                        icon: const Icon(Icons.more_vert),
+                        onSelected: (value) {
+                          if (value == Icons.edit) {
+                            _showUnitDialog(unit: unit);
+                          } else if (value == Icons.delete) {
+                            _deleteUnit(unit);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(value: Icons.edit, child: Row(children: [Icon(Icons.edit, color: Colors.blue), SizedBox(width: 8), Text('Editar')])),
+                          const PopupMenuItem(value: Icons.delete, child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text('Excluir')])),
+                        ],
+                      )
+                    : null,
+              )),
+        ],
+      ),
+    );
   }
 
-  Future<void> _exportDataAsExcel() async {
-    final excel = xls.Excel.createExcel();
-    final unitSheet = excel['Unidades'];
-    unitSheet.appendRow(['Nome da Unidade', 'IP Inicial', 'IP Final']);
-    for (final unit in widget.units) {
-      unitSheet.appendRow([unit.name, unit.ipRangeStart, unit.ipRangeEnd]);
+  Widget _buildBssidList() {
+    if (widget.bssidMappings.isEmpty) {
+      return Card(
+        child: ListTile(
+          leading: const Icon(Icons.location_off, color: Colors.grey),
+          title: const Text('Nenhum mapeamento cadastrado'),
+          subtitle: const Text('Adicione um mapeamento para começar.'),
+        ),
+      );
     }
-    
-    final bssidSheet = excel['Mapeamentos BSSID'];
-    bssidSheet.appendRow(['BSSID', 'Setor', 'Andar']);
-    for (final m in widget.bssidMappings) {
-      bssidSheet.appendRow([m.macAddressRadio, m.sector, m.floor]);
-    }
-    
-    excel.delete('Sheet1');
-    final fileBytes = excel.save();
-    if (fileBytes != null) await _saveFile(fileBytes, 'dados_localizacao', 'xlsx');
-  }
 
-  Future<void> _saveFile(dynamic content, String fileName, String extension) async {
-    try {
-        final directory = await getApplicationDocumentsDirectory();
-        final path = '${directory.path}${Platform.pathSeparator}${fileName}_${DateTime.now().millisecondsSinceEpoch}.$extension';
-        final file = File(path);
-        if (content is String) {
-          await file.writeAsString(content);
-        } else if (content is List<int>) await file.writeAsBytes(content);
-        _showSnackbar('Arquivo salvo em: $path');
-    } catch (e) {
-        _showSnackbar('Erro ao salvar o arquivo: $e', isError: true);
-    }
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.map, color: Colors.blue),
+            title: const Text('Mapeamentos de BSSID (Setor/Andar)', style: TextStyle(fontWeight: FontWeight.bold)),
+            trailing: Text('${widget.bssidMappings.length} itens'),
+          ),
+          ...widget.bssidMappings.map((mapping) => ListTile(
+                leading: const Icon(Icons.wifi, color: Colors.grey),
+                title: Text(mapping.macAddressRadio),
+                subtitle: Text('${mapping.sector} - ${mapping.floor}'),
+                trailing: _isAdmin
+                    ? PopupMenuButton<IconData>(
+                        icon: const Icon(Icons.more_vert),
+                        onSelected: (value) {
+                          if (value == Icons.edit) {
+                            _showBssidMappingDialog(mapping: mapping);
+                          } else if (value == Icons.delete) {
+                            _deleteBssidMapping(mapping);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(value: Icons.edit, child: Row(children: [Icon(Icons.edit, color: Colors.blue), SizedBox(width: 8), Text('Editar')])),
+                          const PopupMenuItem(value: Icons.delete, child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text('Excluir')])),
+                        ],
+                      )
+                    : null,
+              )),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.2), spreadRadius: 1, blurRadius: 6)],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.purple.shade50, Colors.blue.shade50],
+        ),
       ),
-      child: ListView(
-        children: [
-          Text('Gerenciamento de Unidades e Localização', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800])),
-          const SizedBox(height: 20),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ElevatedButton.icon(onPressed: () => _showUnitDialog(), icon: const Icon(Icons.add), label: const Text('Adicionar Unidade')),
-              ElevatedButton.icon(onPressed: () => _showBssidMappingDialog(), icon: const Icon(Icons.add_location_alt), label: const Text('Adicionar Mapeamento')),
-              ElevatedButton.icon(onPressed: _importData, icon: const Icon(Icons.upload_file), label: const Text('Importar Dados'), style: ElevatedButton.styleFrom(backgroundColor: Colors.orange)),
-              ElevatedButton.icon(onPressed: _showExportDialog, icon: const Icon(Icons.download), label: const Text('Exportar Dados'), style: ElevatedButton.styleFrom(backgroundColor: Colors.green)),
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.settings, color: Colors.blue, size: 28),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Gerenciamento de Unidades e Localização',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildActionButtons(),
+              const SizedBox(height: 16),
+              _buildUnitsList(),
+              const SizedBox(height: 16),
+              _buildBssidList(),
             ],
           ),
-          const SizedBox(height: 30),
-          Text('Unidades (Faixas de IP)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          const Divider(),
-          DataTable(
-            columns: const [
-              DataColumn(label: Text('Nome')), DataColumn(label: Text('IP Inicial')), DataColumn(label: Text('IP Final')), DataColumn(label: Text('Ações')),
-            ],
-            rows: widget.units.map((unit) => DataRow(cells: [
-              DataCell(Text(unit.name)), DataCell(Text(unit.ipRangeStart)), DataCell(Text(unit.ipRangeEnd)),
-              DataCell(Row(children: [
-                IconButton(icon: const Icon(Icons.edit, size: 20, color: Colors.blue), onPressed: () => _showUnitDialog(unit: unit)),
-                IconButton(icon: const Icon(Icons.delete, size: 20, color: Colors.red), onPressed: () => _deleteUnit(unit)),
-              ])),
-            ])).toList(),
-          ),
-          const SizedBox(height: 30),
-          Text('Mapeamentos de BSSID (Setor/Andar)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          const Divider(),
-          DataTable(
-            columns: const [
-              DataColumn(label: Text('BSSID')), DataColumn(label: Text('Setor')), DataColumn(label: Text('Andar')), DataColumn(label: Text('Ações')),
-            ],
-            rows: widget.bssidMappings.map((mapping) => DataRow(cells: [
-              DataCell(Text(mapping.macAddressRadio)), DataCell(Text(mapping.sector)), DataCell(Text(mapping.floor)),
-              DataCell(Row(children: [
-                IconButton(icon: const Icon(Icons.edit, size: 20, color: Colors.blue), onPressed: () => _showBssidMappingDialog(mapping: mapping)),
-                IconButton(icon: const Icon(Icons.delete, size: 20, color: Colors.red), onPressed: () => _deleteBssidMapping(mapping)),
-              ])),
-            ])).toList(),
-          ),
-        ],
+        ),
       ),
     );
   }

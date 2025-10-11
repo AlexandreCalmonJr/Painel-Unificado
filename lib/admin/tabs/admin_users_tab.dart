@@ -1,3 +1,4 @@
+// File: lib/admin/tabs/admin_users_tab.dart
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -40,24 +41,33 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          title: const Text('Criar Novo Utilizador'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.add, color: Colors.green),
+              const SizedBox(width: 8),
+              const Text('Criar Novo Utilizador'),
+            ],
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: usernameController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Nome de utilizador',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.person),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: emailController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Email',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.email),
                   ),
                   keyboardType: TextInputType.emailAddress,
                 ),
@@ -65,17 +75,19 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 TextField(
                   controller: passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Palavra-passe',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.lock),
                   ),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: selectedRole,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Função',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.badge),
                   ),
                   items: const [
                     DropdownMenuItem(value: 'user', child: Text('Utilizador')),
@@ -96,9 +108,10 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 if (selectedRole == 'user') ...[
                   TextField(
                     controller: sectorController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Setor',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      prefixIcon: const Icon(Icons.business),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -145,9 +158,7 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                     passwordController.text.isEmpty || 
                     emailController.text.isEmpty ||
                     (selectedRole == 'user' && sectorController.text.isEmpty)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Preencha todos os campos obrigatórios')),
-                  );
+                  _showSnackbar('Preencha todos os campos obrigatórios', isError: true);
                   return;
                 }
 
@@ -163,16 +174,16 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 if (result['success']) {
                   Navigator.pop(context);
                   _loadUsers();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Utilizador criado com sucesso')),
-                  );
+                  _showSnackbar('Utilizador criado com sucesso!');
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(result['message'] ?? 'Erro ao criar utilizador')),
-                  );
+                  _showSnackbar(result['message'] ?? 'Erro ao criar utilizador', isError: true);
                 }
               },
-              child: const Text('Criar'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Criar', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -191,24 +202,33 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          title: const Text('Editar Utilizador'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.edit, color: Colors.blue),
+              const SizedBox(width: 8),
+              const Text('Editar Utilizador'),
+            ],
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: usernameController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Nome de utilizador',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.person),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: emailController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Email',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.email),
                   ),
                   keyboardType: TextInputType.emailAddress,
                 ),
@@ -216,9 +236,10 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 if (selectedRole == 'user') ...[
                   TextField(
                     controller: sectorController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Setor',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      prefixIcon: const Icon(Icons.business),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -254,9 +275,10 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: selectedRole,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Função',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.badge),
                   ),
                   items: const [
                     DropdownMenuItem(value: 'user', child: Text('Utilizador')),
@@ -286,9 +308,7 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 if (usernameController.text.isEmpty || 
                     emailController.text.isEmpty ||
                     (selectedRole == 'user' && sectorController.text.isEmpty)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Preencha todos os campos obrigatórios')),
-                  );
+                  _showSnackbar('Preencha todos os campos obrigatórios', isError: true);
                   return;
                 }
 
@@ -306,16 +326,16 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 if (result['success']) {
                   Navigator.pop(context);
                   _loadUsers();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Utilizador atualizado com sucesso')),
-                  );
+                  _showSnackbar('Utilizador atualizado com sucesso!');
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(result['message'] ?? 'Erro ao atualizar utilizador')),
-                  );
+                  _showSnackbar(result['message'] ?? 'Erro ao atualizar utilizador', isError: true);
                 }
               },
-              child: const Text('Atualizar'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Atualizar', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -327,7 +347,14 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar Eliminação'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.red),
+            const SizedBox(width: 8),
+            const Text('Confirmar Eliminação'),
+          ],
+        ),
         content: Text('Tem a certeza que deseja eliminar o utilizador "${user['username']}"?'),
         actions: [
           TextButton(
@@ -341,127 +368,187 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
               Navigator.pop(context);
               if (result['success']) {
                 _loadUsers();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Utilizador eliminado com sucesso')),
-                );
+                _showSnackbar('Utilizador eliminado com sucesso!');
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(result['message'] ?? 'Erro ao eliminar utilizador')),
-                );
+                _showSnackbar(result['message'] ?? 'Erro ao eliminar utilizador', isError: true);
               }
             },
-            child: const Text('Eliminar'),
+            child: const Text('Eliminar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
   }
 
+  void _showSnackbar(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _usersFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(snapshot.error.toString()),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadUsers,
-                    child: const Text('Tentar Novamente'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final result = snapshot.data ?? {};
-          final users = result['users'] as List<dynamic>? ?? [];
-          
-          if (users.isEmpty) {
-            return const Center(child: Text('Nenhum utilizador encontrado.'));
-          }
-
-          return ListView.builder(
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              final user = users[index] as Map<String, dynamic>;
-              final isCurrentUser = user['_id'] == widget.authService.currentUser?['_id'];
-              final permissions = user['role'] == 'admin' 
-                  ? 'Todos os módulos (Admin)' 
-                  : (user['permissions'] as List<dynamic>?)?.join(', ') ?? 'Nenhum módulo';
-              
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: user['role'] == 'admin' ? Colors.purple : Colors.blue,
-                    child: Icon(
-                      user['role'] == 'admin' ? Icons.admin_panel_settings : Icons.person,
-                      color: Colors.white,
-                    ),
-                  ),
-                  title: Text(
-                    user['username'],
-                    style: TextStyle(
-                      fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user['role'] == 'admin' ? 'Administrador' : 'Utilizador',
-                      ),
-                      Text(
-                        'Setor: ${user['sector']}',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      Text(
-                        'Permissões: $permissions',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (!isCurrentUser)
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () => _showEditUserDialog(user),
-                        ),
-                      if (!isCurrentUser)
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _confirmDeleteUser(user),
-                        ),
-                      if (isCurrentUser)
-                        const Chip(
-                          label: Text('Você', style: TextStyle(fontSize: 12)),
-                          backgroundColor: Colors.green,
-                          labelStyle: TextStyle(color: Colors.white),
-                        ),
-                    ],
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(Icons.people, color: Colors.blue, size: 28),
+                const SizedBox(width: 8),
+                const Text(
+                  'Gerenciamento de Utilizadores',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey),
                 ),
+                const Spacer(),
+                FloatingActionButton(
+                  onPressed: _showCreateUserDialog,
+                  tooltip: 'Criar Novo Utilizador',
+                  mini: true,
+                  backgroundColor: Colors.green,
+                  child: const Icon(Icons.add, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Expanded(
+          child: FutureBuilder<Map<String, dynamic>>(
+            future: _usersFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator(color: Colors.blue));
+              }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.error_outline, color: Colors.red, size: 48),
+                          const SizedBox(height: 16),
+                          Text(snapshot.error.toString()),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _loadUsers,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Tentar Novamente'),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              final result = snapshot.data ?? {};
+              final users = result['users'] as List<dynamic>? ?? [];
+              
+              if (users.isEmpty) {
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.info_outline, color: Colors.grey),
+                    title: const Text('Nenhum utilizador encontrado.'),
+                    subtitle: const Text('Crie um novo utilizador para começar.'),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  final user = users[index] as Map<String, dynamic>;
+                  final isCurrentUser = user['_id'] == widget.authService.currentUser?['_id'];
+                  final permissions = user['role'] == 'admin' 
+                      ? 'Todos os módulos (Admin)' 
+                      : (user['permissions'] as List<dynamic>?)?.join(', ') ?? 'Nenhum módulo';
+                  
+                  return Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: user['role'] == 'admin' ? Colors.purple : Colors.blue,
+                        child: Icon(
+                          user['role'] == 'admin' ? Icons.admin_panel_settings : Icons.person,
+                          color: Colors.white,
+                        ),
+                      ),
+                      title: Text(
+                        user['username'],
+                        style: TextStyle(
+                          fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.w600,
+                          color: isCurrentUser ? Colors.green : Colors.grey[800],
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user['role'] == 'admin' ? 'Administrador' : 'Utilizador',
+                            style: TextStyle(
+                              color: user['role'] == 'admin' ? Colors.purple : Colors.blue,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            'Setor: ${user['sector']}',
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          ),
+                          Text(
+                            'Permissões: $permissions',
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          ),
+                        ],
+                      ),
+                      trailing: isCurrentUser
+                          ? const Chip(
+                              label: Text('Você', style: TextStyle(fontSize: 12)),
+                              backgroundColor: Colors.green,
+                              labelStyle: TextStyle(color: Colors.white),
+                            )
+                          : PopupMenuButton<String>(
+                              icon: const Icon(Icons.more_vert, color: Colors.grey),
+                              onSelected: (value) {
+                                if (value == 'edit') {
+                                  _showEditUserDialog(user);
+                                } else if (value == 'delete') {
+                                  _confirmDeleteUser(user);
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: Row(children: [Icon(Icons.edit, color: Colors.blue), SizedBox(width: 8), Text('Editar')]),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text('Excluir')]),
+                                ),
+                              ],
+                            ),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showCreateUserDialog,
-        tooltip: 'Criar Novo Utilizador',
-        child: const Icon(Icons.add),
-      ),
+          ),
+        ),
+      ],
     );
   }
 }
