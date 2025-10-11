@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:painel_windowns/models/ip_mapping.dart';
 import 'package:painel_windowns/models/totem.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
@@ -102,6 +103,107 @@ class MonitoringService {
       }
     } catch (e) {
       throw Exception('Erro ao enviar dados do totem: ${e.toString()}');
+    }
+  }
+
+  /// Busca a lista de mapeamentos de IP/localização
+  Future<List<IpMapping>> getMappings() async {
+    try {
+      final token = authService.currentToken;
+      if (token == null || token.isEmpty) {
+        throw Exception('Token de autenticação não encontrado.');
+      }
+
+      final config = ServerConfigService.instance.loadConfig();
+      final baseUrl = 'http://${config['ip']}:${config['port']}';
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/monitoring/ip-mappings'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      ).timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        return jsonList.map((json) => IpMapping.fromJson(json)).toList();
+      } else if (response.statusCode == 401) {
+        await authService.logout();
+        throw Exception('Sessão expirada. Por favor, faça o login novamente.');
+      } else {
+        throw Exception('Falha ao carregar mapeamentos: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (e is Exception) {
+        rethrow;
+      }
+      throw Exception('Erro ao carregar mapeamentos: ${e.toString()}');
+    }
+  }
+
+  /// Cria um novo mapeamento de localização
+  Future<void> createIpMapping(String location, String ipStart, String ipEnd) async {
+    try {
+      final token = authService.currentToken;
+      if (token == null || token.isEmpty) {
+        throw Exception('Token de autenticação não encontrado.');
+      }
+      
+      final config = ServerConfigService.instance.loadConfig();
+      final baseUrl = 'http://${config['ip']}:${config['port']}';
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/monitoring/ip-mappings'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+        body: json.encode({
+          'location': location,
+          'ipStart': ipStart,
+          'ipEnd': ipEnd,
+        }),
+      ).timeout(const Duration(seconds: 30));
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception('Erro ao criar mapeamento: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (e is Exception) {
+        rethrow;
+      }
+      throw Exception('Erro ao criar mapeamento: ${e.toString()}');
+    }
+  }
+
+  /// Apaga um mapeamento de localização
+  Future<void> deleteIpMapping(String id) async {
+    try {
+      final token = authService.currentToken;
+      if (token == null || token.isEmpty) {
+        throw Exception('Token de autenticação não encontrado.');
+      }
+
+      final config = ServerConfigService.instance.loadConfig();
+      final baseUrl = 'http://${config['ip']}:${config['port']}';
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/monitoring/ip-mappings/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      ).timeout(const Duration(seconds: 30));
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Erro ao deletar mapeamento: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (e is Exception) {
+        rethrow;
+      }
+      throw Exception('Erro ao deletar mapeamento: ${e.toString()}');
     }
   }
 }

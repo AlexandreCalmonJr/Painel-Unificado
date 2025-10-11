@@ -1,9 +1,7 @@
-import 'dart:convert';
 
-import 'package:painel_windowns/models/device.dart';
 
 // Ficheiro: lib/models/totem.dart
-// DESCRIÇÃO: Modelo de dados unificado para os totens, baseado na sua especificação.
+// DESCRIÇÃO: Modelo de dados unificado e exclusivo para os totens.
 
 class Totem {
   final String id;
@@ -12,7 +10,7 @@ class Totem {
   final String model;
   final String serviceTag;
   final String ip;
-  final String? unit;
+  final String location;
   final List<String> installedPrograms;
   final String printerStatus;
   final DateTime lastSeen;
@@ -32,7 +30,7 @@ class Totem {
     required this.model,
     required this.serviceTag,
     required this.ip,
-    required this.unit,
+    required this.location,
     required this.installedPrograms,
     required this.printerStatus,
     required this.lastSeen,
@@ -57,7 +55,7 @@ class Totem {
       model: json['model'] ?? 'N/A',
       serviceTag: json['serviceTag'] ?? 'N/A',
       ip: json['ip'] ?? 'N/A',
-      unit: json['unit'] ?? 'Desconhecida',
+      location: json['location'] ?? 'Desconhecida',
       installedPrograms: List<String>.from(json['installedPrograms'] ?? []),
       printerStatus: json['printerStatus'] ?? 'N/A',
       lastSeen: parsedDate.toLocal(),
@@ -99,9 +97,5 @@ class Totem {
     }
     return 'N/A';
   }
-
-  static fromDevice(Device device) {}
 }
 
-List<Totem> totemFromJson(String str) =>
-    List<Totem>.from(json.decode(str).map((x) => Totem.fromJson(x)));

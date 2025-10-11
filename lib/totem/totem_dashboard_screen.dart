@@ -130,7 +130,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         return (totem.hostname.toLowerCase().contains(query)) ||
             (totem.serialNumber.toLowerCase().contains(query)) ||
             (totem.ip.toLowerCase().contains(query)) ||
-            (totem.unit?.toLowerCase().contains(query) ?? false);
+            (totem.location.toLowerCase().contains(query));
       }).toList();
     }
 
@@ -181,7 +181,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         _showRealTimeAlert(
           title: 'Mudança de Status: ${newTotem.hostname}',
           description: Text(
-              'O totem em "${newTotem.unit}" ficou ${newStatus == 'online' ? 'Online' : 'Offline'}.'),
+              'O totem em "${newTotem.location}" ficou ${newStatus == 'online' ? 'Online' : 'Offline'}.'),
           icon: newStatus == 'online' ? Icons.wifi : Icons.wifi_off,
           color: newStatus == 'online' ? Colors.blueAccent : Colors.orange,
         );

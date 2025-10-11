@@ -121,7 +121,7 @@ class TotemDetailScreen extends StatelessWidget {
   }
 
   Widget _buildQuickStats() {
-    final lastSeenFormatted = DateFormat('dd/MM/yyyy HH:mm:ss')
+    DateFormat('dd/MM/yyyy HH:mm:ss')
         .format(totem.lastSeen.toLocal());
     final minutesSinceLastSeen = 
         DateTime.now().difference(totem.lastSeen.toLocal()).inMinutes;
@@ -132,7 +132,7 @@ class TotemDetailScreen extends StatelessWidget {
           child: _buildSmallInfoCard(
             icon: Icons.location_on,
             label: 'Localização',
-            value: totem.unit ?? 'Desconhecida',
+            value: totem.location,
             iconColor: Colors.blue.shade600,
           ),
         ),
@@ -166,7 +166,7 @@ class TotemDetailScreen extends StatelessWidget {
           _buildDetailRow(
             Icons.business_outlined,
             'Unidade/Localização:',
-            totem.unit ?? 'Desconhecida',
+            totem.location,
           ),
           _buildDetailRow(
             Icons.category_outlined,

@@ -157,9 +157,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           HubMenuItem(
                             icon: Icons.desktop_windows,
                             title: 'Módulo Totem',
-                            subtitle: 'Monitoramento de PCs',
+                            subtitle: 'Monitoramento de Totens',
                             onTap: () {
                               Navigator.pushNamed(context, '/totem_dashboard');
+                            },
+                            
+                          ),
+                          HubMenuItem(
+                            icon: Icons.admin_panel_settings,
+                            title: 'Painel de Controle Administrativo',
+                            subtitle: 'Gerenciamento do Sistema',
+                            onTap: () {
+                              Navigator.pushNamed(context, '/admin_dashboard');
                             },
                           ),
                         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/admin/admin_dashboard_screen.dart';
 import 'package:painel_windowns/dashboard_screen.dart';
 import 'package:painel_windowns/home_screen.dart';
 import 'package:painel_windowns/login_screen.dart';
@@ -45,6 +46,8 @@ class MyApp extends StatelessWidget {
         // A rota '/dashboard' agora aponta para a sua tela original, que é o Módulo Mobile.
         '/dashboard': (context) => MDMDashboard(authService: authService),
         '/totem_dashboard': (context) => TotemDashboardScreen(authService: authService),
+        '/admin_dashboard': (context) =>
+            AdminDashboardScreen(authService: authService),
       },
     );
   }
