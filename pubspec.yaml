@@ -44,6 +44,7 @@ dependencies:
   file_picker: ^10.2.0
   elegant_notification: ^1.1.0
   intl: ^0.20.2
+  file_saver: 0.3.1
 
 dev_dependencies:
   flutter_test:

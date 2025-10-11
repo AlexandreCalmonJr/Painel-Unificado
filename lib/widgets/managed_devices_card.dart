@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/device_detail_screen.dart';
 import 'package:painel_windowns/models/device.dart';
@@ -29,97 +32,114 @@ class ManagedDevicesCard extends StatelessWidget {
   });
 
   Future<void> _downloadDevicesCsv(
-    BuildContext context,
-    List<Device> devicesToExport,
-  ) async {
-    final headers = [
-      'Dispositivo',
-      'Modelo',
-      'IMEI',
-      'Serial',
-      'Status',
-      'Última Sincronização',
-      'Bateria',
-      'Endereço IP',
-      'Rede',
-      'Endereço MAC',
-      'Em Manutenção',
-      'Chamado',
-      'Motivo da Manutenção',
-      'Unidade',
-      'Setor',
-      'Andar',
-    ];
+  BuildContext context,
+  List<Device> devicesToExport,
+) async {
+  final headers = [
+    'Dispositivo',
+    'Modelo',
+    'IMEI',
+    'Serial',
+    'Status',
+    'Última Sincronização',
+    'Bateria',
+    'Endereço IP',
+    'Rede',
+    'Endereço MAC',
+    'Em Manutenção',
+    'Chamado',
+    'Motivo da Manutenção',
+    'Unidade',
+    'Setor',
+    'Andar',
+  ];
 
-    // Substitua a parte do CSV export no seu managed_devices_card.dart
-    final rows = devicesToExport.map((device) {
-      final lastSeenTime = parseLastSeen(device.lastSeen);
-      String status;
-      
-      // LÓGICA ATUALIZADA para CSV usando o getter
-      switch (device.displayStatus) {
-        case DeviceStatusType.collectedByIT:
-          status = 'Recolhido pelo TI';
-          break;
-        case DeviceStatusType.maintenance:
-          status = 'Em Manutenção';
-          break;
-        case DeviceStatusType.online:
-          status = 'Online';
-          break;
-        case DeviceStatusType.unmonitored:
-          status = 'Sem Monitorar';
-          break;
-        default:
-          status = 'Offline';
-          break;
+  final rows = devicesToExport.map((device) {
+    final lastSeenTime = parseLastSeen(device.lastSeen);
+    String status;
+    
+    switch (device.displayStatus) {
+      case DeviceStatusType.collectedByIT:
+        status = 'Recolhido pelo TI';
+        break;
+      case DeviceStatusType.maintenance:
+        status = 'Em Manutenção';
+        break;
+      case DeviceStatusType.online:
+        status = 'Online';
+        break;
+      case DeviceStatusType.unmonitored:
+        status = 'Sem Monitorar';
+        break;
+      default:
+        status = 'Offline';
+        break;
+    }
+
+    return [
+      device.deviceName,
+      device.deviceModel ?? 'N/A',
+      device.imei ?? 'N/A',
+      device.serialNumber ?? 'N/A',
+      status,
+      formatDateTime(lastSeenTime),
+      device.battery != null ? '${device.battery}%' : 'N/A',
+      device.ipAddress ?? 'N/A',
+      device.network ?? 'N/A',
+      device.macAddress ?? 'N/A',
+      (device.maintenanceStatus ?? false) ? 'Sim' : 'Não',
+      device.maintenanceTicket ?? 'N/A',
+      device.maintenanceReason ?? 'N/A',
+      device.unit ?? 'N/A',
+      device.sector ?? 'N/A',
+      device.floor ?? 'N/A',
+    ]
+        .map((value) => '"${value.toString().replaceAll('"', '""')}"')
+        .join(',');
+  }).toList();
+
+  final csvContent = [headers.join(','), ...rows].join('\n');
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final timestamp = DateTime.now().millisecondsSinceEpoch;
+  final fileName = 'dispositivos_$timestamp.csv';
+
+  try {
+    if (kIsWeb) {
+      // No web: Gera bytes e força download via file_saver
+      final bytes = Uint8List.fromList(utf8.encode(csvContent));
+      final result = await FileSaver.instance.saveFile(
+        name: fileName,
+        bytes: bytes,
+        fileExtension: 'csv',
+        mimeType: MimeType.csv,
+      );
+      if (result != null) {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('CSV baixado com sucesso!')),
+        );
+      } else {
+        throw Exception('Falha no download');
       }
-
-      return [
-        device.deviceName,
-        device.deviceModel ?? 'N/A',
-        device.imei ?? 'N/A',
-        device.serialNumber ?? 'N/A',
-        status,
-        formatDateTime(lastSeenTime),
-        device.battery != null ? '${device.battery}%' : 'N/A',
-        device.ipAddress ?? 'N/A',
-        device.network ?? 'N/A',
-        device.macAddress ?? 'N/A',
-        (device.maintenanceStatus ?? false) ? 'Sim' : 'Não',
-        device.maintenanceTicket ?? 'N/A',
-        device.maintenanceReason ?? 'N/A',
-        device.unit ?? 'N/A',
-        device.sector ?? 'N/A',
-        device.floor ?? 'N/A',
-      ]
-          .map((value) => '"${value.toString().replaceAll('"', '""')}"')
-          .join(',');
-    }).toList();
-
-    final csvContent = [headers.join(','), ...rows].join('\n');
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    try {
+    } else {
+      // Em mobile/desktop: Usa path_provider como antes
       final directory = await getApplicationDocumentsDirectory();
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final path =
-          '${directory.path}${Platform.pathSeparator}dispositivos_$timestamp.csv';
+      final path = '${directory.path}${Platform.pathSeparator}$fileName';
       final file = File(path);
       await file.writeAsString(csvContent);
 
       scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('CSV salvo em: $path')),
       );
-    } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text('Erro ao salvar CSV: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
+  } catch (e) {
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Text('Erro ao salvar CSV: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

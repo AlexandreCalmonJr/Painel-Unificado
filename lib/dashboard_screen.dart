@@ -405,31 +405,6 @@ class _MDMDashboardState extends State<MDMDashboard> {
                   selectedIndex: selectedIndex,
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
-                MenuItem(
-                  icon: Icons.storage,
-                  title: 'Servidor',
-                  subtitle: 'Gerenciar Dispositivos',
-                  index: 2,
-                  selectedIndex: selectedIndex,
-                  onTap: (index) => setState(() => selectedIndex = index),
-                ),
-                MenuItem(
-                  icon: Icons.security,
-                  title: 'Segurança',
-                  subtitle: 'Gerenciar Segurança',
-                  index: 3,
-                  selectedIndex: selectedIndex,
-                  onTap: (index) => setState(() => selectedIndex = index),
-                ),
-                MenuItem(
-                  icon: Icons.people,
-                  title: 'Usuários',
-                  subtitle: 'Gerenciar Usuários',
-                  index: 4,
-                  selectedIndex: selectedIndex,
-                  onTap: (index) => setState(() => selectedIndex = index),
-                ),
-
                 if (isAdmin) ...[
                   MenuItem(
                     icon: Icons.storage,
@@ -516,7 +491,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
           const Padding(
             padding: EdgeInsets.all(10),
             child: Text(
-              'Desenvolvido por Tecnico Alexandre Calmon - TI Bahia',
+              'Desenvolvedor Alexandre Calmon Jr - TI Bahia',
               style: TextStyle(color: Colors.white70, fontSize: 12),
               textAlign: TextAlign.center,
             ),
