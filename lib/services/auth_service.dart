@@ -14,6 +14,7 @@ class AuthService {
   Map<String, dynamic>? get currentUser => _user;
   bool get isLoggedIn => _token != null;
   bool get isAdmin => _user?['role'] == 'admin';
+  List<String>? get permissions => List<String>.from(_user?['permissions'] ?? []);
 
   Future<void> initializeFromStorage() async {
     final prefs = await SharedPreferences.getInstance();
@@ -58,73 +59,13 @@ class AuthService {
       }
     // --- TRATAMENTO DE ERROS DE CONEXÃO MAIS ESPECÍFICO ---
     } on TimeoutException {
-        return {'success': false, 'message': 'O servidor demorou muito para responder (Timeout). Verifique o IP e a rede.'};
+        return {'success': false, 'message': 'O servidor demorou muito para responder. Verifique a conexão.'};
     } on SocketException {
-        return {'success': false, 'message': 'Não foi possível conectar ao servidor. Verifique o IP/Porta e se o servidor está ativo.'};
+        return {'success': false, 'message': 'Não foi possível conectar ao servidor. Verifique o IP e a rede.'};
     } on http.ClientException catch (e) {
-        return {'success': false, 'message': 'Erro de cliente de rede: ${e.message}. Verifique o IP e o Firewall.'};
+        return {'success': false, 'message': 'Erro de rede: ${e.message}. Verifique o IP e o Firewall.'};
     } catch (e) {
-        return {'success': false, 'message': 'Ocorreu um erro inesperado: ${e.toString()}'};
-    }
-  }
-
-  Future<bool> verifyToken() async {
-    if (_token == null) return false;
-    final config = ServerConfigService.instance.loadConfig();
-    try {
-      final response = await http.get(
-        Uri.parse('http://${config['ip']}:${config['port']}/api/auth/verify'),
-        headers: {'Authorization': 'Bearer $_token'},
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _user = data['user'];
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user', jsonEncode(_user));
-        return true;
-      }
-      await logout();
-      return false;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    await prefs.remove('user');
-    _token = null;
-    _user = null;
-  }
-  
-  Future<Map<String, dynamic>> changePassword(String currentPassword, String newPassword) async {
-    if (_token == null) return {'success': false, 'message': 'Utilizador não autenticado'};
-    final config = ServerConfigService.instance.loadConfig();
-    final response = await http.post(
-      Uri.parse('http://${config['ip']}:${config['port']}/api/auth/change-password'),
-      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $_token'},
-      body: jsonEncode({'currentPassword': currentPassword, 'newPassword': newPassword}),
-    );
-    final data = jsonDecode(response.body);
-    return {'success': response.statusCode == 200, 'message': data['message']};
-  }
-
-  Future<Map<String, dynamic>> getUsers() async {
-    if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
-    final config = ServerConfigService.instance.loadConfig();
-    try {
-      final response = await http.get(
-        Uri.parse('http://${config['ip']}:${config['port']}/api/auth/users'),
-        headers: {'Authorization': 'Bearer $_token'},
-      );
-      final data = jsonDecode(response.body);
-      if (response.statusCode == 200) {
-        return {'success': true, 'users': data['users']};
-      }
-      return {'success': false, 'message': data['message'] ?? 'Erro ao buscar utilizadores'};
-    } catch (e) {
-      return {'success': false, 'message': 'Falha na conexão ao buscar utilizadores'};
+        return {'success': false, 'message': 'Erro inesperado: ${e.toString()}'};
     }
   }
 
@@ -173,5 +114,47 @@ class AuthService {
     } catch (e) {
       return {'success': false, 'message': 'Falha na conexão ao eliminar utilizador'};
     }
+  }
+
+  Future<Map<String, dynamic>> changePassword(String currentPassword, String newPassword) async {
+    if (!isLoggedIn) return {'success': false, 'message': 'Utilizador não autenticado'};
+    final config = ServerConfigService.instance.loadConfig();
+    try {
+      final response = await http.post(
+        Uri.parse('http://${config['ip']}:${config['port']}/api/auth/change-password'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $_token',
+        },
+        body: jsonEncode({
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {'success': true, 'message': data['message'] ?? 'Senha alterada com sucesso'};
+      } else {
+        final error = jsonDecode(response.body);
+        return {'success': false, 'message': error['message'] ?? 'Falha ao alterar senha'};
+      }
+    } on TimeoutException {
+      return {'success': false, 'message': 'O servidor demorou muito para responder. Verifique a conexão.'};
+    } on SocketException {
+      return {'success': false, 'message': 'Não foi possível conectar ao servidor. Verifique o IP e a rede.'};
+    } on http.ClientException catch (e) {
+      return {'success': false, 'message': 'Erro de rede: ${e.message}. Verifique o IP e o Firewall.'};
+    } catch (e) {
+      return {'success': false, 'message': 'Erro inesperado: ${e.toString()}'};
+    }
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('user');
+    _token = null;
+    _user = null;
   }
 }

@@ -59,8 +59,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _logout(BuildContext context) async {
     await widget.authService.logout();
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+    if (mounted) {
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+    }
+  }
+
+  // Verifica se o usuário tem permissão para um módulo específico
+  bool _hasPermission(String module) {
+    final permissions = widget.authService.permissions;
+    if (widget.authService.isAdmin) return true;
+    return permissions?.contains(module) ?? false;
   }
 
   @override
@@ -137,6 +146,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Bem-vindo, ${widget.authService.currentUser?['username'] ?? 'Usuário'}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
                       const SizedBox(height: 32),
                       GridView.count(
                         shrinkWrap: true,
@@ -146,31 +163,33 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         mainAxisSpacing: 16.0,
                         childAspectRatio: 1.2,
                         children: <Widget>[
-                          HubMenuItem(
-                            icon: Icons.phone_android,
-                            title: 'Módulo Mobile',
-                            subtitle: 'Gestão de Dispositivos',
-                            onTap: () {
-                              Navigator.pushNamed(context, '/dashboard');
-                            },
-                          ),
-                          HubMenuItem(
-                            icon: Icons.desktop_windows,
-                            title: 'Módulo Totem',
-                            subtitle: 'Monitoramento de Totens',
-                            onTap: () {
-                              Navigator.pushNamed(context, '/totem_dashboard');
-                            },
-                            
-                          ),
-                          HubMenuItem(
-                            icon: Icons.admin_panel_settings,
-                            title: 'Painel de Controle Administrativo',
-                            subtitle: 'Gerenciamento do Sistema',
-                            onTap: () {
-                              Navigator.pushNamed(context, '/admin_dashboard');
-                            },
-                          ),
+                          if (_hasPermission('mobile'))
+                            HubMenuItem(
+                              icon: Icons.phone_android,
+                              title: 'Módulo Mobile',
+                              subtitle: 'Gestão de Dispositivos',
+                              onTap: () {
+                                Navigator.pushNamed(context, '/dashboard');
+                              },
+                            ),
+                          if (_hasPermission('totem'))
+                            HubMenuItem(
+                              icon: Icons.desktop_windows,
+                              title: 'Módulo Totem',
+                              subtitle: 'Monitoramento de Totens',
+                              onTap: () {
+                                Navigator.pushNamed(context, '/totem_dashboard');
+                              },
+                            ),
+                          if (widget.authService.isAdmin)
+                            HubMenuItem(
+                              icon: Icons.admin_panel_settings,
+                              title: 'Painel de Controle',
+                              subtitle: 'Gerenciamento do Sistema',
+                              onTap: () {
+                                Navigator.pushNamed(context, '/admin_dashboard');
+                              },
+                            ),
                         ],
                       ),
                       const SizedBox(height: 32),

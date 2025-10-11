@@ -1,5 +1,3 @@
-
-
 // Ficheiro: lib/models/totem.dart
 // DESCRIÇÃO: Modelo de dados unificado e exclusivo para os totens.
 
@@ -55,7 +53,7 @@ class Totem {
       model: json['model'] ?? 'N/A',
       serviceTag: json['serviceTag'] ?? 'N/A',
       ip: json['ip'] ?? 'N/A',
-      location: json['location'] ?? 'Desconhecida',
+      location: json['unitRoutes'] ?? 'Desconhecida',
       installedPrograms: List<String>.from(json['installedPrograms'] ?? []),
       printerStatus: json['printerStatus'] ?? 'N/A',
       lastSeen: parsedDate.toLocal(),
@@ -98,4 +96,3 @@ class Totem {
     return 'N/A';
   }
 }
-
