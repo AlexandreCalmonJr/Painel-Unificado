@@ -1,0 +1,1 @@
+ C:\\Users\\alexandrej\\painel_windowns_mobile\\.dart_tool\\flutter_build\\6683694aac22b3802b1ad6b714db79b8\\native_assets.json: 

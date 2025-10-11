@@ -1,0 +1,10 @@
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/CMakeFiles/INSTALL.dir
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/CMakeFiles/ALL_BUILD.dir
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/CMakeFiles/ZERO_CHECK.dir
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/flutter/CMakeFiles/flutter_wrapper_plugin.dir
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/flutter/CMakeFiles/flutter_wrapper_app.dir
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/flutter/CMakeFiles/flutter_assemble.dir
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/flutter/CMakeFiles/INSTALL.dir
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/runner/CMakeFiles/painel_windowns.dir
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/runner/CMakeFiles/INSTALL.dir
+C:/Users/alexandrej/painel_windowns_mobile/build/windows/x64/runner/CMakeFiles/ALL_BUILD.dir
