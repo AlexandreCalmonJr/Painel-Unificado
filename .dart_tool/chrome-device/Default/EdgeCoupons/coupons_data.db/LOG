@@ -1,8 +1,23 @@
-2025/10/11-14:22:27.543 3fdc Reusing MANIFEST C:\Users\ALEXAN~1\AppData\Local\Temp\flutter_tools.ce679422\flutter_tools_chrome_device.eb478d71\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2025/10/11-14:22:27.545 3fdc Recovering log #10
-2025/10/11-14:22:27.547 3fdc Reusing old log C:\Users\ALEXAN~1\AppData\Local\Temp\flutter_tools.ce679422\flutter_tools_chrome_device.eb478d71\Default\EdgeCoupons/coupons_data.db/000010.log 
-2025/10/11-14:22:27.550 3fdc Delete type=0 #4
-2025/10/11-14:22:27.550 3fdc Delete type=0 #7
-2025/10/11-14:22:28.118 658c Level-0 table #14: started
-2025/10/11-14:22:28.129 658c Level-0 table #14: 672328 bytes OK
-2025/10/11-14:22:28.139 658c Delete type=0 #10
+2025/10/13-10:50:39.404 5bcc Reusing MANIFEST C:\Users\ALEXAN~1\AppData\Local\Temp\flutter_tools.be5ce02a\flutter_tools_chrome_device.39aebc2a\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2025/10/13-10:50:39.409 5bcc Recovering log #13
+2025/10/13-10:50:39.411 5bcc Level-0 table #16: started
+2025/10/13-10:50:39.447 5bcc Level-0 table #16: 208 bytes OK
+2025/10/13-10:50:39.448 5bcc Recovering log #16
+2025/10/13-10:50:39.449 5bcc Reusing old log C:\Users\ALEXAN~1\AppData\Local\Temp\flutter_tools.be5ce02a\flutter_tools_chrome_device.39aebc2a\Default\EdgeCoupons/coupons_data.db/000016.log 
+2025/10/13-10:50:39.480 5bcc Delete type=0 #4
+2025/10/13-10:50:39.480 5bcc Delete type=0 #7
+2025/10/13-10:50:39.481 5bcc Delete type=0 #10
+2025/10/13-10:50:39.481 5bcc Delete type=0 #13
+2025/10/13-10:50:39.483 5bcc Delete type=2 #17
+2025/10/13-10:50:39.910 1f5c Level-0 table #18: started
+2025/10/13-10:50:39.915 1f5c Level-0 table #18: 672328 bytes OK
+2025/10/13-10:50:39.922 1f5c Delete type=0 #16
+2025/10/13-10:50:39.923 3608 Compacting 4@0 + 1@1 files
+2025/10/13-10:50:39.930 3608 Generated table #19@0: 3 keys, 672328 bytes
+2025/10/13-10:50:39.931 3608 Compacted 4@0 + 1@1 files => 672328 bytes
+2025/10/13-10:50:39.934 3608 compacted to: files[ 0 1 1 0 0 0 0 ]
+2025/10/13-10:50:39.935 3608 Delete type=2 #8
+2025/10/13-10:50:39.935 3608 Delete type=2 #11
+2025/10/13-10:50:39.935 3608 Delete type=2 #14
+2025/10/13-10:50:39.935 3608 Delete type=2 #16
+2025/10/13-10:50:39.936 3608 Delete type=2 #18
