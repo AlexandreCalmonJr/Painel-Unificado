@@ -15,7 +15,6 @@ import 'package:painel_windowns/services/device_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 import 'package:painel_windowns/test_tab.dart';
 import 'package:painel_windowns/utils/helpers.dart';
-import 'package:painel_windowns/widgets/menu_item.dart';
 import 'package:painel_windowns/widgets/tabs/alerts_tab.dart';
 import 'package:painel_windowns/widgets/tabs/dashboard_tab.dart';
 import 'package:painel_windowns/widgets/tabs/devices_tab.dart';
@@ -89,7 +88,6 @@ class _MDMDashboardState extends State<MDMDashboard> {
   }
 
   Future<void> _loadUnits() async {
-    // Use widget.authService
     final token = widget.authService.currentToken;
     if (token == null) return;
     try {
@@ -99,27 +97,18 @@ class _MDMDashboardState extends State<MDMDashboard> {
         headers: {'Authorization': 'Bearer $token'},
       );
       if (mounted && response.statusCode == 200) {
-        // --- INÍCIO DA CORREÇÃO ---
-        // 1. Decodifica a resposta completa, que é um Mapa (Objeto JSON).
         final Map<String, dynamic> data = jsonDecode(response.body);
-
-        // 2. Verifica se a resposta foi bem-sucedida e se contém a chave 'units'.
         if (data['success'] == true && data['units'] is List) {
-          // 3. Pega a lista de dentro da chave 'units'.
           final List<dynamic> unitsList = data['units'];
-
-          // 4. Atualiza o estado com a lista correta.
           setState(
             () => units = unitsList.map((json) => Unit.fromJson(json)).toList(),
           );
         } else {
-          // Lança um erro se o formato da resposta for inesperado.
           throw Exception(
             data['message'] ??
                 'Formato de resposta inválido ao carregar unidades',
           );
         }
-        // --- FIM DA CORREÇÃO ---
       }
     } catch (e) {
       if (mounted) {
@@ -130,11 +119,8 @@ class _MDMDashboardState extends State<MDMDashboard> {
 
   Future<void> _loadBssidMappings() async {
     final token = widget.authService.currentToken;
-    if (token == null) {
-      return; // Esta linha já garante que o token não é nulo abaixo
-    }
+    if (token == null) return;
     try {
-      // 👇 Adicione o '!' depois de 'token' para corrigir o erro
       final mappings = await _deviceService.fetchBssidMappings(token);
       if (mounted) {
         setState(() => bssidMappings = mappings);
@@ -172,10 +158,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
   }
 
   Future<void> _logout() async {
-    // 👇 ETAPA 6: Use o serviço que vem do widget
     await widget.authService.logout();
-
-    // Navega para a LoginScreen, passando a instância (agora vazia) do serviço
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -188,14 +171,12 @@ class _MDMDashboardState extends State<MDMDashboard> {
   void _updateDisplayedDevices() {
     List<Device> filteredList = List.from(_allFetchedDevices);
     if (_searchQuery.isNotEmpty) {
-      filteredList =
-          _allFetchedDevices.where((device) {
-            final query = _searchQuery.toLowerCase();
-            return (device.deviceName?.toLowerCase().contains(query) ??
-                    false) ||
-                (device.serialNumber?.toLowerCase().contains(query) ?? false) ||
-                (device.imei?.toLowerCase().contains(query) ?? false);
-          }).toList();
+      filteredList = _allFetchedDevices.where((device) {
+        final query = _searchQuery.toLowerCase();
+        return (device.deviceName?.toLowerCase().contains(query) ?? false) ||
+            (device.serialNumber?.toLowerCase().contains(query) ?? false) ||
+            (device.imei?.toLowerCase().contains(query) ?? false);
+      }).toList();
     }
 
     _totalPages = (filteredList.length / _devicesPerPage).ceil();
@@ -203,10 +184,9 @@ class _MDMDashboardState extends State<MDMDashboard> {
     if (_currentPage > _totalPages) _currentPage = _totalPages;
 
     final startIndex = (_currentPage - 1) * _devicesPerPage;
-    final endIndex =
-        (startIndex + _devicesPerPage > filteredList.length)
-            ? filteredList.length
-            : startIndex + _devicesPerPage;
+    final endIndex = (startIndex + _devicesPerPage > filteredList.length)
+        ? filteredList.length
+        : startIndex + _devicesPerPage;
 
     setState(() {
       _displayedDevices = filteredList.sublist(startIndex, endIndex);
@@ -329,11 +309,10 @@ class _MDMDashboardState extends State<MDMDashboard> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (context) => DeviceDetailScreen(
-                    device: device,
-                    authService: widget.authService,
-                  ),
+              builder: (context) => DeviceDetailScreen(
+                device: device,
+                authService: widget.authService,
+              ),
             ),
           );
         }
@@ -343,24 +322,34 @@ class _MDMDashboardState extends State<MDMDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        children: [
-          if (_isSidebarVisible) _buildSidebar(),
-          Expanded(
-            child: Column(
-              children: [
-                _buildAppBar(),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: _buildTabContent(),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.purple.shade50, Colors.blue.shade50],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Row(
+          children: [
+            if (_isSidebarVisible) _buildSidebar(),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildAppBar(),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: _buildTabContent(),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -371,120 +360,140 @@ class _MDMDashboardState extends State<MDMDashboard> {
     final isAdmin = role == 'admin';
 
     return Container(
-      width: 200,
-      color: const Color(0xFF2D3748),
+      width: 250,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [const Color(0xFF2D3748), const Color(0xFF1A202C)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(2, 0),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
-            child: const Text(
-              'Controle MDM',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.white24)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.phonelink, color: Colors.white, size: 32),
+                const SizedBox(width: 12),
+                const Text(
+                  'Controle MDM',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
             child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                MenuItem(
+                _buildMenuItem(
                   icon: Icons.dashboard,
                   title: 'Painel',
-                  subtitle: 'Visão Geral do Painel',
+                  subtitle: 'Visão Geral',
                   index: 0,
-                  selectedIndex: selectedIndex,
+                  selected: selectedIndex == 0,
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
-                MenuItem(
+                _buildMenuItem(
                   icon: Icons.devices,
                   title: 'Dispositivos',
-                  subtitle: 'Gerenciar Dispositivos',
+                  subtitle: 'Gerenciar',
                   index: 1,
-                  selectedIndex: selectedIndex,
+                  selected: selectedIndex == 1,
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
                 if (isAdmin) ...[
-                  MenuItem(
+                  _buildMenuItem(
                     icon: Icons.storage,
                     title: 'Servidor',
-                    subtitle: 'Gerenciar Dispositivos',
+                    subtitle: 'Configuração',
                     index: 2,
-                    selectedIndex: selectedIndex,
+                    selected: selectedIndex == 2,
                     onTap: (index) => setState(() => selectedIndex = index),
                   ),
-                  MenuItem(
+                  _buildMenuItem(
                     icon: Icons.security,
                     title: 'Segurança',
-                    subtitle: 'Gerenciar Segurança',
+                    subtitle: 'Gerenciar',
                     index: 3,
-                    selectedIndex: selectedIndex,
+                    selected: selectedIndex == 3,
                     onTap: (index) => setState(() => selectedIndex = index),
                   ),
-                  MenuItem(
+                  _buildMenuItem(
                     icon: Icons.people,
                     title: 'Usuários',
-                    
-                    subtitle: 'Gerenciar Usuários',
+                    subtitle: 'Gerenciar',
                     index: 4,
-                    selectedIndex: selectedIndex,
+                    selected: selectedIndex == 4,
                     onTap: (index) => setState(() => selectedIndex = index),
                   ),
-                  MenuItem(
+                  _buildMenuItem(
                     icon: Icons.bar_chart,
                     title: 'Relatórios',
-                    subtitle: '',
+                    subtitle: 'Análises',
                     index: 5,
-                    selectedIndex: selectedIndex,
+                    selected: selectedIndex == 5,
                     onTap: (index) => setState(() => selectedIndex = index),
                   ),
-                  MenuItem(
+                  _buildMenuItem(
                     icon: Icons.warning,
                     title: 'Alertas',
-                    subtitle: '',
+                    subtitle: 'Notificações',
                     index: 6,
-                    selectedIndex: selectedIndex,
+                    selected: selectedIndex == 6,
                     onTap: (index) => setState(() => selectedIndex = index),
                   ),
-                  MenuItem(
-                    icon: Icons.build,
-                    title: 'Manutenção',
-                    subtitle: '',
-                    index: 9,
-                    selectedIndex: selectedIndex,
-                    onTap: (index) => setState(() => selectedIndex = index),
-                  ),
-                  MenuItem(
+                  _buildMenuItem(
                     icon: Icons.business,
                     title: 'Unidades',
-                    subtitle: '',
+                    subtitle: 'Gerenciar',
                     index: 8,
-                    selectedIndex: selectedIndex,
+                    selected: selectedIndex == 8,
                     onTap: (index) => setState(() => selectedIndex = index),
                   ),
-                  MenuItem(
+                  _buildMenuItem(
+                    icon: Icons.build,
+                    title: 'Manutenção',
+                    subtitle: 'Suporte',
+                    index: 9,
+                    selected: selectedIndex == 9,
+                    onTap: (index) => setState(() => selectedIndex = index),
+                  ),
+                  const Divider(color: Colors.white24, indent: 16, endIndent: 16),
+                  _buildMenuItem(
+                    icon: Icons.bug_report_outlined,
+                    title: 'Testar Alertas',
+                    subtitle: 'Debug',
+                    index: 10,
+                    selected: selectedIndex == 10,
+                    onTap: (index) => setState(() => selectedIndex = index),
+                  ),
+                ],
+                const Divider(color: Colors.white24, indent: 16, endIndent: 16),
+                _buildMenuItem(
                   icon: Icons.arrow_back,
                   title: 'Voltar',
                   subtitle: 'Menu Principal',
                   index: 99,
-                  selectedIndex: selectedIndex,
+                  selected: false,
                   onTap: (_) => Navigator.of(context).pop(),
-                  ),
-                  const Divider(
-                    color: Colors.white24,
-                    indent: 16,
-                    endIndent: 16,
-                  ),
-                  MenuItem(
-                    icon: Icons.bug_report_outlined,
-                    title: 'Testar Alertas',
-                    subtitle: '',
-                    index: 10,
-                    selectedIndex: selectedIndex,
-                    onTap: (index) => setState(() => selectedIndex = index),
-                  ),
-                ],
+                ),
               ],
             ),
           ),
@@ -501,6 +510,41 @@ class _MDMDashboardState extends State<MDMDashboard> {
     );
   }
 
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required int index,
+    required bool selected,
+    required Function(int) onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      color: selected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Icon(icon, color: selected ? Colors.blue : Colors.white70),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: selected ? Colors.blue : Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(
+            color: selected ? Colors.blue : Colors.white70,
+            fontSize: 12,
+          ),
+        ),
+        trailing: selected ? const Icon(Icons.chevron_right, color: Colors.blue) : null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        onTap: () => onTap(index),
+      ),
+    );
+  }
+
   Widget _buildAppBar() {
     final currentUser = widget.authService.currentUser;
     final username = currentUser?['username'] ?? 'Usuário';
@@ -508,140 +552,169 @@ class _MDMDashboardState extends State<MDMDashboard> {
     final sector = currentUser?['sector'] ?? 'N/A';
 
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.3),
             spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
       ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(
-              _isSidebarVisible ? Icons.menu_open : Icons.menu,
-              color: Colors.grey[600],
-            ),
-            onPressed:
-                () => setState(() => _isSidebarVisible = !_isSidebarVisible),
-            tooltip: 'Esconder/Mostrar Menu',
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            'MDM Control Panel',
-            style: TextStyle(
-              color: Colors.blue,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  role == 'admin' ? Icons.admin_panel_settings : Icons.person,
-                  size: 16,
-                  color: role == 'admin' ? Colors.red[600] : Colors.blue[600],
+      child: SafeArea(
+        child: Row(
+          children: [
+            IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 6),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      username,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
+                child: Icon(
+                  _isSidebarVisible ? Icons.menu_open : Icons.menu,
+                  color: Colors.grey[600],
+                ),
+              ),
+              onPressed: () => setState(() => _isSidebarVisible = !_isSidebarVisible),
+              tooltip: 'Esconder/Mostrar Menu',
+            ),
+            const SizedBox(width: 12),
+            Icon(Icons.dashboard, color: Colors.blue, size: 28),
+            const SizedBox(width: 12),
+            Text(
+              'Painel de Controle MDM',
+              style: TextStyle(
+                color: Colors.blueGrey[800],
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        role == 'admin' ? Icons.admin_panel_settings : Icons.person,
+                        size: 16,
+                        color: role == 'admin' ? Colors.red[600] : Colors.blue[600],
+                      ),
+                      const SizedBox(width: 6),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            username,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          Text(
+                            '${role.toUpperCase()} • $sector',
+                            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 15),
+                if (isLoading)
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                const SizedBox(width: 15),
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.refresh, color: Colors.green[700]),
+                  ),
+                  onPressed: () => _loadDevices(isInitialLoad: true),
+                  tooltip: 'Atualizar Agora',
+                ),
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  icon: CircleAvatar(
+                    backgroundColor: role == 'admin' ? Colors.red[600] : Colors.blue[600],
+                    child: Text(
+                      username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(
-                      '${role.toUpperCase()} • $sector',
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                  ),
+                  tooltip: 'Menu do usuário',
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'logout':
+                        _showLogoutDialog();
+                        break;
+                      case 'change_password':
+                        _showChangePasswordDialog();
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'change_password',
+                      child: Row(
+                        children: [
+                          Icon(Icons.lock, size: 18, color: Colors.grey[600]),
+                          const SizedBox(width: 8),
+                          const Text('Alterar Senha'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 'logout',
+                      child: Row(
+                        children: [
+                          Icon(Icons.logout, size: 18, color: Colors.red[600]),
+                          const SizedBox(width: 8),
+                          Text('Sair', style: TextStyle(color: Colors.red[600])),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 15),
-          if (isLoading)
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          const SizedBox(width: 15),
-          IconButton(
-            icon: Icon(Icons.refresh, color: Colors.grey[600]),
-            onPressed: () => _loadDevices(isInitialLoad: true),
-            tooltip: 'Atualizar Agora',
-          ),
-          const SizedBox(width: 10),
-          PopupMenuButton<String>(
-            icon: CircleAvatar(
-              backgroundColor:
-                  role == 'admin' ? Colors.red[600] : Colors.blue[600],
-              child: Text(
-                username.isNotEmpty ? username[0].toUpperCase() : 'U',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            tooltip: 'Menu do usuário',
-            onSelected: (value) {
-              switch (value) {
-                case 'logout':
-                  _showLogoutDialog();
-                  break;
-                case 'change_password':
-                  _showChangePasswordDialog();
-                  break;
-              }
-            },
-            itemBuilder:
-                (context) => [
-                  PopupMenuItem(
-                    value: 'change_password',
-                    child: Row(
-                      children: [
-                        Icon(Icons.lock, size: 18, color: Colors.grey[600]),
-                        const SizedBox(width: 8),
-                        const Text('Alterar Senha'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuDivider(),
-                  PopupMenuItem(
-                    value: 'logout',
-                    child: Row(
-                      children: [
-                        Icon(Icons.logout, size: 18, color: Colors.red[600]),
-                        const SizedBox(width: 8),
-                        Text('Sair', style: TextStyle(color: Colors.red[600])),
-                      ],
-                    ),
-                  ),
-                ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -666,20 +739,19 @@ class _MDMDashboardState extends State<MDMDashboard> {
       return DashboardTab(
         devices: _allFetchedDevices,
         errorMessage: errorMessage,
-        authService: widget.authService, 
+        authService: widget.authService,
       );
     }
 
     switch (selectedIndex) {
-      case 0: // DashboardTab
+      case 0:
         return DashboardTab(
           devices: _allFetchedDevices,
           errorMessage: errorMessage,
           currentUser: currentUser,
-          authService: widget.authService, 
-           // Adicione esta linha
+          authService: widget.authService,
         );
-      case 1: // DevicesTab
+      case 1:
         return DevicesTab(
           devices: _displayedDevices,
           token: token,
@@ -689,9 +761,8 @@ class _MDMDashboardState extends State<MDMDashboard> {
           totalPages: _totalPages,
           onPageChange: _changePage,
           onSearch: _performSearch,
-          // NOVO: Passa os dados do usuário atual
           currentUser: widget.authService.currentUser,
-          authService: widget.authService, 
+          authService: widget.authService,
         );
       case 2:
         return ServerTab(serverIp: serverIp, serverPort: serverPort);
@@ -699,12 +770,11 @@ class _MDMDashboardState extends State<MDMDashboard> {
         return const SecurityTab();
       case 4:
         return UsersTab(authService: widget.authService);
-      case 5: // ReportsTab
+      case 5:
         return ReportsTab(
           devices: _allFetchedDevices,
-          // Passando os parâmetros necessários
           currentUser: currentUser,
-          authService: widget.authService, 
+          authService: widget.authService,
         );
       case 6:
         return AlertsTab(devices: _allFetchedDevices);
@@ -717,16 +787,16 @@ class _MDMDashboardState extends State<MDMDashboard> {
             _loadUnits();
             _loadBssidMappings();
             _loadDevices();
-          }, authService: widget.authService,
+          },
+          authService: widget.authService,
         );
-      case 9: // MaintenanceTab
+      case 9:
         return MaintenanceTab(
           devices: _allFetchedDevices,
           token: token,
           onDeviceUpdate: onDataRefresh,
-          // NOVO: Passa os dados do usuário atual
           currentUser: widget.authService.currentUser,
-          authService: widget.authService, 
+          authService: widget.authService,
         );
       case 10:
         return TestTab(
@@ -750,7 +820,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
         return DashboardTab(
           devices: _allFetchedDevices,
           errorMessage: errorMessage,
-          authService: widget.authService, 
+          authService: widget.authService,
         );
     }
   }
@@ -758,28 +828,27 @@ class _MDMDashboardState extends State<MDMDashboard> {
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Confirmar Logout'),
-            content: const Text('Tem certeza que deseja sair do sistema?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _logout();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[600],
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Sair'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Logout'),
+        content: const Text('Tem certeza que deseja sair do sistema?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _logout();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[600],
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Sair'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -794,144 +863,127 @@ class _MDMDashboardState extends State<MDMDashboard> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => StatefulBuilder(
-            builder:
-                (context, setState) => AlertDialog(
-                  title: const Text('Alterar Senha'),
-                  content: SizedBox(
-                    width: 400,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: currentPasswordController,
-                          obscureText: obscureCurrentPassword,
-                          decoration: InputDecoration(
-                            labelText: 'Senha Atual',
-                            prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscureCurrentPassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                              onPressed:
-                                  () => setState(
-                                    () =>
-                                        obscureCurrentPassword =
-                                            !obscureCurrentPassword,
-                                  ),
-                            ),
-                            border: const OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: newPasswordController,
-                          obscureText: obscureNewPassword,
-                          decoration: InputDecoration(
-                            labelText: 'Nova Senha',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscureNewPassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                              onPressed:
-                                  () => setState(
-                                    () =>
-                                        obscureNewPassword =
-                                            !obscureNewPassword,
-                                  ),
-                            ),
-                            border: const OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: confirmPasswordController,
-                          obscureText: obscureConfirmPassword,
-                          decoration: InputDecoration(
-                            labelText: 'Confirmar Nova Senha',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscureConfirmPassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                              onPressed:
-                                  () => setState(
-                                    () =>
-                                        obscureConfirmPassword =
-                                            !obscureConfirmPassword,
-                                  ),
-                            ),
-                            border: const OutlineInputBorder(),
-                          ),
-                        ),
-                      ],
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Alterar Senha'),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: currentPasswordController,
+                  obscureText: obscureCurrentPassword,
+                  decoration: InputDecoration(
+                    labelText: 'Senha Atual',
+                    prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureCurrentPassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () => setState(
+                        () => obscureCurrentPassword = !obscureCurrentPassword,
+                      ),
                     ),
+                    border: const OutlineInputBorder(),
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed:
-                          isLoading ? null : () => Navigator.of(context).pop(),
-                      child: const Text('Cancelar'),
-                    ),
-                    ElevatedButton(
-                      onPressed:
-                          isLoading
-                              ? null
-                              : () async {
-                                if (newPasswordController.text !=
-                                    confirmPasswordController.text) {
-                                  _showSnackbar(
-                                    'As senhas não coincidem',
-                                    isError: true,
-                                  );
-                                  return;
-                                }
-                                if (newPasswordController.text.length < 6) {
-                                  _showSnackbar(
-                                    'A nova senha deve ter no mínimo 6 caracteres',
-                                    isError: true,
-                                  );
-                                  return;
-                                }
-                                setState(() => isLoading = true);
-                                final result = await widget.authService
-                                    .changePassword(
-                                      currentPasswordController.text,
-                                      newPasswordController.text,
-                                    );
-                                setState(() => isLoading = false);
-                                if (result['success']) {
-                                  Navigator.of(context).pop();
-                                  _showSnackbar('Senha alterada com sucesso');
-                                } else {
-                                  _showSnackbar(
-                                    result['message'],
-                                    isError: true,
-                                  );
-                                }
-                              },
-                      child:
-                          isLoading
-                              ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                              : const Text('Alterar'),
-                    ),
-                  ],
                 ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: newPasswordController,
+                  obscureText: obscureNewPassword,
+                  decoration: InputDecoration(
+                    labelText: 'Nova Senha',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureNewPassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () => setState(
+                        () => obscureNewPassword = !obscureNewPassword,
+                      ),
+                    ),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: confirmPasswordController,
+                  obscureText: obscureConfirmPassword,
+                  decoration: InputDecoration(
+                    labelText: 'Confirmar Nova Senha',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureConfirmPassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () => setState(
+                        () => obscureConfirmPassword = !obscureConfirmPassword,
+                      ),
+                    ),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: isLoading ? null : () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (newPasswordController.text !=
+                          confirmPasswordController.text) {
+                        _showSnackbar(
+                          'As senhas não coincidem',
+                          isError: true,
+                        );
+                        return;
+                      }
+                      if (newPasswordController.text.length < 6) {
+                        _showSnackbar(
+                          'A nova senha deve ter no mínimo 6 caracteres',
+                          isError: true,
+                        );
+                        return;
+                      }
+                      setState(() => isLoading = true);
+                      final result = await widget.authService.changePassword(
+                        currentPasswordController.text,
+                        newPasswordController.text,
+                      );
+                      setState(() => isLoading = false);
+                      if (result['success']) {
+                        Navigator.of(context).pop();
+                        _showSnackbar('Senha alterada com sucesso');
+                      } else {
+                        _showSnackbar(
+                          result['message'],
+                          isError: true,
+                        );
+                      }
+                    },
+              child: isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Alterar'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

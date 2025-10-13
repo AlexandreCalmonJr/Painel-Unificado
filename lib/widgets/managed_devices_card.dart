@@ -289,7 +289,7 @@ class ManagedDevicesCard extends StatelessWidget {
         break;
       case DeviceStatusType.maintenance:
         statusText = 'Em Manutenção';
-        statusColor = Colors.orange;
+        statusColor = Colors.blueGrey;
         break;
       case DeviceStatusType.online:
         statusText = 'Online';
@@ -297,7 +297,7 @@ class ManagedDevicesCard extends StatelessWidget {
         break;
       case DeviceStatusType.unmonitored:
         statusText = 'Sem Monitorar';
-        statusColor = Colors.amber;
+        statusColor = Colors.orange;
         break;
       default:
         statusText = 'Offline';

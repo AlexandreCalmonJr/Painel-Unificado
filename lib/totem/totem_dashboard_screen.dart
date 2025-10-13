@@ -9,9 +9,7 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/monitoring_service.dart';
 import 'package:painel_windowns/totem/tabs/totems_list_tab.dart';
 import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
-import 'package:painel_windowns/widgets/menu_item.dart';
 import 'package:painel_windowns/widgets/stat_card.dart';
-
 
 class TotemDashboardScreen extends StatefulWidget {
   final AuthService authService;
@@ -35,22 +33,19 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
 
   bool isLoading = false;
   String? errorMessage;
-  
-  // Instância do MonitoringService
+
   late final MonitoringService _monitoringService;
   Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
-    // Cria a instância do serviço passando o authService
     _monitoringService = MonitoringService(authService: widget.authService);
     _initializeData();
   }
 
   Future<void> _initializeData() async {
     await _loadTotems(isInitialLoad: true);
-    // Auto-refresh a cada 15 segundos
     _refreshTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       if (mounted) _loadTotems();
     });
@@ -67,24 +62,22 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
 
     setState(() => isLoading = true);
     try {
-      // Usa o MonitoringService para buscar os totens
-      // ATUALIZADO: Adiciona refreshMappings para atualizar mapeamentos no load inicial
       final fetchedTotems = await _monitoringService.getTotems(
         refreshMappings: isInitialLoad,
       );
-      
+
       if (mounted) {
         if (!isInitialLoad) {
           _previousTotems = List.from(_allFetchedTotems);
         }
-        
+
         setState(() {
           _allFetchedTotems = fetchedTotems;
-          
+
           if (!isInitialLoad) {
             _checkForAlerts(_previousTotems, _allFetchedTotems);
           }
-          
+
           _updateDisplayedTotems();
           errorMessage = null;
         });
@@ -94,8 +87,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         setState(() {
           errorMessage = 'Falha ao carregar totens: ${e.toString()}';
         });
-        
-        // Mostra um snackbar com o erro
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage!),
@@ -126,7 +118,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
 
   void _updateDisplayedTotems() {
     List<Totem> filteredList = List.from(_allFetchedTotems);
-    
+
     if (_searchQuery.isNotEmpty) {
       filteredList = _allFetchedTotems.where((totem) {
         final query = _searchQuery.toLowerCase();
@@ -213,72 +205,105 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: Row(
-        children: [
-          if (_isSidebarVisible) _buildSidebar(),
-          Expanded(
-            child: Column(
-              children: [
-                _buildAppBar(),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: _buildTabContent(),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.purple.shade50, Colors.blue.shade50],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Row(
+          children: [
+            if (_isSidebarVisible) _buildSidebar(),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildAppBar(),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: _buildTabContent(),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSidebar() {
     return Container(
-      width: 200,
-      color: const Color(0xFF2D3748),
+      width: 250,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [const Color(0xFF2D3748), const Color(0xFF1A202C)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(2, 0),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
-            child: const Text(
-              'Módulo Totem',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.white24)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.desktop_windows, color: Colors.white, size: 32),
+                const SizedBox(width: 12),
+                const Text(
+                  'Módulo Totem',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
             child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                MenuItem(
+                _buildMenuItem(
                   icon: Icons.dashboard,
                   title: 'Painel',
                   subtitle: 'Visão Geral',
                   index: 0,
-                  selectedIndex: selectedIndex,
+                  selected: selectedIndex == 0,
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
-                MenuItem(
+                _buildMenuItem(
                   icon: Icons.desktop_windows,
                   title: 'Totens',
                   subtitle: 'Listar Dispositivos',
                   index: 1,
-                  selectedIndex: selectedIndex,
+                  selected: selectedIndex == 1,
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
                 const Divider(color: Colors.white24, indent: 16, endIndent: 16),
-                MenuItem(
+                _buildMenuItem(
                   icon: Icons.arrow_back,
                   title: 'Voltar',
                   subtitle: 'Menu Principal',
                   index: 99,
-                  selectedIndex: selectedIndex,
+                  selected: false,
                   onTap: (_) => Navigator.of(context).pop(),
                 ),
               ],
@@ -297,123 +322,210 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     );
   }
 
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required int index,
+    required bool selected,
+    required Function(int) onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      color: selected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Icon(icon, color: selected ? Colors.blue : Colors.white70),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: selected ? Colors.blue : Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(
+            color: selected ? Colors.blue : Colors.white70,
+            fontSize: 12,
+          ),
+        ),
+        trailing: selected ? const Icon(Icons.chevron_right, color: Colors.blue) : null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        onTap: () => onTap(index),
+      ),
+    );
+  }
+
   Widget _buildAppBar() {
     final currentUser = widget.authService.currentUser;
     final username = currentUser?['username'] ?? 'Usuário';
     final role = currentUser?['role'] ?? 'user';
 
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.3),
             spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
       ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(
-                _isSidebarVisible ? Icons.menu_open : Icons.menu,
-                color: Colors.grey[600]),
-            onPressed: () =>
-                setState(() => _isSidebarVisible = !_isSidebarVisible),
-            tooltip: 'Esconder/Mostrar Menu',
-          ),
-          const SizedBox(width: 10),
-          Text(
-            'Monitoramento de Totens',
-            style: TextStyle(
-              color: Colors.blueGrey[800],
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  role == 'admin' ? Icons.admin_panel_settings : Icons.person,
-                  size: 16,
-                  color: role == 'admin' ? Colors.red[600] : Colors.blue[600],
+      child: SafeArea(
+        child: Row(
+          children: [
+            IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  username,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[800]),
+                child: Icon(
+                  _isSidebarVisible ? Icons.menu_open : Icons.menu,
+                  color: Colors.grey[600],
+                ),
+              ),
+              onPressed: () => setState(() => _isSidebarVisible = !_isSidebarVisible),
+              tooltip: 'Esconder/Mostrar Menu',
+            ),
+            const SizedBox(width: 12),
+            Icon(Icons.desktop_windows, color: Colors.blue, size: 28),
+            const SizedBox(width: 12),
+            Text(
+              'Monitoramento de Totens',
+              style: TextStyle(
+                color: Colors.blueGrey[800],
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        role == 'admin' ? Icons.admin_panel_settings : Icons.person,
+                        size: 16,
+                        color: role == 'admin' ? Colors.red[600] : Colors.blue[600],
+                      ),
+                      const SizedBox(width: 6),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            username,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          Text(
+                            role.toUpperCase(),
+                            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 15),
+                if (isLoading)
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                const SizedBox(width: 15),
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.location_on, color: Colors.purple[700]),
+                  ),
+                  onPressed: () {
+                    _monitoringService.invalidateMappingsCache();
+                    _loadTotems(isInitialLoad: true);
+                  },
+                  tooltip: 'Atualizar Mapeamentos de Localização',
+                ),
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.refresh, color: Colors.green[700]),
+                  ),
+                  onPressed: () => _loadTotems(isInitialLoad: true),
+                  tooltip: 'Atualizar Agora',
+                ),
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  icon: CircleAvatar(
+                    backgroundColor:
+                        role == 'admin' ? Colors.red[600] : Colors.blue[600],
+                    child: Text(
+                      username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  tooltip: 'Menu do usuário',
+                  onSelected: (value) {
+                    if (value == 'logout') {
+                      _showLogoutDialog();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'logout',
+                      child: Row(
+                        children: [
+                          Icon(Icons.logout, size: 18, color: Colors.red[600]),
+                          const SizedBox(width: 8),
+                          Text('Sair', style: TextStyle(color: Colors.red[600])),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 15),
-          if (isLoading)
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          const SizedBox(width: 15),
-          // NOVO: Botão para forçar atualização dos mapeamentos
-          IconButton(
-            icon: Icon(Icons.location_on, color: Colors.grey[600]),
-            onPressed: () {
-              _monitoringService.invalidateMappingsCache();
-              _loadTotems(isInitialLoad: true);
-            },
-            tooltip: 'Atualizar Mapeamentos de Localização',
-          ),
-          IconButton(
-            icon: Icon(Icons.refresh, color: Colors.grey[600]),
-            onPressed: () => _loadTotems(isInitialLoad: true),
-            tooltip: 'Atualizar Agora',
-          ),
-          const SizedBox(width: 10),
-          PopupMenuButton<String>(
-            icon: CircleAvatar(
-              backgroundColor:
-                  role == 'admin' ? Colors.red[600] : Colors.blue[600],
-              child: Text(
-                username.isNotEmpty ? username[0].toUpperCase() : 'U',
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            ),
-            tooltip: 'Menu do usuário',
-            onSelected: (value) {
-              if (value == 'logout') {
-                _showLogoutDialog();
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout, size: 18, color: Colors.red[600]),
-                    const SizedBox(width: 8),
-                    Text('Sair', style: TextStyle(color: Colors.red[600])),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -481,8 +593,14 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Visão Geral dos Totens',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          Text(
+            'Visão Geral dos Totens',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueGrey[800],
+            ),
+          ),
           const SizedBox(height: 20),
           Row(
             children: [

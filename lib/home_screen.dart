@@ -30,21 +30,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutBack,
-    ));
+    ).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack),
+    );
 
     _fadeController.forward();
     _slideController.forward();
@@ -60,8 +55,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void _logout(BuildContext context) async {
     await widget.authService.logout();
     if (mounted) {
-      Navigator.of(context)
-          .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
     }
   }
 
@@ -114,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           gradient: LinearGradient(
                             colors: [
                               Colors.blue.shade600,
-                              Colors.indigo.shade700
+                              Colors.indigo.shade700,
                             ],
                           ),
                           borderRadius: BorderRadius.circular(20),
@@ -128,11 +124,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                         child: const Column(
                           children: [
-                            Icon(
-                              Icons.apps,
-                              size: 48,
-                              color: Colors.white,
-                            ),
+                            Icon(Icons.apps, size: 48, color: Colors.white),
                             SizedBox(height: 12),
                             Text(
                               'Central de Módulos',
@@ -146,12 +138,110 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 30),
                       const SizedBox(height: 8),
-                      Text(
-                        'Bem-vindo, ${widget.authService.currentUser?['username'] ?? 'Usuário'}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.blue.shade50,
+                              Colors.indigo.shade50,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.blue.shade100,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.blue.withOpacity(0.2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                widget.authService.isAdmin
+                                    ? Icons.admin_panel_settings
+                                    : Icons.person,
+                                color:
+                                    widget.authService.isAdmin
+                                        ? Colors.red.shade600
+                                        : Colors.blue.shade600,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Bem-vindo de volta!',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    widget
+                                            .authService
+                                            .currentUser?['username'] ??
+                                        'Usuário',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.blueGrey.shade800,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (widget.authService.currentUser?['role'] !=
+                                      null)
+                                    Text(
+                                      widget.authService.currentUser!['role']
+                                          .toString()
+                                          .toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color:
+                                            widget.authService.isAdmin
+                                                ? Colors.red.shade600
+                                                : Colors.blue.shade600,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade50,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.check_circle,
+                                color: Colors.green.shade600,
+                                size: 16,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -178,7 +268,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               title: 'Módulo Totem',
                               subtitle: 'Monitoramento de Totens',
                               onTap: () {
-                                Navigator.pushNamed(context, '/totem_dashboard');
+                                Navigator.pushNamed(
+                                  context,
+                                  '/totem_dashboard',
+                                );
                               },
                             ),
                           if (widget.authService.isAdmin)
@@ -187,18 +280,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               title: 'Painel de Controle',
                               subtitle: 'Gerenciamento do Sistema',
                               onTap: () {
-                                Navigator.pushNamed(context, '/admin_dashboard');
+                                Navigator.pushNamed(
+                                  context,
+                                  '/admin_dashboard',
+                                );
                               },
                             ),
                         ],
                       ),
                       const SizedBox(height: 32),
-                       _buildActionButton(
+                      _buildActionButton(
                         onPressed: () => _logout(context),
                         text: 'Sair',
                         icon: Icons.logout,
                         color: Colors.red.shade600,
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -210,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-   Widget _buildActionButton({
+  Widget _buildActionButton({
     required VoidCallback onPressed,
     required String text,
     required IconData icon,
@@ -222,25 +318,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       height: 52,
       child: ElevatedButton.icon(
         onPressed: isLoading ? null : onPressed,
-        icon: isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
+        icon:
+            isLoading
+                ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+                : Icon(icon, size: 18),
+        label:
+            isLoading
+                ? const Text('Aguarde...')
+                : Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              )
-            : Icon(icon, size: 18),
-        label: isLoading
-            ? const Text('Aguarde...')
-            : Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,

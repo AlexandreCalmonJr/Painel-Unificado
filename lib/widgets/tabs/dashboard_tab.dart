@@ -27,7 +27,7 @@ class DashboardTab extends StatefulWidget {
 
 class _DashboardTabState extends State<DashboardTab> {
   String _deviceFilter = 'Todos';
- 
+
 
   @override
   void initState() {
@@ -65,6 +65,7 @@ Map<String, int> _getDeviceStats() {
     'online': online,
     'offline': offline,
     'maintenance': maintenance,
+    'unmonitored': 0, // Adicionado para consistência
   };
 }
 
@@ -81,6 +82,8 @@ List<Device> _getFilteredDevices() {
         return !online && !inMaintenance;
       case 'Manutenção':
         return inMaintenance;
+      case 'Sem Monitorar':
+        return device.status == 'Sem Monitorar';
       default:
         return true;
     }
@@ -106,6 +109,7 @@ List<Device> _getFilteredDevices() {
                 DropdownMenuItem(value: 'Online', child: Text('Online')),
                 DropdownMenuItem(value: 'Offline', child: Text('Offline')),
                 DropdownMenuItem(value: 'Manutenção', child: Text('Em Manutenção')),
+                DropdownMenuItem(value: 'Sem Monitorar', child: Text('Sem Monitorar')),
               ],
               onChanged: (value) {
                 setState(() {
@@ -142,6 +146,8 @@ List<Device> _getFilteredDevices() {
             Expanded(child: StatCard(title: 'Offline', value: '${stats['offline']}', icon: Icons.warning, color: Colors.orange)),
             const SizedBox(width: 15),
             Expanded(child: StatCard(title: 'Em Manutenção', value: '${stats['maintenance']}', icon: Icons.build, color: Colors.blueGrey)),
+            const SizedBox(width: 15),
+            Expanded(child: StatCard(title: 'Sem Monitorar', value: '${stats['unmonitored']}', icon: Icons.do_not_disturb, color: Colors.grey)),
           ],
         ),
         const SizedBox(height: 30),
