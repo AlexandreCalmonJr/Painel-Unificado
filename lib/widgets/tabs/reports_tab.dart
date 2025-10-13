@@ -124,25 +124,37 @@ class _ReportsTabState extends State<ReportsTab> with TickerProviderStateMixin {
     });
   }
 
-  void _filterDevicesForCurrentUser() {
-    final userRole = widget.currentUser?['role'];
-    final userSectorPrefixes = widget.currentUser?['sector'];
+void _filterDevicesForCurrentUser() {
+  final userRole = widget.currentUser?['role'];
+  final userSectorPrefixes = widget.currentUser?['sector'];
 
-    if (userRole == 'user' && userSectorPrefixes != null && userSectorPrefixes.isNotEmpty) {
-      final prefixes = userSectorPrefixes.split(',')
-          .map((p) => p.trim().toLowerCase())
-          .where((p) => p.isNotEmpty)
-          .toList();
-      _devicesForReport = widget.devices.where((device) {
-        final deviceName = device.deviceName?.toLowerCase() ?? '';
-        return prefixes.any((prefix) => deviceName.startsWith(prefix));
-      }).toList();
-    } else {
-      _devicesForReport = widget.devices;
-    }
-    _clearFilter();
-    if (mounted) setState(() {});
+  debugPrint('=== DEBUG FILTRO - Role: $userRole, Sector: $userSectorPrefixes ===');
+
+  if (userRole == 'user' && userSectorPrefixes != null && userSectorPrefixes.isNotEmpty) {
+    final prefixes = userSectorPrefixes.split(',')
+        .map((p) => p.trim().toLowerCase())
+        .where((p) => p.isNotEmpty)
+        .toList();
+    
+    debugPrint('Prefixos: $prefixes');
+    debugPrint('Total dispositivos recebidos: ${widget.devices.length}');
+
+    _devicesForReport = widget.devices.where((device) {
+      final deviceName = device.deviceName?.toLowerCase() ?? '';
+      final match = prefixes.any((prefix) => deviceName.contains(prefix)); // Mudança: contains em vez de startsWith
+      if (match) debugPrint('Match: ${device.deviceName} -> $prefixes');
+      return match;
+    }).toList();
+    
+    debugPrint('Após filtro: ${_devicesForReport.length} dispositivos');
+  } else {
+    _devicesForReport = widget.devices;
+    debugPrint('Admin: Todos os dispositivos (${_devicesForReport.length})');
   }
+
+  _clearFilter();
+  if (mounted) setState(() {});
+}
 
   void _onPieSectionTouched(FlTouchEvent event, PieTouchResponse? pieTouchResponse) {
     final isValidTouch = event.isInterestedForInteractions && pieTouchResponse?.touchedSection != null;

@@ -1,3 +1,4 @@
+// Unified users_tab.dart
 // File: lib/widgets/tabs/users_tab.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
@@ -180,21 +181,21 @@ class _UsersTabState extends State<UsersTab> {
                 if (mounted) {
                   setDialogState(() => isLoadingDialog = false);
                   if (result['success']) {
-                    Navigator.of(context).pop();
                     _showSnackbar(isEditing ? 'Utilizador atualizado com sucesso' : 'Utilizador criado com sucesso');
+                    Navigator.of(context).pop();
                     _loadUsers();
                   } else {
                     _showSnackbar(result['message'], isError: true);
                   }
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
               child: isLoadingDialog
-                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(isEditing ? 'Atualizar' : 'Criar', style: const TextStyle(color: Colors.white)),
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                    )
+                  : Text(isEditing ? 'Atualizar' : 'Criar'),
             ),
           ],
         ),
@@ -207,14 +208,14 @@ class _UsersTabState extends State<UsersTab> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.warning, color: Colors.red),
-            const SizedBox(width: 8),
-            const Text('Confirmar Exclusão'),
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Confirmar Exclusão'),
           ],
         ),
-        content: Text('Tem certeza que deseja excluir o utilizador "${user['username']}"?'),
+        content: Text('Tem a certeza que deseja excluir o utilizador "${user['username']}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -233,8 +234,8 @@ class _UsersTabState extends State<UsersTab> {
                 }
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[600], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-            child: const Text('Excluir', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[600], foregroundColor: Colors.white),
+            child: const Text('Excluir'),
           ),
         ],
       ),
@@ -245,74 +246,58 @@ class _UsersTabState extends State<UsersTab> {
   Widget build(BuildContext context) {
     if (!widget.authService.isAdmin) {
       return Center(
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.security, size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text('Acesso Restrito', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[700])),
-                const SizedBox(height: 8),
-                Text('Apenas administradores podem gerenciar utilizadores.', style: TextStyle(fontSize: 16, color: Colors.grey[600]), textAlign: TextAlign.center),
-              ],
-            ),
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.security, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text('Acesso Restrito', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[700])),
+            const SizedBox(height: 8),
+            Text('Apenas administradores podem gerenciar utilizadores.', style: TextStyle(fontSize: 16, color: Colors.grey[600]), textAlign: TextAlign.center),
+          ],
         ),
       );
     }
 
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.people, color: Colors.blue, size: 28),
-                      const SizedBox(width: 8),
-                      const Text('Utilizadores', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey)),
-                    ],
+                  Icon(Icons.people, color: Colors.blue, size: 28),
+                  const SizedBox(width: 8),
+                  const Text('Utilizadores', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey)),
+                ],
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: _loadUsers,
+                    icon: const Icon(Icons.refresh),
+                    tooltip: 'Atualizar',
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.blue.withOpacity(0.1),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: _loadUsers,
-                        icon: const Icon(Icons.refresh),
-                        tooltip: 'Atualizar',
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.blue.withOpacity(0.1),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton.icon(
-                        onPressed: _showUserDialog,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Novo Utilizador'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: _showUserDialog,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Novo Utilizador'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ],
               ),
-            ),
+            ],
           ),
           const SizedBox(height: 16),
           

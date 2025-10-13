@@ -1,3 +1,4 @@
+// Unified dashboard_tab.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -46,7 +47,7 @@ class _DashboardTabState extends State<DashboardTab> {
     debugPrint('=== DASHBOARD INFO ===');
     debugPrint('Usuário: ${widget.currentUser?['username']}');
     debugPrint('Role: $role');
-    debugPrint('Setor: $sector');
+    debugPrint('Setor/Prefixos: $sector');
     debugPrint('Dispositivos recebidos da API: ${widget.devices.length}');
     debugPrint('======================');
   }
@@ -57,7 +58,7 @@ class _DashboardTabState extends State<DashboardTab> {
     int maintenance = 0;
     int unmonitored = 0;
 
-    // Os dispositivos já vêm filtrados do servidor
+    // Os dispositivos já vêm filtrados do servidor por prefixo
     for (final device in widget.devices) {
       final inMaintenance = device.maintenanceStatus ?? false;
       final lastSeenTime = parseLastSeen(device.lastSeen);
@@ -94,7 +95,7 @@ class _DashboardTabState extends State<DashboardTab> {
       final inMaintenance = device.maintenanceStatus ?? false;
       
       // Verifica se é "Sem Monitorar"
-      final  unmonitored = device.lastSeen == null || 
+      final unmonitored = device.lastSeen == null || 
                           device.lastSeen == 'N/A' || 
                           device.lastSeen!.isEmpty ||
                           lastSeenTime == null;
