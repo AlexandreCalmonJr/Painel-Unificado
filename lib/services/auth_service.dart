@@ -1,3 +1,4 @@
+// File: lib/services/auth_service.dart
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -7,6 +8,7 @@ import 'package:painel_windowns/services/server_config_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
+  // ... (todo o resto do seu código: _token, _user, login, etc. permanece igual)
   String? _token;
   Map<String, dynamic>? _user;
 
@@ -40,7 +42,7 @@ class AuthService {
         Uri.parse('http://$serverIp:$serverPort/api/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'username': username, 'password': password}),
-      ).timeout(const Duration(seconds: 10)); // Adiciona um timeout
+      ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -50,14 +52,12 @@ class AuthService {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', _token!);
         await prefs.setString('user', jsonEncode(_user));
-        print('DEBUG AUTH: Token salvo com sucesso no SharedPreferences!');
         
         return {'success': true};
       } else {
         final error = jsonDecode(response.body);
         return {'success': false, 'message': error['message'] ?? 'Falha no login'};
       }
-    // --- TRATAMENTO DE ERROS DE CONEXÃO MAIS ESPECÍFICO ---
     } on TimeoutException {
         return {'success': false, 'message': 'O servidor demorou muito para responder. Verifique a conexão.'};
     } on SocketException {
@@ -69,8 +69,9 @@ class AuthService {
     }
   }
 
+  // ##### MÉTODO createUser MODIFICADO #####
   Future<Map<String, dynamic>> createUser(Map<String, dynamic> userData) async {
-     if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
+    if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
     final config = ServerConfigService.instance.loadConfig();
     try {
       final response = await http.post(
@@ -79,14 +80,21 @@ class AuthService {
         body: jsonEncode(userData),
       );
       final data = jsonDecode(response.body);
-      return {'success': response.statusCode == 201, 'message': data['message']};
+      
+      // A mudança está aqui: agora retornamos o usuário no sucesso
+      if (response.statusCode == 201) {
+        return {'success': true, 'message': data['message'], 'user': data['user']};
+      } else {
+        return {'success': false, 'message': data['message']};
+      }
+
     } catch (e) {
       return {'success': false, 'message': 'Falha na conexão ao criar utilizador'};
     }
   }
 
   Future<Map<String, dynamic>> updateUser(String userId, Map<String, dynamic> userData) async {
-     if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
+    if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
     final config = ServerConfigService.instance.loadConfig();
     try {
       final response = await http.put(
@@ -100,9 +108,30 @@ class AuthService {
       return {'success': false, 'message': 'Falha na conexão ao atualizar utilizador'};
     }
   }
+  
+  Future<Map<String, dynamic>> getUsers() async {
+    if (!isLoggedIn || !isAdmin) {
+      return {'success': false, 'message': 'Acesso não autorizado', 'users': []};
+    }
+    final config = ServerConfigService.instance.loadConfig();
+    try {
+      final response = await http.get(
+        Uri.parse('http://${config['ip']}:${config['port']}/api/auth/users'),
+        headers: {'Authorization': 'Bearer $currentToken'},
+      ).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {'success': true, 'users': data['users']};
+      } else {
+        return {'success': false, 'message': 'Falha ao buscar usuários', 'users': []};
+      }
+    } catch (e) {
+      return {'success': false, 'users': [], 'message': 'Erro de conexão: ${e.toString()}'};
+    }
+  }
 
   Future<Map<String, dynamic>> deleteUser(String userId) async {
-     if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
+    if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
     final config = ServerConfigService.instance.loadConfig();
     try {
       final response = await http.delete(

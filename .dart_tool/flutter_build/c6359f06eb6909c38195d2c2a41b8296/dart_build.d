@@ -1,1 +1,0 @@
- C:\\Users\\alexandrej\\painel_windowns_mobile\\.dart_tool\\flutter_build\\c6359f06eb6909c38195d2c2a41b8296\\dart_build_result.json: 

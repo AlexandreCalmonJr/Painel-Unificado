@@ -1,7 +1,5 @@
-// Unified users_tab.dart
 // File: lib/widgets/tabs/users_tab.dart
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class UsersTab extends StatefulWidget {
@@ -18,7 +16,7 @@ class UsersTab extends StatefulWidget {
 
 class _UsersTabState extends State<UsersTab> {
   List<Map<String, dynamic>> _users = [];
-  bool _isLoading = false;
+  bool _isLoading = true;
   String? _errorMessage;
 
   @override
@@ -30,6 +28,8 @@ class _UsersTabState extends State<UsersTab> {
   }
 
   Future<void> _loadUsers() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -37,18 +37,18 @@ class _UsersTabState extends State<UsersTab> {
 
     final result = await widget.authService.getUsers();
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-        if (result['success']) {
-          _users = List<Map<String, dynamic>>.from(result['users']);
-        } else {
-          _errorMessage = result['message'];
-        }
-      });
-    }
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoading = false;
+      if (result['success']) {
+        _users = List<Map<String, dynamic>>.from(result['users']);
+      } else {
+        _errorMessage = result['message'];
+      }
+    });
   }
-  
+
   void _showSnackbar(String message, {bool isError = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -64,9 +64,10 @@ class _UsersTabState extends State<UsersTab> {
     final usernameController = TextEditingController(text: user?['username'] ?? '');
     final emailController = TextEditingController(text: user?['email'] ?? '');
     final passwordController = TextEditingController();
-    // O campo 'sector' agora é usado para os prefixos
     final sectorController = TextEditingController(text: user?['sector'] ?? '');
+    
     String selectedRole = user?['role'] ?? 'user';
+    List<String> selectedPermissions = List<String>.from(user?['permissions'] ?? []);
     bool isLoadingDialog = false;
 
     showDialog(
@@ -104,8 +105,8 @@ class _UsersTabState extends State<UsersTab> {
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  if (!isEditing)
+                  if (!isEditing) ...[
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: passwordController,
                       obscureText: true,
@@ -115,6 +116,7 @@ class _UsersTabState extends State<UsersTab> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
+                  ],
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: selectedRole,
@@ -128,11 +130,16 @@ class _UsersTabState extends State<UsersTab> {
                       DropdownMenuItem(value: 'admin', child: Text('Administrador')),
                     ],
                     onChanged: (value) {
-                      setDialogState(() => selectedRole = value!);
+                      setDialogState(() {
+                        selectedRole = value!;
+                        if (selectedRole == 'admin') {
+                          selectedPermissions = ['mobile', 'totem', 'admin'];
+                        }
+                      });
                     },
                   ),
                   const SizedBox(height: 16),
-                  if (selectedRole == 'user')
+                  if (selectedRole == 'user') ...[
                     TextFormField(
                       controller: sectorController,
                       decoration: InputDecoration(
@@ -142,6 +149,40 @@ class _UsersTabState extends State<UsersTab> {
                         hintText: 'Separados por vírgula (ex: Enfermagem, UTI)',
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    const Text('Permissões (Módulos Acessíveis):'),
+                    CheckboxListTile(
+                      title: const Text('Módulo Mobile'),
+                      value: selectedPermissions.contains('mobile'),
+                      onChanged: (value) {
+                        setDialogState(() {
+                          if (value == true) {
+                            selectedPermissions.add('mobile');
+                          } else {
+                            selectedPermissions.remove('mobile');
+                          }
+                        });
+                      },
+                    ),
+                    CheckboxListTile(
+                      title: const Text('Módulo Totem'),
+                      value: selectedPermissions.contains('totem'),
+                      onChanged: (value) {
+                        setDialogState(() {
+                          if (value == true) {
+                            selectedPermissions.add('totem');
+                          } else {
+                            selectedPermissions.remove('totem');
+                          }
+                        });
+                      },
+                    ),
+                  ] else ...[
+                    const ListTile(
+                      leading: Icon(Icons.info_outline, color: Colors.blue),
+                      title: Text('Administradores têm acesso a todos os módulos.'),
+                    )
+                  ]
                 ],
               ),
             ),
@@ -168,6 +209,7 @@ class _UsersTabState extends State<UsersTab> {
                   'email': emailController.text.trim(),
                   'role': selectedRole,
                   'sector': selectedRole == 'user' ? sectorController.text.trim() : 'Global',
+                  'permissions': selectedPermissions,
                   if (!isEditing) 'password': passwordController.text,
                 };
 
@@ -178,22 +220,28 @@ class _UsersTabState extends State<UsersTab> {
                   result = await widget.authService.createUser(userData);
                 }
 
-                if (mounted) {
-                  setDialogState(() => isLoadingDialog = false);
-                  if (result['success']) {
-                    _showSnackbar(isEditing ? 'Utilizador atualizado com sucesso' : 'Utilizador criado com sucesso');
-                    Navigator.of(context).pop();
-                    _loadUsers();
-                  } else {
-                    _showSnackbar(result['message'], isError: true);
-                  }
+                if (!mounted) return;
+
+                setDialogState(() => isLoadingDialog = false);
+                
+                if (result['success']) {
+                  Navigator.of(context).pop();
+                  _showSnackbar(isEditing ? 'Utilizador atualizado com sucesso' : 'Utilizador criado com sucesso');
+                  
+                  // Recarrega a lista completa do servidor
+                  await _loadUsers();
+                } else {
+                  _showSnackbar(result['message'] ?? 'Ocorreu um erro', isError: true);
                 }
               },
               child: isLoadingDialog
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2, 
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white)
+                      ),
                     )
                   : Text(isEditing ? 'Atualizar' : 'Criar'),
             ),
@@ -223,18 +271,29 @@ class _UsersTabState extends State<UsersTab> {
           ),
           ElevatedButton(
             onPressed: () async {
+              final userId = user['_id'];
               Navigator.of(context).pop();
-              final result = await widget.authService.deleteUser(user['_id']);
-              if (mounted) {
-                if (result['success']) {
-                  _showSnackbar('Utilizador excluído com sucesso');
-                  _loadUsers();
-                } else {
-                  _showSnackbar(result['message'], isError: true);
-                }
+              
+              // Mostra loading durante a exclusão
+              setState(() => _isLoading = true);
+              
+              final result = await widget.authService.deleteUser(userId);
+
+              if (!mounted) return;
+              
+              if (result['success']) {
+                _showSnackbar('Utilizador excluído com sucesso');
+                // Recarrega a lista completa do servidor
+                await _loadUsers();
+              } else {
+                setState(() => _isLoading = false);
+                _showSnackbar(result['message'] ?? 'Erro ao excluir', isError: true);
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[600], foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[600], 
+              foregroundColor: Colors.white
+            ),
             child: const Text('Excluir'),
           ),
         ],
@@ -251,9 +310,20 @@ class _UsersTabState extends State<UsersTab> {
           children: [
             Icon(Icons.security, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text('Acesso Restrito', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[700])),
+            Text(
+              'Acesso Restrito', 
+              style: TextStyle(
+                fontSize: 24, 
+                fontWeight: FontWeight.bold, 
+                color: Colors.grey[700]
+              )
+            ),
             const SizedBox(height: 8),
-            Text('Apenas administradores podem gerenciar utilizadores.', style: TextStyle(fontSize: 16, color: Colors.grey[600]), textAlign: TextAlign.center),
+            Text(
+              'Apenas administradores podem gerenciar utilizadores.', 
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]), 
+              textAlign: TextAlign.center
+            ),
           ],
         ),
       );
@@ -267,32 +337,38 @@ class _UsersTabState extends State<UsersTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
+              const Row(
                 children: [
                   Icon(Icons.people, color: Colors.blue, size: 28),
-                  const SizedBox(width: 8),
-                  const Text('Utilizadores', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  SizedBox(width: 8),
+                  Text(
+                    'Utilizadores', 
+                    style: TextStyle(
+                      fontSize: 24, 
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.grey
+                    )
+                  ),
                 ],
               ),
               Row(
                 children: [
                   IconButton(
-                    onPressed: _loadUsers,
+                    onPressed: _isLoading ? null : _loadUsers,
                     icon: const Icon(Icons.refresh),
                     tooltip: 'Atualizar',
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.blue.withOpacity(0.1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton.icon(
-                    onPressed: _showUserDialog,
+                    onPressed: () => _showUserDialog(),
                     icon: const Icon(Icons.add),
                     label: const Text('Novo Utilizador'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)
+                      ),
                     ),
                   ),
                 ],
@@ -300,108 +376,130 @@ class _UsersTabState extends State<UsersTab> {
             ],
           ),
           const SizedBox(height: 16),
-          
           if (_errorMessage != null)
             Card(
               color: Colors.red[50],
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    Icon(Icons.error, color: Colors.red[600], size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(_errorMessage!, style: TextStyle(color: Colors.red[700]))),
+                    const Icon(Icons.error_outline, color: Colors.red),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _loadUsers,
+                      child: const Text('Tentar Novamente'),
+                    ),
                   ],
                 ),
               ),
             ),
-
-          if (_isLoading)
-            const Center(child: Padding(padding: EdgeInsets.all(32.0), child: CircularProgressIndicator(color: Colors.blue)))
-          else if (_users.isEmpty)
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.info_outline, color: Colors.grey),
-                title: const Text('Nenhum utilizador encontrado.'),
-                subtitle: const Text('Crie um novo utilizador para começar.'),
-              ),
-            )
-          else
-            Expanded(
-              child: ListView.builder(
-                itemCount: _users.length,
-                itemBuilder: (context, index) {
-                  final user = _users[index];
-                  final createdAt = DateTime.tryParse(user['created_at'] ?? '') ?? DateTime.now();
-                  final formattedDate = '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year}';
-                  
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: user['role'] == 'admin' ? Colors.red[600] : Colors.blue[600],
-                        child: Text(
-                          user['username'][0].toUpperCase(),
-                          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      title: Text(
-                        user['username'],
-                        style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey[800]),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user['email'],
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                          Text(
-                            user['role'] == 'admin' ? 'Admin' : 'Utilizador',
-                            style: TextStyle(
-                              color: user['role'] == 'admin' ? Colors.red[700] : Colors.blue[700],
-                              fontWeight: FontWeight.w500,
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: Colors.blue))
+                : _users.isEmpty
+                    ? const Center(child: Text('Nenhum utilizador encontrado.'))
+                    : ListView.builder(
+                        itemCount: _users.length,
+                        itemBuilder: (context, index) {
+                          final user = _users[index];
+                          final createdAt = DateTime.tryParse(user['created_at'] ?? '')?.toLocal() ?? DateTime.now();
+                          final formattedDate = '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year}';
+                          final permissions = (user['permissions'] as List<dynamic>?)
+                              ?.where((p) => p != 'admin')
+                              .join(', ')
+                              .trim() ?? 'Nenhuma';
+                          
+                          return Card(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)
                             ),
-                          ),
-                          Text(
-                            'Visibilidade: ${user['sector'] ?? 'N/A'}',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                          ),
-                          Text(
-                            'Criado: $formattedDate',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      trailing: PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_vert, color: Colors.grey),
-                        onSelected: (value) {
-                          if (value == 'edit') {
-                            _showUserDialog(user: user);
-                          } else if (value == 'delete') {
-                            _showDeleteUserDialog(user);
-                          }
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: user['role'] == 'admin' 
+                                    ? Colors.red[600] 
+                                    : Colors.blue[600],
+                                child: Text(
+                                  user['username'][0].toUpperCase(), 
+                                  style: const TextStyle(
+                                    color: Colors.white, 
+                                    fontWeight: FontWeight.bold
+                                  )
+                                ),
+                              ),
+                              title: Text(
+                                user['username'], 
+                                style: const TextStyle(fontWeight: FontWeight.w600)
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(user['email']),
+                                  Text(
+                                    user['role'] == 'admin' 
+                                        ? 'Administrador' 
+                                        : 'Utilizador',
+                                    style: TextStyle(
+                                      color: user['role'] == 'admin' 
+                                          ? Colors.red[700] 
+                                          : Colors.blue[700], 
+                                      fontWeight: FontWeight.w500
+                                    ),
+                                  ),
+                                  Text(
+                                    'Visibilidade: ${user['sector'] ?? 'N/A'}', 
+                                    style: const TextStyle(fontSize: 12)
+                                  ),
+                                  if (user['role'] != 'admin')
+                                    Text(
+                                      'Módulos: ${permissions.isEmpty ? 'Nenhum' : permissions}', 
+                                      style: const TextStyle(fontSize: 12)
+                                    ),
+                                  Text(
+                                    'Criado em: $formattedDate', 
+                                    style: const TextStyle(fontSize: 12)
+                                  ),
+                                ],
+                              ),
+                              trailing: PopupMenuButton<String>(
+                                onSelected: (value) {
+                                  if (value == 'edit') _showUserDialog(user: user);
+                                  if (value == 'delete') _showDeleteUserDialog(user);
+                                },
+                                itemBuilder: (context) => const [
+                                  PopupMenuItem(
+                                    value: 'edit', 
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit, color: Colors.blue), 
+                                        SizedBox(width: 8), 
+                                        Text('Editar')
+                                      ]
+                                    )
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'delete', 
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.delete, color: Colors.red), 
+                                        SizedBox(width: 8), 
+                                        Text('Excluir')
+                                      ]
+                                    )
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'edit',
-                            child: Row(children: [Icon(Icons.edit, color: Colors.blue), SizedBox(width: 8), Text('Editar')]),
-                          ),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text('Excluir')]),
-                          ),
-                        ],
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
+          ),
         ],
       ),
     );
