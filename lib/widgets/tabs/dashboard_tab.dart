@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/helpers.dart';
 import 'package:painel_windowns/widgets/managed_devices_card.dart';
 import 'package:painel_windowns/widgets/stat_card.dart';
 
@@ -27,54 +26,28 @@ class DashboardTab extends StatefulWidget {
 class _DashboardTabState extends State<DashboardTab> {
   String _deviceFilter = 'Todos';
 
-  @override
-  void initState() {
-    super.initState();
-    _logFilteringInfo();
-  }
-
-  @override
-  void didUpdateWidget(covariant DashboardTab oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.devices.length != widget.devices.length) {
-      _logFilteringInfo();
-    }
-  }
-
-  void _logFilteringInfo() {
-    final role = widget.currentUser?['role'] ?? 'desconhecido';
-    final sector = widget.currentUser?['sector'] ?? 'N/A';
-    debugPrint('=== DASHBOARD INFO ===');
-    debugPrint('Usuário: ${widget.currentUser?['username']}');
-    debugPrint('Role: $role');
-    debugPrint('Setor/Prefixos: $sector');
-    debugPrint('Dispositivos recebidos da API: ${widget.devices.length}');
-    debugPrint('======================');
-  }
-
+  // Função de contagem CORRIGIDA
   Map<String, int> _getDeviceStats() {
     int online = 0;
     int offline = 0;
     int maintenance = 0;
     int unmonitored = 0;
 
-    // Os dispositivos já vêm filtrados do servidor por prefixo
     for (final device in widget.devices) {
-      final inMaintenance = device.maintenanceStatus ?? false;
-      final lastSeenTime = parseLastSeen(device.lastSeen);
-      
-      // Verifica se o dispositivo nunca foi visto ou está sem monitoramento
-      if (device.lastSeen == null || 
-          device.lastSeen == 'N/A' || 
-          device.lastSeen!.isEmpty ||
-          lastSeenTime == null) {
-        unmonitored++;
-      } else if (inMaintenance) {
-        maintenance++;
-      } else if (isDeviceOnline(lastSeenTime)) {
-        online++;
-      } else {
-        offline++;
+      switch (device.displayStatus) {
+        case DeviceStatusType.online:
+          online++;
+          break;
+        case DeviceStatusType.offline:
+          offline++;
+          break;
+        case DeviceStatusType.maintenance:
+        case DeviceStatusType.collectedByIT: // Agrupando no mesmo card
+          maintenance++;
+          break;
+        case DeviceStatusType.unmonitored:
+          unmonitored++;
+          break;
       }
     }
 
@@ -87,28 +60,23 @@ class _DashboardTabState extends State<DashboardTab> {
     };
   }
 
+  // Função de filtragem CORRIGIDA
   List<Device> _getFilteredDevices() {
-    // Os dispositivos já vêm filtrados do servidor por prefixo
-    // Aqui apenas aplicamos o filtro de status local
-    return widget.devices.where((device) {
-      final lastSeenTime = parseLastSeen(device.lastSeen);
-      final inMaintenance = device.maintenanceStatus ?? false;
-      
-      // Verifica se é "Sem Monitorar"
-      final unmonitored = device.lastSeen == null || 
-                          device.lastSeen == 'N/A' || 
-                          device.lastSeen!.isEmpty ||
-                          lastSeenTime == null;
+    if (_deviceFilter == 'Todos') {
+      return widget.devices;
+    }
 
+    return widget.devices.where((device) {
       switch (_deviceFilter) {
         case 'Online':
-          return !unmonitored && !inMaintenance && isDeviceOnline(lastSeenTime!);
+          return device.displayStatus == DeviceStatusType.online;
         case 'Offline':
-          return !unmonitored && !inMaintenance && !isDeviceOnline(lastSeenTime!);
+          return device.displayStatus == DeviceStatusType.offline;
         case 'Manutenção':
-          return inMaintenance;
+          return device.displayStatus == DeviceStatusType.maintenance ||
+                 device.displayStatus == DeviceStatusType.collectedByIT;
         case 'Sem Monitorar':
-          return unmonitored;
+          return device.displayStatus == DeviceStatusType.unmonitored;
         default:
           return true;
       }
@@ -141,7 +109,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      'Prefixos: ${widget.currentUser!['sector']}',
+                      'Visibilidade por prefixos: ${widget.currentUser!['sector']}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[600],
@@ -151,6 +119,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   ),
               ],
             ),
+            // O Dropdown de filtro permanece o mesmo
             DropdownButton<String>(
               value: _deviceFilter,
               items: const [
@@ -169,6 +138,7 @@ class _DashboardTabState extends State<DashboardTab> {
           ],
         ),
         if (widget.errorMessage != null)
+          // Widget de erro (sem alteração)
           Container(
             margin: const EdgeInsets.only(top: 10, bottom: 10),
             padding: const EdgeInsets.all(10),
@@ -191,6 +161,7 @@ class _DashboardTabState extends State<DashboardTab> {
             ),
           ),
         if (widget.devices.isEmpty && widget.errorMessage == null)
+          // Widget de "Nenhum dispositivo" (sem alteração)
           Container(
             margin: const EdgeInsets.only(top: 10, bottom: 10),
             padding: const EdgeInsets.all(15),
@@ -213,6 +184,7 @@ class _DashboardTabState extends State<DashboardTab> {
             ),
           ),
         const SizedBox(height: 20),
+        // StatCards (sem alteração de widget, apenas os valores que eles recebem)
         Row(
           children: [
             Expanded(
@@ -262,6 +234,7 @@ class _DashboardTabState extends State<DashboardTab> {
           ],
         ),
         const SizedBox(height: 30),
+        // Tabela de dispositivos (sem alteração de widget)
         Expanded(
           child: ManagedDevicesCard(
             title: 'Dispositivos Gerenciados (${filteredDevices.length})',

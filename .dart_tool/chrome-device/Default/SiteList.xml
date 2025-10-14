@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<site-list version="1">
+ <site url="10.1.22.191:8080">
+  <compat-mode>IE11</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="www.hapvida.com.br/pls/webhap">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://10.1.17.106:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://10.1.17.32:8080/utilitarios/reset.faces">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://10.1.22.191:8080/aud-dig/login.faces">
+  <compat-mode>IE11</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://app-homolog.hapvida.com.br/web/sam/sam-web/login">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://app-treino.hapvida.com.br/web/sam/sam-web/login">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://app.hapvida.com.br/utilitarios">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as01.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as02.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as03.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as04.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as05.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as06.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as07.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as08.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as09.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as10.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as11.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as12.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://as13.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://aslb01.sh.com.br:7777">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://aslb02.sh.com.br:7777">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://ged-homolog.sh.com.br:8888/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://ged.sh.srv.br:8888/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://hospitalar.hapvida.com.br">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://hospitalar.hapvida.com.br/hospitalar">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://hospitalar.hapvida.com.br/pep">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://hospitalar.hapvida.com.br/reports">
+  <compat-mode>Default</compat-mode>
+  <open-in>MSEdge</open-in>
+ </site>
+ <site url="http://leitores.hapvida.com.br:8000">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://leitores.hapvida.com.br:8001/paginaverificabiohapvida/install/index.html">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://planos.sh.com.br:7777">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://planos.sh.com.br:7777/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://planos.sh.com.br:7777/hosp">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://sistemas.hapvida.com.br">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://sistemas.hapvida.com.br/hospitalar">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://sistemas.hapvida.com.br/planos">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://sistemas.sh.srv.br:8888/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://ws-treino.hapvida.com.br:8888/forms/frmservlet">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+ <site url="http://www.hapvida.com.br/ponto">
+  <compat-mode>Default</compat-mode>
+  <open-in>IE11</open-in>
+ </site>
+</site-list>
