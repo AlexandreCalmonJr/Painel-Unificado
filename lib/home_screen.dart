@@ -1,7 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:painel_windowns/services/auth_service.dart';
+// File: lib/home_screen.dart (ATUALIZADO)
 
-import 'widgets/hub_menu_item.dart';
+import 'package:flutter/material.dart';
+import 'package:painel_windowns/models/asset_module_base.dart';
+import 'package:painel_windowns/modules/generic_module_dashboard.dart';
+import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/module_management_service.dart';
+import 'package:painel_windowns/widgets/hub_menu_item.dart';
 
 class HomeScreen extends StatefulWidget {
   final AuthService authService;
@@ -17,9 +21,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
+  List<AssetModuleConfig> _availableModules = [];
+  bool _isLoadingModules = false;
+  late final ModuleManagementService _moduleService;
+
   @override
   void initState() {
     super.initState();
+
+    _moduleService = ModuleManagementService(authService: widget.authService);
 
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -43,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     _fadeController.forward();
     _slideController.forward();
+
+    _loadAvailableModules();
   }
 
   @override
@@ -52,20 +64,77 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void _logout(BuildContext context) async {
-    await widget.authService.logout();
-    if (mounted) {
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+  Future<void> _loadAvailableModules() async {
+    setState(() => _isLoadingModules = true);
+    try {
+      final modules = await _moduleService.listModules();
+      if (mounted) {
+        setState(() {
+          // Filtra apenas módulos ativos
+          _availableModules = modules.where((m) => m.isActive).toList();
+          _isLoadingModules = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingModules = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar módulos: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
-  // Verifica se o usuário tem permissão para um módulo específico
+  void _logout(BuildContext context) async {
+    await widget.authService.logout();
+    if (mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+        (Route<dynamic> route) => false,
+      );
+    }
+  }
+
   bool _hasPermission(String module) {
     final permissions = widget.authService.permissions;
     if (widget.authService.isAdmin) return true;
     return permissions?.contains(module) ?? false;
+  }
+
+  IconData _getModuleIcon(String iconName) {
+    switch (iconName) {
+      case 'phone_android':
+        return Icons.phone_android;
+      case 'desktop_windows':
+        return Icons.desktop_windows;
+      case 'computer':
+        return Icons.computer;
+      case 'laptop':
+        return Icons.laptop;
+      case 'tv':
+        return Icons.tv;
+      case 'print':
+        return Icons.print;
+      case 'qr_code_scanner':
+        return Icons.qr_code_scanner;
+      default:
+        return Icons.category;
+    }
+  }
+
+  void _navigateToModule(AssetModuleConfig module) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GenericDashboardScreen(
+          authService: widget.authService,
+          moduleConfig: module,
+        ),
+      ),
+    );
   }
 
   @override
@@ -95,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Container(
-                  constraints: const BoxConstraints(maxWidth: 500),
+                  constraints: const BoxConstraints(maxWidth: 900),
                   padding: const EdgeInsets.all(32.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
@@ -139,7 +208,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
@@ -177,10 +245,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 widget.authService.isAdmin
                                     ? Icons.admin_panel_settings
                                     : Icons.person,
-                                color:
-                                    widget.authService.isAdmin
-                                        ? Colors.red.shade600
-                                        : Colors.blue.shade600,
+                                color: widget.authService.isAdmin
+                                    ? Colors.red.shade600
+                                    : Colors.blue.shade600,
                                 size: 20,
                               ),
                             ),
@@ -199,9 +266,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    widget
-                                            .authService
-                                            .currentUser?['username'] ??
+                                    widget.authService.currentUser?['username'] ??
                                         'Usuário',
                                     style: TextStyle(
                                       fontSize: 16,
@@ -210,18 +275,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  if (widget.authService.currentUser?['role'] !=
-                                      null)
+                                  if (widget.authService.currentUser?['role'] != null)
                                     Text(
                                       widget.authService.currentUser!['role']
                                           .toString()
                                           .toUpperCase(),
                                       style: TextStyle(
                                         fontSize: 10,
-                                        color:
-                                            widget.authService.isAdmin
-                                                ? Colors.red.shade600
-                                                : Colors.blue.shade600,
+                                        color: widget.authService.isAdmin
+                                            ? Colors.red.shade600
+                                            : Colors.blue.shade600,
                                         fontWeight: FontWeight.w600,
                                         letterSpacing: 0.5,
                                       ),
@@ -245,49 +308,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16.0,
-                        mainAxisSpacing: 16.0,
-                        childAspectRatio: 1.2,
-                        children: <Widget>[
-                          if (_hasPermission('mobile'))
-                            HubMenuItem(
-                              icon: Icons.phone_android,
-                              title: 'Módulo Mobile',
-                              subtitle: 'Gestão de Dispositivos',
-                              onTap: () {
-                                Navigator.pushNamed(context, '/dashboard');
-                              },
-                            ),
-                          if (_hasPermission('totem'))
-                            HubMenuItem(
-                              icon: Icons.desktop_windows,
-                              title: 'Módulo Totem',
-                              subtitle: 'Monitoramento de Totens',
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/totem_dashboard',
-                                );
-                              },
-                            ),
-                          if (widget.authService.isAdmin)
-                            HubMenuItem(
-                              icon: Icons.admin_panel_settings,
-                              title: 'Painel de Controle',
-                              subtitle: 'Gerenciamento do Sistema',
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/admin_dashboard',
-                                );
-                              },
-                            ),
-                        ],
-                      ),
+                      if (_isLoadingModules)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      else
+                        _buildModulesGrid(),
                       const SizedBox(height: 32),
                       _buildActionButton(
                         onPressed: () => _logout(context),
@@ -306,6 +335,102 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildModulesGrid() {
+    List<Widget> moduleCards = [];
+
+    // Adiciona módulos fixos baseados em permissões
+    if (_hasPermission('mobile')) {
+      moduleCards.add(
+        HubMenuItem(
+          icon: Icons.phone_android,
+          title: 'Módulo Mobile',
+          subtitle: 'Gestão de Dispositivos',
+          onTap: () {
+            Navigator.pushNamed(context, '/dashboard');
+          },
+        ),
+      );
+    }
+
+    if (_hasPermission('totem')) {
+      moduleCards.add(
+        HubMenuItem(
+          icon: Icons.desktop_windows,
+          title: 'Módulo Totem',
+          subtitle: 'Monitoramento de Totens',
+          onTap: () {
+            Navigator.pushNamed(context, '/totem_dashboard');
+          },
+        ),
+      );
+    }
+
+    // Adiciona módulos dinâmicos
+    for (final module in _availableModules) {
+      // Pula os módulos fixos que já foram adicionados
+      if (module.type == AssetModuleType.mobile || 
+          module.type == AssetModuleType.totem) {
+        continue;
+      }
+
+      moduleCards.add(
+        HubMenuItem(
+          icon: _getModuleIcon(module.type.iconName),
+          title: module.name,
+          subtitle: module.description.isNotEmpty 
+              ? module.description 
+              : module.type.displayName,
+          onTap: () => _navigateToModule(module),
+        ),
+      );
+    }
+
+    // Adiciona painel admin
+    if (widget.authService.isAdmin) {
+      moduleCards.add(
+        HubMenuItem(
+          icon: Icons.admin_panel_settings,
+          title: 'Painel de Controle',
+          subtitle: 'Gerenciamento do Sistema',
+          onTap: () {
+            Navigator.pushNamed(context, '/admin_dashboard');
+          },
+        ),
+      );
+    }
+
+    if (moduleCards.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(32.0),
+        child: Column(
+          children: [
+            Icon(Icons.info_outline, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'Nenhum módulo disponível',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Entre em contato com o administrador',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: moduleCards.length >= 4 ? 3 : 2,
+      crossAxisSpacing: 16.0,
+      mainAxisSpacing: 16.0,
+      childAspectRatio: 1.2,
+      children: moduleCards,
+    );
+  }
+
   Widget _buildActionButton({
     required VoidCallback onPressed,
     required String text,
@@ -318,27 +443,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       height: 52,
       child: ElevatedButton.icon(
         onPressed: isLoading ? null : onPressed,
-        icon:
-            isLoading
-                ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-                : Icon(icon, size: 18),
-        label:
-            isLoading
-                ? const Text('Aguarde...')
-                : Text(
-                  text,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+        icon: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
                 ),
+              )
+            : Icon(icon, size: 18),
+        label: isLoading
+            ? const Text('Aguarde...')
+            : Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,

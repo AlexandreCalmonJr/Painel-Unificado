@@ -20,4 +20,6 @@ class BssidMapping {
     sector: json['sector'] as String,
     floor: json['floor'] as String,
   );
+
+  get unitName => null;
 }

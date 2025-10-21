@@ -1,6 +1,7 @@
-// File: lib/admin/admin_dashboard_screen.dart
+// File: lib/admin/admin_dashboard_screen.dart (ATUALIZADO)
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/admin/tabs/admin_locations_tab.dart';
+import 'package:painel_windowns/admin/tabs/admin_modules_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
@@ -108,6 +109,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   subtitle: 'Mapeamento de IP',
                   index: 1,
                   selected: selectedIndex == 1,
+                  onTap: (index) => setState(() => selectedIndex = index),
+                ),
+                // NOVO: Item de menu para Módulos
+                _buildMenuItem(
+                  icon: Icons.apps,
+                  title: 'Módulos',
+                  subtitle: 'Gestão de Ativos',
+                  index: 2,
+                  selected: selectedIndex == 2,
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
                 const Divider(color: Colors.white24, indent: 16, endIndent: 16),
@@ -223,6 +233,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Bem-vindo,',
@@ -252,6 +263,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return AdminUsersTab(authService: widget.authService);
       case 1:
         return AdminLocationsTab(authService: widget.authService);
+      case 2:
+        return AdminModulesTab(authService: widget.authService);
       default:
         return AdminUsersTab(authService: widget.authService);
     }
