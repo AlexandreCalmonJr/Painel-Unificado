@@ -1,22 +1,22 @@
 // File: lib/screens/generic_dashboard_screen.dart
 
 import 'dart:async';
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 // Imports dos Modelos e Serviços
 import 'package:painel_windowns/models/asset_module_base.dart';
+import 'package:painel_windowns/models/desktop.dart';
+// Imports dos Modelos Específicos (Ajuste os caminhos)
+import 'package:painel_windowns/models/notebook.dart';
+import 'package:painel_windowns/models/painel.dart';
+import 'package:painel_windowns/models/printer.dart';
+import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/modules/tabs/generic_assets_list_tab.dart';
 import 'package:painel_windowns/modules/tabs/generic_dashboard_tab.dart';
 import 'package:painel_windowns/modules/tabs/generic_maintenance_tab.dart';
 import 'package:painel_windowns/modules/tabs/generic_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-import 'package:painel_windowns/models/unit.dart';
-
-// Imports dos Modelos Específicos (Ajuste os caminhos)
-import 'package:painel_windowns/models/notebook.dart';
-import 'package:painel_windowns/models/desktop.dart';
-import 'package:painel_windowns/models/painel.dart';
 // import 'package:painel_windowns/models/device.dart'; // (MDM)
 // import 'package:painel_windowns/models/totem.dart'; // (Totem)
 
@@ -132,25 +132,32 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   }
 
   /// Helper de Parse (agora dentro da tela)
-  ManagedAsset _parseAsset(Map<String, dynamic> json) {
-    // Usa _units (do estado da tela) e moduleConfig.type (do widget)
-    switch (widget.moduleConfig.type) {
-      case AssetModuleType.notebook:
-        return Notebook.fromJson(json, _units);
-      case AssetModuleType.desktop:
-        return Desktop.fromJson(json, _units);
-      case AssetModuleType.panel:
-        return Panel.fromJson(json, _units);
-      // case AssetModuleType.totem:
-      //   return Totem.fromJson(json, _units); 
-      // case AssetModuleType.mobile:
-      //   return Device.fromJson(json, _units); 
-      default:
-        // Para tipos não suportados ainda, lançar erro claro em vez de usar uma classe indefinida.
-        throw UnimplementedError(
-            'Unsupported module asset type: ${widget.moduleConfig.type}');
-    }
+ ManagedAsset _parseAsset(Map<String, dynamic> json) {
+  // Usa _units (do estado da tela) e moduleConfig.type (do widget)
+  switch (widget.moduleConfig.type) {
+    case AssetModuleType.notebook:
+      return Notebook.fromJson(json, _units);
+    
+    case AssetModuleType.desktop:
+      return Desktop.fromJson(json, _units);
+    
+    case AssetModuleType.panel:
+      return Panel.fromJson(json, _units);
+    
+    case AssetModuleType.printer:
+      return Printer.fromJson(json, _units);
+    
+    // case AssetModuleType.totem:
+    //   return Totem.fromJson(json, _units); 
+    
+    // case AssetModuleType.mobile:
+    //   return Device.fromJson(json, _units); 
+    
+    default:
+      throw UnimplementedError(
+          'Tipo de módulo não suportado: ${widget.moduleConfig.type}');
   }
+}
 
   void _updateDisplayedAssets() {
     List<ManagedAsset> filteredList = List.from(_allAssets);

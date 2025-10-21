@@ -83,7 +83,7 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: selectedRole,
+                  initialValue: selectedRole,
                   decoration: InputDecoration(
                     labelText: 'Função',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -274,7 +274,7 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                   const Text('Administradores têm acesso a todos os módulos.'),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: selectedRole,
+                  initialValue: selectedRole,
                   decoration: InputDecoration(
                     labelText: 'Função',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),

@@ -33,6 +33,75 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     'manufacturer': 'Fabricante',
   };
 
+  final desktopColumns = [
+  {'dataKey': 'asset_name', 'label': 'Nome'},
+  {'dataKey': 'hostname', 'label': 'Hostname'},
+  {'dataKey': 'serial_number', 'label': 'Serial'},
+  {'dataKey': 'status', 'label': 'Status'},
+  {'dataKey': 'ip_address', 'label': 'IP'},
+  {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
+  {'dataKey': 'processor', 'label': 'Processador'},
+  {'dataKey': 'ram', 'label': 'Memória'},
+  {'dataKey': 'storage', 'label': 'Armazenamento'},
+  {'dataKey': 'storage_type', 'label': 'Tipo de HD'},
+  {'dataKey': 'biometric_reader', 'label': 'Leitor Biométrico'},
+  {'dataKey': 'connected_printer', 'label': 'Impressora'},
+  {'dataKey': 'java_version', 'label': 'Java'},
+  {'dataKey': 'browser_version', 'label': 'Navegador'},
+];
+
+/// PANEL - Colunas sugeridas:
+final panelColumns = [
+  {'dataKey': 'asset_name', 'label': 'Nome'},
+  {'dataKey': 'hostname', 'label': 'Hostname'},
+  {'dataKey': 'serial_number', 'label': 'Serial'},
+  {'dataKey': 'status', 'label': 'Status'},
+  {'dataKey': 'ip_address', 'label': 'IP'},
+  {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
+  {'dataKey': 'model', 'label': 'Modelo'},
+  {'dataKey': 'screen_size', 'label': 'Tamanho'},
+  {'dataKey': 'resolution', 'label': 'Resolução'},
+  {'dataKey': 'hdmi_input', 'label': 'Entrada HDMI'},
+  {'dataKey': 'firmware_version', 'label': 'Firmware'},
+];
+
+/// PRINTER - Colunas sugeridas:
+final printerColumns = [
+  {'dataKey': 'asset_name', 'label': 'Nome'},
+  {'dataKey': 'hostname', 'label': 'Hostname'},
+  {'dataKey': 'serial_number', 'label': 'Serial'},
+  {'dataKey': 'status', 'label': 'Status'},
+  {'dataKey': 'printer_status', 'label': 'Status da Impressora'},
+  {'dataKey': 'connection_type', 'label': 'Conexão'},
+  {'dataKey': 'ip_address', 'label': 'IP / USB'},
+  {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
+  {'dataKey': 'total_page_count', 'label': 'Total de Páginas'},
+  {'dataKey': 'toner_levels', 'label': 'Níveis de Toner'},
+  {'dataKey': 'host_computer_name', 'label': 'Computador Host'},
+];
+
+/// NOTEBOOK - Colunas sugeridas (já existente, para referência):
+final notebookColumns = [
+  {'dataKey': 'asset_name', 'label': 'Nome'},
+  {'dataKey': 'hostname', 'label': 'Hostname'},
+  {'dataKey': 'serial_number', 'label': 'Serial'},
+  {'dataKey': 'status', 'label': 'Status'},
+  {'dataKey': 'ip_address', 'label': 'IP'},
+  {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
+  {'dataKey': 'battery_level', 'label': 'Bateria'},
+  {'dataKey': 'model', 'label': 'Modelo'},
+  {'dataKey': 'processor', 'label': 'Processador'},
+  {'dataKey': 'ram', 'label': 'Memória'},
+  {'dataKey': 'storage', 'label': 'Armazenamento'},
+  {'dataKey': 'operating_system', 'label': 'Sistema Operacional'},
+  {'dataKey': 'battery_level', 'label': 'Bateria'},
+  {'dataKey': 'model', 'label': 'Modelo'},
+  {'dataKey': 'screen_size', 'label': 'Tamanho'},
+  {'dataKey': 'resolution', 'label': 'Resolução'},
+  {'dataKey': 'hdmi_input', 'label': 'Entrada HDMI'},
+  {'dataKey': 'firmware_version', 'label': 'Firmware'},
+];
+
   @override
   void initState() {
     super.initState();
@@ -133,7 +202,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<AssetModuleType>(
-                    value: selectedType,
+                    initialValue: selectedType,
                     decoration: InputDecoration(
                       labelText: 'Tipo de Módulo',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),

@@ -133,7 +133,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab> {
               try {
                 final newUnit = Unit(name: name, ipRangeStart: startIp, ipRangeEnd: endIp);
                 if (isEditing) {
-                  await _deviceService.updateUnit(widget.authService.currentToken!, unit!.name, newUnit);
+                  await _deviceService.updateUnit(widget.authService.currentToken!, unit.name, newUnit);
                   _showSnackbar('Unidade atualizada com sucesso!');
                 } else {
                   await _deviceService.createUnit(widget.authService.currentToken!, newUnit);
@@ -227,7 +227,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab> {
               try {
                 final newMapping = BssidMapping(macAddressRadio: mac, sector: sector, floor: floor);
                 if (isEditing) {
-                  await _deviceService.updateBssidMapping(widget.authService.currentToken!, mapping!.macAddressRadio, newMapping);
+                  await _deviceService.updateBssidMapping(widget.authService.currentToken!, mapping.macAddressRadio, newMapping);
                   _showSnackbar('Mapeamento atualizado com sucesso!');
                 } else {
                   await _deviceService.createBssidMapping(widget.authService.currentToken!, newMapping);
