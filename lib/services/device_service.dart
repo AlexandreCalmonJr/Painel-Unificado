@@ -8,8 +8,6 @@ import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
-
-
 const int kMaxRetries = 3;
 const Duration kRetryDelay = Duration(seconds: 2);
 
@@ -70,7 +68,6 @@ class DeviceService {
       throw Exception('Resposta inválida do servidor: Esperado uma lista de dispositivos.');
     }
     
-    // CORREÇÃO: Chama o factory constructor correto, passando a lista de unidades.
     return devicesList.map((json) => Device.fromJson(json, units)).toList();
   }
 
@@ -93,47 +90,16 @@ class DeviceService {
     throw Exception('Resposta inválida: Esperado uma lista de mapeamentos');
   }
 
-   Future<String> sendCommand(String token, String serialNumber, String command, Map<String, dynamic> parameters) async {
-    final config = ServerConfigService.instance.loadConfig();
-    final serverIp = config['ip'];
-    final serverPort = config['port'];
-
-    // --- INÍCIO DA CORREÇÃO ---
-    // O corpo da requisição é montado com todos os dados necessários.
-    final body = {
-      'serial_number': serialNumber,
-      'command': command,
-      ...parameters, // Inclui parâmetros como 'packageName' ou os dados de manutenção
-    };
-
-    final response = await _performHttpRequest(
-      request: () => http.post(
-        // A rota é sempre a mesma para todos os comandos.
-        Uri.parse('http://$serverIp:$serverPort/api/devices/executeCommand'),
-        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      ),
-      errorMessage: 'Erro ao enviar comando',
-    );
-    // --- FIM DA CORREÇÃO ---
-    
-    final data = jsonDecode(response.body);
-    return data['message']?.toString() ?? 'Comando executado com sucesso';
-  }
-  
-  // --- NOVO MÉTODO ADICIONADO ---
   /// Busca apenas os BSSIDs que pertencem a uma unidade específica.
-  Future<List<BssidMapping>> fetchBssidsByUnit(String token, String unitName) async {
+  Future<List<BssidMapping>> fetchBssidsForUnit(String token, String unitName) async {
     final config = ServerConfigService.instance.loadConfig();
     final serverIp = config['ip'];
     final serverPort = config['port'];
 
-    // Codifica o nome da unidade para ser seguro na URL (caso tenha espaços, etc.)
     final encodedUnitName = Uri.encodeComponent(unitName);
 
     final response = await _performHttpRequest(
       request: () => http.get(
-        // Esta é a nova rota da API que você criará no bssidRoutes.js
         Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/by-unit/$encodedUnitName'),
         headers: {'Authorization': 'Bearer $token'},
       ),
@@ -144,14 +110,36 @@ class DeviceService {
     if (data is List) {
       return data.map((json) => BssidMapping.fromJson(json)).toList();
     } else {
-      // Trata caso a API retorne um objeto de erro
       if (data is Map<String, dynamic> && data.containsKey('error')) {
         throw Exception(data['error']);
       }
       throw Exception('Resposta inválida: Esperado uma lista de BSSIDs');
     }
   }
-  // --- FIM DO NOVO MÉTODO ---
+
+  Future<String> sendCommand(String token, String serialNumber, String command, Map<String, dynamic> parameters) async {
+    final config = ServerConfigService.instance.loadConfig();
+    final serverIp = config['ip'];
+    final serverPort = config['port'];
+
+    final body = {
+      'serial_number': serialNumber,
+      'command': command,
+      ...parameters,
+    };
+
+    final response = await _performHttpRequest(
+      request: () => http.post(
+        Uri.parse('http://$serverIp:$serverPort/api/devices/executeCommand'),
+        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      ),
+      errorMessage: 'Erro ao enviar comando',
+    );
+    
+    final data = jsonDecode(response.body);
+    return data['message']?.toString() ?? 'Comando executado com sucesso';
+  }
 
   Future<String> deleteDevice(String token, String serialNumber) async {
     final config = ServerConfigService.instance.loadConfig();
@@ -204,7 +192,10 @@ class DeviceService {
     final serverIp = config['ip'];
     final serverPort = config['port'];
     final response = await _performHttpRequest(
-      request: () => http.delete(Uri.parse('http://$serverIp:$serverPort/api/units/$unitName'), headers: {'Authorization': 'Bearer $token'}),
+      request: () => http.delete(
+        Uri.parse('http://$serverIp:$serverPort/api/units/$unitName'),
+        headers: {'Authorization': 'Bearer $token'}
+      ),
       errorMessage: 'Erro ao excluir unidade',
     );
     final data = jsonDecode(response.body);
@@ -246,7 +237,10 @@ class DeviceService {
     final serverIp = config['ip'];
     final serverPort = config['port'];
     await _performHttpRequest(
-      request: () => http.delete(Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/$macAddressRadio'), headers: {'Authorization': 'Bearer $token'}),
+      request: () => http.delete(
+        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/$macAddressRadio'),
+        headers: {'Authorization': 'Bearer $token'}
+      ),
       errorMessage: 'Erro ao excluir mapeamento',
     );
     return 'Mapeamento de BSSID excluído com sucesso';
@@ -275,7 +269,6 @@ class DeviceService {
     }
   }
 
-    /// Busca o histórico de localização de um dispositivo específico.
   Future<List<Map<String, dynamic>>> fetchLocationHistory(String token, String serialNumber) async {
     final config = ServerConfigService.instance.loadConfig();
     final serverIp = config['ip'];
@@ -283,7 +276,6 @@ class DeviceService {
 
     final response = await _performHttpRequest(
       request: () => http.get(
-        // A rota que acabámos de criar no backend
         Uri.parse('http://$serverIp:$serverPort/api/devices/$serialNumber/location-history'),
         headers: {'Authorization': 'Bearer $token'},
       ),
@@ -297,55 +289,4 @@ class DeviceService {
       throw Exception(data['message'] ?? 'Falha ao carregar histórico de localização');
     }
   }
-
-  Future<List<BssidMapping>> fetchBssidsForSpecificUnit(String token, String unitName) async {
-    final config = ServerConfigService.instance.loadConfig();
-    final serverIp = config['ip'];
-    final serverPort = config['port'];
-    
-    final response = await http.get(
-      Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/by-unit/${Uri.encodeComponent(unitName)}'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => BssidMapping.fromJson(json)).toList();
-    } else {
-      throw Exception('Falha ao carregar BSSIDs para a unidade');
-    }
-  }
-
-  // --- NOVO MÉTODO ADICIONADO ---
-  /// Busca apenas os BSSIDs que pertencem a uma unidade específica.
-  Future<List<BssidMapping>> fetchBssidsForUnit(String token, String unitName) async {
-    final config = ServerConfigService.instance.loadConfig();
-    final serverIp = config['ip'];
-    final serverPort = config['port'];
-
-    // Codifica o nome da unidade para ser seguro na URL (caso tenha espaços, etc.)
-    final encodedUnitName = Uri.encodeComponent(unitName);
-
-    final response = await _performHttpRequest(
-      request: () => http.get(
-        // Esta é a nova rota da API que você criará no bssidRoutes.js
-        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/by-unit/$encodedUnitName'),
-        headers: {'Authorization': 'Bearer $token'},
-      ),
-      errorMessage: 'Erro ao buscar BSSIDs para a unidade $unitName',
-    );
-
-    final data = jsonDecode(response.body);
-    if (data is List) {
-      return data.map((json) => BssidMapping.fromJson(json)).toList();
-    } else {
-      // Trata caso a API retorne um objeto de erro
-      if (data is Map<String, dynamic> && data.containsKey('error')) {
-        throw Exception(data['error']);
-      }
-      throw Exception('Resposta inválida: Esperado uma lista de BSSIDs');
-    }
-  }
-  // --- FIM DO NOVO MÉTODO ---
-
 }

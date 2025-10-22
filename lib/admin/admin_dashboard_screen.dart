@@ -1,5 +1,6 @@
 // File: lib/admin/admin_dashboard_screen.dart (ATUALIZADO)
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/admin/tabs/admin_apk_manager_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_locations_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_modules_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
@@ -121,6 +122,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
                 const Divider(color: Colors.white24, indent: 16, endIndent: 16),
+                _buildMenuItem(
+                  icon: Icons.android,
+                  title: 'Gestor de APKs',
+                  subtitle: 'Instalar/Remover APKs',
+                  index: 3,
+                  selected: selectedIndex == 3,
+                  onTap: (index) => setState(() => selectedIndex = index),
+                ),
                 _buildMenuItem(
                   icon: Icons.arrow_back,
                   title: 'Voltar',
@@ -265,6 +274,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return AdminLocationsTab(authService: widget.authService);
       case 2:
         return AdminModulesTab(authService: widget.authService);
+      case 3:
+        return AdminApkManagerTab(authService: widget.authService);
       default:
         return AdminUsersTab(authService: widget.authService);
     }

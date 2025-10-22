@@ -3,8 +3,6 @@ import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
-// ignore: unused_import
-import 'package:painel_windowns/utils/helpers.dart'; // Para isValidIp
 
 class UnitBssidsPage extends StatefulWidget {
   final Unit unit;
@@ -40,7 +38,7 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
         _showSnackbar('Token inválido. Faça login novamente.', isError: true);
         return;
       }
-      // Chama o novo método do service
+      // Chama o método correto do service
       bssidMappings =
           await _deviceService.fetchBssidsForUnit(token, widget.unit.name);
     } catch (e) {
@@ -237,7 +235,7 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
             child: ListTile(
               leading: const Icon(Icons.location_off, color: Colors.grey),
               title: const Text('Nenhum BSSID cadastrado'),
-              subtitle: Text(
+              subtitle: const Text(
                   'Adicione um mapeamento no botão (+) para esta unidade.'),
             ),
           ),
