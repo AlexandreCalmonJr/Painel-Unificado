@@ -120,6 +120,38 @@ class DeviceService {
     final data = jsonDecode(response.body);
     return data['message']?.toString() ?? 'Comando executado com sucesso';
   }
+  
+  // --- NOVO MÉTODO ADICIONADO ---
+  /// Busca apenas os BSSIDs que pertencem a uma unidade específica.
+  Future<List<BssidMapping>> fetchBssidsByUnit(String token, String unitName) async {
+    final config = ServerConfigService.instance.loadConfig();
+    final serverIp = config['ip'];
+    final serverPort = config['port'];
+
+    // Codifica o nome da unidade para ser seguro na URL (caso tenha espaços, etc.)
+    final encodedUnitName = Uri.encodeComponent(unitName);
+
+    final response = await _performHttpRequest(
+      request: () => http.get(
+        // Esta é a nova rota da API que você criará no bssidRoutes.js
+        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/by-unit/$encodedUnitName'),
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+      errorMessage: 'Erro ao buscar BSSIDs para a unidade $unitName',
+    );
+
+    final data = jsonDecode(response.body);
+    if (data is List) {
+      return data.map((json) => BssidMapping.fromJson(json)).toList();
+    } else {
+      // Trata caso a API retorne um objeto de erro
+      if (data is Map<String, dynamic> && data.containsKey('error')) {
+        throw Exception(data['error']);
+      }
+      throw Exception('Resposta inválida: Esperado uma lista de BSSIDs');
+    }
+  }
+  // --- FIM DO NOVO MÉTODO ---
 
   Future<String> deleteDevice(String token, String serialNumber) async {
     final config = ServerConfigService.instance.loadConfig();
@@ -265,5 +297,55 @@ class DeviceService {
       throw Exception(data['message'] ?? 'Falha ao carregar histórico de localização');
     }
   }
+
+  Future<List<BssidMapping>> fetchBssidsForSpecificUnit(String token, String unitName) async {
+    final config = ServerConfigService.instance.loadConfig();
+    final serverIp = config['ip'];
+    final serverPort = config['port'];
+    
+    final response = await http.get(
+      Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/by-unit/${Uri.encodeComponent(unitName)}'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => BssidMapping.fromJson(json)).toList();
+    } else {
+      throw Exception('Falha ao carregar BSSIDs para a unidade');
+    }
+  }
+
+  // --- NOVO MÉTODO ADICIONADO ---
+  /// Busca apenas os BSSIDs que pertencem a uma unidade específica.
+  Future<List<BssidMapping>> fetchBssidsForUnit(String token, String unitName) async {
+    final config = ServerConfigService.instance.loadConfig();
+    final serverIp = config['ip'];
+    final serverPort = config['port'];
+
+    // Codifica o nome da unidade para ser seguro na URL (caso tenha espaços, etc.)
+    final encodedUnitName = Uri.encodeComponent(unitName);
+
+    final response = await _performHttpRequest(
+      request: () => http.get(
+        // Esta é a nova rota da API que você criará no bssidRoutes.js
+        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/by-unit/$encodedUnitName'),
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+      errorMessage: 'Erro ao buscar BSSIDs para a unidade $unitName',
+    );
+
+    final data = jsonDecode(response.body);
+    if (data is List) {
+      return data.map((json) => BssidMapping.fromJson(json)).toList();
+    } else {
+      // Trata caso a API retorne um objeto de erro
+      if (data is Map<String, dynamic> && data.containsKey('error')) {
+        throw Exception(data['error']);
+      }
+      throw Exception('Resposta inválida: Esperado uma lista de BSSIDs');
+    }
+  }
+  // --- FIM DO NOVO MÉTODO ---
 
 }

@@ -1,35 +1,68 @@
-/// Representa uma Unidade com uma faixa de IP associada.
+// Um novo helper class para a faixa de IP
+class IpRange {
+  final String start;
+  final String end;
+
+  IpRange({required this.start, required this.end});
+
+  factory IpRange.fromJson(Map<String, dynamic> json) {
+    return IpRange(
+      start: json['start'] as String? ?? '0.0.0.0',
+      end: json['end'] as String? ?? '0.0.0.0',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'start': start,
+      'end': end,
+    };
+  }
+}
+
+/// Representa uma Unidade com UMA OU MAIS faixas de IP.
 class Unit {
-  // CORREÇÃO: O ID do MongoDB é uma String, não um int.
   final String? id;
   final String name;
-  final String ipRangeStart;
-  final String ipRangeEnd;
+  // SUBSTITUÍDO: ipRangeStart e ipRangeEnd
+  // NOVO:
+  final List<IpRange> ipRanges;
 
   Unit({
     this.id,
     required this.name,
-    required this.ipRangeStart,
-    required this.ipRangeEnd,
+    required this.ipRanges,
   });
 
-  /// Constrói uma instância de Unit a partir de um mapa JSON vindo da API.
   factory Unit.fromJson(Map<String, dynamic> json) {
+    // Lê o array 'ip_ranges' do JSON
+    var rangesList = <IpRange>[];
+    if (json['ip_ranges'] != null && json['ip_ranges'] is List) {
+      rangesList = (json['ip_ranges'] as List)
+          .map((i) => IpRange.fromJson(i))
+          .toList();
+    }
+    
+    // Fallback para o formato antigo, se o servidor ainda não foi atualizado
+    else if (json['ip_range_start'] != null) {
+       rangesList.add(IpRange(
+         start: json['ip_range_start'], 
+         end: json['ip_range_end']
+       ));
+    }
+
     return Unit(
-      // O ID do MongoDB é a chave '_id' e é uma String.
       id: json['_id'] as String?,
-      name: json['name'],
-      ipRangeStart: json['ip_range_start'],
-      ipRangeEnd: json['ip_range_end'],
+      name: json['name'] as String? ?? 'Unidade Inválida',
+      ipRanges: rangesList,
     );
   }
 
-  /// Converte a instância de Unit para um mapa JSON para ser enviado à API.
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'ip_range_start': ipRangeStart,
-      'ip_range_end': ipRangeEnd,
+      // Envia o array de faixas
+      'ip_ranges': ipRanges.map((i) => i.toJson()).toList(),
     };
   }
 }

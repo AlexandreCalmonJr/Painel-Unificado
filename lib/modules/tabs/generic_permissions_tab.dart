@@ -161,7 +161,7 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
             ElevatedButton.icon(
               onPressed: _isLoading ? null : _savePermissions,
               icon: _isLoading 
-                  ? Container(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.save, color: Colors.white),
               label: const Text('Salvar Permissões'),
               style: ElevatedButton.styleFrom(

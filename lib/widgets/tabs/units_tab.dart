@@ -1,18 +1,20 @@
 // File: lib/widgets/units_tab.dart
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:excel/excel.dart' as xls;
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/screen/unit_bssids_page.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
 import 'package:painel_windowns/utils/helpers.dart';
 import 'package:path_provider/path_provider.dart';
+
 
 class UnitsTab extends StatefulWidget {
   final List<Unit> units;
@@ -50,6 +52,9 @@ class _UnitsTabState extends State<UnitsTab> {
 
   bool get _isAdmin => widget.authService.isAdmin;
 
+  // --- FUNÇÃO _showUnitDialog TOTALMENTE REFEITA ---
+  /// Mostra um diálogo para criar ou atualizar uma Unidade,
+  /// agora com gerenciamento dinâmico de múltiplas faixas de IP.
   void _showUnitDialog({Unit? unit}) {
     if (!_isAdmin) {
       _showSnackbar('Acesso negado. Contate o administrador.', isError: true);
@@ -58,97 +63,204 @@ class _UnitsTabState extends State<UnitsTab> {
 
     final isEditing = unit != null;
     final nameController = TextEditingController(text: unit?.name);
-    final startIpController = TextEditingController(text: unit?.ipRangeStart);
-    final endIpController = TextEditingController(text: unit?.ipRangeEnd);
+
+    // Lista para gerenciar os controllers das faixas de IP
+    List<Map<String, TextEditingController>> ipRangeControllers = [];
+
+    // Se estiver editando, popula a lista com as faixas existentes
+    if (isEditing && unit!.ipRanges.isNotEmpty) {
+      for (var range in unit.ipRanges) {
+        ipRangeControllers.add({
+          'start': TextEditingController(text: range.start),
+          'end': TextEditingController(text: range.end),
+        });
+      }
+    } else {
+      // Se for novo ou não tiver faixas, começa com uma em branco
+      ipRangeControllers.add({
+        'start': TextEditingController(),
+        'end': TextEditingController(),
+      });
+    }
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(isEditing ? Icons.edit : Icons.add, color: Colors.blue),
-            const SizedBox(width: 8),
-            Text(isEditing ? 'Editar Unidade' : 'Adicionar Unidade'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Nome da Unidade',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                prefixIcon: const Icon(Icons.home),
+      builder: (context) {
+        // Usa StatefulBuilder para permitir que o diálogo se atualize
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              title: Row(
+                children: [
+                  Icon(isEditing ? Icons.edit : Icons.add, color: Colors.blue),
+                  const SizedBox(width: 8),
+                  Text(isEditing ? 'Editar Unidade' : 'Adicionar Unidade'),
+                ],
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: startIpController,
-              decoration: InputDecoration(
-                labelText: 'IP Inicial (ex: 192.168.1.1)',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                prefixIcon: const Icon(Icons.start),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Nome da Unidade',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        prefixIcon: const Icon(Icons.home),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Faixas de IP',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 8),
+                    // Lista dinâmica de faixas de IP
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: ipRangeControllers.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: ipRangeControllers[index]['start'],
+                                  decoration: InputDecoration(
+                                    labelText: 'IP Inicial',
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: ipRangeControllers[index]['end'],
+                                  decoration: InputDecoration(
+                                    labelText: 'IP Final',
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                ),
+                              ),
+                              // Botão de remover (só aparece se houver > 1 faixa)
+                              if (ipRangeControllers.length > 1)
+                                IconButton(
+                                  icon: const Icon(Icons.remove_circle,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    setDialogState(() {
+                                      ipRangeControllers.removeAt(index);
+                                    });
+                                  },
+                                )
+                              else
+                                // Espaçador para alinhar
+                                const SizedBox(width: 48),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    // Botão para adicionar nova faixa
+                    TextButton.icon(
+                      icon: const Icon(Icons.add, color: Colors.green),
+                      label: const Text('Adicionar Faixa de IP'),
+                      onPressed: () {
+                        setDialogState(() {
+                          ipRangeControllers.add({
+                            'start': TextEditingController(),
+                            'end': TextEditingController(),
+                          });
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: endIpController,
-              decoration: InputDecoration(
-                labelText: 'IP Final (ex: 192.168.1.254)',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                prefixIcon: const Icon(Icons.stop),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final name = nameController.text.trim();
-              final startIp = startIpController.text.trim();
-              final endIp = endIpController.text.trim();
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final name = nameController.text.trim();
+                    if (name.isEmpty) {
+                      _showSnackbar('O nome da unidade é obrigatório.',
+                          isError: true);
+                      return;
+                    }
 
-              if (name.isEmpty || startIp.isEmpty || endIp.isEmpty) {
-                _showSnackbar('Todos os campos são obrigatórios.', isError: true);
-                return;
-              }
-              if (!isValidIp(startIp) || !isValidIp(endIp)) {
-                _showSnackbar('IPs inválidos.', isError: true);
-                return;
-              }
+                    List<IpRange> ipRangesList = [];
+                    // Validação das faixas de IP
+                    for (var controllers in ipRangeControllers) {
+                      final startIp = controllers['start']!.text.trim();
+                      final endIp = controllers['end']!.text.trim();
 
-              try {
-                final newUnit = Unit(name: name, ipRangeStart: startIp, ipRangeEnd: endIp);
-                if (isEditing) {
-                  await _deviceService.updateUnit(widget.token, unit.name, newUnit);
-                  _showSnackbar('Unidade atualizada!');
-                } else {
-                  await _deviceService.createUnit(widget.token, newUnit);
-                  _showSnackbar('Unidade criada!');
-                }
-                Navigator.of(context).pop();
-                widget.onDataUpdate();
-              } catch (e) {
-                _showSnackbar('Erro ao salvar: $e', isError: true);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text('Salvar', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+                      if (startIp.isEmpty || endIp.isEmpty) {
+                        _showSnackbar(
+                            'Todas as faixas de IP devem ser preenchidas.',
+                            isError: true);
+                        return;
+                      }
+                      if (!isValidIp(startIp) || !isValidIp(endIp)) {
+                        _showSnackbar(
+                            'IP inválido na faixa: $startIp - $endIp.',
+                            isError: true);
+                        return;
+                      }
+                      // (Validação de start < end pode ser adicionada aqui)
+                      ipRangesList.add(IpRange(start: startIp, end: endIp));
+                    }
+
+                     if (ipRangesList.isEmpty) {
+                       _showSnackbar('Adicione pelo menos uma faixa de IP.',
+                          isError: true);
+                       return;
+                    }
+
+                    try {
+                      final newUnit =
+                          Unit(name: name, ipRanges: ipRangesList);
+                      if (isEditing) {
+                        await _deviceService.updateUnit(
+                            widget.token, unit!.name, newUnit);
+                        _showSnackbar('Unidade atualizada!');
+                      } else {
+                        await _deviceService.createUnit(widget.token, newUnit);
+                        _showSnackbar('Unidade criada!');
+                      }
+                      Navigator.of(context).pop();
+                      widget.onDataUpdate();
+                    } catch (e) {
+                      _showSnackbar('Erro ao salvar: $e', isError: true);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child:
+                      const Text('Salvar', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
+  // A função _showBssidMappingDialog permanece a mesma
+  // (Ela já foi atualizada para incluir 'unitName' na sua cópia anterior)
   void _showBssidMappingDialog({BssidMapping? mapping}) {
     if (!_isAdmin) {
       _showSnackbar('Acesso negado. Contate o administrador.', isError: true);
@@ -159,6 +271,7 @@ class _UnitsTabState extends State<UnitsTab> {
     final macController = TextEditingController(text: mapping?.macAddressRadio);
     final sectorController = TextEditingController(text: mapping?.sector);
     final floorController = TextEditingController(text: mapping?.floor);
+    final unitNameController = TextEditingController(text: mapping?.unitName);
 
     showDialog(
       context: context,
@@ -166,7 +279,8 @@ class _UnitsTabState extends State<UnitsTab> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(isEditing ? Icons.edit_location : Icons.add_location_alt, color: Colors.blue),
+            Icon(isEditing ? Icons.edit_location : Icons.add_location_alt,
+                color: Colors.blue),
             const SizedBox(width: 8),
             Text(isEditing ? 'Editar Mapeamento' : 'Adicionar Mapeamento'),
           ],
@@ -178,7 +292,8 @@ class _UnitsTabState extends State<UnitsTab> {
               controller: macController,
               decoration: InputDecoration(
                 labelText: 'BSSID (MAC)',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 prefixIcon: const Icon(Icons.wifi),
               ),
             ),
@@ -187,7 +302,8 @@ class _UnitsTabState extends State<UnitsTab> {
               controller: sectorController,
               decoration: InputDecoration(
                 labelText: 'Setor',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 prefixIcon: const Icon(Icons.business),
               ),
             ),
@@ -196,8 +312,19 @@ class _UnitsTabState extends State<UnitsTab> {
               controller: floorController,
               decoration: InputDecoration(
                 labelText: 'Andar',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 prefixIcon: const Icon(Icons.layers),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: unitNameController,
+              decoration: InputDecoration(
+                labelText: 'Nome da Unidade (Opcional)',
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                prefixIcon: const Icon(Icons.home_work),
               ),
             ),
           ],
@@ -209,12 +336,15 @@ class _UnitsTabState extends State<UnitsTab> {
           ),
           ElevatedButton(
             onPressed: () async {
-              final mac = macController.text.trim().toUpperCase().replaceAll('-', ':');
+              final mac =
+                  macController.text.trim().toUpperCase().replaceAll('-', ':');
               final sector = sectorController.text.trim();
               final floor = floorController.text.trim();
+              final unitName = unitNameController.text.trim();
 
               if (mac.isEmpty || sector.isEmpty || floor.isEmpty) {
-                _showSnackbar('Todos os campos são obrigatórios.', isError: true);
+                _showSnackbar('Campos MAC, Setor e Andar são obrigatórios.',
+                    isError: true);
                 return;
               }
               if (!RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$').hasMatch(mac)) {
@@ -223,12 +353,18 @@ class _UnitsTabState extends State<UnitsTab> {
               }
 
               try {
-                final newMapping = BssidMapping(macAddressRadio: mac, sector: sector, floor: floor);
+                final newMapping = BssidMapping(
+                    macAddressRadio: mac,
+                    sector: sector,
+                    floor: floor,
+                    unitName: unitName);
                 if (isEditing) {
-                  await _deviceService.updateBssidMapping(widget.token, mapping.macAddressRadio, newMapping);
+                  await _deviceService.updateBssidMapping(
+                      widget.token, mapping!.macAddressRadio, newMapping);
                   _showSnackbar('Mapeamento atualizado!');
                 } else {
-                  await _deviceService.createBssidMapping(widget.token, newMapping);
+                  await _deviceService.createBssidMapping(
+                      widget.token, newMapping);
                   _showSnackbar('Mapeamento criado!');
                 }
                 Navigator.of(context).pop();
@@ -248,6 +384,7 @@ class _UnitsTabState extends State<UnitsTab> {
     );
   }
 
+  // _deleteUnit e _deleteBssidMapping permanecem os mesmos
   void _deleteUnit(Unit unit) {
     if (!_isAdmin) {
       _showSnackbar('Acesso negado. Contate o administrador.', isError: true);
@@ -316,7 +453,8 @@ class _UnitsTabState extends State<UnitsTab> {
           ElevatedButton(
             onPressed: () async {
               try {
-                await _deviceService.deleteBssidMapping(widget.token, mapping.macAddressRadio);
+                await _deviceService.deleteBssidMapping(
+                    widget.token, mapping.macAddressRadio);
                 _showSnackbar('Mapeamento excluído!');
                 Navigator.of(context).pop();
                 widget.onDataUpdate();
@@ -332,6 +470,7 @@ class _UnitsTabState extends State<UnitsTab> {
     );
   }
 
+  // --- AJUSTE NA IMPORTAÇÃO/EXPORTAÇÃO ---
   Future<void> _importData() async {
     if (!_isAdmin) {
       _showSnackbar('Acesso negado. Contate o administrador.', isError: true);
@@ -355,23 +494,43 @@ class _UnitsTabState extends State<UnitsTab> {
       var unitsSheet = excel.tables['Units'];
       if (unitsSheet != null) {
         for (int row = 1; row < unitsSheet.maxRows; row++) {
-          final name = unitsSheet.cell(xls.CellIndex.indexByString('A$row')).value?.toString().trim();
-          final startIp = unitsSheet.cell(xls.CellIndex.indexByString('B$row')).value?.toString().trim();
-          final endIp = unitsSheet.cell(xls.CellIndex.indexByString('C$row')).value?.toString().trim();
+          final name = unitsSheet
+              .cell(xls.CellIndex.indexByString('A$row'))
+              .value
+              ?.toString()
+              .trim();
+          final startIp = unitsSheet
+              .cell(xls.CellIndex.indexByString('B$row'))
+              .value
+              ?.toString()
+              .trim();
+          final endIp = unitsSheet
+              .cell(xls.CellIndex.indexByString('C$row'))
+              .value
+              ?.toString()
+              .trim();
 
-          if (name == null || startIp == null || endIp == null || name.isEmpty) continue;
+          if (name == null ||
+              startIp == null ||
+              endIp == null ||
+              name.isEmpty) continue;
 
           if (!isValidIp(startIp) || !isValidIp(endIp)) {
-            _showSnackbar('IP inválido na linha $row (Units). Pulando.', isError: true);
+            _showSnackbar('IP inválido na linha $row (Units). Pulando.',
+                isError: true);
             continue;
           }
 
           try {
-            final newUnit = Unit(name: name, ipRangeStart: startIp, ipRangeEnd: endIp);
+            // AJUSTE: Cria a lista de IpRange
+            final ipRange = IpRange(start: startIp, end: endIp);
+            final newUnit = Unit(name: name, ipRanges: [ipRange]);
+
             await _deviceService.createUnit(widget.token, newUnit);
             importedUnits++;
           } catch (e) {
-            _showSnackbar('Erro ao importar unidade "$name": $e', isError: true);
+            _showSnackbar('Erro ao importar unidade "$name": $e',
+                isError: true);
           }
         }
       }
@@ -380,14 +539,42 @@ class _UnitsTabState extends State<UnitsTab> {
       var bssidSheet = excel.tables['BSSID_Mappings'];
       if (bssidSheet != null) {
         for (int row = 1; row < bssidSheet.maxRows; row++) {
-          final mac = bssidSheet.cell(xls.CellIndex.indexByString('A$row')).value?.toString().trim().toUpperCase().replaceAll('-', ':');
-          final sector = bssidSheet.cell(xls.CellIndex.indexByString('B$row')).value?.toString().trim();
-          final floor = bssidSheet.cell(xls.CellIndex.indexByString('C$row')).value?.toString().trim();
+          final mac = bssidSheet
+              .cell(xls.CellIndex.indexByString('A$row'))
+              .value
+              ?.toString()
+              .trim()
+              .toUpperCase()
+              .replaceAll('-', ':');
+          final sector = bssidSheet
+              .cell(xls.CellIndex.indexByString('B$row'))
+              .value
+              ?.toString()
+              .trim();
+          final floor = bssidSheet
+              .cell(xls.CellIndex.indexByString('C$row'))
+              .value
+              ?.toString()
+              .trim();
+          // AJUSTE: Importa o unitName se ele existir na coluna D
+          final unitName = bssidSheet
+              .cell(xls.CellIndex.indexByString('D$row'))
+              .value
+              ?.toString()
+              .trim() ?? '';
 
-          if (mac == null || sector == null || floor == null || mac.isEmpty || !RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$').hasMatch(mac)) continue;
+          if (mac == null ||
+              sector == null ||
+              floor == null ||
+              mac.isEmpty ||
+              !RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$').hasMatch(mac)) continue;
 
           try {
-            final newMapping = BssidMapping(macAddressRadio: mac, sector: sector, floor: floor);
+            final newMapping = BssidMapping(
+                macAddressRadio: mac,
+                sector: sector,
+                floor: floor,
+                unitName: unitName);
             await _deviceService.createBssidMapping(widget.token, newMapping);
             importedBssids++;
           } catch (e) {
@@ -397,7 +584,8 @@ class _UnitsTabState extends State<UnitsTab> {
       }
 
       widget.onDataUpdate();
-      _showSnackbar('Importação concluída! $importedUnits unidades e $importedBssids mapeamentos adicionados.');
+      _showSnackbar(
+          'Importação concluída! $importedUnits unidades e $importedBssids mapeamentos adicionados.');
     } catch (e) {
       _showSnackbar('Erro na importação: $e', isError: true);
     }
@@ -439,14 +627,26 @@ class _UnitsTabState extends State<UnitsTab> {
       var unitsSheet = excel['Units'];
       unitsSheet.appendRow(['Nome da Unidade', 'IP Inicial', 'IP Final']);
       for (var unit in widget.units) {
-        unitsSheet.appendRow([unit.name, unit.ipRangeStart, unit.ipRangeEnd]);
+        // AJUSTE: Exporta apenas a primeira faixa de IP
+        unitsSheet.appendRow([
+          unit.name,
+          unit.ipRanges.isNotEmpty ? unit.ipRanges.first.start : '',
+          unit.ipRanges.isNotEmpty ? unit.ipRanges.first.end : ''
+        ]);
       }
 
       // Aba BSSID_Mappings
       var bssidSheet = excel['BSSID_Mappings'];
-      bssidSheet.appendRow(['BSSID (MAC)', 'Setor', 'Andar']);
+      // AJUSTE: Adiciona a coluna UnitName
+      bssidSheet
+          .appendRow(['BSSID (MAC)', 'Setor', 'Andar', 'Nome da Unidade']);
       for (var mapping in widget.bssidMappings) {
-        bssidSheet.appendRow([mapping.macAddressRadio, mapping.sector, mapping.floor]);
+        bssidSheet.appendRow([
+          mapping.macAddressRadio,
+          mapping.sector,
+          mapping.floor,
+          mapping.unitName
+        ]);
       }
 
       final encodedBytes = excel.encode()!;
@@ -478,6 +678,7 @@ class _UnitsTabState extends State<UnitsTab> {
     }
   }
 
+  // _buildActionButtons permanece o mesmo
   Widget _buildActionButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -492,7 +693,8 @@ class _UnitsTabState extends State<UnitsTab> {
             style: ElevatedButton.styleFrom(
               backgroundColor: _isAdmin ? Colors.blue : Colors.grey,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
@@ -503,7 +705,8 @@ class _UnitsTabState extends State<UnitsTab> {
             style: ElevatedButton.styleFrom(
               backgroundColor: _isAdmin ? Colors.blue : Colors.grey,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
@@ -514,7 +717,8 @@ class _UnitsTabState extends State<UnitsTab> {
             style: ElevatedButton.styleFrom(
               backgroundColor: _isAdmin ? Colors.orange : Colors.grey,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
@@ -525,7 +729,8 @@ class _UnitsTabState extends State<UnitsTab> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
@@ -534,6 +739,7 @@ class _UnitsTabState extends State<UnitsTab> {
     );
   }
 
+  // --- AJUSTE NA LISTA DE UNIDADES (PARA NAVEGAÇÃO) ---
   Widget _buildUnitsList() {
     if (widget.units.isEmpty) {
       return Card(
@@ -552,13 +758,34 @@ class _UnitsTabState extends State<UnitsTab> {
         children: [
           ListTile(
             leading: const Icon(Icons.home, color: Colors.blue),
-            title: const Text('Unidades (Faixas de IP)', style: TextStyle(fontWeight: FontWeight.bold)),
+            title: const Text('Unidades (Faixas de IP)',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             trailing: Text('${widget.units.length} itens'),
           ),
           ...widget.units.map((unit) => ListTile(
                 leading: const Icon(Icons.router, color: Colors.grey),
                 title: Text(unit.name),
-                subtitle: Text('${unit.ipRangeStart} - ${unit.ipRangeEnd}'),
+                // AJUSTE: Mostra a primeira faixa de IP ou um contador
+                subtitle: Text(
+                  unit.ipRanges.isEmpty
+                      ? 'Nenhuma faixa de IP'
+                      : (unit.ipRanges.length == 1
+                          ? '${unit.ipRanges.first.start} - ${unit.ipRanges.first.end}'
+                          : '${unit.ipRanges.length} faixas de IP cadastradas'),
+                ),
+                // AJUSTE: Adiciona onTap para navegar
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UnitBssidsPage(
+                        unit: unit,
+                        authService: widget.authService,
+                      ),
+                    ),
+                  // Recarrega os dados quando voltar da página de BSSIDs
+                  ).then((_) => widget.onDataUpdate());
+                },
                 trailing: _isAdmin
                     ? PopupMenuButton<IconData>(
                         icon: const Icon(Icons.more_vert),
@@ -570,8 +797,20 @@ class _UnitsTabState extends State<UnitsTab> {
                           }
                         },
                         itemBuilder: (context) => [
-                          const PopupMenuItem(value: Icons.edit, child: Row(children: [Icon(Icons.edit, color: Colors.blue), SizedBox(width: 8), Text('Editar')])),
-                          const PopupMenuItem(value: Icons.delete, child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text('Excluir')])),
+                          const PopupMenuItem(
+                              value: Icons.edit,
+                              child: Row(children: [
+                                Icon(Icons.edit, color: Colors.blue),
+                                SizedBox(width: 8),
+                                Text('Editar')
+                              ])),
+                          const PopupMenuItem(
+                              value: Icons.delete,
+                              child: Row(children: [
+                                Icon(Icons.delete, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Excluir')
+                              ])),
                         ],
                       )
                     : null,
@@ -581,6 +820,7 @@ class _UnitsTabState extends State<UnitsTab> {
     );
   }
 
+  // _buildBssidList (agora é a lista "geral")
   Widget _buildBssidList() {
     if (widget.bssidMappings.isEmpty) {
       return Card(
@@ -599,13 +839,16 @@ class _UnitsTabState extends State<UnitsTab> {
         children: [
           ListTile(
             leading: const Icon(Icons.map, color: Colors.blue),
-            title: const Text('Mapeamentos de BSSID (Setor/Andar)', style: TextStyle(fontWeight: FontWeight.bold)),
+            title: const Text('Todos Mapeamentos de BSSID (Setor/Andar)',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             trailing: Text('${widget.bssidMappings.length} itens'),
           ),
           ...widget.bssidMappings.map((mapping) => ListTile(
                 leading: const Icon(Icons.wifi, color: Colors.grey),
                 title: Text(mapping.macAddressRadio),
-                subtitle: Text('${mapping.sector} - ${mapping.floor}'),
+                 // AJUSTE: Mostra o unitName se ele existir
+                subtitle:
+                    Text('${mapping.unitName.isNotEmpty ? "${mapping.unitName} - " : ""}${mapping.sector} - ${mapping.floor}'),
                 trailing: _isAdmin
                     ? PopupMenuButton<IconData>(
                         icon: const Icon(Icons.more_vert),
@@ -617,8 +860,20 @@ class _UnitsTabState extends State<UnitsTab> {
                           }
                         },
                         itemBuilder: (context) => [
-                          const PopupMenuItem(value: Icons.edit, child: Row(children: [Icon(Icons.edit, color: Colors.blue), SizedBox(width: 8), Text('Editar')])),
-                          const PopupMenuItem(value: Icons.delete, child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text('Excluir')])),
+                          const PopupMenuItem(
+                              value: Icons.edit,
+                              child: Row(children: [
+                                Icon(Icons.edit, color: Colors.blue),
+                                SizedBox(width: 8),
+                                Text('Editar')
+                              ])),
+                          const PopupMenuItem(
+                              value: Icons.delete,
+                              child: Row(children: [
+                                Icon(Icons.delete, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Excluir')
+                              ])),
                         ],
                       )
                     : null,
@@ -646,7 +901,8 @@ class _UnitsTabState extends State<UnitsTab> {
             children: [
               Card(
                 elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -658,7 +914,10 @@ class _UnitsTabState extends State<UnitsTab> {
                           const SizedBox(width: 8),
                           const Text(
                             'Gerenciamento de Unidades e Localização',
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey),
+                            style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
                           ),
                         ],
                       ),

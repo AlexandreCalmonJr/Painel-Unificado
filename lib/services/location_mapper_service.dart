@@ -30,12 +30,12 @@ class LocationMapperService {
       final endParts = endIp.split('.').map(int.parse).toList();
 
       if (ipParts.length != 4 || startParts.length != 4 || endParts.length != 4) {
-         print('LocationMapperService: Formato de IP inválido - ip: $ip, start: $startIp, end: $endIp');
+        print('LocationMapperService: Formato de IP inválido - ip: $ip, start: $startIp, end: $endIp');
         return false;
       }
       if ([...ipParts, ...startParts, ...endParts].any((part) => part < 0 || part > 255)) {
-         print('LocationMapperService: Valor de octeto inválido - ip: $ip, start: $startIp, end: $endIp');
-         return false;
+        print('LocationMapperService: Valor de octeto inválido - ip: $ip, start: $startIp, end: $endIp');
+        return false;
       }
       final ipNum = (ipParts[0] << 24) + (ipParts[1] << 16) + (ipParts[2] << 8) + ipParts[3];
       final startNum = (startParts[0] << 24) + (startParts[1] << 16) + (startParts[2] << 8) + startParts[3];
@@ -52,21 +52,28 @@ class LocationMapperService {
   }
 
   /// Encontra a `Unit` (Unidade) correspondente a um dado endereço IP.
+  /// ESTA É A FUNÇÃO ATUALIZADA.
   static Unit? findUnitByIp(String? ip, List<Unit> units) {
-    // (Implementação da função findUnitByIp permanece a MESMA)
     if (ip == null || ip.isEmpty) return null;
+
+    // --- AJUSTE ---
+    // Itera sobre cada unidade
     for (final unit in units) {
-      if (isIpInRange(ip, unit.ipRangeStart, unit.ipRangeEnd)) {
-        return unit;
+      // Itera sobre CADA FAIXA de IP (IpRange) dentro da unidade
+      for (final range in unit.ipRanges) {
+        // Usa a mesma função 'isIpInRange' com os IPs da faixa
+        if (isIpInRange(ip, range.start, range.end)) {
+          return unit; // Retorna a unidade assim que encontrar uma faixa correspondente
+        }
       }
     }
+    // --- FIM DO AJUSTE ---
     return null;
   }
 
   /// Encontra o `BssidMapping` correspondente a um endereço MAC.
   static BssidMapping? findBssidMapping(String? macAddress, List<BssidMapping> mappings) {
-    // (Implementação da função findBssidMapping permanece a MESMA)
-     if (macAddress == null || macAddress.isEmpty) return null;
+    if (macAddress == null || macAddress.isEmpty) return null;
     final normalizedMac = macAddress
         .toUpperCase()
         .replaceAll('-', ':')
@@ -94,6 +101,7 @@ class LocationMapperService {
     required String? macAddress,
     required String? originalLocation, // A localização que veio do JSON
   }) {
+    // Esta função agora usa o findUnitByIp atualizado
     final unit = findUnitByIp(ip, units);
     final bssidMapping = findBssidMapping(macAddress, bssidMappings);
 
@@ -105,7 +113,6 @@ class LocationMapperService {
     if (unit != null) {
       locationParts.add(unit.name);
       mappedUnitName = unit.name;
-      // Poderia adicionar unit.sector/floor aqui se fizer sentido na sua lógica
     }
 
     if (bssidMapping != null) {
@@ -138,9 +145,6 @@ class LocationMapperService {
   }
 
   static List<Totem> updateTotemsLocation({required List<Totem> totems, required List<Unit> units, required List<BssidMapping> bssidMappings}) {
-    // Retorna a lista recebida para garantir que a função não retorne nulo.
-    // Se desejar, aqui pode-se iterar sobre `totems` e atualizar propriedades
-    // com base em `getMappedLocation(...)` antes de retornar a lista.
     return totems;
   }
 }

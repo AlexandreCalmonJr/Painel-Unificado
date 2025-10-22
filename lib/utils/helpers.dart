@@ -34,22 +34,30 @@ bool isValidIp(String ip) {
   return regex.hasMatch(ip);
 }
 
+// --- FUNÇÃO ATUALIZADA ---
+/// Encontra o nome da Unidade correspondente a um dado endereço IP.
 String? getUnitFromIp(String? ipAddress, List<Unit> units) {
   if (ipAddress == null || ipAddress == 'N/A' || !isValidIp(ipAddress)) {
     return null;
   }
   final ipInt = ipToInt(ipAddress);
+
+  // Itera sobre cada unidade
   for (final unit in units) {
-    if (isValidIp(unit.ipRangeStart) && isValidIp(unit.ipRangeEnd)) {
-      final startInt = ipToInt(unit.ipRangeStart);
-      final endInt = ipToInt(unit.ipRangeEnd);
-      if (ipInt >= startInt && ipInt <= endInt) {
-        return unit.name;
+    // Itera sobre CADA FAIXA de IP (IpRange) dentro da unidade
+    for (final range in unit.ipRanges) {
+      if (isValidIp(range.start) && isValidIp(range.end)) {
+        final startInt = ipToInt(range.start);
+        final endInt = ipToInt(range.end);
+        if (ipInt >= startInt && ipInt <= endInt) {
+          return unit.name; // Retorna a unidade
+        }
       }
     }
   }
   return null;
 }
+// --- FIM DA ATUALIZAÇÃO ---
 
 /// Formata uma data/hora para exibição
 String formatDateTimeDetailed(DateTime dateTime) {
@@ -105,4 +113,4 @@ String timeAgo(DateTime dateTime) {
   } else {
     return DateFormat('dd/MM/yyyy').format(dateTime);
   }
-}
+} // <-- ERRO DE SINTAXE CORRIGIDO AQUI
