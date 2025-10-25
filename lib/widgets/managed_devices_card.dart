@@ -1,3 +1,4 @@
+// File: lib/widgets/managed_devices_card.dart
 import 'dart:convert';
 import 'dart:io';
 
@@ -32,116 +33,114 @@ class ManagedDevicesCard extends StatelessWidget {
   });
 
   Future<void> _downloadDevicesCsv(
-  BuildContext context,
-  List<Device> devicesToExport,
-) async {
-  final headers = [
-    'Dispositivo',
-    'Modelo',
-    'IMEI',
-    'Serial',
-    'Status',
-    'Última Sincronização',
-    'Bateria',
-    'Endereço IP',
-    'Rede',
-    'Endereço MAC',
-    'Em Manutenção',
-    'Chamado',
-    'Motivo da Manutenção',
-    'Unidade',
-    'Setor',
-    'Andar',
-  ];
+    BuildContext context,
+    List<Device> devicesToExport,
+  ) async {
+    final headers = [
+      'Dispositivo',
+      'Modelo',
+      'IMEI',
+      'Serial',
+      'Status',
+      'Última Sincronização',
+      'Bateria',
+      'Endereço IP',
+      'Rede',
+      'Endereço MAC',
+      'Em Manutenção',
+      'Chamado',
+      'Motivo da Manutenção',
+      'Unidade',
+      'Setor',
+      'Andar',
+    ];
 
-  final rows = devicesToExport.map((device) {
-    final lastSeenTime = parseLastSeen(device.lastSeen);
-    String status;
-    
-    switch (device.displayStatus) {
-      case DeviceStatusType.collectedByIT:
-        status = 'Recolhido pelo TI';
-        break;
-      case DeviceStatusType.maintenance:
-        status = 'Em Manutenção';
-        break;
-      case DeviceStatusType.online:
-        status = 'Online';
-        break;
-      case DeviceStatusType.unmonitored:
-        status = 'Sem Monitorar';
-        break;
-      default:
-        status = 'Offline';
-        break;
-    }
+    final rows = devicesToExport.map((device) {
+      final lastSeenTime = parseLastSeen(device.lastSeen);
+      String status;
+      
+      switch (device.displayStatus) {
+        case DeviceStatusType.collectedByIT:
+          status = 'Recolhido pelo TI';
+          break;
+        case DeviceStatusType.maintenance:
+          status = 'Em Manutenção';
+          break;
+        case DeviceStatusType.online:
+          status = 'Online';
+          break;
+        case DeviceStatusType.unmonitored:
+          status = 'Sem Monitorar';
+          break;
+        default:
+          status = 'Offline';
+          break;
+      }
 
-    return [
-      device.deviceName,
-      device.deviceModel ?? 'N/A',
-      device.imei ?? 'N/A',
-      device.serialNumber ?? 'N/A',
-      status,
-      formatDateTime(lastSeenTime),
-      device.battery != null ? '${device.battery}%' : 'N/A',
-      device.ipAddress ?? 'N/A',
-      device.network ?? 'N/A',
-      device.macAddress ?? 'N/A',
-      (device.maintenanceStatus ?? false) ? 'Sim' : 'Não',
-      device.maintenanceTicket ?? 'N/A',
-      device.maintenanceReason ?? 'N/A',
-      device.unit ?? 'N/A',
-      device.sector ?? 'N/A',
-      device.floor ?? 'N/A',
-    ]
-        .map((value) => '"${value.toString().replaceAll('"', '""')}"')
-        .join(',');
-  }).toList();
+      return [
+        device.deviceName,
+        device.deviceModel ?? 'N/A',
+        device.imei ?? 'N/A',
+        device.serialNumber ?? 'N/A',
+        status,
+        formatDateTime(lastSeenTime),
+        device.battery != null ? '${device.battery}%' : 'N/A',
+        device.ipAddress ?? 'N/A',
+        device.network ?? 'N/A',
+        device.macAddress ?? 'N/A',
+        (device.maintenanceStatus ?? false) ? 'Sim' : 'Não',
+        device.maintenanceTicket ?? 'N/A',
+        device.maintenanceReason ?? 'N/A',
+        device.unit ?? 'N/A',
+        device.sector ?? 'N/A',
+        device.floor ?? 'N/A',
+      ]
+          .map((value) => '"${value.toString().replaceAll('"', '""')}"')
+          .join(',');
+    }).toList();
 
-  final csvContent = [headers.join(','), ...rows].join('\n');
-  final scaffoldMessenger = ScaffoldMessenger.of(context);
-  final timestamp = DateTime.now().millisecondsSinceEpoch;
-  final fileName = 'dispositivos_$timestamp.csv';
+    final csvContent = [headers.join(','), ...rows].join('\n');
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final fileName = 'dispositivos_$timestamp.csv';
 
-  try {
-    if (kIsWeb) {
-      // No web: Gera bytes e força download via file_saver
-      final bytes = Uint8List.fromList(utf8.encode(csvContent));
-      await FileSaver.instance.saveFile(
-        name: fileName,
-        bytes: bytes,
-        fileExtension: 'csv',
-        mimeType: MimeType.csv,
-      );
+    try {
+      if (kIsWeb) {
+        final bytes = Uint8List.fromList(utf8.encode(csvContent));
+        await FileSaver.instance.saveFile(
+          name: fileName,
+          bytes: bytes,
+          fileExtension: 'csv',
+          mimeType: MimeType.csv,
+        );
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('CSV baixado com sucesso!')),
+        );
+      } else {
+        final directory = await getApplicationDocumentsDirectory();
+        final path = '${directory.path}${Platform.pathSeparator}$fileName';
+        final file = File(path);
+        await file.writeAsString(csvContent);
+
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('CSV salvo em: $path')),
+        );
+      }
+    } catch (e) {
       scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('CSV baixado com sucesso!')),
-      );
-        } else {
-      // Em mobile/desktop: Usa path_provider como antes
-      final directory = await getApplicationDocumentsDirectory();
-      final path = '${directory.path}${Platform.pathSeparator}$fileName';
-      final file = File(path);
-      await file.writeAsString(csvContent);
-
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('CSV salvo em: $path')),
+        SnackBar(
+          content: Text('Erro ao salvar CSV: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
-  } catch (e) {
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        content: Text('Erro ao salvar CSV: $e'),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
     List<Device> filteredDevices = List.from(devices);
 
-    // ALTERAÇÃO: Ordenação para priorizar status "Sem Monitorar"
+    // Ordenação para priorizar status "Sem Monitorar"
     filteredDevices.sort((a, b) {
       int getPriority(Device device) {
         if (device.displayStatus == DeviceStatusType.unmonitored) return 0;
@@ -218,43 +217,29 @@ class ManagedDevicesCard extends StatelessWidget {
             ),
           Expanded(
             child: SingleChildScrollView(
-              child: Table(
-                border: const TableBorder(
-                  horizontalInside: BorderSide(
-                    color: Colors.black12,
-                    width: 0.5,
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                child: DataTable(
+                  headingRowColor: MaterialStateProperty.all(Colors.grey.shade50),
+                  border: TableBorder(
+                    horizontalInside: BorderSide(
+                      color: Colors.grey.shade300,
+                      width: 0.5,
+                    ),
                   ),
+                  columns: [
+                    _buildDataColumn('Dispositivo'),
+                    _buildDataColumn('Modelo'),
+                    _buildDataColumn('Serial'),
+                    _buildDataColumn('IMEI'),
+                    _buildDataColumn('Status'),
+                    _buildDataColumn('Última Sincronização'),
+                    _buildDataColumn('Unidade'),
+                    _buildDataColumn('Setor/Andar'),
+                    if (showActions) _buildDataColumn('Ações'),
+                  ],
+                  rows: filteredDevices.map((device) => _buildDeviceDataRow(context, device)).toList(),
                 ),
-                columnWidths: {
-                  0: const FlexColumnWidth(2.2),
-                  1: const FlexColumnWidth(1.5),
-                  2: const FlexColumnWidth(2),
-                  3: const FlexColumnWidth(2),
-                  4: const FlexColumnWidth(1.2),
-                  5: const FlexColumnWidth(2),
-                  6: const FlexColumnWidth(1.5),
-                  7: const FlexColumnWidth(1.5),
-                  if (showActions) 8: const FlexColumnWidth(1),
-                },
-                children: [
-                  TableRow(
-                    decoration: BoxDecoration(color: Colors.grey.shade50),
-                    children: [
-                      _buildTableHeader('Dispositivo'),
-                      _buildTableHeader('Modelo'),
-                      _buildTableHeader('Serial'),
-                      _buildTableHeader('IMEI'),
-                      _buildTableHeader('Status'),
-                      _buildTableHeader('Última Sincronização'),
-                      _buildTableHeader('Unidade'),
-                      _buildTableHeader('Setor/Andar'),
-                      if (showActions) _buildTableHeader('Ações'),
-                    ],
-                  ),
-                  ...filteredDevices.map(
-                    (device) => _buildDeviceTableRow(context, device),
-                  ),
-                ],
               ),
             ),
           ),
@@ -263,10 +248,9 @@ class ManagedDevicesCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTableHeader(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      child: Text(
+  DataColumn _buildDataColumn(String text) {
+    return DataColumn(
+      label: Text(
         text,
         style: TextStyle(
           fontWeight: FontWeight.w600,
@@ -277,8 +261,7 @@ class ManagedDevicesCard extends StatelessWidget {
     );
   }
 
-  // ALTERAÇÃO: Usa o novo enum e getter de status
-  TableRow _buildDeviceTableRow(BuildContext context, Device device) {
+  DataRow _buildDeviceDataRow(BuildContext context, Device device) {
     String statusText;
     Color statusColor;
 
@@ -305,20 +288,25 @@ class ManagedDevicesCard extends StatelessWidget {
         break;
     }
 
-    return TableRow(
-      children: [
-        _buildClickableDeviceCell(context, device),
-        _buildTableCell(device.deviceModel ?? 'N/A'),
-        _buildTableCell(device.serialNumber ?? 'N/A'),
-        _buildTableCell(device.imei ?? 'N/A'),
-        TableCell(child: Center(child: _buildStatusChip(statusText, statusColor))),
-        _buildTableCell(formatDateTime(parseLastSeen(device.lastSeen))),
-        _buildTableCell(device.unit ?? 'N/D'),
-        _buildTableCell('${device.sector ?? "N/D"} / ${device.floor ?? "N/D"}'),
+    return DataRow(
+      cells: [
+        DataCell(_buildClickableDeviceCell(context, device)),
+        DataCell(Text(device.deviceModel ?? 'N/A', style: const TextStyle(fontSize: 13))),
+        DataCell(Text(device.serialNumber ?? 'N/A', style: const TextStyle(fontSize: 13))),
+        DataCell(Text(device.imei ?? 'N/A', style: const TextStyle(fontSize: 13))),
+        DataCell(Center(child: _buildStatusChip(statusText, statusColor))),
+        DataCell(Text(formatDateTime(parseLastSeen(device.lastSeen)), style: const TextStyle(fontSize: 13))),
+        DataCell(Text(
+          device.unit ?? 'N/D',
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+        )),
+        DataCell(Text(
+          '${device.sector ?? "N/D"} / ${device.floor ?? "N/D"}',
+          style: const TextStyle(fontSize: 13),
+        )),
         if (showActions)
-          TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: CommandControls(
+          DataCell(
+            CommandControls(
               device: device,
               token: token!,
               onCommandExecuted: onDeviceUpdate ?? () {},
@@ -328,7 +316,6 @@ class ManagedDevicesCard extends StatelessWidget {
     );
   }
 
-  // ALTERAÇÃO: Adicionado ícone de bateria
   Widget _buildClickableDeviceCell(BuildContext context, Device device) {
     Widget getBatteryIcon(num? batteryLevel) {
       if (batteryLevel == null) {
@@ -343,76 +330,60 @@ class ManagedDevicesCard extends StatelessWidget {
       return Icon(Icons.battery_full, size: 18, color: Colors.green[700]);
     }
 
-    return TableCell(
-      verticalAlignment: TableCellVerticalAlignment.middle,
-      child: InkWell(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DeviceDetailScreen(
-              device: device,
-              authService: authService,
-            ),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      device.deviceName ?? 'N/A',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (device.battery != null)
-                      Text(
-                        'Bateria: ${device.battery}%',
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              getBatteryIcon(device.battery),
-            ],
+    return InkWell(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DeviceDetailScreen(
+            device: device,
+            authService: authService,
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTableCell(String text) {
-    return TableCell(
-      verticalAlignment: TableCellVerticalAlignment.middle,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-        child: Text(text, style: const TextStyle(fontSize: 13)),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    device.deviceName ?? 'N/A',
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (device.battery != null)
+                    Text(
+                      'Bateria: ${device.battery}%',
+                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            getBatteryIcon(device.battery),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildStatusChip(String status, Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          status,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: color,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        status,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );

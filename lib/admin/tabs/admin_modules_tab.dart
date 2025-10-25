@@ -202,7 +202,7 @@ final notebookColumns = [
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<AssetModuleType>(
-                    initialValue: selectedType,
+                    value: selectedType,
                     decoration: InputDecoration(
                       labelText: 'Tipo de Módulo',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -345,14 +345,343 @@ final notebookColumns = [
     );
   }
 
-  // (Os métodos _showModuleDetailsDialog, _showEditModuleDialog, _confirmDeleteModule
-  //  e build() permanecem, mas _showEditModuleDialog também precisará
-  //  ser atualizado para carregar e salvar a configuração das colunas,
-  //  o que é uma lógica mais complexa de "edição".)
+  Future<void> _showModuleDetailsDialog(AssetModuleConfig module) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(_getIconData(module.type.iconName), color: Colors.blue),
+            const SizedBox(width: 8),
+            Text(module.name),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDetailRow('Descrição', module.description),
+              _buildDetailRow('Tipo', module.type.displayName),
+              _buildDetailRow('Status', module.isActive ? 'Ativo' : 'Inativo'),
+              _buildDetailRow('Customizado', module.isCustom ? 'Sim' : 'Não'),
+              _buildDetailRow('Criado em', _formatDate(module.createdAt)),
+              if (module.updatedAt != null) _buildDetailRow('Atualizado em', _formatDate(module.updatedAt!)),
+              const SizedBox(height: 16),
+              const Text('Colunas da Tabela:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              if (module.tableColumns.isEmpty)
+                const Text('Nenhuma coluna configurada', style: TextStyle(color: Colors.grey)),
+              ...module.tableColumns.map((col) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text('• ${col.label} (${col.dataKey})'),
+              )),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Fechar'),
+          ),
+        ],
+      ),
+    );
+  }
 
-  // ... (Restante do arquivo: _buildDetailRow, _formatDate, _getIconData, build, _buildModuleCard)
-  // ...
-    IconData _getIconData(String iconName) {
+  Future<void> _showEditModuleDialog(AssetModuleConfig module) async {
+    final nameController = TextEditingController(text: module.name);
+    final descriptionController = TextEditingController(text: module.description);
+    AssetModuleType selectedType = module.type;
+    
+    // Inicializa colunas selecionadas com as existentes
+    Map<String, bool> selectedColumns = {};
+    String customColumnsText = '';
+    
+    // Processa colunas existentes
+    final existingColumns = module.tableColumns;
+    for (var col in existingColumns) {
+      if (_standardColumns.containsKey(col.dataKey)) {
+        selectedColumns[col.dataKey] = true;
+      } else {
+        // Adiciona às customizadas
+        customColumnsText += '${col.dataKey}:${col.label}, ';
+      }
+    }
+    // Remove última vírgula
+    if (customColumnsText.endsWith(', ')) {
+      customColumnsText = customColumnsText.substring(0, customColumnsText.length - 2);
+    }
+    
+    final customColumnsController = TextEditingController(text: customColumnsText);
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(Icons.edit, color: Colors.blue),
+              const SizedBox(width: 8),
+              const Text('Editar Módulo'),
+            ],
+          ),
+          content: SizedBox(
+            width: 600,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Nome do Módulo',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      prefixIcon: const Icon(Icons.label),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: descriptionController,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      labelText: 'Descrição',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      prefixIcon: const Icon(Icons.description),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<AssetModuleType>(
+                    value: selectedType,
+                    decoration: InputDecoration(
+                      labelText: 'Tipo de Módulo',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      prefixIcon: const Icon(Icons.category),
+                    ),
+                    items: AssetModuleType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Row(
+                          children: [
+                            Icon(_getIconData(type.iconName), size: 20),
+                            const SizedBox(width: 8),
+                            Text(type.displayName),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setStateDialog(() {
+                        selectedType = value!;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const Text('Configuração da Tabela', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Selecione as colunas padrão para exibir na tabela deste módulo:',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[300]!),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListView(
+                      children: _standardColumns.entries.map((entry) {
+                        final key = entry.key;
+                        final label = entry.value;
+                        return CheckboxListTile(
+                          title: Text(label),
+                          subtitle: Text('Chave: $key', style: TextStyle(fontSize: 10)),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          value: selectedColumns[key] ?? false,
+                          onChanged: (bool? value) {
+                            setStateDialog(() {
+                              selectedColumns[key] = value!;
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: customColumnsController,
+                    decoration: InputDecoration(
+                      labelText: 'Colunas Customizadas (Opcional)',
+                      hintText: 'chave:Label, outra_chave:Outro Label',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      prefixIcon: const Icon(Icons.add_circle_outline),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (nameController.text.trim().isEmpty) {
+                  _showSnackbar('O nome do módulo é obrigatório', isError: true);
+                  return;
+                }
+
+                // Processar colunas (similar ao create)
+                List<Map<String, String>> tableColumns = [];
+                selectedColumns.forEach((key, isSelected) {
+                  if (isSelected) {
+                    tableColumns.add({
+                      'dataKey': key,
+                      'label': _standardColumns[key]!,
+                    });
+                  }
+                });
+                if (customColumnsController.text.trim().isNotEmpty) {
+                  try {
+                    final parts = customColumnsController.text.trim().split(',');
+                    for (var part in parts) {
+                      final pair = part.split(':');
+                      if (pair.length == 2 && pair[0].trim().isNotEmpty && pair[1].trim().isNotEmpty) {
+                        tableColumns.add({
+                          'dataKey': pair[0].trim(),
+                          'label': pair[1].trim(),
+                        });
+                      }
+                    }
+                  } catch (e) {
+                    _showSnackbar('Formato das colunas customizadas inválido.', isError: true);
+                    return;
+                  }
+                }
+
+                try {
+                  await _moduleService.updateModule(
+                    moduleId: module.id,
+                    name: nameController.text.trim(),
+                    description: descriptionController.text.trim(),
+                    type: selectedType,
+                    tableColumns: tableColumns,
+                  );
+
+                  Navigator.of(context).pop();
+                  _showSnackbar('Módulo atualizado com sucesso!');
+                  _loadModules();
+                } catch (e) {
+                  _showSnackbar('Erro ao atualizar módulo: $e', isError: true);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Salvar', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteModule(AssetModuleConfig module) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+            const SizedBox(width: 12),
+            const Text('Confirmar Exclusão'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Deseja realmente excluir o módulo:'),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                module.name,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Esta ação não pode ser desfeita.',
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Excluir', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await _moduleService.deleteModule(module.id);
+        _showSnackbar('Módulo excluído com sucesso!');
+        _loadModules();
+      } catch (e) {
+        _showSnackbar('Erro ao excluir módulo: $e', isError: true);
+      }
+    }
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  IconData _getIconData(String iconName) {
     switch (iconName) {
       case 'phone_android':
         return Icons.phone_android;
@@ -503,7 +832,7 @@ final notebookColumns = [
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () {}, // _showModuleDetailsDialog(module),
+        onTap: () => _showModuleDetailsDialog(module),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -529,14 +858,18 @@ final notebookColumns = [
                     icon: const Icon(Icons.more_vert),
                     onSelected: (value) {
                       if (value == 'edit') {
-                        // _showEditModuleDialog(module);
+                        _showEditModuleDialog(module);
                       } else if (value == 'delete') {
-                        // _confirmDeleteModule(module);
+                        _confirmDeleteModule(module);
                       } else if (value == 'toggle') {
                         _moduleService.updateModule(
+                          name: module.name,
+                          description: module.description,
+                          type: module.type,
                           moduleId: module.id,
                           isActive: !module.isActive,
                         ).then((_) {
+                          Navigator.of(context).pop();
                           _showSnackbar('Status do módulo atualizado!');
                           _loadModules();
                         }).catchError((e) {

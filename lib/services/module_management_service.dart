@@ -3,11 +3,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/models/asset_module_base.dart';
+import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
-import 'package:painel_windowns/models/unit.dart';
 
 class ModuleManagementService {
   final AuthService authService;
@@ -142,7 +143,7 @@ class ModuleManagementService {
     bool? isActive,
     Map<String, dynamic>? customFields,
     Map<String, dynamic>? settings,
-    List<Map<String, String>>? tableColumns,
+    List<Map<String, String>>? tableColumns, required AssetModuleType type,
   }) async {
     if (_token == null) throw Exception("Não autenticado");
 
