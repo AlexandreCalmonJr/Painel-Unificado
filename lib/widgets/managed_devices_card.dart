@@ -9,7 +9,6 @@ import 'package:painel_windowns/device_detail_screen.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/utils/helpers.dart';
-import 'package:painel_windowns/widgets/command_controls.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ManagedDevicesCard extends StatelessWidget {
@@ -217,29 +216,39 @@ class ManagedDevicesCard extends StatelessWidget {
             ),
           Expanded(
             child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SingleChildScrollView(
-                child: DataTable(
-                  headingRowColor: MaterialStateProperty.all(Colors.grey.shade50),
-                  border: TableBorder(
-                    horizontalInside: BorderSide(
-                      color: Colors.grey.shade300,
-                      width: 0.5,
-                    ),
+              child: Table(
+                border: const TableBorder(
+                  horizontalInside: BorderSide(
+                    color: Colors.black12,
+                    width: 0.5,
                   ),
-                  columns: [
-                    _buildDataColumn('Dispositivo'),
-                    _buildDataColumn('Modelo'),
-                    _buildDataColumn('Serial'),
-                    _buildDataColumn('IMEI'),
-                    _buildDataColumn('Status'),
-                    _buildDataColumn('Última Sincronização'),
-                    _buildDataColumn('Unidade'),
-                    _buildDataColumn('Setor/Andar'),
-                    if (showActions) _buildDataColumn('Ações'),
-                  ],
-                  rows: filteredDevices.map((device) => _buildDeviceDataRow(context, device)).toList(),
                 ),
+                columnWidths: const {
+                  0: FlexColumnWidth(2.5), // Dispositivo
+                  1: FlexColumnWidth(1.5), // Modelo
+                  2: FlexColumnWidth(1.2), // Serial
+                  3: FlexColumnWidth(1.2), // IMEI
+                  4: FlexColumnWidth(1.5), // Status
+                  5: FlexColumnWidth(1.8), // Última Sincronização
+                  6: FlexColumnWidth(1.5), // Unidade
+                  7: FlexColumnWidth(1.8), // Setor/Andar
+                },
+                children: [
+                  TableRow(
+                    decoration: BoxDecoration(color: Colors.grey.shade50),
+                    children: [
+                      _buildTableHeader('Dispositivo'),
+                      _buildTableHeader('Modelo'),
+                      _buildTableHeader('Serial'),
+                      _buildTableHeader('IMEI'),
+                      _buildTableHeader('Status'),
+                      _buildTableHeader('Última Sincronização'),
+                      _buildTableHeader('Unidade'),
+                      _buildTableHeader('Setor/Andar'),
+                    ],
+                  ),
+                  ...filteredDevices.map((device) => _buildDeviceTableRow(context, device)),
+                ],
               ),
             ),
           ),
@@ -248,9 +257,10 @@ class ManagedDevicesCard extends StatelessWidget {
     );
   }
 
-  DataColumn _buildDataColumn(String text) {
-    return DataColumn(
-      label: Text(
+  Widget _buildTableHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      child: Text(
         text,
         style: TextStyle(
           fontWeight: FontWeight.w600,
@@ -261,7 +271,7 @@ class ManagedDevicesCard extends StatelessWidget {
     );
   }
 
-  DataRow _buildDeviceDataRow(BuildContext context, Device device) {
+  TableRow _buildDeviceTableRow(BuildContext context, Device device) {
     String statusText;
     Color statusColor;
 
@@ -288,30 +298,16 @@ class ManagedDevicesCard extends StatelessWidget {
         break;
     }
 
-    return DataRow(
-      cells: [
-        DataCell(_buildClickableDeviceCell(context, device)),
-        DataCell(Text(device.deviceModel ?? 'N/A', style: const TextStyle(fontSize: 13))),
-        DataCell(Text(device.serialNumber ?? 'N/A', style: const TextStyle(fontSize: 13))),
-        DataCell(Text(device.imei ?? 'N/A', style: const TextStyle(fontSize: 13))),
-        DataCell(Center(child: _buildStatusChip(statusText, statusColor))),
-        DataCell(Text(formatDateTime(parseLastSeen(device.lastSeen)), style: const TextStyle(fontSize: 13))),
-        DataCell(Text(
-          device.unit ?? 'N/D',
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-        )),
-        DataCell(Text(
-          '${device.sector ?? "N/D"} / ${device.floor ?? "N/D"}',
-          style: const TextStyle(fontSize: 13),
-        )),
-        if (showActions)
-          DataCell(
-            CommandControls(
-              device: device,
-              token: token!,
-              onCommandExecuted: onDeviceUpdate ?? () {},
-            ),
-          ),
+    return TableRow(
+      children: [
+        _buildClickableDeviceCell(context, device),
+        _buildTableCell(device.deviceModel ?? 'N/A'),
+        _buildTableCell(device.serialNumber ?? 'N/A'),
+        _buildTableCell(device.imei ?? 'N/A'),
+        Center(child: _buildStatusChip(statusText, statusColor)),
+        _buildTableCell(formatDateTime(parseLastSeen(device.lastSeen))),
+        _buildTableCell(device.unit ?? 'N/D'),
+        _buildTableCell('${device.sector ?? "N/D"} / ${device.floor ?? "N/D"}'),
       ],
     );
   }
@@ -330,60 +326,76 @@ class ManagedDevicesCard extends StatelessWidget {
       return Icon(Icons.battery_full, size: 18, color: Colors.green[700]);
     }
 
-    return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DeviceDetailScreen(
-            device: device,
-            authService: authService,
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DeviceDetailScreen(
+              device: device,
+              authService: authService,
+            ),
           ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    device.deviceName ?? 'N/A',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (device.battery != null)
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Text(
-                      'Bateria: ${device.battery}%',
-                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                      device.deviceName ?? 'N/A',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                ],
+                    if (device.battery != null)
+                      Text(
+                        'Bateria: ${device.battery}%',
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                      ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            getBatteryIcon(device.battery),
-          ],
+              const SizedBox(width: 8),
+              getBatteryIcon(device.battery),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildStatusChip(String status, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+  Widget _buildTableCell(String text) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+        child: Text(text, style: const TextStyle(fontSize: 13)),
       ),
-      child: Text(
-        status,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+    );
+  }
+
+  Widget _buildStatusChip(String status, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          status,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: color,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );

@@ -90,43 +90,24 @@ class GenericManagedAssetsCard extends StatelessWidget {
           else
             Expanded(
               child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SingleChildScrollView(
-                  child: DataTable(
-                    headingRowColor: MaterialStateProperty.all(Colors.grey.shade50),
-                    border: TableBorder(
-                      horizontalInside: BorderSide(
-                        color: Colors.grey.shade300,
-                        width: 0.5,
-                      ),
+                child: Table(
+                  border: const TableBorder(
+                    horizontalInside: BorderSide(
+                      color: Colors.black12,
+                      width: 0.5,
                     ),
-                    columns: [
-                      // Colunas dinâmicas baseadas na configuração
-                      ...columns.map((col) => DataColumn(
-                        label: Text(
-                          col.label,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                      )),
-                      // Coluna de Ações (se habilitada)
-                      if (showActions)
-                        DataColumn(
-                          label: Text(
-                            'Ações',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                    ],
-                    rows: assets.map((asset) => _buildAssetDataRow(context, asset)).toList(),
                   ),
+                  columnWidths: _getColumnWidths(),
+                  children: [
+                    TableRow(
+                      decoration: BoxDecoration(color: Colors.grey.shade50),
+                      children: [
+                        ...columns.map((col) => _buildTableHeader(col.label)),
+                        if (showActions) _buildTableHeader('Ações'),
+                      ],
+                    ),
+                    ...assets.map((asset) => _buildAssetTableRow(context, asset)),
+                  ],
                 ),
               ),
             ),
@@ -135,110 +116,158 @@ class GenericManagedAssetsCard extends StatelessWidget {
     );
   }
 
-  DataRow _buildAssetDataRow(BuildContext context, ManagedAsset asset) {
+  Map<int, TableColumnWidth> _getColumnWidths() {
+    final baseWidth = 1.5; // Default width for each column
+    final numColumns = columns.length + (showActions ? 1 : 0);
+    final widths = <int, TableColumnWidth>{};
+
+    // Assign proportional widths dynamically
+    for (int i = 0; i < columns.length; i++) {
+      final col = columns[i];
+      double widthFactor = baseWidth;
+
+      // Adjust width based on column key (if needed)
+      if (col.dataKey == 'status') {
+        widthFactor = 1.5; // Wider for status chips
+      } else if (col.dataKey == 'sector_floor') {
+        widthFactor = 1.8; // Wider for combined sector/floor
+      } else if (col.dataKey == 'unit') {
+        widthFactor = 1.5; // Moderate width for unit
+      } else if (col.dataKey == 'dispositivo' || col.dataKey == 'hostname') {
+        widthFactor = 2.5; // Wider for device/hostname
+      } else {
+        widthFactor = 1.2; // Default for narrower fields like serial, IMEI
+      }
+
+      widths[i] = FlexColumnWidth(widthFactor);
+    }
+
+    // Add width for actions column if enabled
+    if (showActions) {
+      widths[columns.length] = FlexColumnWidth(1.5); // Moderate width for actions
+    }
+
+    return widths;
+  }
+
+  Widget _buildTableHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: Colors.grey[600],
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
+  TableRow _buildAssetTableRow(BuildContext context, ManagedAsset asset) {
     final assetData = asset.toJson();
-    
-    return DataRow(
-      cells: [
-        // Células dinâmicas baseadas nas colunas configuradas
+
+    return TableRow(
+      children: [
         ...columns.map((col) {
           final dataKey = col.dataKey;
           final value = assetData[dataKey];
 
-          // Tratamento especial para status
           if (dataKey == 'status') {
-            return DataCell(
-              Center(child: _buildStatusChip(value?.toString() ?? 'unknown')),
+            return Center(child: _buildStatusChip(value?.toString() ?? 'unknown'));
+          }
+
+          if (dataKey == 'sector_floor') {
+            final sectorFloor = assetData['sector_floor'] ??
+                '${assetData['sector'] ?? "N/D"} / ${assetData['floor'] ?? "N/D"}';
+            return _buildTableCell(sectorFloor);
+          }
+
+          if (dataKey == 'unit') {
+            return _buildTableCell(
+              value?.toString() ?? 'N/D',
+              style: const TextStyle(fontWeight: FontWeight.w500),
             );
           }
 
-          // Tratamento especial para setor/andar combinado
-          if (dataKey == 'sector_floor') {
-            final sectorFloor = assetData['sector_floor'] ?? 
-                                '${assetData['sector'] ?? "N/D"} / ${assetData['floor'] ?? "N/D"}';
-            return DataCell(Text(
-              sectorFloor,
-              style: const TextStyle(fontSize: 13),
-            ));
-          }
-
-          // Tratamento para unidade
-          if (dataKey == 'unit') {
-            return DataCell(Text(
-              value?.toString() ?? 'N/D',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-            ));
-          }
-
-          // Células padrão
-          return DataCell(Text(
-            value?.toString() ?? 'N/D',
-            style: const TextStyle(fontSize: 13),
-          ));
+          return _buildTableCell(value?.toString() ?? 'N/D');
         }),
-
-        // Célula de ações
-        if (showActions)
-          DataCell(_buildActionsMenu(context, asset)),
+        if (showActions) _buildActionsMenu(context, asset),
       ],
+    );
+  }
+
+  Widget _buildTableCell(String text, {TextStyle? style}) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+        child: Text(
+          text,
+          style: style ?? const TextStyle(fontSize: 13),
+        ),
+      ),
     );
   }
 
   Widget _buildActionsMenu(BuildContext context, ManagedAsset asset) {
     bool isInMaintenance = asset.status.toLowerCase() == 'maintenance';
-    
-    return PopupMenuButton<AssetAction>(
-      onSelected: (action) {
-        if (action == AssetAction.edit) {
-          onAssetUpdate?.call(asset);
-        } else if (action == AssetAction.delete) {
-          onAssetDelete?.call(asset);
-        } else if (action == AssetAction.markMaintenance) {
-          onMaintenanceUpdate?.call(asset, true);
-        } else if (action == AssetAction.returnProduction) {
-          onMaintenanceUpdate?.call(asset, false);
-        }
-      },
-      itemBuilder: (context) => [
-        if (isInMaintenance)
-          const PopupMenuItem(
-            value: AssetAction.returnProduction,
-            child: ListTile(
-              leading: Icon(Icons.check_circle_outline, color: Colors.green),
-              title: Text('Retornar à Produção'),
+
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: PopupMenuButton<AssetAction>(
+        onSelected: (action) {
+          if (action == AssetAction.edit) {
+            onAssetUpdate?.call(asset);
+          } else if (action == AssetAction.delete) {
+            onAssetDelete?.call(asset);
+          } else if (action == AssetAction.markMaintenance) {
+            onMaintenanceUpdate?.call(asset, true);
+          } else if (action == AssetAction.returnProduction) {
+            onMaintenanceUpdate?.call(asset, false);
+          }
+        },
+        itemBuilder: (context) => [
+          if (isInMaintenance)
+            const PopupMenuItem(
+              value: AssetAction.returnProduction,
+              child: ListTile(
+                leading: Icon(Icons.check_circle_outline, color: Colors.green),
+                title: Text('Retornar à Produção'),
+              ),
+            )
+          else
+            const PopupMenuItem(
+              value: AssetAction.markMaintenance,
+              child: ListTile(
+                leading: Icon(Icons.build_outlined, color: Colors.orange),
+                title: Text('Marcar Manutenção'),
+              ),
             ),
-          )
-        else
+          const PopupMenuDivider(),
           const PopupMenuItem(
-            value: AssetAction.markMaintenance,
+            value: AssetAction.edit,
             child: ListTile(
-              leading: Icon(Icons.build_outlined, color: Colors.orange),
-              title: Text('Marcar Manutenção'),
+              leading: Icon(Icons.edit_outlined),
+              title: Text('Editar'),
             ),
           ),
-        const PopupMenuDivider(),
-        const PopupMenuItem(
-          value: AssetAction.edit,
-          child: ListTile(
-            leading: Icon(Icons.edit_outlined),
-            title: Text('Editar'),
+          const PopupMenuItem(
+            value: AssetAction.delete,
+            child: ListTile(
+              leading: Icon(Icons.delete_outline, color: Colors.red),
+              title: Text('Excluir', style: TextStyle(color: Colors.red)),
+            ),
           ),
-        ),
-        const PopupMenuItem(
-          value: AssetAction.delete,
-          child: ListTile(
-            leading: Icon(Icons.delete_outline, color: Colors.red),
-            title: Text('Excluir', style: TextStyle(color: Colors.red)),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildStatusChip(String status) {
     String statusText;
     Color statusColor;
-    
+
     switch (status.toLowerCase()) {
       case 'online':
         statusText = 'Online';
