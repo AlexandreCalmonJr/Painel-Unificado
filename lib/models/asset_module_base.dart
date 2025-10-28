@@ -275,7 +275,6 @@ class _GenericAsset extends ManagedAsset {
       'unit': unit,
       'sector': sector,
       'floor': floor,
-      // --- CAMPO COMBINADO ADICIONADO ---
       'sector_floor': (sector != null || floor != null)
           ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
           : (location ?? 'N/D'),
