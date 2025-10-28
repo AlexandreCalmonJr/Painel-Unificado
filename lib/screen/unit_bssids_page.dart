@@ -161,7 +161,7 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
                 if (isEditing) {
                   await _deviceService.updateBssidMapping(
                       widget.authService.currentToken!,
-                      mapping!.macAddressRadio,
+                      mapping.macAddressRadio,
                       newMapping);
                   _showSnackbar('Mapeamento atualizado com sucesso!');
                 } else {

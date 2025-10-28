@@ -73,7 +73,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab> {
     final nameController = TextEditingController(text: unit?.name);
     List<Map<String, TextEditingController>> ipRangeControllers = [];
 
-    if (isEditing && unit!.ipRanges.isNotEmpty) {
+    if (isEditing && unit.ipRanges.isNotEmpty) {
       for (var range in unit.ipRanges) {
         ipRangeControllers.add({
           'start': TextEditingController(text: range.start),
@@ -329,7 +329,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab> {
                       if (isEditing) {
                         await _deviceService.updateUnit(
                           widget.authService.currentToken!,
-                          unit!.name,
+                          unit.name,
                           newUnit,
                         );
                         _showSnackbar('Unidade atualizada com sucesso!');
@@ -501,7 +501,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab> {
                     if (isEditing) {
                       await _deviceService.updateBssidMapping(
                         widget.authService.currentToken!,
-                        mapping!.macAddressRadio,
+                        mapping.macAddressRadio,
                         newMapping,
                       );
                       _showSnackbar('BSSID atualizado com sucesso!');

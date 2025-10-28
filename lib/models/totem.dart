@@ -91,7 +91,7 @@ class Totem {
     String? hdType,
     String? hdStorage,
     String? zebraStatus,
-    String? bematechStatus,
+    String? bematechStatus, required String unit, String? sector, String? floor,
   }) {
     return Totem(
       id: id ?? this.id,
@@ -143,4 +143,6 @@ class Totem {
     }
     return 'N/A';
   }
+
+  get ipAddress => null;
 }

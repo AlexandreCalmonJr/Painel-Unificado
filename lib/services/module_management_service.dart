@@ -275,4 +275,6 @@ class ModuleManagementService {
       errorMessage: 'Erro ao atualizar permissões',
     );
   }
+
+  Future setMaintenanceMode({required String moduleId, required String assetId, required bool maintenanceMode, String? reason}) async {}
 }

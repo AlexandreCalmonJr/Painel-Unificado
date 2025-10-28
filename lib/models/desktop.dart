@@ -198,7 +198,7 @@ class Desktop extends ManagedAsset {
 }
 
 class LocationMapperService {
-  // Existing code
+
 
   static LocationData mapLocation({
     required List<Unit> units,
@@ -210,9 +210,9 @@ class LocationMapperService {
     // This is a placeholder implementation.
     return LocationData(
       locationName: originalLocation,
-      unitName: 'Default Unit',
-      sector: 'Default Sector',
-      floor: 'Default Floor',
+      unitName: units.first.name,
+      sector: units.first.sector,
+      floor: units.first.floor,
     );
   }
 }

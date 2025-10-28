@@ -1,4 +1,3 @@
-// File: lib/widgets/managed_devices_card.dart
 import 'dart:convert';
 import 'dart:io';
 
@@ -9,6 +8,7 @@ import 'package:painel_windowns/device_detail_screen.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/utils/helpers.dart';
+import 'package:painel_windowns/widgets/command_controls.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ManagedDevicesCard extends StatelessWidget {
@@ -32,114 +32,116 @@ class ManagedDevicesCard extends StatelessWidget {
   });
 
   Future<void> _downloadDevicesCsv(
-    BuildContext context,
-    List<Device> devicesToExport,
-  ) async {
-    final headers = [
-      'Dispositivo',
-      'Modelo',
-      'IMEI',
-      'Serial',
-      'Status',
-      'Última Sincronização',
-      'Bateria',
-      'Endereço IP',
-      'Rede',
-      'Endereço MAC',
-      'Em Manutenção',
-      'Chamado',
-      'Motivo da Manutenção',
-      'Unidade',
-      'Setor',
-      'Andar',
-    ];
+  BuildContext context,
+  List<Device> devicesToExport,
+) async {
+  final headers = [
+    'Dispositivo',
+    'Modelo',
+    'IMEI',
+    'Serial',
+    'Status',
+    'Última Sincronização',
+    'Bateria',
+    'Endereço IP',
+    'Rede',
+    'Endereço MAC',
+    'Em Manutenção',
+    'Chamado',
+    'Motivo da Manutenção',
+    'Unidade',
+    'Setor',
+    'Andar',
+  ];
 
-    final rows = devicesToExport.map((device) {
-      final lastSeenTime = parseLastSeen(device.lastSeen);
-      String status;
-      
-      switch (device.displayStatus) {
-        case DeviceStatusType.collectedByIT:
-          status = 'Recolhido pelo TI';
-          break;
-        case DeviceStatusType.maintenance:
-          status = 'Em Manutenção';
-          break;
-        case DeviceStatusType.online:
-          status = 'Online';
-          break;
-        case DeviceStatusType.unmonitored:
-          status = 'Sem Monitorar';
-          break;
-        default:
-          status = 'Offline';
-          break;
-      }
+  final rows = devicesToExport.map((device) {
+    final lastSeenTime = parseLastSeen(device.lastSeen);
+    String status;
+    
+    switch (device.displayStatus) {
+      case DeviceStatusType.collectedByIT:
+        status = 'Recolhido pelo TI';
+        break;
+      case DeviceStatusType.maintenance:
+        status = 'Em Manutenção';
+        break;
+      case DeviceStatusType.online:
+        status = 'Online';
+        break;
+      case DeviceStatusType.unmonitored:
+        status = 'Sem Monitorar';
+        break;
+      default:
+        status = 'Offline';
+        break;
+    }
 
-      return [
-        device.deviceName,
-        device.deviceModel ?? 'N/A',
-        device.imei ?? 'N/A',
-        device.serialNumber ?? 'N/A',
-        status,
-        formatDateTime(lastSeenTime),
-        device.battery != null ? '${device.battery}%' : 'N/A',
-        device.ipAddress ?? 'N/A',
-        device.network ?? 'N/A',
-        device.macAddress ?? 'N/A',
-        (device.maintenanceStatus ?? false) ? 'Sim' : 'Não',
-        device.maintenanceTicket ?? 'N/A',
-        device.maintenanceReason ?? 'N/A',
-        device.unit ?? 'N/A',
-        device.sector ?? 'N/A',
-        device.floor ?? 'N/A',
-      ]
-          .map((value) => '"${value.toString().replaceAll('"', '""')}"')
-          .join(',');
-    }).toList();
+    return [
+      device.deviceName,
+      device.deviceModel ?? 'N/A',
+      device.imei ?? 'N/A',
+      device.serialNumber ?? 'N/A',
+      status,
+      formatDateTime(lastSeenTime),
+      device.battery != null ? '${device.battery}%' : 'N/A',
+      device.ipAddress ?? 'N/A',
+      device.network ?? 'N/A',
+      device.macAddress ?? 'N/A',
+      (device.maintenanceStatus ?? false) ? 'Sim' : 'Não',
+      device.maintenanceTicket ?? 'N/A',
+      device.maintenanceReason ?? 'N/A',
+      device.unit ?? 'N/A',
+      device.sector ?? 'N/A',
+      device.floor ?? 'N/A',
+    ]
+        .map((value) => '"${value.toString().replaceAll('"', '""')}"')
+        .join(',');
+  }).toList();
 
-    final csvContent = [headers.join(','), ...rows].join('\n');
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final fileName = 'dispositivos_$timestamp.csv';
+  final csvContent = [headers.join(','), ...rows].join('\n');
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final timestamp = DateTime.now().millisecondsSinceEpoch;
+  final fileName = 'dispositivos_$timestamp.csv';
 
-    try {
-      if (kIsWeb) {
-        final bytes = Uint8List.fromList(utf8.encode(csvContent));
-        await FileSaver.instance.saveFile(
-          name: fileName,
-          bytes: bytes,
-          fileExtension: 'csv',
-          mimeType: MimeType.csv,
-        );
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('CSV baixado com sucesso!')),
-        );
-      } else {
-        final directory = await getApplicationDocumentsDirectory();
-        final path = '${directory.path}${Platform.pathSeparator}$fileName';
-        final file = File(path);
-        await file.writeAsString(csvContent);
-
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('CSV salvo em: $path')),
-        );
-      }
-    } catch (e) {
+  try {
+    if (kIsWeb) {
+      // No web: Gera bytes e força download via file_saver
+      final bytes = Uint8List.fromList(utf8.encode(csvContent));
+      await FileSaver.instance.saveFile(
+        name: fileName,
+        bytes: bytes,
+        fileExtension: 'csv',
+        mimeType: MimeType.csv,
+      );
       scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text('Erro ao salvar CSV: $e'),
-          backgroundColor: Colors.red,
-        ),
+        const SnackBar(content: Text('CSV baixado com sucesso!')),
+      );
+        } else {
+      // Em mobile/desktop: Usa path_provider como antes
+      final directory = await getApplicationDocumentsDirectory();
+      final path = '${directory.path}${Platform.pathSeparator}$fileName';
+      final file = File(path);
+      await file.writeAsString(csvContent);
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('CSV salvo em: $path')),
       );
     }
+  } catch (e) {
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Text('Erro ao salvar CSV: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
     List<Device> filteredDevices = List.from(devices);
 
-    // Ordenação para priorizar status "Sem Monitorar"
+    // ALTERAÇÃO: Ordenação para priorizar status "Sem Monitorar"
     filteredDevices.sort((a, b) {
       int getPriority(Device device) {
         if (device.displayStatus == DeviceStatusType.unmonitored) return 0;
@@ -223,15 +225,16 @@ class ManagedDevicesCard extends StatelessWidget {
                     width: 0.5,
                   ),
                 ),
-                columnWidths: const {
-                  0: FlexColumnWidth(2.5), // Dispositivo
-                  1: FlexColumnWidth(1.5), // Modelo
-                  2: FlexColumnWidth(1.2), // Serial
-                  3: FlexColumnWidth(1.2), // IMEI
-                  4: FlexColumnWidth(1.5), // Status
-                  5: FlexColumnWidth(1.8), // Última Sincronização
-                  6: FlexColumnWidth(1.5), // Unidade
-                  7: FlexColumnWidth(1.8), // Setor/Andar
+                columnWidths: {
+                  0: const FlexColumnWidth(2.2),
+                  1: const FlexColumnWidth(1.5),
+                  2: const FlexColumnWidth(2),
+                  3: const FlexColumnWidth(2),
+                  4: const FlexColumnWidth(1.2),
+                  5: const FlexColumnWidth(2),
+                  6: const FlexColumnWidth(1.5),
+                  7: const FlexColumnWidth(1.5),
+                  if (showActions) 8: const FlexColumnWidth(1),
                 },
                 children: [
                   TableRow(
@@ -245,9 +248,12 @@ class ManagedDevicesCard extends StatelessWidget {
                       _buildTableHeader('Última Sincronização'),
                       _buildTableHeader('Unidade'),
                       _buildTableHeader('Setor/Andar'),
+                      if (showActions) _buildTableHeader('Ações'),
                     ],
                   ),
-                  ...filteredDevices.map((device) => _buildDeviceTableRow(context, device)),
+                  ...filteredDevices.map(
+                    (device) => _buildDeviceTableRow(context, device),
+                  ),
                 ],
               ),
             ),
@@ -271,6 +277,7 @@ class ManagedDevicesCard extends StatelessWidget {
     );
   }
 
+  // ALTERAÇÃO: Usa o novo enum e getter de status
   TableRow _buildDeviceTableRow(BuildContext context, Device device) {
     String statusText;
     Color statusColor;
@@ -304,14 +311,24 @@ class ManagedDevicesCard extends StatelessWidget {
         _buildTableCell(device.deviceModel ?? 'N/A'),
         _buildTableCell(device.serialNumber ?? 'N/A'),
         _buildTableCell(device.imei ?? 'N/A'),
-        Center(child: _buildStatusChip(statusText, statusColor)),
+        TableCell(child: Center(child: _buildStatusChip(statusText, statusColor))),
         _buildTableCell(formatDateTime(parseLastSeen(device.lastSeen))),
         _buildTableCell(device.unit ?? 'N/D'),
         _buildTableCell('${device.sector ?? "N/D"} / ${device.floor ?? "N/D"}'),
+        if (showActions)
+          TableCell(
+            verticalAlignment: TableCellVerticalAlignment.middle,
+            child: CommandControls(
+              device: device,
+              token: token!,
+              onCommandExecuted: onDeviceUpdate ?? () {},
+            ),
+          ),
       ],
     );
   }
 
+  // ALTERAÇÃO: Adicionado ícone de bateria
   Widget _buildClickableDeviceCell(BuildContext context, Device device) {
     Widget getBatteryIcon(num? batteryLevel) {
       if (batteryLevel == null) {

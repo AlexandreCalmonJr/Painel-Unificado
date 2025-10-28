@@ -120,7 +120,7 @@ class _UsersTabState extends State<UsersTab> {
                   const SizedBox(height: 16),
                   // ignore: unnecessary_null_comparison
                   DropdownButtonFormField<String>(
-                    value: selectedRole,
+                    initialValue: selectedRole,
                     decoration: InputDecoration(
                       labelText: 'Papel',
                       prefixIcon: const Icon(Icons.security),

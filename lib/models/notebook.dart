@@ -3,10 +3,6 @@
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/models/unit.dart'; // Importar o modelo Unit
 
-// Fallback local LocationMapper implementation in case the external mapper is not available.
-// This provides the minimal data used by this model (locationName, unit, sector, floor).
-// If you have a proper implementation in utils/location_mapper.dart, you can remove this fallback
-// and restore the import above.
 class LocationData {
   final String? locationName;
   final Unit? unit;
@@ -17,7 +13,7 @@ class LocationData {
     this.locationName,
     this.unit,
     this.sector,
-    this.floor,
+    this.floor, required String ip, required String macAddress, required String originalLocation, String? bssid,
   });
 }
 
@@ -26,16 +22,25 @@ class LocationMapper {
     required List<Unit> units,
     String? locationName,
     String? bssid,
+    required String ip,
+    required String macAddress,
+    required String originalLocation,
+    required String unit,
+    
   }) {
-    // Simple best-effort mapping: if units list is provided, return the first unit as a match.
-    // You can enhance this logic to match by name or BSSID based on your Unit model.
     final Unit? matchedUnit = units.isNotEmpty ? units.first : null;
 
+    
     return LocationData(
-      locationName: locationName ?? 'N/D',
+      originalLocation: originalLocation,
+      macAddress: macAddress,
+      ip: ip,
+      locationName: originalLocation,
       unit: matchedUnit,
-      sector: null,
-      floor: null,
+      sector: matchedUnit?.sector,
+      floor: matchedUnit?.floor,
+      bssid: bssid,
+      
     );
   }
 }
@@ -102,6 +107,10 @@ class Notebook extends ManagedAsset {
       units: units,
       locationName: json['location'],
       bssid: json['location_bssid'], // Supondo que o BSSID venha nesta chave
+      ip: json['ip_address'],
+      macAddress: json['mac_address'],
+      originalLocation: json['location'],
+      unit: json['unit'],
     );
     // --- FIM DA LÓGICA ---
 

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:painel_windowns/login_screen.dart';
 import 'package:painel_windowns/models/totem.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/monitoring_service.dart';
 import 'package:painel_windowns/totem/tabs/totems_list_tab.dart';
 import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
 import 'package:painel_windowns/widgets/stat_card.dart';
@@ -654,4 +653,26 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       ),
     );
   }
+}
+
+class MonitoringService {
+  final AuthService authService;
+
+  MonitoringService({required this.authService});
+
+  void monitorTotems() {
+    String Final(
+      
+      String input,
+    ) {
+
+      return input;
+    }
+
+  }
+  
+  void invalidateMappingsCache() {}
+  
+  Future getTotems({required bool refreshMappings}) async {}
+  
 }

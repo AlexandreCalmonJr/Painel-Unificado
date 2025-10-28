@@ -1,4 +1,6 @@
 // Um novo helper class para a faixa de IP
+import 'dart:convert';
+
 class IpRange {
   final String start;
   final String end;
@@ -45,10 +47,10 @@ class Unit {
     
     // Fallback para o formato antigo, se o servidor ainda não foi atualizado
     else if (json['ip_range_start'] != null) {
-       rangesList.add(IpRange(
-         start: json['ip_range_start'], 
-         end: json['ip_range_end']
-       ));
+      rangesList.add(IpRange(
+        start: json['ip_range_start'], 
+        end: json['ip_range_end']
+      ));
     }
 
     return Unit(
@@ -58,11 +60,21 @@ class Unit {
     );
   }
 
+  String? get sector => json['sector'] as String?;
+
+  String? get floor => json['floor'] as String?;
+
   Map<String, dynamic> toJson() {
     return {
       'name': name,
       // Envia o array de faixas
       'ip_ranges': ipRanges.map((i) => i.toJson()).toList(),
+      'sector': sector,
+      'floor': floor,
     };
   }
+}
+
+extension on JsonCodec {
+  dynamic operator [](String other) => null;
 }

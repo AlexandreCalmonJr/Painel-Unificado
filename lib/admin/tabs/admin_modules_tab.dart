@@ -20,17 +20,42 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
   String? errorMessage;
 
   // Mapa de colunas padrão disponíveis
-  final Map<String, String> _standardColumns = {
+final Map<String, String> _standardColumns = {
     'asset_name': 'Nome do Ativo',
+    'hostname': 'Hostname',
     'serial_number': 'Serial',
     'status': 'Status',
     'location': 'Localização (Original)',
-    'sector_floor': 'Setor / Andar', // Nosso campo combinado
+    'unit': 'Unidade',
+    'sector_floor': 'Setor / Andar',
     'ip_address': 'Endereço IP',
-    'hostname': 'Hostname',
+    'mac_address': 'MAC Address',
     'battery_level': 'Bateria %',
     'model': 'Modelo',
     'manufacturer': 'Fabricante',
+    // Desktop/Notebook específicos
+    'processor': 'Processador',
+    'ram': 'Memória RAM',
+    'storage': 'Armazenamento',
+    'storage_type': 'Tipo de HD',
+    'operating_system': 'Sistema Operacional',
+    'os_version': 'Versão do SO',
+    'biometric_reader': 'Leitor Biométrico',
+    'connected_printer': 'Impressora Conectada',
+    'java_version': 'Versão Java',
+    'browser_version': 'Navegador',
+    'antivirus_status': 'Antivírus Ativo',
+    // Panel específicos
+    'screen_size': 'Tamanho da Tela',
+    'resolution': 'Resolução',
+    'hdmi_input': 'Entrada HDMI',
+    'firmware_version': 'Versão Firmware',
+    // Printer específicos
+    'printer_status': 'Status da Impressora',
+    'connection_type': 'Tipo de Conexão',
+    'total_page_count': 'Total de Páginas',
+    'toner_levels': 'Níveis de Toner',
+    'host_computer_name': 'Computador Host',
   };
 
   final desktopColumns = [
@@ -202,7 +227,7 @@ final notebookColumns = [
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<AssetModuleType>(
-                    value: selectedType,
+                    initialValue: selectedType,
                     decoration: InputDecoration(
                       labelText: 'Tipo de Módulo',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -456,7 +481,7 @@ final notebookColumns = [
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<AssetModuleType>(
-                    value: selectedType,
+                    initialValue: selectedType,
                     decoration: InputDecoration(
                       labelText: 'Tipo de Módulo',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),

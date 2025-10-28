@@ -68,7 +68,7 @@ class _UnitsTabState extends State<UnitsTab> {
     List<Map<String, TextEditingController>> ipRangeControllers = [];
 
     // Se estiver editando, popula a lista com as faixas existentes
-    if (isEditing && unit!.ipRanges.isNotEmpty) {
+    if (isEditing && unit.ipRanges.isNotEmpty) {
       for (var range in unit.ipRanges) {
         ipRangeControllers.add({
           'start': TextEditingController(text: range.start),
@@ -231,7 +231,7 @@ class _UnitsTabState extends State<UnitsTab> {
                           Unit(name: name, ipRanges: ipRangesList);
                       if (isEditing) {
                         await _deviceService.updateUnit(
-                            widget.token, unit!.name, newUnit);
+                            widget.token, unit.name, newUnit);
                         _showSnackbar('Unidade atualizada!');
                       } else {
                         await _deviceService.createUnit(widget.token, newUnit);
@@ -360,7 +360,7 @@ class _UnitsTabState extends State<UnitsTab> {
                     unitName: unitName);
                 if (isEditing) {
                   await _deviceService.updateBssidMapping(
-                      widget.token, mapping!.macAddressRadio, newMapping);
+                      widget.token, mapping.macAddressRadio, newMapping);
                   _showSnackbar('Mapeamento atualizado!');
                 } else {
                   await _deviceService.createBssidMapping(
@@ -513,7 +513,9 @@ class _UnitsTabState extends State<UnitsTab> {
           if (name == null ||
               startIp == null ||
               endIp == null ||
-              name.isEmpty) continue;
+              name.isEmpty) {
+            continue;
+          }
 
           if (!isValidIp(startIp) || !isValidIp(endIp)) {
             _showSnackbar('IP inválido na linha $row (Units). Pulando.',
@@ -567,7 +569,9 @@ class _UnitsTabState extends State<UnitsTab> {
               sector == null ||
               floor == null ||
               mac.isEmpty ||
-              !RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$').hasMatch(mac)) continue;
+              !RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$').hasMatch(mac)) {
+            continue;
+          }
 
           try {
             final newMapping = BssidMapping(

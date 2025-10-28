@@ -1,32 +1,72 @@
+// File: lib/models/bssid_mapping.dart
 class BssidMapping {
   final String macAddressRadio;
   final String sector;
   final String floor;
-  // AJUSTE: Adiciona o campo que faltava
-  final String unitName;
+  final String unitName; // CAMPO ADICIONADO
 
   BssidMapping({
     required this.macAddressRadio,
     required this.sector,
     required this.floor,
-    required this.unitName,
+    this.unitName = '', // Valor padrão vazio
   });
 
-  Map<String, dynamic> toJson() => {
-    'mac_address_radio': macAddressRadio,
-    'sector': sector,
-    'floor': floor,
-    // AJUSTE: Adiciona ao JSON
-    'unitName': unitName,
-  };
+  /// Cria BssidMapping a partir de JSON
+  factory BssidMapping.fromJson(Map<String, dynamic> json) {
+    return BssidMapping(
+      macAddressRadio: json['mac_address_radio'] ?? '',
+      sector: json['sector'] ?? '',
+      floor: json['floor'] ?? '',
+      unitName: json['unitName'] ?? '', // NOVO CAMPO
+    );
+  }
 
-  factory BssidMapping.fromJson(Map<String, dynamic> json) => BssidMapping(
-    macAddressRadio: json['mac_address_radio'] as String? ?? '00:00:00:00:00:00',
-    sector: json['sector'] as String? ?? 'N/D',
-    floor: json['floor'] as String? ?? 'N/D',
-     // AJUSTE: Lê o campo do JSON, com um padrão para segurança
-    unitName: json['unitName'] as String? ?? '',
-  );
+  /// Converte BssidMapping para JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'mac_address_radio': macAddressRadio,
+      'sector': sector,
+      'floor': floor,
+      'unitName': unitName, // NOVO CAMPO
+    };
+  }
 
-  // Removido: get unitName => null;
+  /// Cria uma cópia com valores alterados
+  BssidMapping copyWith({
+    String? macAddressRadio,
+    String? sector,
+    String? floor,
+    String? unitName,
+  }) {
+    return BssidMapping(
+      macAddressRadio: macAddressRadio ?? this.macAddressRadio,
+      sector: sector ?? this.sector,
+      floor: floor ?? this.floor,
+      unitName: unitName ?? this.unitName,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'BssidMapping(mac: $macAddressRadio, sector: $sector, floor: $floor, unit: $unitName)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is BssidMapping &&
+        other.macAddressRadio == macAddressRadio &&
+        other.sector == sector &&
+        other.floor == floor &&
+        other.unitName == unitName;
+  }
+
+  @override
+  int get hashCode {
+    return macAddressRadio.hashCode ^
+        sector.hashCode ^
+        floor.hashCode ^
+        unitName.hashCode;
+  }
 }
