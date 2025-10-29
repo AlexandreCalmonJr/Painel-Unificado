@@ -106,7 +106,6 @@ abstract class AssetModuleConfig {
       'updated_at': updatedAt?.toIso8601String(),
       'custom_fields': customFields,
       'settings': settings,
-      // Serializa a lista de colunas
       'table_columns': tableColumns.map((col) => col.toJson()).toList(), 
     };
   }
@@ -244,6 +243,7 @@ class _GenericAsset extends ManagedAsset {
       'serial_number': serialNumber,
       'status': status,
       'last_seen': lastSeen.toIso8601String(),
+
       'custom_data': customData,
       'location': location,
       'assigned_to': assignedTo,

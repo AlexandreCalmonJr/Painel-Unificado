@@ -83,8 +83,8 @@ class GenericAssetsListTab extends StatelessWidget {
                             Expanded(
                               child: GenericManagedAssetsCard(
                                 title: 'Lista de Ativos ($currentPage/$totalPages)',
+                                columns: columns, 
                                 assets: displayedAssets,
-                                columns: columns, // <-- Passa as colunas
                                 showActions: true,
                                 onAssetUpdate: onAssetUpdate,
                                 onAssetDelete: onAssetDelete,

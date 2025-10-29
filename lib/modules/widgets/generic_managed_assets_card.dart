@@ -93,50 +93,66 @@ class GenericManagedAssetsCard extends StatelessWidget {
                 ),
               ),
             )
+          // ...
           else
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SingleChildScrollView(
-                  child: DataTable(
-                    columnSpacing: 12,
-                    horizontalMargin: 12,
-                    headingRowColor: WidgetStateProperty.all(Colors.grey.shade50),
-                    border: TableBorder(
-                      horizontalInside: BorderSide(
-                        color: Colors.grey.shade300,
-                        width: 1,
+              child: LayoutBuilder( // <--- 1. ADICIONE O LAYOUTBUILDER
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox( // <--- 2. ADICIONE O CONSTRAINEDBOX
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth, // <--- 3. DEFINA A LARGURA MÍNIMA
+                      ),
+                      child: SingleChildScrollView(
+                        child: DataTable(
+                          columnSpacing: 12,
+                          horizontalMargin: 12,
+                          headingRowColor:
+                              WidgetStateProperty.all(Colors.grey.shade50),
+                          border: TableBorder(
+                            horizontalInside: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
+                          ),
+                          columns: [
+                            ...columns
+                                .map((col) => DataColumn(
+                                      label: Expanded(
+                                        child: Text(
+                                          col.label,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.grey[700],
+                                            fontSize: 12,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                            if (showActions)
+                              DataColumn(
+                                label: Text(
+                                  'Ações',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey[700],
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                          ],
+                          rows: assets
+                              .map((asset) =>
+                                  _buildAssetDataRow(context, asset))
+                              .toList(),
+                        ),
                       ),
                     ),
-                    columns: [
-                      ...columns.map((col) => DataColumn(
-                        label: Expanded(
-                          child: Text(
-                            col.label,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[700],
-                              fontSize: 12,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      )),
-                      if (showActions) 
-                        DataColumn(
-                          label: Text(
-                            'Ações',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[700],
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                    ],
-                    rows: assets.map((asset) => _buildAssetDataRow(context, asset)).toList(),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
         ],

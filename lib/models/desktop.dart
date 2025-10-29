@@ -23,9 +23,10 @@ class Desktop extends ManagedAsset {
   final String ipAddress;
   final String macAddress;
   
+  
   // Periféricos
-  final String? biometricReader; // Status do leitor biométrico
-  final String? connectedPrinter; // Impressora conectada
+  final String? biometricReader;
+  final String? connectedPrinter;
   
   // Software
   final List<String> installedSoftware;

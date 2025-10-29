@@ -72,7 +72,7 @@ class GenericMaintenanceTab extends StatelessWidget {
           child: GenericManagedAssetsCard(
             title: 'Ativos em Manutenção (${maintenanceAssets.length})',
             assets: maintenanceAssets,
-            columns: columns, // <-- Passa as colunas
+            columns: columns, 
             showActions: true,
             onAssetUpdate: onEditAsset,
             onAssetDelete: onDeleteAsset,

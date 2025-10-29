@@ -91,8 +91,8 @@ class GenericDashboardTab extends StatelessWidget {
           Expanded(
             child: GenericManagedAssetsCard(
               title: '($moduleType) Gerenciados (${allAssets.length})',
+              columns: columns, 
               assets: allAssets,
-              columns: columns, // <-- Passa as colunas
               showActions: false,
               authService: authService, // ✅ ADICIONAR
               moduleConfig: moduleConfig, // ✅ ADICIONAR
