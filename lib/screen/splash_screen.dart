@@ -1,8 +1,8 @@
 // splash_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/dashboard_screen.dart';
-import 'package:painel_windowns/login_screen.dart';
+import 'package:painel_windowns/devices/dashboard_screen.dart';
+import 'package:painel_windowns/screen/login_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {

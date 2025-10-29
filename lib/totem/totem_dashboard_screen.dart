@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/login_screen.dart';
+import 'package:painel_windowns/devices/widgets/stat_card.dart';
 import 'package:painel_windowns/models/totem.dart';
+import 'package:painel_windowns/screen/login_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+// 1. IMPORTAÇÃO ADICIONADA
+import 'package:painel_windowns/services/totem_service.dart';
 import 'package:painel_windowns/totem/tabs/totems_list_tab.dart';
 import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
-import 'package:painel_windowns/widgets/stat_card.dart';
 
 class TotemDashboardScreen extends StatefulWidget {
   final AuthService authService;
@@ -33,18 +35,23 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
   bool isLoading = false;
   String? errorMessage;
 
-  late final MonitoringService _monitoringService;
+  // 2. VARIÁVEIS DECLARADAS CORRETAMENTE
+  late TotemService _totemService;
   Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
-    _monitoringService = MonitoringService(authService: widget.authService);
+    // 3. INICIALIZADO O SERVIÇO CORRETO
+    _totemService = TotemService();
     _initializeData();
   }
 
   Future<void> _initializeData() async {
+    // Carrega os totens na inicialização
     await _loadTotems(isInitialLoad: true);
+    
+    // Inicia o timer para atualização automática
     _refreshTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       if (mounted) _loadTotems();
     });
@@ -56,14 +63,23 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     super.dispose();
   }
 
+  // 4. LÓGICA DE CARREGAMENTO AJUSTADA PARA USAR TotemService
   Future<void> _loadTotems({bool isInitialLoad = false}) async {
     if (!mounted) return;
 
     setState(() => isLoading = true);
     try {
-      final fetchedTotems = await _monitoringService.getTotems(
-        refreshMappings: isInitialLoad,
-      );
+      // Pega o token antes de fazer a chamada
+      final currentUser = widget.authService.currentUser;
+      final token = currentUser?['token'];
+      if (token == null) {
+        throw Exception('Token de autenticação nulo. Faça login novamente.');
+      }
+
+
+
+      // Chama o método correto do TotemService
+      final fetchedTotems = await _totemService.fetchTotems(token);
 
       if (mounted) {
         if (!isInitialLoad) {
@@ -83,21 +99,36 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final errorMsg = e.toString().replaceFirst("Exception: ", "");
         setState(() {
-          errorMessage = 'Falha ao carregar totens: ${e.toString()}';
+          errorMessage = 'Falha ao carregar totens: $errorMsg';
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage!),
-            backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Tentar Novamente',
-              textColor: Colors.white,
-              onPressed: () => _loadTotems(isInitialLoad: true),
+        // 5. MENSAGEM DE ERRO MELHORADA E VERIFICAÇÃO DE LOGOUT
+        // Se o erro for de token, força o logout
+        if (errorMsg.contains('Token') || errorMsg.contains('401')) {
+          ElegantNotification.error(
+            title: const Text('Sessão Expirada'),
+            description: const Text(
+                'Sua sessão expirou. Por favor, faça login novamente.'),
+            position: Alignment.topCenter,
+            animation: AnimationType.fromTop,
+          ).show(context);
+          await _logout();
+        } else {
+          // Mostra SnackBar para outros erros
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage!),
+              backgroundColor: Colors.red,
+              action: SnackBarAction(
+                label: 'Tentar Novamente',
+                textColor: Colors.white,
+                onPressed: () => _loadTotems(isInitialLoad: true),
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => isLoading = false);
@@ -175,9 +206,13 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         _showRealTimeAlert(
           title: 'Mudança de Status: ${newTotem.hostname}',
           description: Text(
-              'O totem em "${newTotem.location}" ficou ${newStatus == 'online' ? 'Online' : 'Offline'}.'),
-          icon: newStatus == 'online' ? Icons.wifi : Icons.wifi_off,
-          color: newStatus == 'online' ? Colors.blueAccent : Colors.orange,
+              'O totem em "${newTotem.location}" ficou ${newStatus == 'online' ? 'Online' : (newStatus == 'offline' ? 'Offline' : newStatus)}.'),
+          icon: newStatus == 'online'
+              ? Icons.wifi
+              : (newStatus == 'offline' ? Icons.wifi_off : Icons.warning_amber),
+          color: newStatus == 'online'
+              ? Colors.blueAccent
+              : (newStatus == 'offline' ? Colors.redAccent : Colors.orange),
         );
       }
     }
@@ -349,7 +384,8 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
             fontSize: 12,
           ),
         ),
-        trailing: selected ? const Icon(Icons.chevron_right, color: Colors.blue) : null,
+        trailing:
+            selected ? const Icon(Icons.chevron_right, color: Colors.blue) : null,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         onTap: () => onTap(index),
       ),
@@ -394,7 +430,8 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              onPressed: () => setState(() => _isSidebarVisible = !_isSidebarVisible),
+              onPressed: () =>
+                  setState(() => _isSidebarVisible = !_isSidebarVisible),
               tooltip: 'Esconder/Mostrar Menu',
             ),
             const SizedBox(width: 12),
@@ -412,7 +449,8 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(20),
@@ -421,9 +459,12 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        role == 'admin' ? Icons.admin_panel_settings : Icons.person,
+                        role == 'admin'
+                            ? Icons.admin_panel_settings
+                            : Icons.person,
                         size: 16,
-                        color: role == 'admin' ? Colors.red[600] : Colors.blue[600],
+                        color:
+                            role == 'admin' ? Colors.red[600] : Colors.blue[600],
                       ),
                       const SizedBox(width: 6),
                       Column(
@@ -440,7 +481,8 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                           ),
                           Text(
                             role.toUpperCase(),
-                            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                            style:
+                                TextStyle(fontSize: 10, color: Colors.grey[600]),
                           ),
                         ],
                       ),
@@ -462,6 +504,11 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                     ),
                   ),
                 const SizedBox(width: 15),
+                
+                // 6. BOTÃO DE ATUALIZAR MAPEAMENTO AJUSTADO
+                // Este botão agora simplesmente força uma recarga.
+                // A lógica de cache era do serviço antigo e não se aplica
+                // ao mapeamento de IP dos totens (que é feito no backend).
                 IconButton(
                   icon: Container(
                     padding: const EdgeInsets.all(8),
@@ -472,10 +519,10 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                     child: Icon(Icons.location_on, color: Colors.purple[700]),
                   ),
                   onPressed: () {
-                    _monitoringService.invalidateMappingsCache();
+                    // _monitoringService.invalidateMappingsCache(); // REMOVIDO
                     _loadTotems(isInitialLoad: true);
                   },
-                  tooltip: 'Atualizar Mapeamentos de Localização',
+                  tooltip: 'Forçar Atualização de Localizações (Recarregar)',
                 ),
                 IconButton(
                   icon: Container(
@@ -653,26 +700,4 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       ),
     );
   }
-}
-
-class MonitoringService {
-  final AuthService authService;
-
-  MonitoringService({required this.authService});
-
-  void monitorTotems() {
-    String Final(
-      
-      String input,
-    ) {
-
-      return input;
-    }
-
-  }
-  
-  void invalidateMappingsCache() {}
-  
-  Future getTotems({required bool refreshMappings}) async {}
-  
 }

@@ -1,10 +1,10 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:painel_windowns/devices/utils/helpers.dart';
+import 'package:painel_windowns/devices/widgets/managed_devices_card.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/helpers.dart';
-import 'package:painel_windowns/widgets/managed_devices_card.dart';
 import 'package:synchronized/synchronized.dart';
 
 class ReportsTab extends StatefulWidget {

@@ -72,6 +72,7 @@ class Totem {
   }
 
   // ADICIONADO: Método copyWith para facilitar atualizações
+  // 1. CORRIGIDO: Removidos parâmetros extras (unit, sector, floor)
   Totem copyWith({
     String? id,
     String? hostname,
@@ -91,7 +92,7 @@ class Totem {
     String? hdType,
     String? hdStorage,
     String? zebraStatus,
-    String? bematechStatus, required String unit, String? sector, String? floor,
+    String? bematechStatus,
   }) {
     return Totem(
       id: id ?? this.id,
@@ -144,5 +145,6 @@ class Totem {
     return 'N/A';
   }
 
-  get ipAddress => null;
+  // 2. CORRIGIDO: Removida linha desnecessária
+  // get ipAddress => null; 
 }

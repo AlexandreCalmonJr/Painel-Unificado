@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:painel_windowns/devices/utils/constants.dart';
 import 'package:painel_windowns/models/unit.dart';
-import 'package:painel_windowns/utils/constants.dart';
 
 DateTime? parseLastSeen(dynamic lastSeen) {
   if (lastSeen is String) {

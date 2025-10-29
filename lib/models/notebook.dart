@@ -1,7 +1,9 @@
 // File: lib/models/notebook.dart
 
 import 'package:painel_windowns/models/asset_module_base.dart';
-import 'package:painel_windowns/models/unit.dart'; // Importar o modelo Unit
+import 'package:painel_windowns/models/bssid_mapping.dart';
+import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/services/location_mapper_service.dart'; // Importar o modelo Unit
 
 class LocationData {
   final String? locationName;
@@ -100,18 +102,16 @@ class Notebook extends ManagedAsset {
     this.isEncrypted = false,
   }) : super(assetType: 'notebook');
 
-  factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units) {
+factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units, List<BssidMapping> bssidMappings) {
     
     // --- LÓGICA DE MAPEAMENTO DE LOCALIZAÇÃO ---
-    final locationData = LocationMapper.mapLocation(
-      units: units,
-      locationName: json['location'],
-      bssid: json['location_bssid'], // Supondo que o BSSID venha nesta chave
-      ip: json['ip_address'],
-      macAddress: json['mac_address'],
-      originalLocation: json['location'],
-      unit: json['unit'],
-    );
+    final locationData = LocationMapperService.mapLocation(
+    units: units,
+    bssidMappings: bssidMappings,
+    ip: json['ip_address'] ?? 'N/A',
+    macAddress: json['mac_address_radio'] ?? json['mac_address'] ?? 'N/A',
+    originalLocation: json['location'] ?? 'N/D',
+  );
     // --- FIM DA LÓGICA ---
 
     return Notebook(
@@ -125,7 +125,7 @@ class Notebook extends ManagedAsset {
       customData: json['custom_data'] != null ? Map<String, dynamic>.from(json['custom_data']) : {},
       
       // --- Campos de localização preenchidos ---
-      unit: locationData.unit?.toString(),
+      unit: locationData.unitName,
       sector: locationData.sector,
       floor: locationData.floor,
 
@@ -168,13 +168,10 @@ class Notebook extends ManagedAsset {
       'location': location,
       'assigned_to': assignedTo,
       'custom_data': customData,
+    // --- Campos de localização preenchidos ---
       'unit': unit,
       'sector': sector,
       'floor': floor,
-      // --- CAMPO COMBINADO ADICIONADO ---
-      'sector_floor': (sector != null || floor != null)
-          ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
-          : (location ?? 'N/D'),
       
       // --- Campos específicos ---
       'hostname': hostname,

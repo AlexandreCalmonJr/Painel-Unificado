@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/devices/utils/helpers.dart'; // Assuma que helpers.dart existe com funções como formatDateTime
 import 'package:painel_windowns/models/asset_module_base.dart'; // Importe o modelo base
 import 'package:painel_windowns/models/desktop.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-import 'package:painel_windowns/utils/helpers.dart'; // Assuma que helpers.dart existe com funções como formatDateTime
 
 // Temporary extension to provide fetchAssetHistory so the screen compiles.
 // Prefer implementing this method inside ModuleManagementService (services/module_management_service.dart)

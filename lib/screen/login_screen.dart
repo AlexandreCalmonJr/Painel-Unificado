@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/home_screen.dart';
+import 'package:painel_windowns/screen/home_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 

@@ -7,12 +7,12 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/screen/unit_bssids_page.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
-import 'package:painel_windowns/utils/helpers.dart';
 import 'package:path_provider/path_provider.dart';
 
 

@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/device_detail_screen.dart';
+import 'package:painel_windowns/devices/device_detail_screen.dart';
+import 'package:painel_windowns/devices/utils/helpers.dart';
+import 'package:painel_windowns/devices/widgets/command_controls.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/helpers.dart';
-import 'package:painel_windowns/widgets/command_controls.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ManagedDevicesCard extends StatelessWidget {

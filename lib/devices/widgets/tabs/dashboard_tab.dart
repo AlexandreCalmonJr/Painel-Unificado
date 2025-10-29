@@ -1,9 +1,9 @@
 // Unified dashboard_tab.dart
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/devices/widgets/managed_devices_card.dart';
+import 'package:painel_windowns/devices/widgets/stat_card.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/widgets/managed_devices_card.dart';
-import 'package:painel_windowns/widgets/stat_card.dart';
 
 class DashboardTab extends StatefulWidget {
   final List<Device> devices;

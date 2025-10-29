@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/device.dart';
+import 'package:painel_windowns/models/totem.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
@@ -289,4 +290,24 @@ class DeviceService {
       throw Exception(data['message'] ?? 'Falha ao carregar histórico de localização');
     }
   }
+
+Future<List<Totem>> fetchTotems(String token) async {
+  final config = ServerConfigService.instance.loadConfig();
+  final response = await http.get(
+    Uri.parse('http://${config['ip']}:${config['port']}/api/monitoring/totems'),
+    headers: {'Authorization': 'Bearer $token'}, // ✅ JWT
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    if (data is List) {
+      return data.map((json) => Totem.fromJson(json)).toList();
+    } else if (data is Map<String, dynamic> && data.containsKey('totems')) {
+      return (data['totems'] as List).map((json) => Totem.fromJson(json)).toList();
+    }
+    throw Exception('Resposta inválida do servidor: Esperado uma lista de totens.');
+  } else {
+    throw Exception('Erro ao buscar totens: ${response.statusCode} ${response.reasonPhrase}');
+  }
+}
 }

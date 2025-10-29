@@ -1,11 +1,11 @@
 // File: lib/home_screen.dart (ATUALIZADO)
 
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/devices/widgets/hub_menu_item.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/generic_module_dashboard.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-import 'package:painel_windowns/widgets/hub_menu_item.dart';
 
 class HomeScreen extends StatefulWidget {
   final AuthService authService;

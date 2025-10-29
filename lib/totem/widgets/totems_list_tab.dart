@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/totem.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/totem/totem_detail_screen.dart';
-import 'package:painel_windowns/utils/helpers.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Um widget que exibe uma lista de totens em um cartão com uma tabela.
