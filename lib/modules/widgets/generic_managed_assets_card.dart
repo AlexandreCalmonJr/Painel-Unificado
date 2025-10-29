@@ -61,7 +61,9 @@ class GenericManagedAssetsCard extends StatelessWidget {
               if (showActions)
                 ElevatedButton.icon(
                   onPressed: () {
-                    // TODO: Implementar download CSV
+
+                    
+                    
                   },
                   icon: const Icon(Icons.download, size: 16),
                   label: const Text('Baixar CSV'),
@@ -97,6 +99,8 @@ class GenericManagedAssetsCard extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: SingleChildScrollView(
                   child: DataTable(
+                    columnSpacing: 12,
+                    horizontalMargin: 12,
                     headingRowColor: WidgetStateProperty.all(Colors.grey.shade50),
                     border: TableBorder(
                       horizontalInside: BorderSide(
@@ -112,7 +116,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: Colors.grey[700],
-                              fontSize: 13,
+                              fontSize: 12,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -168,6 +172,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
                 child: Text(
                   value?.toString() ?? 'N/D',
                   style: const TextStyle(
+                    fontSize: 12, // <-- Alterado para 12
                     color: Colors.blue,
                     decoration: TextDecoration.underline,
                     fontWeight: FontWeight.w500,

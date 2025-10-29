@@ -67,6 +67,7 @@ class Notebook extends ManagedAsset {
   final DateTime? lastUpdateCheck;
   final Map<String, dynamic>? hardwareInfo;
   final bool isEncrypted;
+  final String biometricReaderStatus;
 
   Notebook({
     required super.id,
@@ -77,6 +78,7 @@ class Notebook extends ManagedAsset {
     super.location,
     super.assignedTo,
     super.customData,
+
     // --- Campos de localização da classe base ---
     super.unit,
     super.sector,
@@ -92,6 +94,7 @@ class Notebook extends ManagedAsset {
     required this.osVersion,
     required this.ipAddress,
     required this.macAddress,
+    required this.biometricReaderStatus,
     this.batteryLevel,
     this.batteryHealth,
     this.installedSoftware = const [],
@@ -142,6 +145,8 @@ factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units, List<Bssi
       macAddress: json['mac_address'] ?? 'N/A',
       batteryLevel: json['battery_level'],
       batteryHealth: json['battery_health'],
+      
+      biometricReaderStatus: json['biometric_reader_status'] ?? 'N/A',
       installedSoftware: json['installed_software'] != null
           ? List<String>.from(json['installed_software'])
           : [],
@@ -186,6 +191,7 @@ factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units, List<Bssi
       'mac_address': macAddress,
       'battery_level': batteryLevel,
       'battery_health': batteryHealth,
+      'biometric_reader_status': biometricReaderStatus,
       'installed_software': installedSoftware,
       'antivirus_status': antivirusStatus,
       'antivirus_version': antivirusVersion,

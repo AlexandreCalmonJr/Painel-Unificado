@@ -26,9 +26,9 @@ final Map<String, String> _standardColumns = {
     'serial_number': 'Serial',
     'status': 'Status',
     'location': 'Localização (Original)',
+    'ip_address': 'Endereço IP',
     'unit': 'Unidade',
     'sector_floor': 'Setor / Andar',
-    'ip_address': 'Endereço IP',
     'mac_address': 'MAC Address',
     'battery_level': 'Bateria %',
     'model': 'Modelo',
@@ -483,10 +483,14 @@ final notebookColumns = [
                   DropdownButtonFormField<AssetModuleType>(
                     initialValue: selectedType,
                     decoration: InputDecoration(
-                      labelText: 'Tipo de Módulo',
+                      labelText: 'Tipo de Módulo (Não pode ser alterado)',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       prefixIcon: const Icon(Icons.category),
+                      filled: true,
+                      fillColor: Colors.grey[100],
                     ),
+                    // Define onChanged como null para desabilitar
+                    onChanged: null, 
                     items: AssetModuleType.values.map((type) {
                       return DropdownMenuItem(
                         value: type,
@@ -499,11 +503,6 @@ final notebookColumns = [
                         ),
                       );
                     }).toList(),
-                    onChanged: (value) {
-                      setStateDialog(() {
-                        selectedType = value!;
-                      });
-                    },
                   ),
                   const SizedBox(height: 16),
                   const Divider(),

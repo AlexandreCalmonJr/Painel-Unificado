@@ -143,8 +143,5 @@ class Totem {
       }
     }
     return 'N/A';
-  }
-
-  // 2. CORRIGIDO: Removida linha desnecessária
-  // get ipAddress => null; 
+  } 
 }

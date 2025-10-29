@@ -1,3 +1,7 @@
+// Ficheiro: lib/services/totem_service.dart
+// Descrição: Serviço dedicado para gerenciar as operações CRUD da API de Totens.
+// Consome as rotas de /api/monitoring/... (definidas em totemRoutes.js)
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';

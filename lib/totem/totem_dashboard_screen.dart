@@ -7,7 +7,6 @@ import 'package:painel_windowns/devices/widgets/stat_card.dart';
 import 'package:painel_windowns/models/totem.dart';
 import 'package:painel_windowns/screen/login_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-// 1. IMPORTAÇÃO ADICIONADA
 import 'package:painel_windowns/services/totem_service.dart';
 import 'package:painel_windowns/totem/tabs/totems_list_tab.dart';
 import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
@@ -17,6 +16,7 @@ class TotemDashboardScreen extends StatefulWidget {
   const TotemDashboardScreen({super.key, required this.authService});
 
   @override
+  // ignore: library_private_types_in_public_api
   _TotemDashboardScreenState createState() => _TotemDashboardScreenState();
 }
 

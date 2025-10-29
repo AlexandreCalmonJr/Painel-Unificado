@@ -148,9 +148,13 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
                           _buildDetailRow(Icons.type_specimen, 'Tipo', widget.asset.assetType),
                           _buildDetailRow(Icons.location_on, 'Localização', widget.asset.location ?? 'N/A'),
                           _buildDetailRow(Icons.person, 'Atribuído a', widget.asset.assignedTo ?? 'N/A'),
-                          // Adicione campos específicos baseados no tipo (ex: para desktop: hostname, etc.)
+
+                          // Detalhes específicos por tipo de ativo
                           if (widget.asset.assetType == 'desktop') ...[
-                            _buildDetailRow(Icons.computer, 'Hostname', (widget.asset as Desktop).hostname), // Cast se necessário
+                            _buildDetailRow(Icons.computer, 'Hostname', (widget.asset as Desktop).hostname),
+                            _buildDetailRow(Icons.hd, 'CPU', (widget.asset as Desktop).processor),
+                            _buildDetailRow(Icons.storage, 'Disco', (widget.asset as Desktop).storage),
+                            _buildDetailRow(Icons.memory, 'RAM', (widget.asset as Desktop).ram),
                           ],
                           // Expanda para outros tipos
                         ],
@@ -184,7 +188,21 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
                               },
                             ),
                     ),
-                    // Adicione mais seções como hardware, software, etc., baseadas no tipo de ativo
+                    
+                    const SizedBox(height: 16),
+
+                    // Adicione mais seções conforme necessário
+                    _buildSectionCard(
+                      title: 'Dados Customizados',
+                      icon: Icons.settings,
+                      iconColor: Colors.green,
+                      child: Column(
+                        children: [
+                          _buildDetailRow(Icons.info, 'Custom Field 1', widget.asset.customData['custom_field_1'] ?? 'N/A'),
+                          _buildDetailRow(Icons.info, 'Custom Field 2', widget.asset.customData['custom_field_2'] ?? 'N/A'),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

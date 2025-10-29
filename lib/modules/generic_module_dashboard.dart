@@ -17,8 +17,7 @@ import 'package:painel_windowns/modules/tabs/generic_maintenance_tab.dart';
 import 'package:painel_windowns/modules/tabs/generic_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-// import 'package:painel_windowns/models/device.dart'; // (MDM)
-// import 'package:painel_windowns/models/totem.dart'; // (Totem)
+
 
 
 class GenericDashboardScreen extends StatefulWidget {
@@ -70,7 +69,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
          // Atualiza silenciosamente, sem "isLoading"
-         _loadAssets(isInitialLoad: false);
+        _loadAssets(isInitialLoad: false);
       }
     });
   }
@@ -213,24 +212,25 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
       ),
     );
   }
+  
+  
 
   // --- Dialogs de Edição/Exclusão ---
   Future<void> _showEditAssetDialog(ManagedAsset asset) async {
-    // TODO: Implementar dialog de edição
     _showSnackbar('Função "Editar" para ${asset.assetName} não implementada.', isError: true);
-    // Após salvar, chamar _loadAssets(isInitialLoad: true);
+    _loadAssets(isInitialLoad: true);
   }
 
   Future<void> _showDeleteAssetDialog(ManagedAsset asset) async {
     _showSnackbar('Função "Excluir" para ${asset.assetName} não implementada.', isError: true);
     // Após confirmar, chamar:
-    // try {
-    //   await _moduleService.deleteAsset(moduleId: widget.moduleConfig.id, assetId: asset.id);
-    //   _showSnackbar('Ativo excluído com sucesso');
-    //   _loadAssets(isInitialLoad: true);
-    // } catch (e) {
-    //   _showSnackbar('Erro ao excluir: $e', isError: true);
-    // }
+    try {
+      await _moduleService.deleteAsset(moduleId: widget.moduleConfig.id, assetId: asset.id);
+      _showSnackbar('Ativo excluído com sucesso');
+      _loadAssets(isInitialLoad: true);
+    } catch (e) {
+      _showSnackbar('Erro ao excluir: $e', isError: true);
+    }
   }
 
 

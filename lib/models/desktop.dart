@@ -29,6 +29,8 @@ class Desktop extends ManagedAsset {
   
   // Software
   final List<String> installedSoftware;
+  final List<String> installedPrograms;
+
   final String? javaVersion;
   final String? browserVersion;
   
@@ -66,6 +68,7 @@ class Desktop extends ManagedAsset {
     this.biometricReader,
     this.connectedPrinter,
     this.installedSoftware = const [],
+    this.installedPrograms = const [],
     this.javaVersion,
     this.browserVersion,
     this.antivirusStatus = false,
@@ -124,11 +127,15 @@ class Desktop extends ManagedAsset {
       connectedPrinter: json['connected_printer'],
       
       // Software
+      
       installedSoftware: json['installed_software'] != null
           ? List<String>.from(json['installed_software'])
           : [],
       javaVersion: json['java_version'],
       browserVersion: json['browser_version'],
+      installedPrograms: json['installed_programs'] != null
+          ? List<String>.from(json['installed_programs'])
+          : const [],
       
       // Segurança
       antivirusStatus: json['antivirus_status'] ?? false,
@@ -141,6 +148,7 @@ class Desktop extends ManagedAsset {
           : null,
     );
   }
+
 
   @override
   Map<String, dynamic> toJson() {

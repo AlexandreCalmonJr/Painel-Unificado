@@ -88,9 +88,8 @@ class GenericAssetsListTab extends StatelessWidget {
                                 showActions: true,
                                 onAssetUpdate: onAssetUpdate,
                                 onAssetDelete: onAssetDelete,
-                                onMaintenanceUpdate: (asset, status) => _handleMaintenanceUpdate(asset, status),
+                                moduleConfig: moduleConfig,
                                 authService: authService, // ✅ ADICIONAR
-                                moduleConfig: moduleConfig
                               ),
                             ),
                             if (totalPages > 1)
@@ -138,8 +137,5 @@ class GenericAssetsListTab extends StatelessWidget {
     );
   }
   
-  _handleMaintenanceUpdate(ManagedAsset asset, bool status) {
-    // Lógica para atualizar o status de manutenção do ativo
-    // Aqui você pode adicionar lógica adicional, como salvar no banco de dados
-  }
+  
 }

@@ -36,8 +36,8 @@ class ModuleManagementService {
         final response = await request().timeout(const Duration(seconds: 15));
         
         if (response.statusCode == 401) {
-           await authService.logout();
-           throw Exception('Sessão expirada. Por favor, faça o login novamente.');
+          await authService.logout();
+          throw Exception('Sessão expirada. Por favor, faça o login novamente.');
         }
 
         if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -54,11 +54,11 @@ class ModuleManagementService {
         if (attempts == 3) throw Exception('$errorMessage: Tempo limite esgotado.');
         await Future.delayed(const Duration(seconds: 2));
       } on SocketException {
-         if (attempts == 3) throw Exception('$errorMessage: Falha na conexão com o servidor.');
-         await Future.delayed(const Duration(seconds: 2));
+        if (attempts == 3) throw Exception('$errorMessage: Falha na conexão com o servidor.');
+        await Future.delayed(const Duration(seconds: 2));
       } on http.ClientException catch(e) {
-         if (attempts == 3) throw Exception('$errorMessage: ${e.message}');
-         await Future.delayed(const Duration(seconds: 2));
+        if (attempts == 3) throw Exception('$errorMessage: ${e.message}');
+        await Future.delayed(const Duration(seconds: 2));
       } catch (e) {
         if (e is Exception) rethrow;
         throw Exception('$errorMessage: ${e.toString()}');
@@ -276,5 +276,29 @@ class ModuleManagementService {
     );
   }
 
-  Future setMaintenanceMode({required String moduleId, required String assetId, required bool maintenanceMode, String? reason}) async {}
+  Future<Map<String, dynamic>> setMaintenanceMode({
+    required String moduleId,
+    required String assetId,
+    required bool maintenanceMode,
+    String? reason,
+  }) async {
+    if (_token == null) throw Exception("Não autenticado");
+
+    final body = {
+      'maintenance_mode': maintenanceMode,
+      if (reason != null) 'maintenance_reason': reason,
+    };
+
+    final response = await _performHttpRequest(
+      request: () => http.patch( // Usa PATCH
+        Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId/maintenance'),
+        headers: _headers,
+        body: jsonEncode(body),
+      ),
+      errorMessage: 'Erro ao atualizar status de manutenção',
+    );
+    
+    // Decodifica e retorna a resposta
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
 }
