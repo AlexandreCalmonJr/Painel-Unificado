@@ -13,7 +13,9 @@ class GenericAssetsListTab extends StatelessWidget {
   final VoidCallback onRefresh;
   final Function(ManagedAsset) onAssetUpdate;
   final Function(ManagedAsset) onAssetDelete;
-  final List<TableColumnConfig> columns; // <-- CAMPO ADICIONADO
+  final List<TableColumnConfig> columns;
+  final dynamic authService;
+  final dynamic moduleConfig;// <-- CAMPO ADICIONADO
 
   const GenericAssetsListTab({
     super.key,
@@ -26,7 +28,9 @@ class GenericAssetsListTab extends StatelessWidget {
     required this.onRefresh,
     required this.onAssetUpdate,
     required this.onAssetDelete,
-    required this.columns, // <-- CAMPO ADICIONADO
+    required this.columns,
+    required this.authService,
+    required this.moduleConfig,// <-- CAMPO ADICIONADO
   });
 
   @override
@@ -84,11 +88,9 @@ class GenericAssetsListTab extends StatelessWidget {
                                 showActions: true,
                                 onAssetUpdate: onAssetUpdate,
                                 onAssetDelete: onAssetDelete,
-                                onMaintenanceUpdate: (asset, setMaintenance) {
-                                  // A lógica de manutenção é tratada na MaintenanceTab
-                                  // Mas o botão ainda existe aqui (pode ser usado)
-                                  onAssetUpdate(asset); // Re-usa o onAssetUpdate
-                                },
+                                onMaintenanceUpdate: (asset, status) => _handleMaintenanceUpdate(asset, status),
+                                authService: authService, // ✅ ADICIONAR
+                                moduleConfig: moduleConfig
                               ),
                             ),
                             if (totalPages > 1)
@@ -134,5 +136,10 @@ class GenericAssetsListTab extends StatelessWidget {
         ],
       ),
     );
+  }
+  
+  _handleMaintenanceUpdate(ManagedAsset asset, bool status) {
+    // Lógica para atualizar o status de manutenção do ativo
+    // Aqui você pode adicionar lógica adicional, como salvar no banco de dados
   }
 }

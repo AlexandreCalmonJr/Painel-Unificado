@@ -10,6 +10,9 @@ class GenericDashboardTab extends StatelessWidget {
   final IconData Function() getModuleIcon;
   final String moduleType;
   final List<TableColumnConfig> columns; // <-- CAMPO ADICIONADO
+  final dynamic authService;
+  
+  final dynamic moduleConfig; // <-- ADICIONADO
 
   const GenericDashboardTab({
     super.key,
@@ -18,13 +21,18 @@ class GenericDashboardTab extends StatelessWidget {
     required this.getModuleIcon,
     required this.moduleType,
     required this.columns, // <-- CAMPO ADICIONADO
+    required this.authService,
+    required this.moduleConfig,// <-- ADICIONADO
   });
 
   @override
   Widget build(BuildContext context) {
-    int onlineCount = allAssets.where((a) => a.status.toLowerCase() == 'online').length;
-    int offlineCount = allAssets.where((a) => a.status.toLowerCase() == 'offline').length;
-    int maintenanceCount = allAssets.where((a) => a.status.toLowerCase() == 'maintenance').length;
+    int onlineCount =
+        allAssets.where((a) => a.status.toLowerCase() == 'online').length;
+    int offlineCount =
+        allAssets.where((a) => a.status.toLowerCase() == 'offline').length;
+    int maintenanceCount =
+        allAssets.where((a) => a.status.toLowerCase() == 'maintenance').length;
 
     return RefreshIndicator(
       onRefresh: () async => onRefresh(),
@@ -82,10 +90,12 @@ class GenericDashboardTab extends StatelessWidget {
           const SizedBox(height: 24),
           Expanded(
             child: GenericManagedAssetsCard(
-              title: 'Ativos Gerenciados (${allAssets.length})',
+              title: '($moduleType) Gerenciados (${allAssets.length})',
               assets: allAssets,
               columns: columns, // <-- Passa as colunas
-              showActions: false, 
+              showActions: false,
+              authService: authService, // ✅ ADICIONAR
+              moduleConfig: moduleConfig, // ✅ ADICIONAR
             ),
           ),
         ],

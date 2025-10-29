@@ -483,12 +483,41 @@ class _AdminLocationsTabState extends State<AdminLocationsTab> {
                     );
                     return;
                   }
-                  if (!RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}').hasMatch(mac)) {
+                  // Validação mais rigorosa
+                  if (!RegExp(
+                    r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$',
+                  ).hasMatch(mac)) {
                     _showSnackbar(
                       'BSSID inválido. Formato: AA:BB:CC:DD:EE:FF',
                       isError: true,
                     );
                     return;
+                  }
+
+                  // ⚠️ ALERTA: BSSID genérico
+                  if (mac == '02:00:00:00:00:00') {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('BSSID Genérico Detectado'),
+                            content: const Text(
+                              'Este BSSID (02:00:00:00:00:00) é genérico e pode não identificar '
+                              'corretamente a localização. Deseja continuar mesmo assim?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancelar'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Continuar'),
+                              ),
+                            ],
+                          ),
+                    );
+                    if (confirm != true) return;
                   }
 
                   try {

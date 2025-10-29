@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart';
+import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
 class GenericMaintenanceTab extends StatelessWidget {
@@ -13,6 +14,8 @@ class GenericMaintenanceTab extends StatelessWidget {
   final Function(ManagedAsset) onEditAsset;
   final Function(ManagedAsset) onDeleteAsset;
   final List<TableColumnConfig> columns; // <-- CAMPO ADICIONADO
+  final AuthService authService; // ✅ CORRIGIDO: Removido o segundo moduleConfig
+
 
   const GenericMaintenanceTab({
     super.key,
@@ -23,7 +26,8 @@ class GenericMaintenanceTab extends StatelessWidget {
     required this.showSnackbar,
     required this.onEditAsset,
     required this.onDeleteAsset,
-    required this.columns, // <-- CAMPO ADICIONADO
+    required this.columns,
+    required this.authService,
   });
 
   Future<void> _updateMaintenanceStatus(ManagedAsset asset, bool setMaintenance) async {
@@ -73,6 +77,8 @@ class GenericMaintenanceTab extends StatelessWidget {
             onAssetUpdate: onEditAsset,
             onAssetDelete: onDeleteAsset,
             onMaintenanceUpdate: _updateMaintenanceStatus,
+            authService: authService,
+            moduleConfig: moduleConfig,
           ),
         ),
       ],

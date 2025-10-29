@@ -1,6 +1,15 @@
-// File: lib/widgets/generic_managed_assets_card.dart
+// File: lib/modules/widgets/generic_managed_assets_card.dart
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
+import 'package:painel_windowns/modules/asset_detail_screen.dart';
+import 'package:painel_windowns/services/auth_service.dart';
+import 'package:path_provider/path_provider.dart';
 
 enum AssetAction { edit, delete, markMaintenance, returnProduction }
 
@@ -12,6 +21,10 @@ class GenericManagedAssetsCard extends StatelessWidget {
   final Function(ManagedAsset)? onAssetUpdate;
   final Function(ManagedAsset)? onAssetDelete;
   final Function(ManagedAsset, bool)? onMaintenanceUpdate;
+  
+  // ✅ NOVO: Propriedades para navegação e exportação
+  final AuthService authService;
+  final AssetModuleConfig moduleConfig;
 
   const GenericManagedAssetsCard({
     super.key,
@@ -22,7 +35,94 @@ class GenericManagedAssetsCard extends StatelessWidget {
     this.onAssetUpdate,
     this.onAssetDelete,
     this.onMaintenanceUpdate,
+    required this.authService,
+    required this.moduleConfig,
   });
+
+  // ✅ CORRIGIDO: Função de download CSV completa com BSSID e Unit
+  Future<void> _downloadAssetsCsv(
+    BuildContext context,
+    List<ManagedAsset> assetsToExport,
+  ) async {
+    // Headers completos com BSSID e Unit
+    final headers = [
+      'Nome do Ativo',
+      'Tipo',
+      'Serial',
+      'Status',
+      'Unidade',
+      'Setor',
+      'Andar',
+      'Setor/Andar',
+      'Localização Original',
+      'IP',
+      'MAC Address',
+      'BSSID (Rádio WiFi)',
+      'Última Sincronização',
+      'Atribuído a',
+    ];
+
+    final rows = assetsToExport.map((asset) {
+      final assetData = asset.toJson();
+      
+      return [
+        assetData['asset_name'] ?? 'N/A',
+        assetData['asset_type'] ?? 'N/A',
+        assetData['serial_number'] ?? 'N/A',
+        assetData['status'] ?? 'N/A',
+        assetData['unit'] ?? 'N/D',
+        assetData['sector'] ?? 'N/D',
+        assetData['floor'] ?? 'N/D',
+        assetData['sector_floor'] ?? 'N/D',
+        assetData['location'] ?? 'N/D',
+        assetData['ip_address'] ?? 'N/A',
+        assetData['mac_address'] ?? 'N/A',
+        assetData['mac_address_radio'] ?? 'N/A', // ✅ BSSID
+        DateFormat('dd/MM/yyyy HH:mm:ss').format(asset.lastSeen),
+        assetData['assigned_to'] ?? 'N/A',
+      ]
+          .map((value) => '"${value.toString().replaceAll('"', '""')}"')
+          .join(',');
+    }).toList();
+
+    final csvContent = [headers.join(','), ...rows].join('\n');
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final fileName = 'ativos_${moduleConfig.name.replaceAll(' ', '_')}_$timestamp.csv';
+
+    try {
+      if (kIsWeb) {
+        // No web: Gera bytes e força download via file_saver
+        final bytes = Uint8List.fromList(utf8.encode(csvContent));
+        await FileSaver.instance.saveFile(
+          name: fileName,
+          bytes: bytes,
+          fileExtension: 'csv',
+          mimeType: MimeType.csv,
+        );
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('CSV baixado com sucesso!')),
+        );
+      } else {
+        // Em mobile/desktop: Usa path_provider
+        final directory = await getApplicationDocumentsDirectory();
+        final path = '${directory.path}${Platform.pathSeparator}$fileName';
+        final file = File(path);
+        await file.writeAsString(csvContent);
+
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('CSV salvo em: $path')),
+        );
+      }
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Erro ao salvar CSV: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,23 +154,20 @@ class GenericManagedAssetsCard extends StatelessWidget {
                   color: Colors.grey[800],
                 ),
               ),
-              if (showActions)
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Lógica para baixar CSV
-                  },
-                  icon: const Icon(Icons.download, size: 16),
-                  label: const Text('Baixar CSV'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    textStyle: const TextStyle(fontSize: 12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
+              ElevatedButton.icon(
+                onPressed: () => _downloadAssetsCsv(context, assets),
+                icon: const Icon(Icons.download, size: 16),
+                label: const Text('Baixar CSV'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  textStyle: const TextStyle(fontSize: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
                   ),
                 ),
+              ),
             ],
           ),
           const Divider(height: 24),
@@ -116,35 +213,84 @@ class GenericManagedAssetsCard extends StatelessWidget {
     );
   }
 
+  // ✅ CORRIGIDO: Larguras de colunas inteligentes
   Map<int, TableColumnWidth> _getColumnWidths() {
-    final baseWidth = 1.5; // Default width for each column
-    final numColumns = columns.length + (showActions ? 1 : 0);
     final widths = <int, TableColumnWidth>{};
 
-    // Assign proportional widths dynamically
+    // Mapeamento inteligente de larguras por tipo de dado
     for (int i = 0; i < columns.length; i++) {
       final col = columns[i];
-      double widthFactor = baseWidth;
+      double widthFactor;
 
-      // Adjust width based on column key (if needed)
-      if (col.dataKey == 'status') {
-        widthFactor = 1.5; // Wider for status chips
-      } else if (col.dataKey == 'sector_floor') {
-        widthFactor = 1.8; // Wider for combined sector/floor
-      } else if (col.dataKey == 'unit') {
-        widthFactor = 1.5; // Moderate width for unit
-      } else if (col.dataKey == 'dispositivo' || col.dataKey == 'hostname') {
-        widthFactor = 2.5; // Wider for device/hostname
-      } else {
-        widthFactor = 1.2; // Default for narrower fields like serial, IMEI
+      // Define largura baseado no tipo de conteúdo
+      switch (col.dataKey) {
+        // Colunas de identificação (mais largas)
+        case 'asset_name':
+        case 'hostname':
+        case 'dispositivo':
+          widthFactor = 2.5;
+          break;
+        
+        // Localização combinada (larga)
+        case 'sector_floor':
+          widthFactor = 2.2;
+          break;
+        
+        // Localização individual (média)
+        case 'unit':
+        case 'location':
+          widthFactor = 1.8;
+          break;
+        
+        // Serial, IMEI, MAC (média)
+        case 'serial_number':
+        case 'imei':
+        case 'mac_address':
+        case 'mac_address_radio':
+          widthFactor = 1.5;
+          break;
+        
+        // IP Address (média)
+        case 'ip_address':
+          widthFactor = 1.4;
+          break;
+        
+        // Status (pequena, com chip)
+        case 'status':
+          widthFactor = 1.2;
+          break;
+        
+        // Modelo, Fabricante (média)
+        case 'model':
+        case 'manufacturer':
+          widthFactor = 1.6;
+          break;
+        
+        // Especificações técnicas (pequena/média)
+        case 'processor':
+        case 'ram':
+        case 'storage':
+        case 'battery_level':
+          widthFactor = 1.3;
+          break;
+        
+        // Data/Hora (média)
+        case 'last_seen':
+        case 'last_sync':
+          widthFactor = 1.6;
+          break;
+        
+        // Padrão para outros campos
+        default:
+          widthFactor = 1.4;
       }
 
       widths[i] = FlexColumnWidth(widthFactor);
     }
 
-    // Add width for actions column if enabled
+    // Coluna de ações (se habilitada)
     if (showActions) {
-      widths[columns.length] = FlexColumnWidth(1.5); // Moderate width for actions
+      widths[columns.length] = FlexColumnWidth(1.2);
     }
 
     return widths;
@@ -164,6 +310,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
     );
   }
 
+  // ✅ CORRIGIDO: Linha da tabela com navegação no hostname
   TableRow _buildAssetTableRow(BuildContext context, ManagedAsset asset) {
     final assetData = asset.toJson();
 
@@ -173,16 +320,19 @@ class GenericManagedAssetsCard extends StatelessWidget {
           final dataKey = col.dataKey;
           final value = assetData[dataKey];
 
+          // Status com chip colorido
           if (dataKey == 'status') {
             return Center(child: _buildStatusChip(value?.toString() ?? 'unknown'));
           }
 
+          // Setor/Andar combinado
           if (dataKey == 'sector_floor') {
             final sectorFloor = assetData['sector_floor'] ??
                 '${assetData['sector'] ?? "N/D"} / ${assetData['floor'] ?? "N/D"}';
             return _buildTableCell(sectorFloor);
           }
 
+          // Unidade (destaque)
           if (dataKey == 'unit') {
             return _buildTableCell(
               value?.toString() ?? 'N/D',
@@ -190,10 +340,59 @@ class GenericManagedAssetsCard extends StatelessWidget {
             );
           }
 
+          // ✅ NOVO: Hostname/Asset Name clicável
+          if (dataKey == 'hostname' || dataKey == 'asset_name') {
+            return _buildClickableCell(context, asset, value?.toString() ?? 'N/D');
+          }
+
+          // Células padrão
           return _buildTableCell(value?.toString() ?? 'N/D');
         }),
         if (showActions) _buildActionsMenu(context, asset),
       ],
+    );
+  }
+
+  // ✅ NOVO: Célula clicável que navega para detalhes
+  Widget _buildClickableCell(BuildContext context, ManagedAsset asset, String text) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: InkWell(
+        onTap: () {
+          // Navega para a tela de detalhes
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AssetDetailScreen(
+                asset: asset,
+                authService: authService,
+                moduleConfig: moduleConfig,
+              ),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.open_in_new, size: 14, color: Colors.blue.shade300),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -203,8 +402,9 @@ class GenericManagedAssetsCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
         child: Text(
-          text,
+          text, 
           style: style ?? const TextStyle(fontSize: 13),
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );

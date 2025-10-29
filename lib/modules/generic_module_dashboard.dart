@@ -136,7 +136,8 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   // Usa _units (do estado da tela) e moduleConfig.type (do widget)
   switch (widget.moduleConfig.type) {
     case AssetModuleType.notebook:
-      return Notebook.fromJson(json, _units);
+      return Notebook.fromJson(json, _units, [
+      ]);
     
     case AssetModuleType.desktop:
       return Desktop.fromJson(json, _units);
@@ -221,7 +222,6 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   }
 
   Future<void> _showDeleteAssetDialog(ManagedAsset asset) async {
-    // TODO: Implementar dialog de confirmação
     _showSnackbar('Função "Excluir" para ${asset.assetName} não implementada.', isError: true);
     // Após confirmar, chamar:
     // try {
@@ -554,6 +554,8 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
           getModuleIcon: _getModuleIcon,
           moduleType: widget.moduleConfig.type.displayName,
           columns: columns,
+          authService: widget.authService,
+          moduleConfig: widget.moduleConfig
         );
 
       // Aba 1: Lista de Ativos (Nome dinâmico)
@@ -569,6 +571,8 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
           onAssetUpdate: (asset) => _showEditAssetDialog(asset),
           onAssetDelete: (asset) => _showDeleteAssetDialog(asset),
           columns: columns,
+          authService: widget.authService,
+          moduleConfig: widget.moduleConfig
         );
 
       // Aba 2: Manutenção (Nova)
@@ -582,6 +586,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
           onEditAsset: (asset) => _showEditAssetDialog(asset),
           onDeleteAsset: (asset) => _showDeleteAssetDialog(asset),
           columns: columns,
+          authService: widget.authService,
         );
 
       // Aba 3: Permissões (Nova)
@@ -600,6 +605,8 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
           getModuleIcon: _getModuleIcon,
           moduleType: widget.moduleConfig.type.displayName,
           columns: columns,
+          authService: widget.authService,
+          moduleConfig: widget.moduleConfig
         );
     }
   }
