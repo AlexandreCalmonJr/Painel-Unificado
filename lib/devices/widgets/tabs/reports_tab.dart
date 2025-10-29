@@ -27,7 +27,6 @@ class _ReportsTabState extends State<ReportsTab> with TickerProviderStateMixin {
   int? _touchedPieIndex;
   String? _selectedStatusFilter;
   List<Device> _filteredDevices = [];
-  final bool _showFilteredDevices = true; // Tabela sempre visível agora
   List<Device> _devicesForReport = [];
   String _selectedTimeRange = '24h';
   bool _isLoading = false;

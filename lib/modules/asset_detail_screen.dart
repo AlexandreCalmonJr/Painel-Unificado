@@ -120,7 +120,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   Widget build(BuildContext context) {
     final assetStatus = _getAssetStatus();
     // Implemente o histórico de manutenção similar ao device (use custom_data ou campos específicos)
-    final maintenanceHistory = widget.asset.customData['maintenance_history'] as List? ?? [];
+    final _ = widget.asset.customData['maintenance_history'] as List? ?? [];
 
     return Scaffold(
       backgroundColor: Colors.grey[100],

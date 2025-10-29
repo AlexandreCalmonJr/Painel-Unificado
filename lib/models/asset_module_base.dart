@@ -225,6 +225,7 @@ class ModulePermission {
 }
 
 /// Implementação genérica de ManagedAsset para casos não específicos
+// ignore: unused_element
 class _GenericAsset extends ManagedAsset {
   _GenericAsset({
     required super.id,
@@ -232,34 +233,8 @@ class _GenericAsset extends ManagedAsset {
     required super.assetType,
     required super.serialNumber,
     required super.status,
-    required super.lastSeen,
-    super.customData,
-    super.location,
-    super.assignedTo,
-    super.unit,    // Adicionado
-    super.sector,  // Adicionado
-    super.floor,   // Adicionado
+    required super.lastSeen,   // Adicionado
   });
-
-  factory _GenericAsset.fromJson(Map<String, dynamic> json) {
-    // Fallback genérico não faz mapeamento de unidade
-    return _GenericAsset(
-      id: json['_id'] ?? json['id'],
-      assetName: json['asset_name'] ?? 'N/A',
-      assetType: json['asset_type'] ?? 'custom',
-      serialNumber: json['serial_number'] ?? 'N/A',
-      status: json['status'] ?? 'unknown',
-      lastSeen: DateTime.parse(json['last_seen']),
-      customData: json['custom_data'] != null 
-          ? Map<String, dynamic>.from(json['custom_data']) 
-          : {},
-      location: json['location'],
-      assignedTo: json['assigned_to'],
-      unit: json['unit'],     // Tenta ler se já vier pronto
-      sector: json['sector'], // Tenta ler se já vier pronto
-      floor: json['floor'],   // Tenta ler se já vier pronto
-    );
-  }
 
   @override
   Map<String, dynamic> toJson() {
