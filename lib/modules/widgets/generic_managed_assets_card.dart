@@ -25,7 +25,8 @@ class GenericManagedAssetsCard extends StatelessWidget {
     this.showActions = false,
     this.onAssetUpdate,
     this.onAssetDelete,
-    this.onMaintenanceUpdate, required AuthService authService,
+    this.onMaintenanceUpdate,
+    required AuthService authService,
   });
 
   @override
@@ -60,11 +61,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
               ),
               if (showActions)
                 ElevatedButton.icon(
-                  onPressed: () {
-
-                    
-                    
-                  },
+                  onPressed: () {},
                   icon: const Icon(Icons.download, size: 16),
                   label: const Text('Baixar CSV'),
                   style: ElevatedButton.styleFrom(
@@ -96,20 +93,25 @@ class GenericManagedAssetsCard extends StatelessWidget {
           // ...
           else
             Expanded(
-              child: LayoutBuilder( // <--- 1. ADICIONE O LAYOUTBUILDER
+              child: LayoutBuilder(
+                // <--- 1. ADICIONE O LAYOUTBUILDER
                 builder: (context, constraints) {
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox( // <--- 2. ADICIONE O CONSTRAINEDBOX
+                    child: ConstrainedBox(
+                      // <--- 2. ADICIONE O CONSTRAINEDBOX
                       constraints: BoxConstraints(
-                        minWidth: constraints.maxWidth, // <--- 3. DEFINA A LARGURA MÍNIMA
+                        minWidth:
+                            constraints
+                                .maxWidth, // <--- 3. DEFINA A LARGURA MÍNIMA
                       ),
                       child: SingleChildScrollView(
                         child: DataTable(
                           columnSpacing: 12,
                           horizontalMargin: 12,
-                          headingRowColor:
-                              WidgetStateProperty.all(Colors.grey.shade50),
+                          headingRowColor: WidgetStateProperty.all(
+                            Colors.grey.shade50,
+                          ),
                           border: TableBorder(
                             horizontalInside: BorderSide(
                               color: Colors.grey.shade300,
@@ -118,19 +120,21 @@ class GenericManagedAssetsCard extends StatelessWidget {
                           ),
                           columns: [
                             ...columns
-                                .map((col) => DataColumn(
-                                      label: Expanded(
-                                        child: Text(
-                                          col.label,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.grey[700],
-                                            fontSize: 12,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
+                                .map(
+                                  (col) => DataColumn(
+                                    label: Expanded(
+                                      child: Text(
+                                        col.label,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey[700],
+                                          fontSize: 12,
                                         ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ))
+                                    ),
+                                  ),
+                                )
                                 .toList(),
                             if (showActions)
                               DataColumn(
@@ -144,10 +148,13 @@ class GenericManagedAssetsCard extends StatelessWidget {
                                 ),
                               ),
                           ],
-                          rows: assets
-                              .map((asset) =>
-                                  _buildAssetDataRow(context, asset))
-                              .toList(),
+                          rows:
+                              assets
+                                  .map(
+                                    (asset) =>
+                                        _buildAssetDataRow(context, asset),
+                                  )
+                                  .toList(),
                         ),
                       ),
                     ),
@@ -177,11 +184,13 @@ class GenericManagedAssetsCard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AssetDetailScreen(
-                        asset: asset,
-                        authService: AuthService(), // Passe o authService do contexto
-                        moduleConfig: moduleConfig,
-                      ),
+                      builder:
+                          (context) => AssetDetailScreen(
+                            asset: asset,
+                            authService:
+                                AuthService(), // Passe o authService do contexto
+                            moduleConfig: moduleConfig,
+                          ),
                     ),
                   );
                 },
@@ -207,9 +216,23 @@ class GenericManagedAssetsCard extends StatelessWidget {
 
           // Célula combinada setor/andar
           if (dataKey == 'sector_floor') {
-            final sectorFloor = assetData['sector_floor'] ??
-                '${assetData['sector'] ?? "N/D"} / ${assetData['floor'] ?? "N/D"}';
-            return DataCell(Text(sectorFloor));
+            final locationValue = assetData['location']; // Pega o valor
+            String displayValue;
+
+            // 1. Verifica se é o NOVO formato (Map)
+            if (locationValue is Map<String, dynamic>) {
+              final sector = locationValue['sector'] ?? "N/D";
+              final floor = locationValue['floor'] ?? "N/D";
+              displayValue = '$sector / $floor';
+            }
+            // 2. Se não for, usa o formato ANTIGO (String/fallback)
+            else {
+              displayValue =
+                  assetData['sector_floor']?.toString() ??
+                  '${assetData['sector'] ?? "N/D"} / ${assetData['floor'] ?? "N/D"}';
+            }
+
+            return DataCell(Text(displayValue));
           }
 
           // Células padrão
@@ -235,47 +258,51 @@ class GenericManagedAssetsCard extends StatelessWidget {
           onMaintenanceUpdate?.call(asset, false);
         }
       },
-      itemBuilder: (context) => [
-        if (isInMaintenance)
-          const PopupMenuItem(
-            value: AssetAction.returnProduction,
-            child: ListTile(
-              leading: Icon(Icons.check_circle_outline, color: Colors.green),
-              title: Text('Retornar à Produção'),
-              contentPadding: EdgeInsets.zero,
-              dense: true,
+      itemBuilder:
+          (context) => [
+            if (isInMaintenance)
+              const PopupMenuItem(
+                value: AssetAction.returnProduction,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                  ),
+                  title: Text('Retornar à Produção'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              )
+            else
+              const PopupMenuItem(
+                value: AssetAction.markMaintenance,
+                child: ListTile(
+                  leading: Icon(Icons.build_outlined, color: Colors.orange),
+                  title: Text('Marcar Manutenção'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              ),
+            const PopupMenuDivider(),
+            const PopupMenuItem(
+              value: AssetAction.edit,
+              child: ListTile(
+                leading: Icon(Icons.edit_outlined),
+                title: Text('Editar'),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+              ),
             ),
-          )
-        else
-          const PopupMenuItem(
-            value: AssetAction.markMaintenance,
-            child: ListTile(
-              leading: Icon(Icons.build_outlined, color: Colors.orange),
-              title: Text('Marcar Manutenção'),
-              contentPadding: EdgeInsets.zero,
-              dense: true,
+            const PopupMenuItem(
+              value: AssetAction.delete,
+              child: ListTile(
+                leading: Icon(Icons.delete_outline, color: Colors.red),
+                title: Text('Excluir', style: TextStyle(color: Colors.red)),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+              ),
             ),
-          ),
-        const PopupMenuDivider(),
-        const PopupMenuItem(
-          value: AssetAction.edit,
-          child: ListTile(
-            leading: Icon(Icons.edit_outlined),
-            title: Text('Editar'),
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-          ),
-        ),
-        const PopupMenuItem(
-          value: AssetAction.delete,
-          child: ListTile(
-            leading: Icon(Icons.delete_outline, color: Colors.red),
-            title: Text('Excluir', style: TextStyle(color: Colors.red)),
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-          ),
-        ),
-      ],
+          ],
     );
   }
 
