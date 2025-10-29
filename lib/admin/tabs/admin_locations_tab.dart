@@ -1,4 +1,11 @@
 // File: lib/admin/tabs/admin_locations_tab.dart (VERSÃO MELHORADA)
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
@@ -6,6 +13,7 @@ import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/screen/unit_bssids_page.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
+import 'package:path_provider/path_provider.dart';
 
 class AdminLocationsTab extends StatefulWidget {
   final AuthService authService;
@@ -21,12 +29,254 @@ class _AdminLocationsTabState extends State<AdminLocationsTab> {
   List<BssidMapping> bssidMappings = [];
   bool isLoading = false;
   String searchQuery = '';
-  String selectedTab = 'units'; // 'units' ou 'bssids'
+  String selectedTab = 'units'; 
 
   @override
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  Future<void> _exportUnits() async {
+    if (units.isEmpty) {
+      _showSnackbar('Nenhuma unidade para exportar', isError: true);
+      return;
+    }
+
+    try {
+      // Cria CSV
+      List<List<dynamic>> rows = [
+        ['Nome da Unidade', 'IP Inicial', 'IP Final'],
+      ];
+
+      for (var unit in units) {
+        for (var range in unit.ipRanges) {
+          rows.add([unit.name, range.start, range.end]);
+        }
+      }
+
+      String csv = const ListToCsvConverter().convert(rows);
+
+      if (kIsWeb) {
+        // Web: Download via file_saver
+        await FileSaver.instance.saveFile(
+          name: 'unidades_${DateTime.now().millisecondsSinceEpoch}',
+          bytes: Uint8List.fromList(utf8.encode(csv)),
+          mimeType: MimeType.csv,
+        );
+        _showSnackbar('Unidades exportadas com sucesso!');
+      } else {
+        // Desktop/Mobile: Salva no diretório de documentos
+        final directory = await getApplicationDocumentsDirectory();
+        final path =
+            '${directory.path}${Platform.pathSeparator}unidades_${DateTime.now().millisecondsSinceEpoch}.csv';
+        final file = File(path);
+        await file.writeAsString(csv);
+        _showSnackbar('Unidades exportadas para: $path');
+      }
+    } catch (e) {
+      _showSnackbar('Erro ao exportar: $e', isError: true);
+    }
+  }
+
+  // === MÉTODO DE EXPORTAÇÃO DE BSSIDs ===
+  Future<void> _exportBssids() async {
+    if (bssidMappings.isEmpty) {
+      _showSnackbar('Nenhum BSSID para exportar', isError: true);
+      return;
+    }
+
+    try {
+      List<List<dynamic>> rows = [
+        ['BSSID (MAC)', 'Setor', 'Andar', 'Unidade'],
+      ];
+
+      for (var bssid in bssidMappings) {
+        rows.add([
+          bssid.macAddressRadio,
+          bssid.sector,
+          bssid.floor,
+          bssid.unitName,
+        ]);
+      }
+
+      String csv = const ListToCsvConverter().convert(rows);
+
+      if (kIsWeb) {
+        await FileSaver.instance.saveFile(
+          name: 'bssids_${DateTime.now().millisecondsSinceEpoch}',
+          bytes: Uint8List.fromList(utf8.encode(csv)),
+          mimeType: MimeType.csv,
+        );
+        _showSnackbar('BSSIDs exportados com sucesso!');
+      } else {
+        final directory = await getApplicationDocumentsDirectory();
+        final path =
+            '${directory.path}${Platform.pathSeparator}bssids_${DateTime.now().millisecondsSinceEpoch}.csv';
+        final file = File(path);
+        await file.writeAsString(csv);
+        _showSnackbar('BSSIDs exportados para: $path');
+      }
+    } catch (e) {
+      _showSnackbar('Erro ao exportar: $e', isError: true);
+    }
+  }
+
+  // === MÉTODO DE IMPORTAÇÃO DE UNITS ===
+  Future<void> _importUnits() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (result == null) return;
+
+      String csvString;
+      if (kIsWeb) {
+        csvString = utf8.decode(result.files.first.bytes!);
+      } else {
+        final file = File(result.files.first.path!);
+        csvString = await file.readAsString();
+      }
+
+      List<List<dynamic>> rows = const CsvToListConverter().convert(csvString);
+
+      // Remove header
+      if (rows.isNotEmpty &&
+          rows[0][0].toString().toLowerCase().contains('nome')) {
+        rows.removeAt(0);
+      }
+
+      if (rows.isEmpty) {
+        _showSnackbar('Arquivo CSV vazio', isError: true);
+        return;
+      }
+
+      int imported = 0;
+      int errors = 0;
+
+      // Agrupa por nome de unidade
+      Map<String, List<IpRange>> unitsMap = {};
+
+      for (var row in rows) {
+        if (row.length < 3) {
+          errors++;
+          continue;
+        }
+
+        String unitName = row[0].toString().trim();
+        String ipStart = row[1].toString().trim();
+        String ipEnd = row[2].toString().trim();
+
+        if (!isValidIp(ipStart) || !isValidIp(ipEnd)) {
+          errors++;
+          continue;
+        }
+
+        if (!unitsMap.containsKey(unitName)) {
+          unitsMap[unitName] = [];
+        }
+
+        unitsMap[unitName]!.add(IpRange(start: ipStart, end: ipEnd));
+      }
+
+      // Cria as unidades
+      for (var entry in unitsMap.entries) {
+        try {
+          final unit = Unit(name: entry.key, ipRanges: entry.value);
+          await _deviceService.createUnit(
+            widget.authService.currentToken!,
+            unit,
+          );
+          imported++;
+        } catch (e) {
+          errors++;
+        }
+      }
+
+      await _loadData();
+      _showSnackbar('Importação concluída: $imported criadas, $errors erros');
+    } catch (e) {
+      _showSnackbar('Erro ao importar: $e', isError: true);
+    }
+  }
+
+  // === MÉTODO DE IMPORTAÇÃO DE BSSIDs ===
+  Future<void> _importBssids() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (result == null) return;
+
+      String csvString;
+      if (kIsWeb) {
+        csvString = utf8.decode(result.files.first.bytes!);
+      } else {
+        final file = File(result.files.first.path!);
+        csvString = await file.readAsString();
+      }
+
+      List<List<dynamic>> rows = const CsvToListConverter().convert(csvString);
+
+      // Remove header
+      if (rows.isNotEmpty &&
+          rows[0][0].toString().toLowerCase().contains('bssid')) {
+        rows.removeAt(0);
+      }
+
+      if (rows.isEmpty) {
+        _showSnackbar('Arquivo CSV vazio', isError: true);
+        return;
+      }
+
+      int imported = 0;
+      int errors = 0;
+
+      for (var row in rows) {
+        if (row.length < 3) {
+          errors++;
+          continue;
+        }
+
+        String mac = row[0].toString().trim().toUpperCase().replaceAll(
+          '-',
+          ':',
+        );
+        String sector = row[1].toString().trim();
+        String floor = row[2].toString().trim();
+        String unitName = row.length > 3 ? row[3].toString().trim() : '';
+
+        if (!RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$').hasMatch(mac)) {
+          errors++;
+          continue;
+        }
+
+        try {
+          final mapping = BssidMapping(
+            macAddressRadio: mac,
+            sector: sector,
+            floor: floor,
+            unitName: unitName,
+          );
+          await _deviceService.createBssidMapping(
+            widget.authService.currentToken!,
+            mapping,
+          );
+          imported++;
+        } catch (e) {
+          errors++;
+        }
+      }
+
+      await _loadData();
+      _showSnackbar('Importação concluída: $imported criados, $errors erros');
+    } catch (e) {
+      _showSnackbar('Erro ao importar: $e', isError: true);
+    }
   }
 
   Future<void> _loadData() async {
@@ -773,6 +1023,96 @@ class _AdminLocationsTabState extends State<AdminLocationsTab> {
                             ),
                           ),
                         ),
+                        SizedBox(width: 12),
+
+                        // BOTÕES DE IMPORT/EXPORT
+                        PopupMenuButton<String>(
+                          icon: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(Icons.more_vert, color: Colors.blue),
+                          ),
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'export_units':
+                                _exportUnits();
+                                break;
+                              case 'import_units':
+                                _importUnits();
+                                break;
+                              case 'export_bssids':
+                                _exportBssids();
+                                break;
+                              case 'import_bssids':
+                                _importBssids();
+                                break;
+                            }
+                          },
+                          itemBuilder:
+                              (context) => [
+                                PopupMenuItem(
+                                  value: 'export_units',
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.download,
+                                        color: Colors.green,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text('Exportar Unidades'),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem(
+                                  value: 'import_units',
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.upload,
+                                        color: Colors.blue,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text('Importar Unidades'),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuDivider(),
+                                PopupMenuItem(
+                                  value: 'export_bssids',
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.download,
+                                        color: Colors.green,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text('Exportar BSSIDs'),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem(
+                                  value: 'import_bssids',
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.upload,
+                                        color: Colors.blue,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text('Importar BSSIDs'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                        ),
+
                         SizedBox(width: 12),
                         SegmentedButton<String>(
                           segments: [
