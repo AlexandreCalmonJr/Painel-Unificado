@@ -1,8 +1,8 @@
 // File: lib/tabs/generic_maintenance_tab.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
+import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-import 'package:painel_windowns/widgets/generic_managed_assets_card.dart';
 
 class GenericMaintenanceTab extends StatelessWidget {
   final List<ManagedAsset> allAssets;

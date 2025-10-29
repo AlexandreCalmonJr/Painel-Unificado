@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
-import 'package:painel_windowns/utils/helpers.dart';
 
 class DeviceDetailScreen extends StatefulWidget {
   final Device device;

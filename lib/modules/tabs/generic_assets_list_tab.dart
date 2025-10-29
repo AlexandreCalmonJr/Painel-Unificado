@@ -1,7 +1,7 @@
 // File: lib/tabs/generic_assets_list_tab.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
-import 'package:painel_windowns/widgets/generic_managed_assets_card.dart';
+import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart';
 
 class GenericAssetsListTab extends StatelessWidget {
   final List<ManagedAsset> displayedAssets;

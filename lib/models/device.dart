@@ -1,6 +1,6 @@
 
+import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/unit.dart';
-import 'package:painel_windowns/utils/helpers.dart';
 
 // ADICIONADO: Enum para os tipos de status
 enum DeviceStatusType {

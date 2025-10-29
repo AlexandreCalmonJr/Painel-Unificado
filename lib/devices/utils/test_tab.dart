@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/device.dart';
-import 'package:painel_windowns/utils/helpers.dart';
 
 // Define um tipo para a função de callback que dispara o alerta.
 // Isso torna o código mais limpo e fácil de entender.

@@ -1,11 +1,11 @@
 // File: lib/admin/tabs/admin_locations_tab.dart (VERSÃO MELHORADA)
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/screen/unit_bssids_page.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
-import 'package:painel_windowns/utils/helpers.dart';
 
 class AdminLocationsTab extends StatefulWidget {
   final AuthService authService;

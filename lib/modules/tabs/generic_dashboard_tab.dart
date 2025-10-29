@@ -1,8 +1,8 @@
 // File: lib/tabs/generic_dashboard_tab.dart
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/devices/widgets/stat_card.dart'; // Import do StatCard
 import 'package:painel_windowns/models/asset_module_base.dart';
-import 'package:painel_windowns/widgets/generic_managed_assets_card.dart';
-import 'package:painel_windowns/widgets/stat_card.dart'; // Import do StatCard
+import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart';
 
 class GenericDashboardTab extends StatelessWidget {
   final List<ManagedAsset> allAssets;
