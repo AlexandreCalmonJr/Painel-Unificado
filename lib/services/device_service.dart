@@ -291,23 +291,28 @@ class DeviceService {
     }
   }
 
-Future<List<Totem>> fetchTotems(String token) async {
-  final config = ServerConfigService.instance.loadConfig();
-  final response = await http.get(
-    Uri.parse('http://${config['ip']}:${config['port']}/api/monitoring/totems'),
-    headers: {'Authorization': 'Bearer $token'}, // ✅ JWT
-  );
+  Future<List<Totem>> fetchTotems(String token) async {
+    final config = ServerConfigService.instance.loadConfig();
+    final serverIp = config['ip'];
+    final serverPort = config['port'];
 
-  if (response.statusCode == 200) {
+    // ⚡ PASSO 1: Carregar units e bssids (necessário para o mapeamento de localização no Totem.fromJson)
+    final units = await fetchUnits(token); // Reutiliza o método existente
+    final bssidMappings = await fetchBssidMappings(token); // Reutiliza o método existente
+
+    final response = await _performHttpRequest(
+      request: () => http.get(
+        Uri.parse('http://$serverIp:$serverPort/api/monitoring/totems'),
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+      errorMessage: 'Erro ao buscar totens',
+    );
     final data = jsonDecode(response.body);
     if (data is List) {
-      return data.map((json) => Totem.fromJson(json)).toList();
+      return data.map((json) => Totem.fromJson(json, units, bssidMappings)).toList();
     } else if (data is Map<String, dynamic> && data.containsKey('totems')) {
-      return (data['totems'] as List).map((json) => Totem.fromJson(json)).toList();
+      return (data['totems'] as List).map((json) => Totem.fromJson(json, units, bssidMappings)).toList();
     }
     throw Exception('Resposta inválida do servidor: Esperado uma lista de totens.');
-  } else {
-    throw Exception('Erro ao buscar totens: ${response.statusCode} ${response.reasonPhrase}');
   }
-}
 }
