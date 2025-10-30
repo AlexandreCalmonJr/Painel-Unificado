@@ -5,11 +5,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 // Imports dos Modelos e Serviços
 import 'package:painel_windowns/models/asset_module_base.dart';
-import 'package:painel_windowns/models/desktop.dart';
+import 'package:painel_windowns/models/bssid_mapping.dart';
 // Imports dos Modelos Específicos (Ajuste os caminhos)
-import 'package:painel_windowns/models/notebook.dart';
-import 'package:painel_windowns/models/painel.dart';
-import 'package:painel_windowns/models/printer.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/modules/tabs/generic_assets_list_tab.dart';
 import 'package:painel_windowns/modules/tabs/generic_dashboard_tab.dart';
@@ -17,8 +14,6 @@ import 'package:painel_windowns/modules/tabs/generic_maintenance_tab.dart';
 import 'package:painel_windowns/modules/tabs/generic_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-
-
 
 class GenericDashboardScreen extends StatefulWidget {
   final AuthService authService;
@@ -42,6 +37,11 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   List<ManagedAsset> _displayedAssets = [];
   List<Unit> _units = []; // Armazena as Unidades
   
+  // *** ALTERAÇÃO 1: Adicionado _bssidMappings ***
+  // Baseado no código original que passava '[]' para Notebook.fromJson.
+  // Se você carregar esses dados, faça-o em _initializeData (similar a _loadUnits).
+  final List<BssidMapping> _bssidMappings = []; 
+
   int _currentPage = 1;
   int _totalPages = 1;
   String _searchQuery = '';
@@ -63,12 +63,13 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   Future<void> _initializeData() async {
     setState(() => isLoading = true);
     await _loadUnits(); // Carrega as unidades primeiro
+    // _loadBssidMappings() e chame-o aqui, assim como _loadUnits.
     await _loadAssets(isInitialLoad: true);
     setState(() => isLoading = false);
 
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
-         // Atualiza silenciosamente, sem "isLoading"
+        // Atualiza silenciosamente, sem "isLoading"
         _loadAssets(isInitialLoad: false);
       }
     });
@@ -102,14 +103,15 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     if (isInitialLoad) setState(() => isLoading = true);
 
     try {
-      // 1. Busca o JSON bruto do serviço
-      final List<dynamic> assetsJson = 
-          await _moduleService.listModuleAssets(widget.moduleConfig.id);
-
-      // 2. Faz o PARSE aqui na tela, usando as _units
-      final List<ManagedAsset> parsedAssets = assetsJson
-          .map((json) => _parseAsset(json as Map<String, dynamic>))
-          .toList();
+      // *** ALTERAÇÃO 2: Bloco "ANTES" substituído pelo "DEPOIS" ***
+      // 1. Busca os ativos já processados (parsing movido para o serviço)
+      final List<ManagedAsset> parsedAssets =
+          await _moduleService.listModuleAssetsTyped(
+        moduleId: widget.moduleConfig.id,
+        moduleType: widget.moduleConfig.type,
+        units: _units,
+        bssidMappings: _bssidMappings, // Usando a nova variável de estado
+      );
 
       if (mounted) {
         setState(() {
@@ -130,34 +132,8 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     }
   }
 
-  /// Helper de Parse (agora dentro da tela)
- ManagedAsset _parseAsset(Map<String, dynamic> json) {
-  // Usa _units (do estado da tela) e moduleConfig.type (do widget)
-  switch (widget.moduleConfig.type) {
-    case AssetModuleType.notebook:
-      return Notebook.fromJson(json, _units, [
-      ]);
-    
-    case AssetModuleType.desktop:
-      return Desktop.fromJson(json, _units);
-    
-    case AssetModuleType.panel:
-      return Panel.fromJson(json, _units);
-    
-    case AssetModuleType.printer:
-      return Printer.fromJson(json, _units);
-    
-    // case AssetModuleType.totem:
-    //   return Totem.fromJson(json, _units); 
-    
-    // case AssetModuleType.mobile:
-    //   return Device.fromJson(json, _units); 
-    
-    default:
-      throw UnimplementedError(
-          'Tipo de módulo não suportado: ${widget.moduleConfig.type}');
-  }
-}
+  // *** ALTERAÇÃO 3: Função _parseAsset (linhas 129-152) REMOVIDA ***
+  // Esta lógica agora está dentro de _moduleService.listModuleAssetsTyped
 
   void _updateDisplayedAssets() {
     List<ManagedAsset> filteredList = List.from(_allAssets);
@@ -212,27 +188,62 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
       ),
     );
   }
-  
-  
 
   // --- Dialogs de Edição/Exclusão ---
   Future<void> _showEditAssetDialog(ManagedAsset asset) async {
-    _showSnackbar('Função "Editar" para ${asset.assetName} não implementada.', isError: true);
+    _showSnackbar('Função "Editar" para ${asset.assetName} não implementada.',
+        isError: true);
     _loadAssets(isInitialLoad: true);
   }
 
   Future<void> _showDeleteAssetDialog(ManagedAsset asset) async {
-    _showSnackbar('Função "Excluir" para ${asset.assetName} não implementada.', isError: true);
-    // Após confirmar, chamar:
+    _showSnackbar(
+        'Função "Excluir" para ${asset.assetName} chamada (implementação pendente).',
+        isError: false);
+    
+    
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar Exclusão'),
+          content: Text('Tem certeza que deseja excluir o ativo "${asset.assetName}"?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      try {
+        await _moduleService.deleteAsset(
+            moduleId: widget.moduleConfig.id, assetId: asset.id);
+        _showSnackbar('Ativo excluído com sucesso');
+        _loadAssets(isInitialLoad: true); // Recarrega a lista
+      } catch (e) {
+        _showSnackbar('Erro ao excluir: $e', isError: true);
+      }
+    }
+    
+
     try {
-      await _moduleService.deleteAsset(moduleId: widget.moduleConfig.id, assetId: asset.id);
+      await _moduleService.deleteAsset(
+          moduleId: widget.moduleConfig.id, assetId: asset.id);
       _showSnackbar('Ativo excluído com sucesso');
       _loadAssets(isInitialLoad: true);
     } catch (e) {
       _showSnackbar('Erro ao excluir: $e', isError: true);
     }
   }
-
 
   IconData _getModuleIcon() {
     switch (widget.moduleConfig.type.iconName) {
@@ -364,7 +375,6 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
                   selected: selectedIndex == 2,
                   onTap: (index) => setState(() => selectedIndex = index),
                 ),
-                
                 if (isAdmin)
                   _buildMenuItem(
                     icon: Icons.admin_panel_settings_outlined,
@@ -374,7 +384,6 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
                     selected: selectedIndex == 3,
                     onTap: (index) => setState(() => selectedIndex = index),
                   ),
-
                 const Divider(color: Colors.white24, indent: 16, endIndent: 16),
                 _buildMenuItem(
                   icon: Icons.arrow_back,
@@ -544,36 +553,34 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   Widget _buildTabContent() {
     // Pega a configuração de colunas do módulo
     final columns = widget.moduleConfig.tableColumns;
-    
+
     switch (selectedIndex) {
       // Aba 0: Painel (Visão Geral)
       case 0:
         return GenericDashboardTab(
-          allAssets: _allAssets,
-          onRefresh: () => _loadAssets(isInitialLoad: true),
-          getModuleIcon: _getModuleIcon,
-          moduleType: widget.moduleConfig.type.displayName,
-          columns: columns,
-          authService: widget.authService,
-          moduleConfig: widget.moduleConfig
-        );
+            allAssets: _allAssets,
+            onRefresh: () => _loadAssets(isInitialLoad: true),
+            getModuleIcon: _getModuleIcon,
+            moduleType: widget.moduleConfig.type.displayName,
+            columns: columns,
+            authService: widget.authService,
+            moduleConfig: widget.moduleConfig);
 
       // Aba 1: Lista de Ativos (Nome dinâmico)
       case 1:
         return GenericAssetsListTab(
-          displayedAssets: _displayedAssets,
-          isLoading: isLoading,
-          currentPage: _currentPage,
-          totalPages: _totalPages,
-          onPageChange: _changePage,
-          onSearch: _performSearch,
-          onRefresh: () => _loadAssets(isInitialLoad: true),
-          onAssetUpdate: (asset) => _showEditAssetDialog(asset),
-          onAssetDelete: (asset) => _showDeleteAssetDialog(asset),
-          columns: columns,
-          authService: widget.authService,
-          moduleConfig: widget.moduleConfig
-        );
+            displayedAssets: _displayedAssets,
+            isLoading: isLoading,
+            currentPage: _currentPage,
+            totalPages: _totalPages,
+            onPageChange: _changePage,
+            onSearch: _performSearch,
+            onRefresh: () => _loadAssets(isInitialLoad: true),
+            onAssetUpdate: (asset) => _showEditAssetDialog(asset),
+            onAssetDelete: (asset) => _showDeleteAssetDialog(asset),
+            columns: columns,
+            authService: widget.authService,
+            moduleConfig: widget.moduleConfig);
 
       // Aba 2: Manutenção (Nova)
       case 2:
@@ -600,14 +607,13 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
 
       default:
         return GenericDashboardTab(
-          allAssets: _allAssets,
-          onRefresh: () => _loadAssets(isInitialLoad: true),
-          getModuleIcon: _getModuleIcon,
-          moduleType: widget.moduleConfig.type.displayName,
-          columns: columns,
-          authService: widget.authService,
-          moduleConfig: widget.moduleConfig
-        );
+            allAssets: _allAssets,
+            onRefresh: () => _loadAssets(isInitialLoad: true),
+            getModuleIcon: _getModuleIcon,
+            moduleType: widget.moduleConfig.type.displayName,
+            columns: columns,
+            authService: widget.authService,
+            moduleConfig: widget.moduleConfig);
     }
   }
 }
