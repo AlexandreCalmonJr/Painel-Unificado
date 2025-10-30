@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:elegant_notification/elegant_notification.dart';
+// ignore: depend_on_referenced_packages
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/devices/widgets/stat_card.dart';
@@ -63,75 +64,38 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     super.dispose();
   }
 
-  // 4. LÓGICA DE CARREGAMENTO AJUSTADA PARA USAR TotemService
   Future<void> _loadTotems({bool isInitialLoad = false}) async {
-    if (!mounted) return;
-
     setState(() => isLoading = true);
+
     try {
-      // Pega o token antes de fazer a chamada
-      final currentUser = widget.authService.currentUser;
-      final token = currentUser?['token'];
-      if (token == null) {
-        throw Exception('Token de autenticação nulo. Faça login novamente.');
+      final token = widget.authService.currentToken ?? '';
+
+      if (token.isEmpty) {
+        throw Exception('Token não encontrado');
       }
 
-
-
-      // Chama o método correto do TotemService
       final fetchedTotems = await _totemService.fetchTotems(token);
 
       if (mounted) {
         if (!isInitialLoad) {
-          _previousTotems = List.from(_allFetchedTotems);
+          _checkForAlerts(_previousTotems, fetchedTotems);
         }
-
-        setState(() {
-          _allFetchedTotems = fetchedTotems;
-
-          if (!isInitialLoad) {
-            _checkForAlerts(_previousTotems, _allFetchedTotems);
-          }
-
-          _updateDisplayedTotems();
-          errorMessage = null;
-        });
+        _previousTotems = fetchedTotems;
+        _allFetchedTotems = fetchedTotems;
+        _updateDisplayedTotems();
+        setState(() => isLoading = false);
       }
     } catch (e) {
+      debugPrint('❌ Erro ao carregar totems: $e');
       if (mounted) {
-        final errorMsg = e.toString().replaceFirst("Exception: ", "");
-        setState(() {
-          errorMessage = 'Falha ao carregar totens: $errorMsg';
-        });
-
-        // 5. MENSAGEM DE ERRO MELHORADA E VERIFICAÇÃO DE LOGOUT
-        // Se o erro for de token, força o logout
-        if (errorMsg.contains('Token') || errorMsg.contains('401')) {
-          ElegantNotification.error(
-            title: const Text('Sessão Expirada'),
-            description: const Text(
-                'Sua sessão expirou. Por favor, faça login novamente.'),
-            position: Alignment.topCenter,
-            animation: AnimationType.fromTop,
-          ).show(context);
-          await _logout();
-        } else {
-          // Mostra SnackBar para outros erros
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage!),
-              backgroundColor: Colors.red,
-              action: SnackBarAction(
-                label: 'Tentar Novamente',
-                textColor: Colors.white,
-                onPressed: () => _loadTotems(isInitialLoad: true),
-              ),
-            ),
-          );
-        }
+        setState(() => isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-    } finally {
-      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -155,7 +119,8 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         return (totem.hostname.toLowerCase().contains(query)) ||
             (totem.serialNumber.toLowerCase().contains(query)) ||
             (totem.ip.toLowerCase().contains(query)) ||
-            (totem.location.toLowerCase().contains(query));
+            (totem.unit?.toLowerCase().contains(query) ?? false) ||
+            (totem.location?.toLowerCase().contains(query) ?? false);
       }).toList();
     }
 

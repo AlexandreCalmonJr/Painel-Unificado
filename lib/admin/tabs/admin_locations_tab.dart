@@ -1,4 +1,5 @@
 // File: lib/admin/tabs/admin_locations_tab.dart (VERSÃO MELHORADA)
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -279,22 +280,75 @@ class _AdminLocationsTabState extends State<AdminLocationsTab> {
     }
   }
 
-  Future<void> _loadData() async {
-    setState(() => isLoading = true);
-    try {
-      final token = widget.authService.currentToken ?? '';
-      if (token.isEmpty) {
+  // File: lib/admin/tabs/admin_locations_tab.dart
+// TRECHO CORRIGIDO: _loadData com tratamento de erro robusto
+
+Future<void> _loadData() async {
+  // ✅ Proteção 1: Verifica se widget ainda existe
+  if (!mounted) return;
+  
+  setState(() => isLoading = true);
+  
+  try {
+    final token = widget.authService.currentToken ?? '';
+    
+    // ✅ Proteção 2: Valida token ANTES de continuar
+    if (token.isEmpty) {
+      if (mounted) {
+        setState(() => isLoading = false); // ⚡ CRÍTICO: Libera o loading
         _showSnackbar('Token inválido. Faça login novamente.', isError: true);
-        return;
       }
-      units = await _deviceService.fetchUnits(token);
-      bssidMappings = await _deviceService.fetchBssidMappings(token);
-    } catch (e) {
-      _showSnackbar('Erro ao carregar dados: $e', isError: true);
-    } finally {
+      return;
+    }
+    
+    debugPrint('🔄 Carregando dados de localização...');
+    
+    // ✅ Proteção 3: Timeout global de 15 segundos
+    final results = await Future.wait([
+      _deviceService.fetchUnits(token),
+      _deviceService.fetchBssidMappings(token),
+    ]).timeout(
+      const Duration(seconds: 15),
+      onTimeout: () {
+        debugPrint('⏰ TIMEOUT: Requisições demoraram mais de 15s');
+        throw TimeoutException('Servidor não respondeu em 15 segundos');
+      },
+    );
+    
+    // ✅ Proteção 4: Só atualiza estado se widget ainda existe
+    if (!mounted) return;
+    
+    setState(() {
+      units = results[0] as List<Unit>;
+      bssidMappings = results[1] as List<BssidMapping>;
+      isLoading = false;
+    });
+    
+    debugPrint('✅ Dados carregados: ${units.length} unidades, ${bssidMappings.length} BSSIDs');
+    
+  } on TimeoutException catch (e) {
+    debugPrint('❌ Timeout: $e');
+    if (mounted) {
       setState(() => isLoading = false);
+      _showSnackbar(
+        'Servidor demorou para responder. Verifique a conexão.',
+        isError: true,
+      );
+    }
+    
+  } catch (e, stackTrace) {
+    debugPrint('❌ Erro desconhecido: $e');
+    debugPrint('Stack: $stackTrace');
+    
+    if (mounted) {
+      setState(() => isLoading = false);
+      _showSnackbar(
+        'Erro ao carregar dados: ${e.toString()}',
+        isError: true,
+      );
     }
   }
+}
 
   void _showSnackbar(String message, {bool isError = false}) {
     if (!mounted) return;

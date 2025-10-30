@@ -132,7 +132,7 @@ class TotemDetailScreen extends StatelessWidget {
           child: _buildSmallInfoCard(
             icon: Icons.location_on,
             label: 'Localização',
-            value: totem.location,
+            value: totem.unit ?? totem.location ?? 'N/A',
             iconColor: Colors.blue.shade600,
           ),
         ),
@@ -166,7 +166,7 @@ class TotemDetailScreen extends StatelessWidget {
           _buildDetailRow(
             Icons.business_outlined,
             'Unidade/Localização:',
-            totem.location,
+            totem.unit ?? totem.location ?? 'N/A',
           ),
           _buildDetailRow(
             Icons.category_outlined,

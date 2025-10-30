@@ -207,7 +207,7 @@ class ManagedTotemsCard extends StatelessWidget {
                 child: _buildStatusChip(
                     totem.status, getStatusColor(totem.status)))),
         _buildTableCell(totem.ip),
-        _buildTableCell(totem.location),
+        _buildTableCell(totem.unit ?? totem.location!),
         _buildTableCell(totem.serialNumber),
         _buildTableCell(totem.zebraStatus),
         _buildTableCell(totem.bematechStatus),

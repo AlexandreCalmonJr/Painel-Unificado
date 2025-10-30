@@ -7,8 +7,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:painel_windowns/models/bssid_mapping.dart';
 // Importe o modelo Totem
 import 'package:painel_windowns/models/totem.dart';
+import 'package:painel_windowns/models/unit.dart';
 // Importe seu serviço de configuração de servidor
 import 'package:painel_windowns/services/server_config_service.dart'; 
 
@@ -70,12 +72,18 @@ class TotemService {
   // ----------------------------------------------
 
   /// [R] READ (All)
-  /// Busca todos os totens do servidor.
+  /// Busca todos os totens do servidor, aplicando o mapeamento de localização.
   /// Rota: GET /api/monitoring/totems
   Future<List<Totem>> fetchTotems(String token) async {
     final config = ServerConfigService.instance.loadConfig();
     final serverIp = config['ip'];
     final serverPort = config['port'];
+
+    // ⚡ PASSO 1: Carregar units e bssids (necessário para o mapeamento de localização no Totem.fromJson)
+    // Nota: Idealmente, estes deveriam ser passados para o serviço ou carregados por um serviço de localização dedicado.
+    // Por simplicidade e para resolver o problema atual, estamos carregando-os aqui.
+    final units = await _fetchUnits(token);
+    final bssidMappings = await _fetchBssidMappings(token);
 
     final response = await _performHttpRequest(
       request: () => http.get(
@@ -84,36 +92,11 @@ class TotemService {
       ),
       errorMessage: 'Erro ao buscar totens',
     );
-
     final data = jsonDecode(response.body);
     if (data is List) {
-      return data.map((json) => Totem.fromJson(json)).toList();
+      return data.map((json) => Totem.fromJson(json, units, bssidMappings)).toList();
     }
-    
     throw Exception('Resposta inválida do servidor: Esperado uma lista de totens.');
-  }
-
-  /// [R] READ (Single)
-  /// Busca um totem específico pelo seu Serial Number.
-  /// Rota: GET /api/monitoring/totems/:serialNumber
-  Future<Totem> fetchTotem(String token, String serialNumber) async {
-    final config = ServerConfigService.instance.loadConfig();
-    final serverIp = config['ip'];
-    final serverPort = config['port'];
-    
-    final encodedSerial = Uri.encodeComponent(serialNumber);
-
-    final response = await _performHttpRequest(
-      request: () => http.get(
-        Uri.parse('http://$serverIp:$serverPort/api/monitoring/totems/$encodedSerial'),
-        headers: {'Authorization': 'Bearer $token'},
-      ),
-      errorMessage: 'Erro ao buscar dados do totem',
-    );
-    
-    final data = jsonDecode(response.body);
-    // A rota de item único retorna o objeto Totem diretamente
-    return Totem.fromJson(data);
   }
 
   /// [U] UPDATE
@@ -162,5 +145,57 @@ class TotemService {
 
     final data = jsonDecode(response.body);
     return data['message']?.toString() ?? 'Totem excluído com sucesso';
+  }
+
+  // ----------------------------------------------
+  // MÉTODOS AUXILIARES PARA LOCALIZAÇÃO
+  // (Duplicados do DeviceService para evitar dependência circular,
+  // mas idealmente deveriam vir de um serviço de localização compartilhado)
+  // ----------------------------------------------
+
+  /// Busca todas as unidades do servidor.
+  /// Rota: GET /api/units
+  Future<List<Unit>> _fetchUnits(String token) async {
+    final config = ServerConfigService.instance.loadConfig();
+    final serverIp = config['ip'];
+    final serverPort = config['port'];
+
+    final response = await _performHttpRequest(
+      request: () => http.get(
+        Uri.parse('http://$serverIp:$serverPort/api/units'),
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+      errorMessage: 'Erro ao buscar unidades',
+    );
+
+    final data = jsonDecode(response.body);
+    if (data is List) {
+      return data.map((json) => Unit.fromJson(json)).toList();
+    } else if (data is Map<String, dynamic> && data.containsKey('units')) {
+      return (data['units'] as List).map((json) => Unit.fromJson(json)).toList();
+    } else {
+      throw Exception('Resposta inválida do servidor: Esperado uma lista de unidades.');
+    }
+  }
+
+  /// Busca todos os mapeamentos de BSSID do servidor.
+  /// Rota: GET /api/bssid-mappings
+  Future<List<BssidMapping>> _fetchBssidMappings(String token) async {
+    final config = ServerConfigService.instance.loadConfig();
+    final serverIp = config['ip'];
+    final serverPort = config['port'];
+
+    final response = await _performHttpRequest(
+      request: () => http.get(
+        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings'),
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+      errorMessage: 'Erro ao buscar mapeamentos de BSSID',
+    );
+    final data = jsonDecode(response.body);
+    if (data is List) {
+      return data.map((json) => BssidMapping.fromJson(json)).toList();
+    }
+    throw Exception('Resposta inválida: Esperado uma lista de mapeamentos');
   }
 }
