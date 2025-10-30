@@ -23,7 +23,6 @@ class Desktop extends ManagedAsset {
   final String ipAddress;
   final String macAddress;
   
-  
   // Periféricos
   final String? biometricReader;
   final String? connectedPrinter;
@@ -79,13 +78,28 @@ class Desktop extends ManagedAsset {
   }) : super(assetType: 'desktop');
 
   factory Desktop.fromJson(Map<String, dynamic> json, List<Unit> units) {
-    // Mapeamento de localização
-    final locationData = LocationMapperService.mapLocation(
-      units: units,
-      ip: json['ip_address'],
-      macAddress: json['mac_address'],
-      originalLocation: json['location'],
-    );
+    // PRIORIZA DADOS DO SERVIDOR
+    String? unit = json['unit'];
+    String? sector = json['sector'];
+    String? floor = json['floor'];
+
+    // SÓ MAPEIA SE AUSENTE OU INVÁLIDO
+    final bool shouldMapLocation = (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
+        (sector == null || sector == 'Desconhecido') ||
+        (floor == null || floor == 'Desconhecido');
+
+    LocationData? locationData;
+    if (shouldMapLocation) {
+      locationData = LocationMapperService.mapLocation(
+        units: units,
+        ip: json['ip_address'] ?? '',
+        macAddress: json['mac_address'] ?? '',
+        originalLocation: json['location'],
+      );
+      unit ??= locationData.unitName;
+      sector ??= locationData.sector;
+      floor ??= locationData.floor;
+    }
 
     return Desktop(
       id: json['_id'] ?? json['id'],
@@ -93,17 +107,17 @@ class Desktop extends ManagedAsset {
       serialNumber: json['serial_number'],
       status: json['status'] ?? 'offline',
       lastSeen: DateTime.parse(json['last_seen']),
-      location: locationData.locationName,
+      location: json['location'],
       assignedTo: json['assigned_to'],
       customData: json['custom_data'] != null 
           ? Map<String, dynamic>.from(json['custom_data']) 
           : {},
-      
-      // Localização mapeada
-      unit: locationData.unitName,
-      sector: locationData.sector ?? json['sector'],
-      floor: locationData.floor ?? json['floor'],
-      
+
+      // Localização com prioridade
+      unit: unit,
+      sector: sector,
+      floor: floor,
+
       // Identificação
       hostname: json['hostname'] ?? 'N/A',
       model: json['model'] ?? 'N/A',
@@ -128,7 +142,6 @@ class Desktop extends ManagedAsset {
       connectedPrinter: json['connected_printer'],
       
       // Software
-      
       installedSoftware: json['installed_software'] != null
           ? List<String>.from(json['installed_software'])
           : [],
@@ -149,7 +162,6 @@ class Desktop extends ManagedAsset {
           : null,
     );
   }
-
 
   @override
   Map<String, dynamic> toJson() {
@@ -207,21 +219,18 @@ class Desktop extends ManagedAsset {
 }
 
 class LocationMapperService {
-
-
   static LocationData mapLocation({
     required List<Unit> units,
     required String ip,
     required String macAddress,
     required String originalLocation,
   }) {
-    // Implement the logic to map location based on the provided parameters.
-    // This is a placeholder implementation.
+    // Implementação real deve buscar por IP/MAC nas unidades
     return LocationData(
       locationName: originalLocation,
-      unitName: units.first.name,
-      sector: units.first.sector,
-      floor: units.first.floor,
+      unitName: units.isNotEmpty ? units.first.name : 'Unidade Desconhecida',
+      sector: units.isNotEmpty ? units.first.sector : null,
+      floor: units.isNotEmpty ? units.first.floor : null,
     );
   }
 }

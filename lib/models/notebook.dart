@@ -1,53 +1,9 @@
-// File: lib/models/notebook.dart
-
+// File: lib/models/notebook.dart (CORRIGIDO)
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
-import 'package:painel_windowns/services/location_mapper_service.dart'; // Importar o modelo Unit
+import 'package:painel_windowns/services/location_mapper_service.dart';
 
-class LocationData {
-  final String? locationName;
-  final Unit? unit;
-  final String? sector;
-  final String? floor;
-
-  LocationData({
-    this.locationName,
-    this.unit,
-    this.sector,
-    this.floor, required String ip, required String macAddress, required String originalLocation, String? bssid,
-  });
-}
-
-class LocationMapper {
-  static LocationData mapLocation({
-    required List<Unit> units,
-    String? locationName,
-    String? bssid,
-    required String ip,
-    required String macAddress,
-    required String originalLocation,
-    required String unit,
-    
-  }) {
-    final Unit? matchedUnit = units.isNotEmpty ? units.first : null;
-
-    
-    return LocationData(
-      originalLocation: originalLocation,
-      macAddress: macAddress,
-      ip: ip,
-      locationName: originalLocation,
-      unit: matchedUnit,
-      sector: matchedUnit?.sector,
-      floor: matchedUnit?.floor,
-      bssid: bssid,
-      
-    );
-  }
-}
-
-/// Modelo para Notebooks
 class Notebook extends ManagedAsset {
   final String hostname;
   final String model;
@@ -78,12 +34,9 @@ class Notebook extends ManagedAsset {
     super.location,
     super.assignedTo,
     super.customData,
-
-    // --- Campos de localização da classe base ---
     super.unit,
     super.sector,
     super.floor,
-    // --- Campos específicos ---
     required this.hostname,
     required this.model,
     required this.manufacturer,
@@ -105,17 +58,39 @@ class Notebook extends ManagedAsset {
     this.isEncrypted = false,
   }) : super(assetType: 'notebook');
 
-factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units, List<BssidMapping> bssidMappings) {
+  factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units, List<BssidMapping> bssidMappings) {
     
-    // --- LÓGICA DE MAPEAMENTO DE LOCALIZAÇÃO ---
-    final locationData = LocationMapperService.mapLocation(
-    units: units,
-    bssidMappings: bssidMappings,
-    ip: json['ip_address'] ?? 'N/A',
-    macAddress: json['mac_address_radio'] ?? json['mac_address'] ?? 'N/A',
-    originalLocation: json['location'] ?? 'N/D',
-  );
-    // --- FIM DA LÓGICA ---
+    // ✅ PRIORIZA DADOS DO SERVIDOR (se existirem)
+    String? unit = json['unit'];
+    String? sector = json['sector'];
+    String? floor = json['floor'];
+    String? location = json['location'];
+
+    // 🔥 SÓ MAPEIA SE O SERVIDOR NÃO ENVIOU OS DADOS
+    if ((unit == null || unit == 'N/A') || 
+        (sector == null || sector == 'Desconhecido') ||
+        (floor == null || floor == 'Desconhecido')) {
+      
+      print('⚠️ Notebook ${json['serial_number']}: Dados de localização ausentes, mapeando localmente...');
+      
+      final locationData = LocationMapperService.mapLocation(
+        units: units,
+        bssidMappings: bssidMappings,
+        ip: json['ip_address'] ?? 'N/A',
+        macAddress: json['mac_address_radio'] ?? json['mac_address'] ?? 'N/A',
+        originalLocation: location ?? 'N/D',
+      );
+
+      // Usa os dados mapeados
+      unit = locationData.unitName;
+      sector = locationData.sector;
+      floor = locationData.floor;
+      location = locationData.locationName;
+      
+      print('✅ Mapeamento local: Unit=$unit | Sector=$sector | Floor=$floor');
+    } else {
+      print('✅ Notebook ${json['serial_number']}: Usando dados do servidor - Unit=$unit | Sector=$sector | Floor=$floor');
+    }
 
     return Notebook(
       id: json['_id'] ?? json['id'],
@@ -123,16 +98,17 @@ factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units, List<Bssi
       serialNumber: json['serial_number'],
       status: json['status'] ?? 'offline',
       lastSeen: DateTime.parse(json['last_seen']),
-      location: locationData.locationName, // Nome da localização (ex: "SALA TI")
+      location: location,
       assignedTo: json['assigned_to'],
-      customData: json['custom_data'] != null ? Map<String, dynamic>.from(json['custom_data']) : {},
+      customData: json['custom_data'] != null 
+          ? Map<String, dynamic>.from(json['custom_data']) 
+          : {},
       
-      // --- Campos de localização preenchidos ---
-      unit: locationData.unitName,
-      sector: locationData.sector,
-      floor: locationData.floor,
+      // ✅ USA OS DADOS FINAIS (servidor ou mapeados)
+      unit: unit,
+      sector: sector,
+      floor: floor,
 
-      // --- Campos específicos do Notebook ---
       hostname: json['hostname'] ?? 'N/A',
       model: json['model'] ?? 'N/A',
       manufacturer: json['manufacturer'] ?? 'N/A',
@@ -145,7 +121,6 @@ factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units, List<Bssi
       macAddress: json['mac_address'] ?? 'N/A',
       batteryLevel: json['battery_level'],
       batteryHealth: json['battery_health'],
-      
       biometricReaderStatus: json['biometric_reader_status'] ?? 'N/A',
       installedSoftware: json['installed_software'] != null
           ? List<String>.from(json['installed_software'])
@@ -173,12 +148,12 @@ factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units, List<Bssi
       'location': location,
       'assigned_to': assignedTo,
       'custom_data': customData,
-    // --- Campos de localização preenchidos ---
       'unit': unit,
       'sector': sector,
       'floor': floor,
-      
-      // --- Campos específicos ---
+      'sector_floor': (sector != null || floor != null)
+          ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
+          : (location ?? 'N/D'),
       'hostname': hostname,
       'model': model,
       'manufacturer': manufacturer,

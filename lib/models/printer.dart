@@ -22,18 +22,18 @@ class Printer extends ManagedAsset {
   final String? errorMessage;
   
   // Contadores
-  final int? totalPageCount; // Contagem total de páginas impressas
-  final int? colorPageCount; // Páginas coloridas
-  final int? blackWhitePageCount; // Páginas em preto e branco
+  final int? totalPageCount;
+  final int? colorPageCount;
+  final int? blackWhitePageCount;
   
   // Níveis de consumíveis
-  final Map<String, dynamic>? tonerLevels; // Ex: {"black": 75, "cyan": 50, "magenta": 60, "yellow": 45}
-  final int? paperLevel; // Nível de papel em porcentagem
+  final Map<String, dynamic>? tonerLevels;
+  final int? paperLevel;
   
   // Capacidades
-  final bool? isDuplex; // Suporta impressão frente e verso
-  final bool? isColor; // Suporta impressão colorida
-  final List<String>? supportedPaperSizes; // A4, Letter, Legal, etc.
+  final bool? isDuplex;
+  final bool? isColor;
+  final List<String>? supportedPaperSizes;
   
   // Computador host (para impressoras USB/locais)
   final String? hostComputerName;
@@ -85,17 +85,31 @@ class Printer extends ManagedAsset {
   }) : super(assetType: 'printer');
 
   factory Printer.fromJson(Map<String, dynamic> json, List<Unit> units) {
-    // Para impressoras de rede, usa o IP da impressora
-    // Para impressoras USB, usa o IP do computador host
-    final effectiveIp = json['ip_address'] ?? json['host_computer_ip'];
-    
-    // Mapeamento de localização
-    final locationData = LocationMapperService.mapLocation(
-      units: units,
-      ip: effectiveIp,
-      macAddress: json['mac_address'],
-      originalLocation: json['location'],
-    );
+    // PRIORIZA DADOS DO SERVIDOR
+    String? unit = json['unit'];
+    String? sector = json['sector'];
+    String? floor = json['floor'];
+
+    // IP efetivo: impressora de rede ou host (USB)
+    final effectiveIp = json['ip_address'] ?? json['host_computer_ip'] ?? '';
+
+    // SÓ MAPEIA SE AUSENTE OU INVÁLIDO
+    final bool shouldMapLocation = (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
+        (sector == null || sector == 'Desconhecido') ||
+        (floor == null || floor == 'Desconhecido');
+
+    LocationData? locationData;
+    if (shouldMapLocation) {
+      locationData = LocationMapperService.mapLocation(
+        units: units,
+        ip: effectiveIp,
+        macAddress: json['mac_address'] ?? '',
+        originalLocation: json['location'],
+      );
+      unit ??= locationData.unitName;
+      sector ??= locationData.sector;
+      floor ??= locationData.floor;
+    }
 
     return Printer(
       id: json['_id'] ?? json['id'],
@@ -103,17 +117,16 @@ class Printer extends ManagedAsset {
       serialNumber: json['serial_number'],
       status: json['status'] ?? 'offline',
       lastSeen: DateTime.parse(json['last_seen']),
-      location: locationData.locationName,
+      location: json['location'],
       assignedTo: json['assigned_to'],
       customData: json['custom_data'] != null 
           ? Map<String, dynamic>.from(json['custom_data']) 
           : {},
-      
-      // Localização mapeada (herdada do computador host se USB)
-      unit: locationData.unitName,
-      sector: locationData.sector ?? json['sector'],
-      floor: locationData.floor ?? json['floor'],
-      
+
+      unit: unit,
+      sector: sector,
+      floor: floor,
+
       // Identificação
       hostname: json['hostname'] ?? 'N/A',
       model: json['model'] ?? 'N/A',
@@ -183,61 +196,39 @@ class Printer extends ManagedAsset {
           ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
           : (location ?? 'N/D'),
       
-      // Identificação
       'hostname': hostname,
       'model': model,
       'manufacturer': manufacturer,
-      
-      // Conectividade
       'ip_address': ipAddress,
       'mac_address': macAddress,
       'connection_type': connectionType,
       'usb_port': usbPort,
-      
-      // Status
       'printer_status': printerStatus,
       'error_message': errorMessage,
-      
-      // Contadores
       'total_page_count': totalPageCount,
       'color_page_count': colorPageCount,
       'black_white_page_count': blackWhitePageCount,
-      
-      // Consumíveis
       'toner_levels': tonerLevels,
       'paper_level': paperLevel,
-      
-      // Capacidades
       'is_duplex': isDuplex,
       'is_color': isColor,
       'supported_paper_sizes': supportedPaperSizes,
-      
-      // Host
       'host_computer_name': hostComputerName,
       'host_computer_ip': hostComputerIp,
-      
-      // Firmware
       'firmware_version': firmwareVersion,
       'driver_version': driverVersion,
-      
-      // Manutenção
       'last_maintenance_date': lastMaintenanceDate?.toIso8601String(),
       'maintenance_info': maintenanceInfo,
     };
   }
   
-  /// Helper para obter o status do toner de forma legível
   String getTonerStatusSummary() {
     if (tonerLevels == null || tonerLevels!.isEmpty) return 'N/D';
-    
-    final levels = tonerLevels!.entries
+    return tonerLevels!.entries
         .map((e) => '${e.key}: ${e.value}%')
         .join(', ');
-    
-    return levels;
   }
   
-  /// Verifica se algum toner está baixo (< 20%)
   bool get hasLowToner {
     if (tonerLevels == null) return false;
     return tonerLevels!.values.any((level) => level is int && level < 20);
@@ -245,21 +236,17 @@ class Printer extends ManagedAsset {
 }
 
 class LocationMapperService {
-  // Existing code
-
   static LocationData mapLocation({
     required List<Unit> units,
     required String ip,
     required String macAddress,
     required String originalLocation,
   }) {
-    // Implement the logic to map location based on the provided parameters.
-    // This is a placeholder implementation.
     return LocationData(
       locationName: originalLocation,
-      unitName: 'Default Unit',
-      sector: 'Default Sector',
-      floor: 'Default Floor',
+      unitName: units.isNotEmpty ? units.first.name : 'Unidade Desconhecida',
+      sector: units.isNotEmpty ? units.first.sector : null,
+      floor: units.isNotEmpty ? units.first.floor : null,
     );
   }
 }
