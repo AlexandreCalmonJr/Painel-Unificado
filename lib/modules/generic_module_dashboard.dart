@@ -40,7 +40,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   // *** ALTERAÇÃO 1: Adicionado _bssidMappings ***
   // Baseado no código original que passava '[]' para Notebook.fromJson.
   // Se você carregar esses dados, faça-o em _initializeData (similar a _loadUnits).
-  final List<BssidMapping> _bssidMappings = []; 
+  List<BssidMapping> _bssidMappings = []; 
 
   int _currentPage = 1;
   int _totalPages = 1;
@@ -62,8 +62,8 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
 
   Future<void> _initializeData() async {
     setState(() => isLoading = true);
-    await _loadUnits(); // Carrega as unidades primeiro
-    // _loadBssidMappings() e chame-o aqui, assim como _loadUnits.
+    await _loadUnits();
+    await _loadBssidMappings(); // Chame o método para carregar BSSID mappings
     await _loadAssets(isInitialLoad: true);
     setState(() => isLoading = false);
 
@@ -132,8 +132,20 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     }
   }
 
-  // *** ALTERAÇÃO 3: Função _parseAsset (linhas 129-152) REMOVIDA ***
-  // Esta lógica agora está dentro de _moduleService.listModuleAssetsTyped
+  Future<void> _loadBssidMappings() async {
+      try {
+       final fetchedBssids = await _moduleService.fetchBssidMappings();
+        if (mounted) {
+          setState(() {
+            _bssidMappings = fetchedBssids;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          _showSnackbar('Erro ao carregar BSSIDs: $e', isError: true);
+        }
+      }
+    }
 
   void _updateDisplayedAssets() {
     List<ManagedAsset> filteredList = List.from(_allAssets);

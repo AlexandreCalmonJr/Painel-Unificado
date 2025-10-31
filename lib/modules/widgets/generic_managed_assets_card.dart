@@ -147,7 +147,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
                                     ),
                                   ),
                                 )
-                                .toList(),
+                                ,
                             if (showActions)
                               DataColumn(
                                 label: Text(

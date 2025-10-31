@@ -1,6 +1,8 @@
-// File: lib/models/desktop.dart
+// File: lib/models/desktop.dart (VERSÃO CORRIGIDA - CRÍTICA)
 import 'package:painel_windowns/models/asset_module_base.dart';
+import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/services/location_mapper_service.dart';
 
 /// Modelo completo para Desktops
 class Desktop extends ManagedAsset {
@@ -30,7 +32,6 @@ class Desktop extends ManagedAsset {
   // Software
   final List<String> installedSoftware;
   final List<String> installedPrograms;
-
   final String? javaVersion;
   final String? browserVersion;
   
@@ -77,28 +78,43 @@ class Desktop extends ManagedAsset {
     this.hardwareInfo,
   }) : super(assetType: 'desktop');
 
-  factory Desktop.fromJson(Map<String, dynamic> json, List<Unit> units) {
-    // PRIORIZA DADOS DO SERVIDOR
+  factory Desktop.fromJson(
+    Map<String, dynamic> json, 
+    List<Unit> units,
+    [List<BssidMapping>? bssidMappings] // Parâmetro opcional
+  ) {
+    // ✅ PRIORIZA DADOS DO SERVIDOR (se existirem)
     String? unit = json['unit'];
     String? sector = json['sector'];
     String? floor = json['floor'];
+    String? location = json['location'];
 
-    // SÓ MAPEIA SE AUSENTE OU INVÁLIDO
-    final bool shouldMapLocation = (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
-        (sector == null || sector == 'Desconhecido') ||
-        (floor == null || floor == 'Desconhecido');
+    // 🔥 SÓ MAPEIA SE O SERVIDOR NÃO ENVIOU OS DADOS OU SE FOREM INVÁLIDOS
+    final bool shouldMap = 
+      (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
+      (sector == null || sector == 'Desconhecido') ||
+      (floor == null || floor == 'Desconhecido');
 
-    LocationData? locationData;
-    if (shouldMapLocation) {
-      locationData = LocationMapperService.mapLocation(
+    if (shouldMap) {
+      print('⚠️ Desktop ${json['serial_number']}: Dados ausentes, mapeando localmente...');
+      
+      final locationData = LocationMapperService.mapLocation(
         units: units,
-        ip: json['ip_address'] ?? '',
-        macAddress: json['mac_address'] ?? '',
-        originalLocation: json['location'],
+        bssidMappings: bssidMappings ?? [],
+        ip: json['ip_address'] ?? 'N/A',
+        macAddress: json['mac_address'] ?? 'N/A',
+        originalLocation: location ?? 'N/D',
       );
+
+      // Usa os dados mapeados APENAS se estiverem ausentes
       unit ??= locationData.unitName;
       sector ??= locationData.sector;
       floor ??= locationData.floor;
+      location ??= locationData.locationName;
+      
+      print('✅ Mapeamento local: Unit=$unit | Sector=$sector | Floor=$floor');
+    } else {
+      print('✅ Desktop ${json['serial_number']}: Usando dados do servidor - Unit=$unit | Sector=$sector | Floor=$floor');
     }
 
     return Desktop(
@@ -107,13 +123,13 @@ class Desktop extends ManagedAsset {
       serialNumber: json['serial_number'],
       status: json['status'] ?? 'offline',
       lastSeen: DateTime.parse(json['last_seen']),
-      location: json['location'],
+      location: location,
       assignedTo: json['assigned_to'],
       customData: json['custom_data'] != null 
           ? Map<String, dynamic>.from(json['custom_data']) 
           : {},
 
-      // Localização com prioridade
+      // ✅ USA OS DADOS FINAIS (servidor ou mapeados)
       unit: unit,
       sector: sector,
       floor: floor,
@@ -145,11 +161,11 @@ class Desktop extends ManagedAsset {
       installedSoftware: json['installed_software'] != null
           ? List<String>.from(json['installed_software'])
           : [],
-      javaVersion: json['java_version'],
-      browserVersion: json['browser_version'],
       installedPrograms: json['installed_programs'] != null
           ? List<String>.from(json['installed_programs'])
-          : const [],
+          : [],
+      javaVersion: json['java_version'],
+      browserVersion: json['browser_version'],
       
       // Segurança
       antivirusStatus: json['antivirus_status'] ?? false,
@@ -206,6 +222,7 @@ class Desktop extends ManagedAsset {
       
       // Software
       'installed_software': installedSoftware,
+      'installed_programs': installedPrograms,
       'java_version': javaVersion,
       'browser_version': browserVersion,
       
@@ -216,35 +233,4 @@ class Desktop extends ManagedAsset {
       'hardware_info': hardwareInfo,
     };
   }
-}
-
-class LocationMapperService {
-  static LocationData mapLocation({
-    required List<Unit> units,
-    required String ip,
-    required String macAddress,
-    required String originalLocation,
-  }) {
-    // Implementação real deve buscar por IP/MAC nas unidades
-    return LocationData(
-      locationName: originalLocation,
-      unitName: units.isNotEmpty ? units.first.name : 'Unidade Desconhecida',
-      sector: units.isNotEmpty ? units.first.sector : null,
-      floor: units.isNotEmpty ? units.first.floor : null,
-    );
-  }
-}
-
-class LocationData {
-  final String locationName;
-  final String unitName;
-  final String? sector;
-  final String? floor;
-
-  LocationData({
-    required this.locationName,
-    required this.unitName,
-    this.sector,
-    this.floor,
-  });
 }

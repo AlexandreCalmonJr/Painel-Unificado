@@ -2,48 +2,34 @@
 // IMPORTANTE: Adicionar 'printer' ao enum AssetModuleType em asset_module_base.dart:
 // printer('Módulo Impressoras', 'printer', 'print'),
 import 'package:painel_windowns/models/asset_module_base.dart';
+import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/services/location_mapper_service.dart';
 
 /// Modelo completo para Impressoras
+/// Modelo completo para Impressoras
 class Printer extends ManagedAsset {
-  // Identificação básica
   final String hostname;
   final String model;
   final String manufacturer;
-  
-  // Conectividade
-  final String? ipAddress; // Null se for USB
+  final String? ipAddress;
   final String? macAddress;
-  final String connectionType; // 'network', 'usb', 'bluetooth'
-  final String? usbPort; // Para impressoras USB
-  
-  // Status operacional
-  final String printerStatus; // 'ready', 'printing', 'error', 'offline', 'paper_jam', etc.
+  final String connectionType;
+  final String? usbPort;
+  final String printerStatus;
   final String? errorMessage;
-  
-  // Contadores
   final int? totalPageCount;
   final int? colorPageCount;
   final int? blackWhitePageCount;
-  
-  // Níveis de consumíveis
   final Map<String, dynamic>? tonerLevels;
   final int? paperLevel;
-  
-  // Capacidades
   final bool? isDuplex;
   final bool? isColor;
   final List<String>? supportedPaperSizes;
-  
-  // Computador host (para impressoras USB/locais)
   final String? hostComputerName;
   final String? hostComputerIp;
-  
-  // Firmware e drivers
   final String? firmwareVersion;
   final String? driverVersion;
-  
-  // Informações adicionais
   final DateTime? lastMaintenanceDate;
   final Map<String, dynamic>? maintenanceInfo;
 
@@ -84,31 +70,43 @@ class Printer extends ManagedAsset {
     this.maintenanceInfo,
   }) : super(assetType: 'printer');
 
-  factory Printer.fromJson(Map<String, dynamic> json, List<Unit> units) {
-    // PRIORIZA DADOS DO SERVIDOR
+  factory Printer.fromJson(
+    Map<String, dynamic> json, 
+    List<Unit> units,
+    [List<BssidMapping>? bssidMappings]
+  ) {
+    // ✅ PRIORIZA DADOS DO SERVIDOR
     String? unit = json['unit'];
     String? sector = json['sector'];
     String? floor = json['floor'];
+    String? location = json['location'];
 
     // IP efetivo: impressora de rede ou host (USB)
     final effectiveIp = json['ip_address'] ?? json['host_computer_ip'] ?? '';
 
-    // SÓ MAPEIA SE AUSENTE OU INVÁLIDO
-    final bool shouldMapLocation = (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
-        (sector == null || sector == 'Desconhecido') ||
-        (floor == null || floor == 'Desconhecido');
+    // 🔥 SÓ MAPEIA SE AUSENTE OU INVÁLIDO
+    final bool shouldMap = 
+      (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
+      (sector == null || sector == 'Desconhecido') ||
+      (floor == null || floor == 'Desconhecido');
 
-    LocationData? locationData;
-    if (shouldMapLocation) {
-      locationData = LocationMapperService.mapLocation(
+    if (shouldMap) {
+      print('⚠️ Printer ${json['serial_number']}: Mapeando localização...');
+      
+      final locationData = LocationMapperService.mapLocation(
         units: units,
+        bssidMappings: bssidMappings ?? [],
         ip: effectiveIp,
         macAddress: json['mac_address'] ?? '',
-        originalLocation: json['location'],
+        originalLocation: location ?? 'N/D',
       );
+
       unit ??= locationData.unitName;
       sector ??= locationData.sector;
       floor ??= locationData.floor;
+      location ??= locationData.locationName;
+      
+      print('✅ Mapeamento: Unit=$unit | Sector=$sector | Floor=$floor');
     }
 
     return Printer(
@@ -117,7 +115,7 @@ class Printer extends ManagedAsset {
       serialNumber: json['serial_number'],
       status: json['status'] ?? 'offline',
       lastSeen: DateTime.parse(json['last_seen']),
-      location: json['location'],
+      location: location,
       assignedTo: json['assigned_to'],
       customData: json['custom_data'] != null 
           ? Map<String, dynamic>.from(json['custom_data']) 
@@ -127,48 +125,31 @@ class Printer extends ManagedAsset {
       sector: sector,
       floor: floor,
 
-      // Identificação
       hostname: json['hostname'] ?? 'N/A',
       model: json['model'] ?? 'N/A',
       manufacturer: json['manufacturer'] ?? 'N/A',
-      
-      // Conectividade
       ipAddress: json['ip_address'],
       macAddress: json['mac_address'],
       connectionType: json['connection_type'] ?? 'network',
       usbPort: json['usb_port'],
-      
-      // Status
       printerStatus: json['printer_status'] ?? 'unknown',
       errorMessage: json['error_message'],
-      
-      // Contadores
       totalPageCount: json['total_page_count'],
       colorPageCount: json['color_page_count'],
       blackWhitePageCount: json['black_white_page_count'],
-      
-      // Consumíveis
       tonerLevels: json['toner_levels'] != null
           ? Map<String, dynamic>.from(json['toner_levels'])
           : null,
       paperLevel: json['paper_level'],
-      
-      // Capacidades
       isDuplex: json['is_duplex'],
       isColor: json['is_color'],
       supportedPaperSizes: json['supported_paper_sizes'] != null
           ? List<String>.from(json['supported_paper_sizes'])
           : null,
-      
-      // Host
       hostComputerName: json['host_computer_name'],
       hostComputerIp: json['host_computer_ip'],
-      
-      // Firmware
       firmwareVersion: json['firmware_version'],
       driverVersion: json['driver_version'],
-      
-      // Manutenção
       lastMaintenanceDate: json['last_maintenance_date'] != null
           ? DateTime.parse(json['last_maintenance_date'])
           : null,
@@ -233,34 +214,4 @@ class Printer extends ManagedAsset {
     if (tonerLevels == null) return false;
     return tonerLevels!.values.any((level) => level is int && level < 20);
   }
-}
-
-class LocationMapperService {
-  static LocationData mapLocation({
-    required List<Unit> units,
-    required String ip,
-    required String macAddress,
-    required String originalLocation,
-  }) {
-    return LocationData(
-      locationName: originalLocation,
-      unitName: units.isNotEmpty ? units.first.name : 'Unidade Desconhecida',
-      sector: units.isNotEmpty ? units.first.sector : null,
-      floor: units.isNotEmpty ? units.first.floor : null,
-    );
-  }
-}
-
-class LocationData {
-  final String locationName;
-  final String unitName;
-  final String? sector;
-  final String? floor;
-
-  LocationData({
-    required this.locationName,
-    required this.unitName,
-    this.sector,
-    this.floor,
-  });
 }

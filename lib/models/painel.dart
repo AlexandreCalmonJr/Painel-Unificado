@@ -1,6 +1,8 @@
-// File: lib/models/painel.dart
+// File: lib/models/painel.dart (VERSÃO CORRIGIDA)
 import 'package:painel_windowns/models/asset_module_base.dart';
+import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/services/location_mapper_service.dart';
 
 /// Modelo completo para Painéis/TVs/Monitores
 class Panel extends ManagedAsset {
@@ -51,28 +53,40 @@ class Panel extends ManagedAsset {
     this.connectedDevices,
   }) : super(assetType: 'panel');
 
-  factory Panel.fromJson(Map<String, dynamic> json, List<Unit> units) {
-    // PRIORIZA DADOS DO SERVIDOR
+  factory Panel.fromJson(
+    Map<String, dynamic> json, 
+    List<Unit> units,
+    [List<BssidMapping>? bssidMappings]
+  ) {
+    // ✅ PRIORIZA DADOS DO SERVIDOR
     String? unit = json['unit'];
     String? sector = json['sector'];
     String? floor = json['floor'];
+    String? location = json['location'];
 
-    // SÓ MAPEIA SE AUSENTE OU INVÁLIDO
-    final bool shouldMapLocation = (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
-        (sector == null || sector == 'Desconhecido') ||
-        (floor == null || floor == 'Desconhecido');
+    // 🔥 SÓ MAPEIA SE AUSENTE OU INVÁLIDO
+    final bool shouldMap = 
+      (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
+      (sector == null || sector == 'Desconhecido') ||
+      (floor == null || floor == 'Desconhecido');
 
-    LocationData? locationData;
-    if (shouldMapLocation) {
-      locationData = LocationMapperService.mapLocation(
+    if (shouldMap) {
+      print('⚠️ Panel ${json['serial_number']}: Mapeando localização localmente...');
+      
+      final locationData = LocationMapperService.mapLocation(
         units: units,
-        ip: json['ip_address'] ?? '',
-        macAddress: json['mac_address'] ?? '',
-        originalLocation: json['location'],
+        bssidMappings: bssidMappings ?? [],
+        ip: json['ip_address'] ?? 'N/A',
+        macAddress: json['mac_address'] ?? 'N/A',
+        originalLocation: location ?? 'N/D',
       );
+
       unit ??= locationData.unitName;
       sector ??= locationData.sector;
       floor ??= locationData.floor;
+      location ??= locationData.locationName;
+      
+      print('✅ Mapeamento: Unit=$unit | Sector=$sector | Floor=$floor');
     }
 
     return Panel(
@@ -81,7 +95,7 @@ class Panel extends ManagedAsset {
       serialNumber: json['serial_number'],
       status: json['status'] ?? 'offline',
       lastSeen: DateTime.parse(json['last_seen']),
-      location: json['location'],
+      location: location,
       assignedTo: json['assigned_to'],
       customData: json['custom_data'] != null 
           ? Map<String, dynamic>.from(json['custom_data']) 
@@ -152,34 +166,4 @@ class Panel extends ManagedAsset {
       'connected_devices': connectedDevices,
     };
   }
-}
-
-class LocationMapperService {
-  static LocationData mapLocation({
-    required List<Unit> units,
-    required String ip,
-    required String macAddress,
-    required String originalLocation,
-  }) {
-    return LocationData(
-      locationName: originalLocation,
-      unitName: units.isNotEmpty ? units.first.name : 'Unidade Desconhecida',
-      sector: units.isNotEmpty ? units.first.sector : null,
-      floor: units.isNotEmpty ? units.first.floor : null,
-    );
-  }
-}
-
-class LocationData {
-  final String locationName;
-  final String unitName;
-  final String? sector;
-  final String? floor;
-
-  LocationData({
-    required this.locationName,
-    required this.unitName,
-    this.sector,
-    this.floor,
-  });
 }
