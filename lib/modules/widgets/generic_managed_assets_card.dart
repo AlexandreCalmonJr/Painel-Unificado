@@ -63,7 +63,6 @@ class GenericManagedAssetsCard extends StatelessWidget {
               if (showActions)
                 ElevatedButton.icon(
                   onPressed: () {
-                    // TODO: Implementar exportação CSV
                   },
                   icon: const Icon(Icons.download, size: 16),
                   label: const Text('Baixar CSV'),
@@ -260,9 +259,8 @@ class GenericManagedAssetsCard extends StatelessWidget {
         value?.toString() ?? 'N/D',
         style: const TextStyle(
           fontSize: 12,
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
-          fontWeight: FontWeight.w500,
+          // Cor, sublinhado e fontWeight removidos
+          // para usar o estilo padrão da célula.
         ),
         overflow: TextOverflow.ellipsis,
       ),
