@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/devices/widgets/hub_menu_item.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
-import 'package:painel_windowns/modules/generic_module_dashboard.dart';
+import 'package:painel_windowns/modules/generic_dashboard_screen.dart';
 // ✅ CORREÇÃO APLICADA AQUI
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';

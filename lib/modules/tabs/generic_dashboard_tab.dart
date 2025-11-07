@@ -94,8 +94,9 @@ class GenericDashboardTab extends StatelessWidget {
               columns: columns, 
               assets: allAssets,
               showActions: false,
-              authService: authService, // ✅ ADICIONAR
-              moduleConfig: moduleConfig, selectedAssets: [], onSelectionChanged: (List<ManagedAsset> p1) {  }, // ✅ ADICIONAR
+              authService: authService,
+              moduleConfig: moduleConfig,
+              // ✅ ADICIONAR
             ),
           ),
         ],

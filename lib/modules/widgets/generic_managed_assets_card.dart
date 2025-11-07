@@ -1,4 +1,4 @@
-// File: lib/modules/widgets/generic_managed_assets_card.dart (CORRIGIDO E ATUALIZADO)
+// File: lib/modules/widgets/generic_managed_assets_card.dart (CORRIGIDO)
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/asset_detail_screen.dart';
@@ -17,10 +17,6 @@ class GenericManagedAssetsCard extends StatelessWidget {
   final Function(ManagedAsset)? onAssetDelete;
   final Function(ManagedAsset, bool)? onMaintenanceUpdate;
 
-  // ✅ CAMPOS ADICIONADOS PARA SELEÇÃO
-  final List<ManagedAsset> selectedAssets;
-  final Function(List<ManagedAsset>)? onSelectionChanged;
-
   const GenericManagedAssetsCard({
     super.key,
     required this.title,
@@ -32,43 +28,10 @@ class GenericManagedAssetsCard extends StatelessWidget {
     this.onAssetUpdate,
     this.onAssetDelete,
     this.onMaintenanceUpdate,
-    // ✅ CAMPOS ADICIONADOS PARA SELEÇÃO
-    required this.selectedAssets,
-    required this.onSelectionChanged,
   });
-
-  // ✅ LÓGICA DE SELEÇÃO
-  void _handleSelection(ManagedAsset asset, bool? isSelected) {
-    if (onSelectionChanged == null) return;
-
-    List<ManagedAsset> newSelection = List.from(selectedAssets);
-    if (isSelected == true) {
-      if (!newSelection.any((a) => a.id == asset.id)) {
-        newSelection.add(asset);
-      }
-    } else {
-      newSelection.removeWhere((a) => a.id == asset.id);
-    }
-    onSelectionChanged!(newSelection);
-  }
-
-  void _handleSelectAll(bool? isSelected) {
-    if (onSelectionChanged == null) return;
-
-    List<ManagedAsset> newSelection = [];
-    if (isSelected == true) {
-      newSelection = List.from(assets);
-    }
-    onSelectionChanged!(newSelection);
-  }
 
   @override
   Widget build(BuildContext context) {
-    // Verifica se a seleção múltipla está ativa
-    final bool isSelectionEnabled = onSelectionChanged != null;
-    final bool isAllSelected =
-        isSelectionEnabled && selectedAssets.length == assets.length && assets.isNotEmpty;
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -100,7 +63,6 @@ class GenericManagedAssetsCard extends StatelessWidget {
               if (showActions)
                 ElevatedButton.icon(
                   onPressed: () {
-                    // Implementar lógica de download CSV
                   },
                   icon: const Icon(Icons.download, size: 16),
                   label: const Text('Baixar CSV'),
@@ -117,6 +79,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
             ],
           ),
           const Divider(height: 24),
+
           if (assets.isEmpty)
             Expanded(
               child: Center(
@@ -167,29 +130,23 @@ class GenericManagedAssetsCard extends StatelessWidget {
                             ),
                           ),
                           columns: [
-                            // ✅ COLUNA DE CHECKBOX CONDICIONAL
-                            if (isSelectionEnabled)
-                              DataColumn(
-                                label: Checkbox(
-                                  value: isAllSelected,
-                                  onChanged: _handleSelectAll,
-                                ),
-                              ),
-                            ...columns.map(
-                              (col) => DataColumn(
-                                label: Expanded(
-                                  child: Text(
-                                    col.label,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.grey[700],
-                                      fontSize: 12,
+                            ...columns
+                                .map(
+                                  (col) => DataColumn(
+                                    label: Expanded(
+                                      child: Text(
+                                        col.label,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey[700],
+                                          fontSize: 12,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                              ),
-                            ),
+                                )
+                                ,
                             if (showActions)
                               DataColumn(
                                 label: Text(
@@ -203,8 +160,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
                               ),
                           ],
                           rows: assets
-                              .map((asset) =>
-                                  _buildAssetDataRow(context, asset, isSelectionEnabled))
+                              .map((asset) => _buildAssetDataRow(context, asset))
                               .toList(),
                         ),
                       ),
@@ -218,32 +174,15 @@ class GenericManagedAssetsCard extends StatelessWidget {
     );
   }
 
-  /// ✅ MÉTODO PRINCIPAL ATUALIZADO: Constrói uma linha da tabela
-  DataRow _buildAssetDataRow(BuildContext context, ManagedAsset asset, bool isSelectionEnabled) {
+  /// ✅ MÉTODO PRINCIPAL: Constrói uma linha da tabela
+  DataRow _buildAssetDataRow(BuildContext context, ManagedAsset asset) {
     final assetData = asset.toJson();
-    final bool isSelected =
-        isSelectionEnabled && selectedAssets.any((a) => a.id == asset.id);
 
     return DataRow(
-      // ✅ SELEÇÃO DA LINHA
-      selected: isSelected,
-      onSelectChanged: (selected) {
-         if (isSelectionEnabled) {
-           _handleSelection(asset, selected);
-         }
-      },
       cells: [
-        // ✅ CÉLULA DE CHECKBOX CONDICIONAL
-        if (isSelectionEnabled)
-          DataCell(
-            Checkbox(
-              value: isSelected,
-              onChanged: (value) => _handleSelection(asset, value),
-            ),
-          ),
         ...columns.map((col) {
           final dataKey = col.dataKey;
-
+          
           // ✅ TRATAMENTO ESPECIAL PARA SECTOR_FLOOR
           if (dataKey == 'sector_floor') {
             return DataCell(_buildSectorFloorCell(assetData));
@@ -267,20 +206,24 @@ class GenericManagedAssetsCard extends StatelessWidget {
           // Células padrão
           return DataCell(_buildDefaultCell(value));
         }),
+        
         if (showActions) DataCell(_buildActionsMenu(context, asset)),
       ],
     );
   }
 
-  /// Célula específica para Setor/Andar
+  /// ✅ NOVO: Célula específica para Setor/Andar (CORRIGIDO)
   Widget _buildSectorFloorCell(Map<String, dynamic> assetData) {
     String displayValue;
 
-    if (assetData.containsKey('sector_floor') &&
+    // 1. Tenta usar sector_floor direto (vem do backend via transformAssetForOutput)
+    if (assetData.containsKey('sector_floor') && 
         assetData['sector_floor'] != null &&
         assetData['sector_floor'].toString().isNotEmpty) {
       displayValue = assetData['sector_floor'].toString();
-    } else {
+    }
+    // 2. Fallback: Constrói manualmente a partir de sector e floor
+    else {
       final sector = assetData['sector']?.toString() ?? 'N/D';
       final floor = assetData['floor']?.toString() ?? 'N/D';
       displayValue = '$sector / $floor';
@@ -293,7 +236,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
     );
   }
 
-  /// Célula clicável para nome do ativo
+  /// ✅ NOVO: Célula clicável para nome do ativo
   Widget _buildClickableNameCell(
     BuildContext context,
     ManagedAsset asset,
@@ -316,15 +259,15 @@ class GenericManagedAssetsCard extends StatelessWidget {
         value?.toString() ?? 'N/D',
         style: const TextStyle(
           fontSize: 12,
-          color: Colors.blue, // ✅ Adicionado cor para indicar clique
-          fontWeight: FontWeight.w600,
+          // Cor, sublinhado e fontWeight removidos
+          // para usar o estilo padrão da célula.
         ),
         overflow: TextOverflow.ellipsis,
       ),
     );
   }
 
-  /// Célula padrão
+  /// ✅ NOVO: Célula padrão
   Widget _buildDefaultCell(dynamic value) {
     return Text(
       value?.toString() ?? 'N/D',
@@ -430,13 +373,13 @@ class GenericManagedAssetsCard extends StatelessWidget {
         color: statusColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),
-      // ✅ CÓDIGO FALTANTE ADICIONADO AQUI
       child: Text(
         statusText,
+        textAlign: TextAlign.center,
         style: TextStyle(
           color: statusColor,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );

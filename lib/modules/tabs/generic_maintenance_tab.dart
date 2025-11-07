@@ -81,8 +81,6 @@ class GenericMaintenanceTab extends StatelessWidget {
             onMaintenanceUpdate: _updateMaintenanceStatus,
             authService: authService,
             moduleConfig: moduleConfig,
-            selectedAssets: const [], // Sem seleção múltipla aqui
-            onSelectionChanged: null, // Sem seleção múltipla aqui
           ),
         ),
       ],

@@ -20,7 +20,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
   String? errorMessage;
 
   // Mapa de colunas padrão disponíveis
-final Map<String, String> _standardColumns = {
+  final Map<String, String> _standardColumns = {
     'asset_name': 'Nome do Ativo',
     'hostname': 'Hostname',
     'serial_number': 'Serial',
@@ -58,74 +58,70 @@ final Map<String, String> _standardColumns = {
     'host_computer_name': 'Computador Host',
   };
 
-  final desktopColumns = [
-  {'dataKey': 'asset_name', 'label': 'Nome'},
-  {'dataKey': 'hostname', 'label': 'Hostname'},
-  {'dataKey': 'serial_number', 'label': 'Serial'},
-  {'dataKey': 'status', 'label': 'Status'},
-  {'dataKey': 'ip_address', 'label': 'IP'},
-  {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
-  {'dataKey': 'processor', 'label': 'Processador'},
-  {'dataKey': 'ram', 'label': 'Memória'},
-  {'dataKey': 'storage', 'label': 'Armazenamento'},
-  {'dataKey': 'storage_type', 'label': 'Tipo de HD'},
-  {'dataKey': 'biometric_reader', 'label': 'Leitor Biométrico'},
-  {'dataKey': 'connected_printer', 'label': 'Impressora'},
-  {'dataKey': 'java_version', 'label': 'Java'},
-  {'dataKey': 'browser_version', 'label': 'Navegador'},
-];
+  // ✅ Renomeado para private
+  final List<Map<String, String>> _desktopColumns = [
+    {'dataKey': 'asset_name', 'label': 'Nome'},
+    {'dataKey': 'hostname', 'label': 'Hostname'},
+    {'dataKey': 'serial_number', 'label': 'Serial'},
+    {'dataKey': 'status', 'label': 'Status'},
+    {'dataKey': 'ip_address', 'label': 'IP'},
+    {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
+    {'dataKey': 'processor', 'label': 'Processador'},
+    {'dataKey': 'ram', 'label': 'Memória'},
+    {'dataKey': 'storage', 'label': 'Armazenamento'},
+    {'dataKey': 'storage_type', 'label': 'Tipo de HD'},
+    {'dataKey': 'biometric_reader', 'label': 'Leitor Biométrico'},
+    {'dataKey': 'connected_printer', 'label': 'Impressora'},
+    {'dataKey': 'java_version', 'label': 'Java'},
+    {'dataKey': 'browser_version', 'label': 'Navegador'},
+  ];
 
-/// PANEL - Colunas sugeridas:
-final panelColumns = [
-  {'dataKey': 'asset_name', 'label': 'Nome'},
-  {'dataKey': 'hostname', 'label': 'Hostname'},
-  {'dataKey': 'serial_number', 'label': 'Serial'},
-  {'dataKey': 'status', 'label': 'Status'},
-  {'dataKey': 'ip_address', 'label': 'IP'},
-  {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
-  {'dataKey': 'model', 'label': 'Modelo'},
-  {'dataKey': 'screen_size', 'label': 'Tamanho'},
-  {'dataKey': 'resolution', 'label': 'Resolução'},
-  {'dataKey': 'hdmi_input', 'label': 'Entrada HDMI'},
-  {'dataKey': 'firmware_version', 'label': 'Firmware'},
-];
+  /// PANEL - Colunas sugeridas:
+  final List<Map<String, String>> _panelColumns = [
+    {'dataKey': 'asset_name', 'label': 'Nome'},
+    {'dataKey': 'hostname', 'label': 'Hostname'},
+    {'dataKey': 'serial_number', 'label': 'Serial'},
+    {'dataKey': 'status', 'label': 'Status'},
+    {'dataKey': 'ip_address', 'label': 'IP'},
+    {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
+    {'dataKey': 'model', 'label': 'Modelo'},
+    {'dataKey': 'screen_size', 'label': 'Tamanho'},
+    {'dataKey': 'resolution', 'label': 'Resolução'},
+    {'dataKey': 'hdmi_input', 'label': 'Entrada HDMI'},
+    {'dataKey': 'firmware_version', 'label': 'Firmware'},
+  ];
 
-/// PRINTER - Colunas sugeridas:
-final printerColumns = [
-  {'dataKey': 'asset_name', 'label': 'Nome'},
-  {'dataKey': 'hostname', 'label': 'Hostname'},
-  {'dataKey': 'serial_number', 'label': 'Serial'},
-  {'dataKey': 'status', 'label': 'Status'},
-  {'dataKey': 'printer_status', 'label': 'Status da Impressora'},
-  {'dataKey': 'connection_type', 'label': 'Conexão'},
-  {'dataKey': 'ip_address', 'label': 'IP / USB'},
-  {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
-  {'dataKey': 'total_page_count', 'label': 'Total de Páginas'},
-  {'dataKey': 'toner_levels', 'label': 'Níveis de Toner'},
-  {'dataKey': 'host_computer_name', 'label': 'Computador Host'},
-];
+  /// PRINTER - Colunas sugeridas:
+  final List<Map<String, String>> _printerColumns = [
+    {'dataKey': 'asset_name', 'label': 'Nome'},
+    {'dataKey': 'hostname', 'label': 'Hostname'},
+    {'dataKey': 'serial_number', 'label': 'Serial'},
+    {'dataKey': 'status', 'label': 'Status'},
+    {'dataKey': 'printer_status', 'label': 'Status da Impressora'},
+    {'dataKey': 'connection_type', 'label': 'Conexão'},
+    {'dataKey': 'ip_address', 'label': 'IP / USB'},
+    {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
+    {'dataKey': 'total_page_count', 'label': 'Total de Páginas'},
+    {'dataKey': 'toner_levels', 'label': 'Níveis de Toner'},
+    {'dataKey': 'host_computer_name', 'label': 'Computador Host'},
+  ];
 
-/// NOTEBOOK - Colunas sugeridas (já existente, para referência):
-final notebookColumns = [
-  {'dataKey': 'asset_name', 'label': 'Nome'},
-  {'dataKey': 'hostname', 'label': 'Hostname'},
-  {'dataKey': 'serial_number', 'label': 'Serial'},
-  {'dataKey': 'status', 'label': 'Status'},
-  {'dataKey': 'ip_address', 'label': 'IP'},
-  {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
-  {'dataKey': 'battery_level', 'label': 'Bateria'},
-  {'dataKey': 'model', 'label': 'Modelo'},
-  {'dataKey': 'processor', 'label': 'Processador'},
-  {'dataKey': 'ram', 'label': 'Memória'},
-  {'dataKey': 'storage', 'label': 'Armazenamento'},
-  {'dataKey': 'operating_system', 'label': 'Sistema Operacional'},
-  {'dataKey': 'battery_level', 'label': 'Bateria'},
-  {'dataKey': 'model', 'label': 'Modelo'},
-  {'dataKey': 'screen_size', 'label': 'Tamanho'},
-  {'dataKey': 'resolution', 'label': 'Resolução'},
-  {'dataKey': 'hdmi_input', 'label': 'Entrada HDMI'},
-  {'dataKey': 'firmware_version', 'label': 'Firmware'},
-];
+  /// NOTEBOOK - Colunas sugeridas (já existente, para referência):
+  final List<Map<String, String>> _notebookColumns = [
+    {'dataKey': 'asset_name', 'label': 'Nome'},
+    {'dataKey': 'hostname', 'label': 'Hostname'},
+    {'dataKey': 'serial_number', 'label': 'Serial'},
+    {'dataKey': 'status', 'label': 'Status'},
+    {'dataKey': 'ip_address', 'label': 'IP'},
+    {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
+    {'dataKey': 'battery_level', 'label': 'Bateria'},
+    {'dataKey': 'model', 'label': 'Modelo'},
+    {'dataKey': 'processor', 'label': 'Processador'},
+    {'dataKey': 'ram', 'label': 'Memória'},
+    {'dataKey': 'storage', 'label': 'Armazenamento'},
+    {'dataKey': 'operating_system', 'label': 'Sistema Operacional'},
+    // ✅ Removendo duplicatas da sua lista original
+  ];
 
   @override
   void initState() {
@@ -170,11 +166,46 @@ final notebookColumns = [
     );
   }
 
+  // ✅ NOVO MÉTODO: Atualiza as colunas selecionadas com base no preset
+  void _updateSelectedColumnsFromPreset(
+      AssetModuleType type, Map<String, bool> selectedColumnsMap) {
+    // Limpa as seleções atuais
+    selectedColumnsMap.clear();
+
+    List<Map<String, String>> preset = [];
+    switch (type) {
+      case AssetModuleType.notebook:
+        preset = _notebookColumns;
+        break;
+      case AssetModuleType.desktop:
+        preset = _desktopColumns;
+        break;
+      case AssetModuleType.panel:
+        preset = _panelColumns;
+        break;
+      case AssetModuleType.printer:
+        preset = _printerColumns;
+        break;
+      default:
+        // Para 'custom' ou outros, mantém os padrões.
+        selectedColumnsMap['asset_name'] = true;
+        selectedColumnsMap['serial_number'] = true;
+        selectedColumnsMap['status'] = true;
+        selectedColumnsMap['sector_floor'] = true;
+        return;
+    }
+
+    // Adiciona as colunas do preset
+    for (var col in preset) {
+      selectedColumnsMap[col['dataKey']!] = true;
+    }
+  }
+
   Future<void> _showCreateModuleDialog() async {
     final nameController = TextEditingController();
     final descriptionController = TextEditingController();
     AssetModuleType selectedType = AssetModuleType.custom;
-    
+
     // Estado para as colunas selecionadas
     Map<String, bool> selectedColumns = {
       'asset_name': true, // Pré-selecionados
@@ -182,7 +213,7 @@ final notebookColumns = [
       'status': true,
       'sector_floor': true,
     };
-    
+
     final customColumnsController = TextEditingController();
 
     await showDialog(
@@ -190,12 +221,13 @@ final notebookColumns = [
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Row(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
             children: [
               Icon(Icons.add_box, color: Colors.blue),
-              const SizedBox(width: 8),
-              const Text('Criar Novo Módulo'),
+              SizedBox(width: 8),
+              Text('Criar Novo Módulo'),
             ],
           ),
           content: SizedBox(
@@ -210,7 +242,8 @@ final notebookColumns = [
                     decoration: InputDecoration(
                       labelText: 'Nome do Módulo',
                       hintText: 'Ex: Módulo de Scanners',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       prefixIcon: const Icon(Icons.label),
                     ),
                   ),
@@ -221,16 +254,18 @@ final notebookColumns = [
                     decoration: InputDecoration(
                       labelText: 'Descrição',
                       hintText: 'Descreva o propósito deste módulo...',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       prefixIcon: const Icon(Icons.description),
                     ),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<AssetModuleType>(
-                    initialValue: selectedType,
+                    value: selectedType, // ✅ CORRIGIDO: de initialValue para value
                     decoration: InputDecoration(
                       labelText: 'Tipo de Módulo',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       prefixIcon: const Icon(Icons.category),
                     ),
                     items: AssetModuleType.values.map((type) {
@@ -248,13 +283,17 @@ final notebookColumns = [
                     onChanged: (value) {
                       setStateDialog(() {
                         selectedType = value!;
+                        // ✅ AÇÃO ADICIONADA: Atualiza os checkboxes
+                        _updateSelectedColumnsFromPreset(
+                            selectedType, selectedColumns);
                       });
                     },
                   ),
-                  
                   const SizedBox(height: 16),
                   const Divider(),
-                  const Text('Configuração da Tabela', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Text('Configuração da Tabela',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 8),
                   Text(
                     'Selecione as colunas padrão para exibir na tabela deste módulo:',
@@ -273,7 +312,8 @@ final notebookColumns = [
                         final label = entry.value;
                         return CheckboxListTile(
                           title: Text(label),
-                          subtitle: Text('Chave: $key', style: TextStyle(fontSize: 10)),
+                          subtitle:
+                              Text('Chave: $key', style: TextStyle(fontSize: 10)),
                           controlAffinity: ListTileControlAffinity.leading,
                           value: selectedColumns[key] ?? false,
                           onChanged: (bool? value) {
@@ -291,7 +331,8 @@ final notebookColumns = [
                     decoration: InputDecoration(
                       labelText: 'Colunas Customizadas (Opcional)',
                       hintText: 'chave:Label, outra_chave:Outro Label',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       prefixIcon: const Icon(Icons.add_circle_outline),
                     ),
                   ),
@@ -307,7 +348,8 @@ final notebookColumns = [
             ElevatedButton(
               onPressed: () async {
                 if (nameController.text.trim().isEmpty) {
-                  _showSnackbar('O nome do módulo é obrigatório', isError: true);
+                  _showSnackbar('O nome do módulo é obrigatório',
+                      isError: true);
                   return;
                 }
 
@@ -325,10 +367,13 @@ final notebookColumns = [
                 // Adiciona colunas customizadas
                 if (customColumnsController.text.trim().isNotEmpty) {
                   try {
-                    final parts = customColumnsController.text.trim().split(',');
+                    final parts =
+                        customColumnsController.text.trim().split(',');
                     for (var part in parts) {
                       final pair = part.split(':');
-                      if (pair.length == 2 && pair[0].trim().isNotEmpty && pair[1].trim().isNotEmpty) {
+                      if (pair.length == 2 &&
+                          pair[0].trim().isNotEmpty &&
+                          pair[1].trim().isNotEmpty) {
                         tableColumns.add({
                           'dataKey': pair[0].trim(),
                           'label': pair[1].trim(),
@@ -336,11 +381,12 @@ final notebookColumns = [
                       }
                     }
                   } catch (e) {
-                    _showSnackbar('Formato das colunas customizadas inválido.', isError: true);
+                    _showSnackbar(
+                        'Formato das colunas customizadas inválido.',
+                        isError: true);
                     return;
                   }
                 }
-                
                 // --- FIM DO PROCESSAMENTO ---
 
                 try {
@@ -360,7 +406,8 @@ final notebookColumns = [
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('Criar', style: TextStyle(color: Colors.white)),
             ),
@@ -392,16 +439,20 @@ final notebookColumns = [
               _buildDetailRow('Status', module.isActive ? 'Ativo' : 'Inativo'),
               _buildDetailRow('Customizado', module.isCustom ? 'Sim' : 'Não'),
               _buildDetailRow('Criado em', _formatDate(module.createdAt)),
-              if (module.updatedAt != null) _buildDetailRow('Atualizado em', _formatDate(module.updatedAt!)),
+              if (module.updatedAt != null)
+                _buildDetailRow(
+                    'Atualizado em', _formatDate(module.updatedAt!)),
               const SizedBox(height: 16),
-              const Text('Colunas da Tabela:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Colunas da Tabela:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               if (module.tableColumns.isEmpty)
-                const Text('Nenhuma coluna configurada', style: TextStyle(color: Colors.grey)),
+                const Text('Nenhuma coluna configurada',
+                    style: TextStyle(color: Colors.grey)),
               ...module.tableColumns.map((col) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text('• ${col.label} (${col.dataKey})'),
-              )),
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text('• ${col.label} (${col.dataKey})'),
+                  )),
             ],
           ),
         ),
@@ -419,11 +470,11 @@ final notebookColumns = [
     final nameController = TextEditingController(text: module.name);
     final descriptionController = TextEditingController(text: module.description);
     AssetModuleType selectedType = module.type;
-    
+
     // Inicializa colunas selecionadas com as existentes
     Map<String, bool> selectedColumns = {};
     String customColumnsText = '';
-    
+
     // Processa colunas existentes
     final existingColumns = module.tableColumns;
     for (var col in existingColumns) {
@@ -436,22 +487,25 @@ final notebookColumns = [
     }
     // Remove última vírgula
     if (customColumnsText.endsWith(', ')) {
-      customColumnsText = customColumnsText.substring(0, customColumnsText.length - 2);
+      customColumnsText =
+          customColumnsText.substring(0, customColumnsText.length - 2);
     }
-    
-    final customColumnsController = TextEditingController(text: customColumnsText);
+
+    final customColumnsController =
+        TextEditingController(text: customColumnsText);
 
     await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Row(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
             children: [
               Icon(Icons.edit, color: Colors.blue),
-              const SizedBox(width: 8),
-              const Text('Editar Módulo'),
+              SizedBox(width: 8),
+              Text('Editar Módulo'),
             ],
           ),
           content: SizedBox(
@@ -465,7 +519,8 @@ final notebookColumns = [
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: 'Nome do Módulo',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       prefixIcon: const Icon(Icons.label),
                     ),
                   ),
@@ -475,22 +530,24 @@ final notebookColumns = [
                     maxLines: 2,
                     decoration: InputDecoration(
                       labelText: 'Descrição',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       prefixIcon: const Icon(Icons.description),
                     ),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<AssetModuleType>(
-                    initialValue: selectedType,
+                    value: selectedType, // ✅ CORRIGIDO: de initialValue para value
                     decoration: InputDecoration(
                       labelText: 'Tipo de Módulo (Não pode ser alterado)',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       prefixIcon: const Icon(Icons.category),
                       filled: true,
                       fillColor: Colors.grey[100],
                     ),
                     // Define onChanged como null para desabilitar
-                    onChanged: null, 
+                    onChanged: null,
                     items: AssetModuleType.values.map((type) {
                       return DropdownMenuItem(
                         value: type,
@@ -506,7 +563,9 @@ final notebookColumns = [
                   ),
                   const SizedBox(height: 16),
                   const Divider(),
-                  const Text('Configuração da Tabela', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Text('Configuração da Tabela',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 8),
                   Text(
                     'Selecione as colunas padrão para exibir na tabela deste módulo:',
@@ -524,7 +583,8 @@ final notebookColumns = [
                         final label = entry.value;
                         return CheckboxListTile(
                           title: Text(label),
-                          subtitle: Text('Chave: $key', style: TextStyle(fontSize: 10)),
+                          subtitle:
+                              Text('Chave: $key', style: TextStyle(fontSize: 10)),
                           controlAffinity: ListTileControlAffinity.leading,
                           value: selectedColumns[key] ?? false,
                           onChanged: (bool? value) {
@@ -542,7 +602,8 @@ final notebookColumns = [
                     decoration: InputDecoration(
                       labelText: 'Colunas Customizadas (Opcional)',
                       hintText: 'chave:Label, outra_chave:Outro Label',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       prefixIcon: const Icon(Icons.add_circle_outline),
                     ),
                   ),
@@ -558,7 +619,8 @@ final notebookColumns = [
             ElevatedButton(
               onPressed: () async {
                 if (nameController.text.trim().isEmpty) {
-                  _showSnackbar('O nome do módulo é obrigatório', isError: true);
+                  _showSnackbar('O nome do módulo é obrigatório',
+                      isError: true);
                   return;
                 }
 
@@ -574,10 +636,13 @@ final notebookColumns = [
                 });
                 if (customColumnsController.text.trim().isNotEmpty) {
                   try {
-                    final parts = customColumnsController.text.trim().split(',');
+                    final parts =
+                        customColumnsController.text.trim().split(',');
                     for (var part in parts) {
                       final pair = part.split(':');
-                      if (pair.length == 2 && pair[0].trim().isNotEmpty && pair[1].trim().isNotEmpty) {
+                      if (pair.length == 2 &&
+                          pair[0].trim().isNotEmpty &&
+                          pair[1].trim().isNotEmpty) {
                         tableColumns.add({
                           'dataKey': pair[0].trim(),
                           'label': pair[1].trim(),
@@ -585,7 +650,9 @@ final notebookColumns = [
                       }
                     }
                   } catch (e) {
-                    _showSnackbar('Formato das colunas customizadas inválido.', isError: true);
+                    _showSnackbar(
+                        'Formato das colunas customizadas inválido.',
+                        isError: true);
                     return;
                   }
                 }
@@ -608,7 +675,8 @@ final notebookColumns = [
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('Salvar', style: TextStyle(color: Colors.white)),
             ),
@@ -623,18 +691,18 @@ final notebookColumns = [
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
-            const SizedBox(width: 12),
-            const Text('Confirmar Exclusão'),
+            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+            SizedBox(width: 12),
+            Text('Confirmar Exclusão'),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Deseja realmente excluir o módulo:'),
+            const Text('Deseja realmente excluir o módulo:'),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
@@ -662,7 +730,8 @@ final notebookColumns = [
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Excluir', style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Excluir', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -694,7 +763,7 @@ final notebookColumns = [
           ),
           Expanded(
             flex: 3,
-            child: Text(value),
+            child: Text(value.isNotEmpty ? value : 'N/D'), // ✅ Mostra N/D se vazio
           ),
         ],
       ),
@@ -743,19 +812,20 @@ final notebookColumns = [
             Card(
               elevation: 4,
               margin: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    Icon(Icons.apps, color: Colors.blue, size: 28),
+                    const Icon(Icons.apps, color: Colors.blue, size: 28),
                     const SizedBox(width: 8),
                     const Text(
                       'Gerenciamento de Módulos',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+                        color: Colors.grey, // ✅ Alterei a cor para grey
                       ),
                     ),
                     const Spacer(),
@@ -791,11 +861,13 @@ final notebookColumns = [
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red, size: 64),
+                      const Icon(Icons.error_outline,
+                          color: Colors.red, size: 64),
                       const SizedBox(height: 16),
-                      Text(
+                      const Text(
                         'Erro ao carregar módulos',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(errorMessage!),
@@ -810,19 +882,20 @@ final notebookColumns = [
                 ),
               )
             else if (modules.isEmpty)
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.inbox, color: Colors.grey, size: 64),
-                      const SizedBox(height: 16),
-                      const Text(
+                      SizedBox(height: 16),
+                      Text(
                         'Nenhum módulo cadastrado',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 8),
-                      const Text('Crie um novo módulo para começar'),
+                      SizedBox(height: 8),
+                      Text('Crie um novo módulo para começar'),
                     ],
                   ),
                 ),
@@ -849,8 +922,7 @@ final notebookColumns = [
       ),
     );
   }
-  
-  // ... (build() e _buildModuleCard() e outros helpers inalterados)
+
   Widget _buildModuleCard(AssetModuleConfig module) {
     return Card(
       elevation: 2,
@@ -868,7 +940,9 @@ final notebookColumns = [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: module.isActive ? Colors.blue.shade100 : Colors.grey.shade200,
+                      color: module.isActive
+                          ? Colors.blue.shade100
+                          : Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -886,18 +960,22 @@ final notebookColumns = [
                       } else if (value == 'delete') {
                         _confirmDeleteModule(module);
                       } else if (value == 'toggle') {
-                        _moduleService.updateModule(
+                        // ✅ Lógica de toggle atualizada
+                        _moduleService
+                            .updateModule(
                           name: module.name,
                           description: module.description,
                           type: module.type,
                           moduleId: module.id,
                           isActive: !module.isActive,
-                        ).then((_) {
-                          Navigator.of(context).pop();
+                          tableColumns: module.tableColumns.map((col) => col.toJson()).toList(), // ✅ Passa colunas
+                        )
+                            .then((_) {
                           _showSnackbar('Status do módulo atualizado!');
                           _loadModules();
                         }).catchError((e) {
-                          _showSnackbar('Erro ao atualizar status: $e', isError: true);
+                          _showSnackbar('Erro ao atualizar status: $e',
+                              isError: true);
                         });
                       }
                     },
@@ -907,7 +985,9 @@ final notebookColumns = [
                         child: Row(
                           children: [
                             Icon(
-                              module.isActive ? Icons.visibility_off : Icons.visibility,
+                              module.isActive
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                               color: Colors.orange,
                               size: 20,
                             ),
@@ -960,7 +1040,7 @@ final notebookColumns = [
               ),
               const SizedBox(height: 8),
               Text(
-                module.description,
+                module.description.isNotEmpty ? module.description : 'Sem descrição', // ✅ Fallback
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey[700],
@@ -986,7 +1066,9 @@ final notebookColumns = [
                       module.isActive ? 'Ativo' : 'Inativo',
                       style: TextStyle(
                         fontSize: 11,
-                        color: module.isActive ? Colors.green.shade700 : Colors.red.shade700,
+                        color: module.isActive
+                            ? Colors.green.shade700
+                            : Colors.red.shade700,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

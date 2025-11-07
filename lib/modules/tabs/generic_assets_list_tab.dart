@@ -98,10 +98,7 @@ class GenericAssetsListTab extends StatelessWidget {
                                 onAssetUpdate: onAssetUpdate,
                                 onAssetDelete: onAssetDelete,
                                 moduleConfig: moduleConfig,
-                                authService: authService,
-                                // ✅ PASSANDO DADOS DE SELEÇÃO
-                                selectedAssets: selectedAssets,
-                                onSelectionChanged: onSelectionChanged,
+                                authService: authService,                                
                               ),
                             ),
                             if (totalPages > 1)
