@@ -2,6 +2,7 @@
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 
+
 class LocationData {
   final String locationName;
   final String? unitName;
@@ -39,14 +40,14 @@ class LocationMapperService {
     // 2. Tenta mapear Setor e Andar pelo BSSID (MAC Address)
     String? sector;
     String? floor;
-    
+
     if (macAddress != 'N/A' && macAddress.isNotEmpty) {
       final bssidMapping = _findBssidMapping(macAddress, bssidMappings);
-      
+
       if (bssidMapping != null) {
         sector = bssidMapping.sector.isNotEmpty ? bssidMapping.sector : null;
         floor = bssidMapping.floor.isNotEmpty ? bssidMapping.floor : null;
-        
+
         // Se não encontrou Unit por IP, usa do BSSID
         if (unitName == null && bssidMapping.unitName.isNotEmpty) {
           unitName = bssidMapping.unitName;
@@ -61,7 +62,7 @@ class LocationMapperService {
       floor: floor,
       fallback: originalLocation,
     );
-    
+
     return LocationData(
       locationName: finalLocation,
       unitName: unitName,
@@ -70,30 +71,55 @@ class LocationMapperService {
     );
   }
 
-  /// Encontra o BssidMapping correspondente a um endereço MAC
+  // ===================================================================
+  // ✅ FUNÇÃO ATUALIZADA (COM LOGS E NORMALIZAÇÃO ROBUSTA)
+  // ===================================================================
   static BssidMapping? _findBssidMapping(
-    String macAddress, 
+    String macAddress,
     List<BssidMapping> mappings,
   ) {
-    if (macAddress.isEmpty) return null;
-    
+    if (macAddress.isEmpty || macAddress == 'N/A') {
+      print('⚠️ MAC Address inválido: "$macAddress"');
+      return null;
+    }
+
+    // ✅ NORMALIZAÇÃO ROBUSTA
     final normalizedMac = macAddress
         .toUpperCase()
         .replaceAll('-', ':')
-        .replaceAll('.', ':');
-    
+        .replaceAll('.', ':')
+        .replaceAll(' ', ''); // ✅ REMOVE ESPAÇOS
+
+    print('🔍 Procurando BSSID: $normalizedMac');
+    print('   Total de BSSIDs no banco: ${mappings.length}');
+
     for (final mapping in mappings) {
       final normalizedMappingMac = mapping.macAddressRadio
           .toUpperCase()
           .replaceAll('-', ':')
-          .replaceAll('.', ':');
-      
+          .replaceAll('.', ':')
+          .replaceAll(' ', '');
+
       if (normalizedMappingMac == normalizedMac) {
+        print('✅ BSSID ENCONTRADO: ${mapping.macAddressRadio}');
+        print(
+            '   Setor: ${mapping.sector}, Andar: ${mapping.floor}, Unidade: ${mapping.unitName}');
         return mapping;
       }
     }
+
+    print('❌ BSSID NÃO ENCONTRADO: $normalizedMac');
+    print('   BSSIDs disponíveis:');
+    for (var m in mappings.take(5)) {
+      // Mostra apenas os 5 primeiros
+      print('   - ${m.macAddressRadio}');
+    }
+
     return null;
   }
+  // ===================================================================
+  // FIM DA SEÇÃO ATUALIZADA
+  // ===================================================================
 
   /// Constrói a string de localização formatada
   static String _buildLocationString({
@@ -103,23 +129,23 @@ class LocationMapperService {
     String? fallback,
   }) {
     List<String> parts = [];
-    
+
     if (unitName != null && unitName.isNotEmpty) {
       parts.add(unitName);
     }
-    
+
     if (sector != null && sector.isNotEmpty) {
       parts.add(sector);
     }
-    
+
     if (floor != null && floor.isNotEmpty) {
       parts.add(floor);
     }
-    
+
     if (parts.isEmpty) {
       return fallback ?? 'N/D';
     }
-    
+
     return parts.join(' - ');
   }
 

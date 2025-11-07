@@ -46,14 +46,14 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
         throw Exception(usersResponse['message']);
       }
       final allUsers = usersResponse['users'] as List<dynamic>;
-      
+
       // 2. Buscar permissões atuais do módulo
-      final permittedIds = await widget.moduleService.getModulePermissions(widget.moduleId);
+      final permittedIds =
+          await widget.moduleService.getModulePermissions(widget.moduleId);
 
       // Filtra usuários "admin" (eles sempre têm acesso)
-      final nonAdminUsers = allUsers
-          .where((user) => user['role'] != 'admin')
-          .toList();
+      final nonAdminUsers =
+          allUsers.where((user) => user['role'] != 'admin').toList();
 
       if (mounted) {
         setState(() {
@@ -150,7 +150,8 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
         Expanded(
           child: Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: _buildBody(),
           ),
         ),
@@ -160,14 +161,19 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
           children: [
             ElevatedButton.icon(
               onPressed: _isLoading ? null : _savePermissions,
-              icon: _isLoading 
-                  ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              icon: _isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.save, color: Colors.white),
               label: const Text('Salvar Permissões'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               ),
             ),
           ],
@@ -185,7 +191,7 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Text('Erro: $_errorMessage', style: TextStyle(color: Colors.red)),
+          child: Text('Erro: $_errorMessage', style: const TextStyle(color: Colors.red)),
         ),
       );
     }

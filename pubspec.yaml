@@ -47,6 +47,9 @@ dependencies:
   file_saver: 0.3.1
   synchronized: ^3.3.1
   csv: ^6.0.0
+  logger: ^2.6.2
+  get: ^4.7.2
+  pdf: ^3.11.3
 
 dev_dependencies:
   flutter_test:

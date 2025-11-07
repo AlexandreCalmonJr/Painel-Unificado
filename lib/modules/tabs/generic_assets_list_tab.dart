@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart';
+import 'package:painel_windowns/services/auth_service.dart'; // ✅ IMPORT ADICIONADO
 
 class GenericAssetsListTab extends StatelessWidget {
   final List<ManagedAsset> displayedAssets;
@@ -14,8 +15,12 @@ class GenericAssetsListTab extends StatelessWidget {
   final Function(ManagedAsset) onAssetUpdate;
   final Function(ManagedAsset) onAssetDelete;
   final List<TableColumnConfig> columns;
-  final dynamic authService;
-  final dynamic moduleConfig;// <-- CAMPO ADICIONADO
+  final AuthService authService; // ✅ TIPO CORRIGIDO
+  final AssetModuleConfig moduleConfig; // ✅ TIPO CORRIGIDO
+
+  // ✅ CAMPOS ADICIONADOS PARA SELEÇÃO MÚLTIPLA
+  final List<ManagedAsset> selectedAssets;
+  final Function(List<ManagedAsset>) onSelectionChanged;
 
   const GenericAssetsListTab({
     super.key,
@@ -30,7 +35,10 @@ class GenericAssetsListTab extends StatelessWidget {
     required this.onAssetDelete,
     required this.columns,
     required this.authService,
-    required this.moduleConfig,// <-- CAMPO ADICIONADO
+    required this.moduleConfig,
+    // ✅ CAMPOS ADICIONADOS PARA SELEÇÃO MÚLTIPLA
+    required this.selectedAssets,
+    required this.onSelectionChanged,
   });
 
   @override
@@ -82,18 +90,23 @@ class GenericAssetsListTab extends StatelessWidget {
                           children: [
                             Expanded(
                               child: GenericManagedAssetsCard(
-                                title: 'Lista de Ativos ($currentPage/$totalPages)',
-                                columns: columns, 
+                                title:
+                                    'Lista de Ativos ($currentPage/$totalPages)',
+                                columns: columns,
                                 assets: displayedAssets,
                                 showActions: true,
                                 onAssetUpdate: onAssetUpdate,
                                 onAssetDelete: onAssetDelete,
                                 moduleConfig: moduleConfig,
-                                authService: authService, // ✅ ADICIONAR
+                                authService: authService,
+                                // ✅ PASSANDO DADOS DE SELEÇÃO
+                                selectedAssets: selectedAssets,
+                                onSelectionChanged: onSelectionChanged,
                               ),
                             ),
                             if (totalPages > 1)
-                              _buildPagination(currentPage, totalPages, onPageChange),
+                              _buildPagination(
+                                  currentPage, totalPages, onPageChange),
                           ],
                         ),
             ),
@@ -102,7 +115,7 @@ class GenericAssetsListTab extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildPagination(
       int currentPage, int totalPages, Function(int) onPageChange) {
     return Container(
@@ -136,6 +149,4 @@ class GenericAssetsListTab extends StatelessWidget {
       ),
     );
   }
-  
-  
 }

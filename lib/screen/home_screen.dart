@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:painel_windowns/devices/widgets/hub_menu_item.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/generic_module_dashboard.dart';
+// ✅ CORREÇÃO APLICADA AQUI
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
@@ -275,7 +276,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  if (widget.authService.currentUser?['role'] != null)
+                                  if (widget.authService.currentUser?['role'] !=
+                                      null)
                                     Text(
                                       widget.authService.currentUser!['role']
                                           .toString()
@@ -368,7 +370,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     // Adiciona módulos dinâmicos
     for (final module in _availableModules) {
       // Pula os módulos fixos que já foram adicionados
-      if (module.type == AssetModuleType.mobile || 
+      if (module.type == AssetModuleType.mobile ||
           module.type == AssetModuleType.totem) {
         continue;
       }
@@ -377,8 +379,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         HubMenuItem(
           icon: _getModuleIcon(module.type.iconName),
           title: module.name,
-          subtitle: module.description.isNotEmpty 
-              ? module.description 
+          subtitle: module.description.isNotEmpty
+              ? module.description
               : module.type.displayName,
           onTap: () => _navigateToModule(module),
         ),

@@ -32,15 +32,15 @@ class AssetCommandControls extends StatelessWidget {
       case AssetAction.setMaintenance:
         _showMaintenanceDialog(context, service);
         break;
-        
+
       case AssetAction.returnToProduction:
         _showReturnToProductionDialog(context, service);
         break;
-        
+
       case AssetAction.delete:
         _showDeleteDialog(context, service);
         break;
-        
+
       case AssetAction.viewDetails:
         // Implementar visualização de detalhes
         break;
@@ -48,9 +48,10 @@ class AssetCommandControls extends StatelessWidget {
   }
 
   /// Diálogo para marcar manutenção
-  void _showMaintenanceDialog(BuildContext context, ModuleManagementService service) {
+  void _showMaintenanceDialog(
+      BuildContext context, ModuleManagementService service) {
     final reasonController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -63,7 +64,8 @@ class AssetCommandControls extends StatelessWidget {
                 color: Colors.orange.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.build_outlined, color: Colors.orange, size: 24),
+              child: const Icon(Icons.build_outlined,
+                  color: Colors.orange, size: 24),
             ),
             const SizedBox(width: 12),
             const Text('Marcar para Manutenção'),
@@ -100,27 +102,36 @@ class AssetCommandControls extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               final reason = reasonController.text.trim();
-              
+
               Navigator.pop(ctx);
-              
+
               // Mostra loading
               _showLoadingDialog(context);
-              
-              final result = await service.setMaintenanceMode(
-                moduleId: moduleId,
-                assetId: asset.id,
-                maintenanceMode: true,
-                reason: reason.isNotEmpty ? reason : null,
-              );
-              
-              // Fecha loading
-              Navigator.pop(context);
-              
-              // Mostra resultado
-              _showResultSnackbar(context, result);
-              
-              if (result['success'] == true) {
-                onCommandExecuted();
+
+              try {
+                final result = await service.setMaintenanceMode(
+                  moduleId: moduleId,
+                  assetId: asset.id,
+                  maintenanceMode: true,
+                  reason: reason.isNotEmpty ? reason : null,
+                );
+                // Fecha loading
+                if (context.mounted) Navigator.pop(context);
+                // Mostra resultado
+                if (context.mounted) _showResultSnackbar(context, result);
+
+                if (result['success'] == true) {
+                  onCommandExecuted();
+                }
+              } catch (e) {
+                // Fecha loading em caso de erro
+                if (context.mounted) Navigator.pop(context);
+                if (context.mounted) {
+                  _showResultSnackbar(context, {
+                    'success': false,
+                    'message': 'Erro: ${e.toString()}'
+                  });
+                }
               }
             },
             style: ElevatedButton.styleFrom(
@@ -135,7 +146,8 @@ class AssetCommandControls extends StatelessWidget {
   }
 
   /// Diálogo para retornar à produção
-  void _showReturnToProductionDialog(BuildContext context, ModuleManagementService service) {
+  void _showReturnToProductionDialog(
+      BuildContext context, ModuleManagementService service) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -148,7 +160,8 @@ class AssetCommandControls extends StatelessWidget {
                 color: Colors.green.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.check_circle_outline, color: Colors.green, size: 24),
+              child: const Icon(Icons.check_circle_outline,
+                  color: Colors.green, size: 24),
             ),
             const SizedBox(width: 12),
             const Text('Retornar à Produção'),
@@ -192,24 +205,33 @@ class AssetCommandControls extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              
+
               // Mostra loading
               _showLoadingDialog(context);
-              
-              final result = await service.setMaintenanceMode(
-                moduleId: moduleId,
-                assetId: asset.id,
-                maintenanceMode: false,
-              );
-              
-              // Fecha loading
-              Navigator.pop(context);
-              
-              // Mostra resultado
-              _showResultSnackbar(context, result);
-              
-              if (result['success'] == true) {
-                onCommandExecuted();
+              try {
+                final result = await service.setMaintenanceMode(
+                  moduleId: moduleId,
+                  assetId: asset.id,
+                  maintenanceMode: false,
+                );
+
+                // Fecha loading
+                if (context.mounted) Navigator.pop(context);
+                // Mostra resultado
+                if (context.mounted) _showResultSnackbar(context, result);
+
+                if (result['success'] == true) {
+                  onCommandExecuted();
+                }
+              } catch (e) {
+                // Fecha loading em caso de erro
+                if (context.mounted) Navigator.pop(context);
+                if (context.mounted) {
+                  _showResultSnackbar(context, {
+                    'success': false,
+                    'message': 'Erro: ${e.toString()}'
+                  });
+                }
               }
             },
             style: ElevatedButton.styleFrom(
@@ -237,7 +259,8 @@ class AssetCommandControls extends StatelessWidget {
                 color: Colors.red.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24),
+              child: const Icon(Icons.warning_amber_rounded,
+                  color: Colors.red, size: 24),
             ),
             const SizedBox(width: 12),
             const Text('Confirmar Exclusão'),
@@ -298,24 +321,36 @@ class AssetCommandControls extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              
+
               // Mostra loading
               _showLoadingDialog(context);
               
-              final result = await service.deleteAsset(
-                moduleId: moduleId,
-                assetId: asset.id,
-              ) as Map<String, dynamic>;
-              
-              // Fecha loading
-              Navigator.pop(context);
-              
-              // Mostra resultado
-              // ignore: use_build_context_synchronously
-              _showResultSnackbar(context, result);
-              
-              if (result['success'] == true) {
+              try {
+                // ✅ CORRIGIDO: Chamada de delete movida para dentro do try/catch
+                await service.deleteAsset(
+                  moduleId: moduleId,
+                  assetId: asset.id,
+                );
+
+                // Fecha loading
+                if (context.mounted) Navigator.pop(context);
+
+                // Mostra resultado
+                if (context.mounted) {
+                  _showResultSnackbar(context,
+                      {'success': true, 'message': 'Ativo excluído com sucesso'});
+                }
+
                 onCommandExecuted();
+              } catch (e) {
+                // Fecha loading em caso de erro
+                if (context.mounted) Navigator.pop(context);
+                if (context.mounted) {
+                  _showResultSnackbar(context, {
+                    'success': false,
+                    'message': 'Erro ao excluir: ${e.toString()}'
+                  });
+                }
               }
             },
             style: ElevatedButton.styleFrom(
@@ -355,8 +390,10 @@ class AssetCommandControls extends StatelessWidget {
   /// Mostra snackbar com resultado da operação
   void _showResultSnackbar(BuildContext context, Map<String, dynamic> result) {
     final isSuccess = result['success'] == true;
-    final message = result['message'] ?? 
-      (isSuccess ? 'Operação realizada com sucesso' : 'Erro ao processar operação');
+    final message = result['message'] ??
+        (isSuccess
+            ? 'Operação realizada com sucesso'
+            : 'Erro ao processar operação');
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

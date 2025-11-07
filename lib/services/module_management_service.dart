@@ -14,16 +14,17 @@ import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
+
 class ModuleManagementService {
   final AuthService authService;
 
   ModuleManagementService({required this.authService});
-  
+
   String? get _token => authService.currentToken;
   Map<String, String> get _headers => {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $_token',
-  };
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_token',
+      };
   String get _baseUrl {
     final config = ServerConfigService.instance.loadConfig();
     return 'http://${config['ip']}:${config['port']}';
@@ -41,7 +42,7 @@ class ModuleManagementService {
       attempts++;
       try {
         final response = await request().timeout(const Duration(seconds: 30)); // ✅ Aumentado timeout
-        
+
         if (response.statusCode == 401) {
           await authService.logout();
           throw Exception('Sessão expirada. Faça login novamente.');
@@ -52,7 +53,8 @@ class ModuleManagementService {
         } else {
           try {
             final errorData = jsonDecode(response.body);
-            throw Exception(errorData['message'] ?? 'Erro ${response.statusCode}');
+            throw Exception(
+                errorData['message'] ?? 'Erro ${response.statusCode}');
           } catch (_) {
             throw Exception('Erro ${response.statusCode}: ${response.reasonPhrase}');
           }
@@ -76,24 +78,28 @@ class ModuleManagementService {
   // ===================================================================
   Future<List<Unit>> fetchUnits() async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     final response = await _performHttpRequest(
-      request: () => http.get(Uri.parse('$_baseUrl/api/units'), headers: _headers),
+      request: () =>
+          http.get(Uri.parse('$_baseUrl/api/units'), headers: _headers),
       errorMessage: 'Erro ao buscar unidades',
     );
 
     final data = jsonDecode(response.body);
     if (data is Map && data.containsKey('units')) {
-      return (data['units'] as List).map((json) => Unit.fromJson(json)).toList();
+      return (data['units'] as List)
+          .map((json) => Unit.fromJson(json))
+          .toList();
     }
     throw Exception('Resposta inválida: esperado lista de unidades');
   }
 
   Future<List<BssidMapping>> fetchBssidMappings() async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     final response = await _performHttpRequest(
-      request: () => http.get(Uri.parse('$_baseUrl/api/bssid-mappings'), headers: _headers),
+      request: () => http.get(Uri.parse('$_baseUrl/api/bssid-mappings'),
+          headers: _headers),
       errorMessage: 'Erro ao buscar BSSIDs',
     );
 
@@ -119,16 +125,16 @@ class ModuleManagementService {
       switch (moduleType) {
         case AssetModuleType.notebook:
           return Notebook.fromJson(json, units, bssidMappings);
-        
+
         case AssetModuleType.desktop:
           return Desktop.fromJson(json, units);
-        
+
         case AssetModuleType.panel:
           return Panel.fromJson(json, units);
-        
+
         case AssetModuleType.printer:
           return Printer.fromJson(json, units);
-        
+
         default:
           throw UnimplementedError('Tipo não suportado: $moduleType');
       }
@@ -141,7 +147,7 @@ class ModuleManagementService {
   }
 
   // ===================================================================
-  // ✅ CORRIGIDO: Lista ativos com PARSE AUTOMÁTICO
+  // ✅ CORRIGIDO E ATUALIZADO: Lista ativos com PARSE AUTOMÁTICO E LOGS
   // ===================================================================
   /// Lista ativos de um módulo (AGORA COM PARSE)
   Future<List<ManagedAsset>> listModuleAssetsTyped({
@@ -151,7 +157,17 @@ class ModuleManagementService {
     required List<BssidMapping> bssidMappings,
   }) async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
+    // ✅ LOGS DE DEBUG
+    print('📦 Carregando ativos do módulo: $moduleType');
+    print('   Units disponíveis: ${units.length}');
+    print('   BSSIDs disponíveis: ${bssidMappings.length}');
+
+    if (bssidMappings.isEmpty) {
+      print(
+          '⚠️ ATENÇÃO: Nenhum BSSID cadastrado! O mapeamento por WiFi não funcionará.');
+    }
+
     final response = await _performHttpRequest(
       request: () => http.get(
         Uri.parse('$_baseUrl/api/modules/$moduleId/assets'),
@@ -159,23 +175,32 @@ class ModuleManagementService {
       ),
       errorMessage: 'Erro ao carregar ativos',
     );
-    
+
     final data = json.decode(response.body);
-    
-    // ✅ Valida estrutura da resposta
+
     if (data is! Map<String, dynamic>) {
       throw Exception('Resposta inválida: esperado objeto JSON');
     }
-    
+
     if (!data.containsKey('assets')) {
       throw Exception('Resposta sem campo "assets"');
     }
-    
+
     final assetsList = data['assets'] as List<dynamic>;
-    
-    // ✅ Parse cada ativo
+
+    print('📊 Total de ativos recebidos: ${assetsList.length}');
+
+    // ✅ Parse cada ativo COM LOGS
     return assetsList.map((json) {
-      return parseAsset(json as Map<String, dynamic>, moduleType, units, bssidMappings);
+      try {
+        return parseAsset(json as Map<String, dynamic>, moduleType, units,
+            bssidMappings);
+      } catch (e, stackTrace) {
+        print('❌ ERRO ao parsear ativo: $e');
+        print('   JSON problemático: ${json['serial_number']}');
+        print('   Stack: $stackTrace');
+        rethrow;
+      }
     }).toList();
   }
 
@@ -184,12 +209,13 @@ class ModuleManagementService {
   // ===================================================================
   Future<List<AssetModuleConfig>> listModules() async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     final response = await _performHttpRequest(
-      request: () => http.get(Uri.parse('$_baseUrl/api/modules'), headers: _headers),
+      request: () =>
+          http.get(Uri.parse('$_baseUrl/api/modules'), headers: _headers),
       errorMessage: 'Erro ao carregar módulos',
     );
-    
+
     final data = json.decode(response.body);
     final List<dynamic> modulesJson = data['modules'];
     return modulesJson.map((json) => AssetModuleConfig.fromJson(json)).toList();
@@ -207,7 +233,7 @@ class ModuleManagementService {
     required List<Map<String, String>> tableColumns,
   }) async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     final moduleData = {
       'name': name,
       'description': description,
@@ -226,7 +252,7 @@ class ModuleManagementService {
       ),
       errorMessage: 'Erro ao criar módulo',
     );
-    
+
     final data = json.decode(response.body);
     return AssetModuleConfig.fromJson(data['module']);
   }
@@ -262,7 +288,7 @@ class ModuleManagementService {
       ),
       errorMessage: 'Erro ao atualizar módulo',
     );
-    
+
     final data = json.decode(response.body);
     return AssetModuleConfig.fromJson(data['module']);
   }
@@ -272,7 +298,7 @@ class ModuleManagementService {
   // ===================================================================
   Future<void> deleteModule(String moduleId) async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     await _performHttpRequest(
       request: () => http.delete(
         Uri.parse('$_baseUrl/api/modules/$moduleId'),
@@ -306,7 +332,7 @@ class ModuleManagementService {
       ),
       errorMessage: 'Erro ao atualizar manutenção',
     );
-    
+
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
@@ -315,7 +341,7 @@ class ModuleManagementService {
   // ===================================================================
   Future<List<String>> getModulePermissions(String moduleId) async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     final response = await _performHttpRequest(
       request: () => http.get(
         Uri.parse('$_baseUrl/api/modules/$moduleId/permissions'),
@@ -323,7 +349,7 @@ class ModuleManagementService {
       ),
       errorMessage: 'Erro ao buscar permissões',
     );
-    
+
     final data = jsonDecode(response.body);
     if (data['success'] == true && data['users'] is List) {
       return List<String>.from(data['users']);
@@ -331,9 +357,10 @@ class ModuleManagementService {
     throw Exception(data['message'] ?? 'Resposta inválida');
   }
 
-  Future<void> updateModulePermissions(String moduleId, List<String> userIds) async {
+  Future<void> updateModulePermissions(
+      String moduleId, List<String> userIds) async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     await _performHttpRequest(
       request: () => http.put(
         Uri.parse('$_baseUrl/api/modules/$moduleId/permissions'),
@@ -352,7 +379,7 @@ class ModuleManagementService {
     required Map<String, dynamic> assetData,
   }) async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     final response = await _performHttpRequest(
       request: () => http.post(
         Uri.parse('$_baseUrl/api/modules/$moduleId/assets'),
@@ -361,7 +388,7 @@ class ModuleManagementService {
       ),
       errorMessage: 'Erro ao adicionar ativo',
     );
-    
+
     final data = json.decode(response.body);
     return data['asset'] as Map<String, dynamic>;
   }
@@ -372,7 +399,7 @@ class ModuleManagementService {
     required Map<String, dynamic> updateData,
   }) async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     final response = await _performHttpRequest(
       request: () => http.put(
         Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId'),
@@ -381,7 +408,7 @@ class ModuleManagementService {
       ),
       errorMessage: 'Erro ao atualizar ativo',
     );
-    
+
     final data = json.decode(response.body);
     return data['asset'] as Map<String, dynamic>;
   }
@@ -391,7 +418,7 @@ class ModuleManagementService {
     required String assetId,
   }) async {
     if (_token == null) throw Exception("Não autenticado");
-    
+
     await _performHttpRequest(
       request: () => http.delete(
         Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId'),
@@ -399,5 +426,28 @@ class ModuleManagementService {
       ),
       errorMessage: 'Erro ao deletar ativo',
     );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAssetHistory(
+      String token, String assetId) async {
+    if (token.isEmpty) throw Exception("Não autenticado");
+
+    final response = await _performHttpRequest(
+      request: () => http.get(
+        // ⚠️ NOTA: Requer a rota GET /:moduleId/assets/:assetId/history no servidor
+        Uri.parse(
+            '$_baseUrl/api/modules/${assetId.split('_')[0]}/assets/$assetId/history'),
+        headers: _headers,
+      ),
+      errorMessage: 'Erro ao buscar histórico',
+    );
+
+    final data = json.decode(response.body);
+
+    if (data['success'] == true && data['history'] is List) {
+      return List<Map<String, dynamic>>.from(data['history']);
+    }
+
+    throw Exception(data['message'] ?? 'Falha ao carregar histórico');
   }
 }

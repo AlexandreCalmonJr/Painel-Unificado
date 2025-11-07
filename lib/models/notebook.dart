@@ -58,39 +58,61 @@ class Notebook extends ManagedAsset {
     this.isEncrypted = false,
   }) : super(assetType: 'notebook');
 
-  factory Notebook.fromJson(Map<String, dynamic> json, List<Unit> units, List<BssidMapping> bssidMappings) {
-    
-    // ✅ PRIORIZA DADOS DO SERVIDOR (se existirem)
+  // ===================================================================
+  // ✅ CONSTRUTOR ATUALIZADO
+  // ===================================================================
+  factory Notebook.fromJson(
+    Map<String, dynamic> json,
+    List<Unit> units,
+    [List<BssidMapping>? bssidMappings]
+  ) {
+    // ✅ PRIORIZA DADOS DO SERVIDOR
     String? unit = json['unit'];
     String? sector = json['sector'];
     String? floor = json['floor'];
     String? location = json['location'];
 
-    // 🔥 SÓ MAPEIA SE O SERVIDOR NÃO ENVIOU OS DADOS
-    if ((unit == null || unit == 'N/A') || 
+    // ✅ LOGS DE DEBUG PARA DIAGNÓSTICO
+    final serialNumber = json['serial_number'] ?? 'N/A';
+    final macAddress = json['mac_address'] ?? json['mac_address_radio'] ?? 'N/A';
+    
+    print('🔍 Notebook $serialNumber:');
+    print('   MAC Address: $macAddress');
+    print('   IP: ${json['ip_address']}');
+    print('   Unit (servidor): $unit');
+    print('   Sector (servidor): $sector');
+    print('   Floor (servidor): $floor');
+
+    // 🔥 SÓ MAPEIA SE AUSENTE
+    final bool shouldMap = 
+        (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
         (sector == null || sector == 'Desconhecido') ||
-        (floor == null || floor == 'Desconhecido')) {
-      
-      print('⚠️ Notebook ${json['serial_number']}: Dados de localização ausentes, mapeando localmente...');
+        (floor == null || floor == 'Desconhecido');
+
+    if (shouldMap) {
+      print('⚠️ Notebook $serialNumber: Mapeando localização localmente...');
       
       final locationData = LocationMapperService.mapLocation(
         units: units,
-        bssidMappings: bssidMappings,
+        bssidMappings: bssidMappings ?? [],
         ip: json['ip_address'] ?? 'N/A',
-        macAddress: json['mac_address_radio'] ?? json['mac_address'] ?? 'N/A',
+        macAddress: macAddress, // ✅ USA A VARIÁVEL JÁ PROCESSADA
         originalLocation: location ?? 'N/D',
       );
 
-      // Usa os dados mapeados
-      unit = locationData.unitName;
-      sector = locationData.sector;
-      floor = locationData.floor;
-      location = locationData.locationName;
+      unit ??= locationData.unitName;
+      sector ??= locationData.sector;
+      floor ??= locationData.floor;
+      location ??= locationData.locationName;
       
       print('✅ Mapeamento local: Unit=$unit | Sector=$sector | Floor=$floor');
     } else {
-      print('✅ Notebook ${json['serial_number']}: Usando dados do servidor - Unit=$unit | Sector=$sector | Floor=$floor');
+      print('✅ Notebook $serialNumber: Usando dados do servidor');
     }
+
+    // ===================================================================
+    // FIM DA SEÇÃO ATUALIZADA
+    // ===================================================================
 
     return Notebook(
       id: json['_id'] ?? json['id'],
@@ -100,10 +122,10 @@ class Notebook extends ManagedAsset {
       lastSeen: DateTime.parse(json['last_seen']),
       location: location,
       assignedTo: json['assigned_to'],
-      customData: json['custom_data'] != null 
-          ? Map<String, dynamic>.from(json['custom_data']) 
+      customData: json['custom_data'] != null
+          ? Map<String, dynamic>.from(json['custom_data'])
           : {},
-      
+
       // ✅ USA OS DADOS FINAIS (servidor ou mapeados)
       unit: unit,
       sector: sector,

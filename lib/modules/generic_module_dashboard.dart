@@ -592,7 +592,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
             onAssetDelete: (asset) => _showDeleteAssetDialog(asset),
             columns: columns,
             authService: widget.authService,
-            moduleConfig: widget.moduleConfig);
+            moduleConfig: widget.moduleConfig, selectedAssets: [], onSelectionChanged: (List<ManagedAsset> p1) {  },);
 
       // Aba 2: Manutenção (Nova)
       case 2:

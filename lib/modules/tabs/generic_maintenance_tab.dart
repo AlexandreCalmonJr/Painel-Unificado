@@ -13,9 +13,8 @@ class GenericMaintenanceTab extends StatelessWidget {
   final Function(String, {bool isError}) showSnackbar;
   final Function(ManagedAsset) onEditAsset;
   final Function(ManagedAsset) onDeleteAsset;
-  final List<TableColumnConfig> columns; // <-- CAMPO ADICIONADO
-  final AuthService authService; // ✅ CORRIGIDO: Removido o segundo moduleConfig
-
+  final List<TableColumnConfig> columns;
+  final AuthService authService;
 
   const GenericMaintenanceTab({
     super.key,
@@ -30,8 +29,11 @@ class GenericMaintenanceTab extends StatelessWidget {
     required this.authService,
   });
 
-  Future<void> _updateMaintenanceStatus(ManagedAsset asset, bool setMaintenance) async {
-    final newStatus = setMaintenance ? 'maintenance' : 'offline'; // Define offline ao retornar
+  Future<void> _updateMaintenanceStatus(
+      ManagedAsset asset, bool setMaintenance) async {
+    // Define 'offline' ao retornar de manutenção,
+    // pois o agente ainda não reportou o status 'online'
+    final newStatus = setMaintenance ? 'maintenance' : 'offline';
     try {
       await moduleService.updateAsset(
         moduleId: moduleConfig.id,
@@ -72,13 +74,15 @@ class GenericMaintenanceTab extends StatelessWidget {
           child: GenericManagedAssetsCard(
             title: 'Ativos em Manutenção (${maintenanceAssets.length})',
             assets: maintenanceAssets,
-            columns: columns, 
+            columns: columns,
             showActions: true,
             onAssetUpdate: onEditAsset,
             onAssetDelete: onDeleteAsset,
             onMaintenanceUpdate: _updateMaintenanceStatus,
             authService: authService,
             moduleConfig: moduleConfig,
+            selectedAssets: const [], // Sem seleção múltipla aqui
+            onSelectionChanged: null, // Sem seleção múltipla aqui
           ),
         ),
       ],
