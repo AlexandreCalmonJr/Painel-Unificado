@@ -24,6 +24,9 @@ class Notebook extends ManagedAsset {
   final Map<String, dynamic>? hardwareInfo;
   final bool isEncrypted;
   final String biometricReaderStatus;
+  final DateTime? lastSyncTime; // Última sincronização
+  final String? currentUser; // Usuário logado no AD
+  final int? uptimeSeconds;
 
   Notebook({
     required super.id,
@@ -56,6 +59,9 @@ class Notebook extends ManagedAsset {
     this.lastUpdateCheck,
     this.hardwareInfo,
     this.isEncrypted = false,
+    this.lastSyncTime,
+    this.currentUser,
+    this.uptimeSeconds,
   }) : super(assetType: 'notebook');
 
   // ===================================================================
@@ -63,9 +69,9 @@ class Notebook extends ManagedAsset {
   // ===================================================================
   factory Notebook.fromJson(
     Map<String, dynamic> json,
-    List<Unit> units,
-    [List<BssidMapping>? bssidMappings]
-  ) {
+    List<Unit> units, [
+    List<BssidMapping>? bssidMappings,
+  ]) {
     // ✅ PRIORIZA DADOS DO SERVIDOR
     String? unit = json['unit'];
     String? sector = json['sector'];
@@ -74,8 +80,9 @@ class Notebook extends ManagedAsset {
 
     // ✅ LOGS DE DEBUG PARA DIAGNÓSTICO
     final serialNumber = json['serial_number'] ?? 'N/A';
-    final macAddress = json['mac_address'] ?? json['mac_address_radio'] ?? 'N/A';
-    
+    final macAddress =
+        json['mac_address'] ?? json['mac_address_radio'] ?? 'N/A';
+
     print('🔍 Notebook $serialNumber:');
     print('   MAC Address: $macAddress');
     print('   IP: ${json['ip_address']}');
@@ -84,14 +91,14 @@ class Notebook extends ManagedAsset {
     print('   Floor (servidor): $floor');
 
     // 🔥 SÓ MAPEIA SE AUSENTE
-    final bool shouldMap = 
+    final bool shouldMap =
         (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
         (sector == null || sector == 'Desconhecido') ||
         (floor == null || floor == 'Desconhecido');
 
     if (shouldMap) {
       print('⚠️ Notebook $serialNumber: Mapeando localização localmente...');
-      
+
       final locationData = LocationMapperService.mapLocation(
         units: units,
         bssidMappings: bssidMappings ?? [],
@@ -104,7 +111,7 @@ class Notebook extends ManagedAsset {
       sector ??= locationData.sector;
       floor ??= locationData.floor;
       location ??= locationData.locationName;
-      
+
       print('✅ Mapeamento local: Unit=$unit | Sector=$sector | Floor=$floor');
     } else {
       print('✅ Notebook $serialNumber: Usando dados do servidor');
@@ -122,10 +129,16 @@ class Notebook extends ManagedAsset {
       lastSeen: DateTime.parse(json['last_seen']),
       location: location,
       assignedTo: json['assigned_to'],
-      customData: json['custom_data'] != null
-          ? Map<String, dynamic>.from(json['custom_data'])
-          : {},
-
+      customData:
+          json['custom_data'] != null
+              ? Map<String, dynamic>.from(json['custom_data'])
+              : {},
+      lastSyncTime:
+          json['last_sync_time'] != null
+              ? DateTime.parse(json['last_sync_time'])
+              : null,
+      currentUser: json['current_user'],
+      uptimeSeconds: json['uptime_seconds'],
       // ✅ USA OS DADOS FINAIS (servidor ou mapeados)
       unit: unit,
       sector: sector,
@@ -144,17 +157,20 @@ class Notebook extends ManagedAsset {
       batteryLevel: json['battery_level'],
       batteryHealth: json['battery_health'],
       biometricReaderStatus: json['biometric_reader_status'] ?? 'N/A',
-      installedSoftware: json['installed_software'] != null
-          ? List<String>.from(json['installed_software'])
-          : [],
+      installedSoftware:
+          json['installed_software'] != null
+              ? List<String>.from(json['installed_software'])
+              : [],
       antivirusStatus: json['antivirus_status'] ?? false,
       antivirusVersion: json['antivirus_version'],
-      lastUpdateCheck: json['last_update_check'] != null
-          ? DateTime.parse(json['last_update_check'])
-          : null,
-      hardwareInfo: json['hardware_info'] != null
-          ? Map<String, dynamic>.from(json['hardware_info'])
-          : null,
+      lastUpdateCheck:
+          json['last_update_check'] != null
+              ? DateTime.parse(json['last_update_check'])
+              : null,
+      hardwareInfo:
+          json['hardware_info'] != null
+              ? Map<String, dynamic>.from(json['hardware_info'])
+              : null,
       isEncrypted: json['is_encrypted'] ?? false,
     );
   }
@@ -170,12 +186,16 @@ class Notebook extends ManagedAsset {
       'location': location,
       'assigned_to': assignedTo,
       'custom_data': customData,
+      'last_sync_time': lastSyncTime?.toIso8601String(),
+      'current_user': currentUser,
+      'uptime_seconds': uptimeSeconds,
       'unit': unit,
       'sector': sector,
       'floor': floor,
-      'sector_floor': (sector != null || floor != null)
-          ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
-          : (location ?? 'N/D'),
+      'sector_floor':
+          (sector != null || floor != null)
+              ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
+              : (location ?? 'N/D'),
       'hostname': hostname,
       'model': model,
       'manufacturer': manufacturer,
@@ -196,5 +216,22 @@ class Notebook extends ManagedAsset {
       'hardware_info': hardwareInfo,
       'is_encrypted': isEncrypted,
     };
+  }
+  
+  String get formattedUptime {
+    if (uptimeSeconds == null) return 'N/D';
+    
+    final duration = Duration(seconds: uptimeSeconds!);
+    final days = duration.inDays;
+    final hours = duration.inHours % 24;
+    final minutes = duration.inMinutes % 60;
+    
+    if (days > 0) {
+      return '${days}d ${hours}h ${minutes}m';
+    } else if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    } else {
+      return '${minutes}m';
+    }
   }
 }

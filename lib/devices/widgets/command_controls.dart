@@ -6,13 +6,13 @@ import 'package:painel_windowns/services/device_service.dart';
 
 enum DeviceAction { 
   lock, 
-  setMaintenance, 
+  setMaintenance,      // Manutenção normal
   uninstallApp, 
   installApp, 
   delete, 
-  collectedByIT,
-  markForMaintenance, // NOVA AÇÃO
-  returnToProduction 
+  collectedByIT,       // Recolhido pela TI (roxo)
+  markForMaintenance,  // Da collected → manutenção
+  returnToProduction   // Voltar à produção
 }
 
 class CommandControls extends StatelessWidget {

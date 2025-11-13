@@ -33,6 +33,9 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     'battery_level': 'Bateria %',
     'model': 'Modelo',
     'manufacturer': 'Fabricante',
+    'current_user': 'Usuario Logado',
+    'last_sync_time': 'Ultima sincronização',
+    'uptime':'Tempo Ligado',
     // Desktop/Notebook específicos
     'processor': 'Processador',
     'ram': 'Memória RAM',
@@ -64,6 +67,9 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     {'dataKey': 'hostname', 'label': 'Hostname'},
     {'dataKey': 'serial_number', 'label': 'Serial'},
     {'dataKey': 'status', 'label': 'Status'},
+    {'dataKey': 'current_user', 'label': 'Usuário AD'},
+    {'dataKey': 'last_sync_time', 'label': 'Última Sync'},
+    {'dataKey': 'uptime', 'label': 'Tempo Ligado'},
     {'dataKey': 'ip_address', 'label': 'IP'},
     {'dataKey': 'sector_floor', 'label': 'Setor / Andar'},
     {'dataKey': 'processor', 'label': 'Processador'},
@@ -74,6 +80,8 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     {'dataKey': 'connected_printer', 'label': 'Impressora'},
     {'dataKey': 'java_version', 'label': 'Java'},
     {'dataKey': 'browser_version', 'label': 'Navegador'},
+    
+
   ];
 
   /// PANEL - Colunas sugeridas:
@@ -120,6 +128,9 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     {'dataKey': 'ram', 'label': 'Memória'},
     {'dataKey': 'storage', 'label': 'Armazenamento'},
     {'dataKey': 'operating_system', 'label': 'Sistema Operacional'},
+    {'dataKey': 'current_user', 'label': 'Usuário AD'},
+    {'dataKey': 'last_sync_time', 'label': 'Última Sync'},
+    {'dataKey': 'uptime', 'label': 'Tempo Ligado'},
     // ✅ Removendo duplicatas da sua lista original
   ];
 
