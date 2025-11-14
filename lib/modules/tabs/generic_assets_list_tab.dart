@@ -1,4 +1,4 @@
-// File: lib/tabs/generic_assets_list_tab.dart
+// File: lib/tabs/generic_assets_list_tab.dart (CORRIGIDO)
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart';
@@ -12,11 +12,11 @@ class GenericAssetsListTab extends StatelessWidget {
   final Function(int) onPageChange;
   final Function(String) onSearch;
   final VoidCallback onRefresh;
-  final Function(ManagedAsset) onAssetUpdate;
-  final Function(ManagedAsset) onAssetDelete;
+  // ❌ REMOVIDO: onAssetUpdate
+  // ❌ REMOVIDO: onAssetDelete
   final List<TableColumnConfig> columns;
-  final AuthService authService; // ✅ TIPO CORRIGIDO
-  final AssetModuleConfig moduleConfig; // ✅ TIPO CORRIGIDO
+  final AuthService authService;
+  final AssetModuleConfig moduleConfig;
 
   // ✅ CAMPOS ADICIONADOS PARA SELEÇÃO MÚLTIPLA
   final List<ManagedAsset> selectedAssets;
@@ -31,8 +31,8 @@ class GenericAssetsListTab extends StatelessWidget {
     required this.onPageChange,
     required this.onSearch,
     required this.onRefresh,
-    required this.onAssetUpdate,
-    required this.onAssetDelete,
+    // ❌ REMOVIDO: onAssetUpdate
+    // ❌ REMOVIDO: onAssetDelete
     required this.columns,
     required this.authService,
     required this.moduleConfig,
@@ -95,8 +95,10 @@ class GenericAssetsListTab extends StatelessWidget {
                                 columns: columns,
                                 assets: displayedAssets,
                                 showActions: true,
-                                onAssetUpdate: onAssetUpdate,
-                                onAssetDelete: onAssetDelete,
+                                
+                                // ✅ CORREÇÃO APLICADA AQUI
+                                onAssetChanged: onRefresh, // Passa a função de recarregar
+                                
                                 moduleConfig: moduleConfig,
                                 authService: authService,                                
                               ),

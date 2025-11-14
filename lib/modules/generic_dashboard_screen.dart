@@ -1,4 +1,4 @@
-// File: lib/screens/generic_dashboard_screen.dart
+// File: lib/screens/generic_dashboard_screen.dart (CORRIGIDO)
 
 import 'dart:async';
 
@@ -37,9 +37,6 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   List<ManagedAsset> _displayedAssets = [];
   List<Unit> _units = []; // Armazena as Unidades
   
-  // *** ALTERAÇÃO 1: Adicionado _bssidMappings ***
-  // Baseado no código original que passava '[]' para Notebook.fromJson.
-  // Se você carregar esses dados, faça-o em _initializeData (similar a _loadUnits).
   List<BssidMapping> _bssidMappings = []; 
 
   int _currentPage = 1;
@@ -63,13 +60,12 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   Future<void> _initializeData() async {
     setState(() => isLoading = true);
     await _loadUnits();
-    await _loadBssidMappings(); // Chame o método para carregar BSSID mappings
+    await _loadBssidMappings(); 
     await _loadAssets(isInitialLoad: true);
     setState(() => isLoading = false);
 
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
-        // Atualiza silenciosamente, sem "isLoading"
         _loadAssets(isInitialLoad: false);
       }
     });
@@ -103,14 +99,12 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     if (isInitialLoad) setState(() => isLoading = true);
 
     try {
-      // *** ALTERAÇÃO 2: Bloco "ANTES" substituído pelo "DEPOIS" ***
-      // 1. Busca os ativos já processados (parsing movido para o serviço)
       final List<ManagedAsset> parsedAssets =
           await _moduleService.listModuleAssetsTyped(
         moduleId: widget.moduleConfig.id,
         moduleType: widget.moduleConfig.type,
         units: _units,
-        bssidMappings: _bssidMappings, // Usando a nova variável de estado
+        bssidMappings: _bssidMappings, 
       );
 
       if (mounted) {
@@ -201,63 +195,25 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     );
   }
 
-  // --- Dialogs de Edição/Exclusão ---
+  // --- Funções de Diálogo (Edit/Delete) ---
+  // (Estas funções são chamadas pelo asset_command_controls.dart agora,
+  // mas podem ser mantidas aqui se você quiser adicionar um pop-up de "Editar")
+  
+  // Exemplo: _showEditAssetDialog é chamado por asset_command_controls
+  // (Você precisará implementar o pop-up de edição)
   Future<void> _showEditAssetDialog(ManagedAsset asset) async {
     _showSnackbar('Função "Editar" para ${asset.assetName} não implementada.',
         isError: true);
-    _loadAssets(isInitialLoad: true);
+    // Após salvar a edição, chame _loadAssets
+    // _loadAssets(isInitialLoad: true); 
   }
 
-  Future<void> _showDeleteAssetDialog(ManagedAsset asset) async {
-    _showSnackbar(
-        'Função "Excluir" para ${asset.assetName} chamada (implementação pendente).',
-        isError: false);
-    
-    
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirmar Exclusão'),
-          content: Text('Tem certeza que deseja excluir o ativo "${asset.assetName}"?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Excluir'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed == true) {
-      try {
-        await _moduleService.deleteAsset(
-            moduleId: widget.moduleConfig.id, assetId: asset.id);
-        _showSnackbar('Ativo excluído com sucesso');
-        _loadAssets(isInitialLoad: true); // Recarrega a lista
-      } catch (e) {
-        _showSnackbar('Erro ao excluir: $e', isError: true);
-      }
-    }
-    
-
-    try {
-      await _moduleService.deleteAsset(
-          moduleId: widget.moduleConfig.id, assetId: asset.id);
-      _showSnackbar('Ativo excluído com sucesso');
-      _loadAssets(isInitialLoad: true);
-    } catch (e) {
-      _showSnackbar('Erro ao excluir: $e', isError: true);
-    }
-  }
-
-  IconData _getModuleIcon() {
+  // _showDeleteAssetDialog não é mais necessário aqui,
+  // pois asset_command_controls.dart cuida do pop-up de deleção.
+  
+  // ... (funções _getModuleIcon, _buildSidebar, _buildAppBar) ...
+  
+    IconData _getModuleIcon() {
     switch (widget.moduleConfig.type.iconName) {
       case 'phone_android':
         return Icons.phone_android;
@@ -587,12 +543,16 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
             totalPages: _totalPages,
             onPageChange: _changePage,
             onSearch: _performSearch,
-            onRefresh: () => _loadAssets(isInitialLoad: true),
-            onAssetUpdate: (asset) => _showEditAssetDialog(asset),
-            onAssetDelete: (asset) => _showDeleteAssetDialog(asset),
+            
+            // ✅ CORREÇÃO APLICADA AQUI
+            onRefresh: () => _loadAssets(isInitialLoad: true), 
+            // ❌ REMOVIDO: onAssetUpdate e onDeleteAsset
+            
             columns: columns,
             authService: widget.authService,
-            moduleConfig: widget.moduleConfig, selectedAssets: [], onSelectionChanged: (List<ManagedAsset> p1) {  },);
+            moduleConfig: widget.moduleConfig, 
+            selectedAssets: [], // TODO: Implementar lógica de seleção
+            onSelectionChanged: (List<ManagedAsset> p1) {  },); // TODO: Implementar
 
       // Aba 2: Manutenção (Nova)
       case 2:
@@ -600,10 +560,15 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
           allAssets: _allAssets,
           moduleConfig: widget.moduleConfig,
           moduleService: _moduleService,
-          onRefresh: () => _loadAssets(isInitialLoad: true),
+          
+          
+          // ✅ CORREÇÃO APLICADA AQUI
+          onRefresh: () => _loadAssets(isInitialLoad: true), 
+          
           showSnackbar: _showSnackbar,
-          onEditAsset: (asset) => _showEditAssetDialog(asset),
-          onDeleteAsset: (asset) => _showDeleteAssetDialog(asset),
+          
+          // ❌ REMOVIDO: onEditAsset e onDeleteAsset
+          
           columns: columns,
           authService: widget.authService,
         );

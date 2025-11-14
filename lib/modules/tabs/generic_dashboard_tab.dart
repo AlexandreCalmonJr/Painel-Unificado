@@ -1,4 +1,4 @@
-// File: lib/tabs/generic_dashboard_tab.dart
+// File: lib/tabs/generic_dashboard_tab.dart (CORRIGIDO)
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/devices/widgets/stat_card.dart'; // Import do StatCard
 import 'package:painel_windowns/models/asset_module_base.dart';
@@ -93,10 +93,12 @@ class GenericDashboardTab extends StatelessWidget {
               title: '($moduleType) Gerenciados (${allAssets.length})',
               columns: columns, 
               assets: allAssets,
-              showActions: false,
+              showActions: false, // Ações desabilitadas no dashboard
               authService: authService,
               moduleConfig: moduleConfig,
-              // ✅ ADICIONAR
+              
+              // ✅ CORREÇÃO APLICADA AQUI
+              onAssetChanged: onRefresh, // Passa a função de recarregar
             ),
           ),
         ],

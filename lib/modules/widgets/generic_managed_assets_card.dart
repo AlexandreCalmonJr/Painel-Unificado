@@ -2,9 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/asset_detail_screen.dart';
+// ✅ 1. IMPORTAR O WIDGET DE CONTROLES
+import 'package:painel_windowns/modules/widgets/asset_command_controls.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
-enum AssetAction { edit, delete, markMaintenance, returnProduction }
+// ❌ 2. REMOVIDO O ENUM ANTIGO (AssetAction) que não é mais necessário aqui
 
 class GenericManagedAssetsCard extends StatelessWidget {
   final String title;
@@ -13,9 +15,12 @@ class GenericManagedAssetsCard extends StatelessWidget {
   final AssetModuleConfig moduleConfig;
   final bool showActions;
   final AuthService authService;
-  final Function(ManagedAsset)? onAssetUpdate;
-  final Function(ManagedAsset)? onAssetDelete;
-  final Function(ManagedAsset, bool)? onMaintenanceUpdate;
+  
+  // ✅ 3. CALLBACKS ANTIGOS REMOVIDOS E SUBSTITUÍDOS
+  //    (onAssetUpdate, onAssetDelete, onMaintenanceUpdate removidos)
+  //    Adicionamos um callback genérico para recarregar a lista
+  final VoidCallback onAssetChanged;
+
 
   const GenericManagedAssetsCard({
     super.key,
@@ -24,10 +29,8 @@ class GenericManagedAssetsCard extends StatelessWidget {
     required this.columns,
     required this.moduleConfig,
     required this.authService,
+    required this.onAssetChanged, // ✅ Adicionado
     this.showActions = false,
-    this.onAssetUpdate,
-    this.onAssetDelete,
-    this.onMaintenanceUpdate,
   });
 
   @override
@@ -207,6 +210,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
           return DataCell(_buildDefaultCell(value));
         }),
         
+        // ✅ 4. CÉLULA DE AÇÕES CORRIGIDA
         if (showActions) DataCell(_buildActionsMenu(context, asset)),
       ],
     );
@@ -276,68 +280,17 @@ class GenericManagedAssetsCard extends StatelessWidget {
     );
   }
 
-  /// Menu de ações do ativo
+  /// ✅ 5. FUNÇÃO DE MENU CORRIGIDA
+  /// Menu de ações do ativo (Agora usa o widget "inteligente")
   Widget _buildActionsMenu(BuildContext context, ManagedAsset asset) {
-    bool isInMaintenance = asset.status.toLowerCase() == 'maintenance';
-
-    return PopupMenuButton<AssetAction>(
-      onSelected: (action) {
-        if (action == AssetAction.edit) {
-          onAssetUpdate?.call(asset);
-        } else if (action == AssetAction.delete) {
-          onAssetDelete?.call(asset);
-        } else if (action == AssetAction.markMaintenance) {
-          onMaintenanceUpdate?.call(asset, true);
-        } else if (action == AssetAction.returnProduction) {
-          onMaintenanceUpdate?.call(asset, false);
-        }
-      },
-      itemBuilder: (context) => [
-        if (isInMaintenance)
-          const PopupMenuItem(
-            value: AssetAction.returnProduction,
-            child: ListTile(
-              leading: Icon(
-                Icons.check_circle_outline,
-                color: Colors.green,
-              ),
-              title: Text('Retornar à Produção'),
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-            ),
-          )
-        else
-          const PopupMenuItem(
-            value: AssetAction.markMaintenance,
-            child: ListTile(
-              leading: Icon(Icons.build_outlined, color: Colors.orange),
-              title: Text('Marcar Manutenção'),
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-            ),
-          ),
-        const PopupMenuDivider(),
-        const PopupMenuItem(
-          value: AssetAction.edit,
-          child: ListTile(
-            leading: Icon(Icons.edit_outlined),
-            title: Text('Editar'),
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-          ),
-        ),
-        const PopupMenuItem(
-          value: AssetAction.delete,
-          child: ListTile(
-            leading: Icon(Icons.delete_outline, color: Colors.red),
-            title: Text('Excluir', style: TextStyle(color: Colors.red)),
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-          ),
-        ),
-      ],
+    return AssetCommandControls(
+      asset: asset,
+      moduleId: moduleConfig.id,
+      authService: authService,
+      onCommandExecuted: onAssetChanged, // Passa o callback de recarregar
     );
   }
+
 
   /// Chip de status do ativo
   Widget _buildStatusChip(String status) {

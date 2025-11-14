@@ -1,4 +1,4 @@
-// File: lib/services/module_management_service.dart (VERSÃO CORRIGIDA - CRÍTICA)
+// File: lib/services/module_management_service.dart (VERSÃO CORRIGIDA)
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -309,24 +309,28 @@ class ModuleManagementService {
   }
 
   // ===================================================================
-  // MANUTENÇÃO
+  // ⚠️ MANUTENÇÃO (CORRIGIDA) ⚠️
   // ===================================================================
   Future<Map<String, dynamic>> setMaintenanceMode({
     required String moduleId,
     required String assetId,
-    required bool maintenanceMode,
+    required bool maintenanceMode, // <-- Nome do parâmetro do Flutter
     String? reason,
   }) async {
     if (_token == null) throw Exception("Não autenticado");
 
+    // ✅ CORREÇÃO 1: Mapeamento dos nomes de campos
     final body = {
-      'maintenance_mode': maintenanceMode,
-      if (reason != null) 'maintenance_reason': reason,
+      'maintenance_status': maintenanceMode, // <-- Nome do campo do servidor
+      'status': maintenanceMode ? 'maintenance' : 'online', // <-- Atualiza o status principal
+      'maintenance_reason': reason ?? '',
+      'maintenance_ticket': reason ?? '', // O painel usa a razão como ticket
     };
 
     final response = await _performHttpRequest(
       request: () => http.patch(
-        Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId/maintenance'),
+        // ✅ CORREÇÃO 2: URL corrigida (removido /maintenance no final)
+        Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId'),
         headers: _headers,
         body: jsonEncode(body),
       ),
@@ -335,6 +339,7 @@ class ModuleManagementService {
 
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
+
 
   // ===================================================================
   // PERMISSÕES
