@@ -15,10 +15,10 @@ class AssetComparisonScreen extends StatefulWidget {
   final AssetModuleConfig moduleConfig;
 
   const AssetComparisonScreen({
-    Key? key, // ✅ Adicionado Key ao construtor
+    super.key, // ✅ Adicionado Key ao construtor
     required this.selectedAssets,
     required this.moduleConfig,
-  }) : super(key: key);
+  });
 
   @override
   State<AssetComparisonScreen> createState() => _AssetComparisonScreenState();

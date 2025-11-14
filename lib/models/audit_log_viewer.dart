@@ -13,10 +13,10 @@ class AuditLogViewer extends StatelessWidget {
   final AuthService authService;
 
   const AuditLogViewer({
-    Key? key, // ✅ Adicionado Key
+    super.key, // ✅ Adicionado Key
     required this.assetId,
     required this.authService,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -22,7 +22,7 @@ class AssetCommandControls extends StatelessWidget {
     required this.asset,
     required this.moduleId,
     required this.authService,
-    required this.onCommandExecuted,
+    required this.onCommandExecuted, required Function() onEditPressed,
   });
 
   void _handleAction(BuildContext context, AssetAction action) {

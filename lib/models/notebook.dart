@@ -1,4 +1,6 @@
+// ========================================
 // File: lib/models/notebook.dart (CORRIGIDO)
+// ========================================
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
@@ -24,9 +26,13 @@ class Notebook extends ManagedAsset {
   final Map<String, dynamic>? hardwareInfo;
   final bool isEncrypted;
   final String biometricReaderStatus;
-  final DateTime? lastSyncTime; // Última sincronização
-  final String? currentUser; // Usuário logado no AD
-  final int? uptimeSeconds;
+
+  // ✅ CAMPOS CORRIGIDOS
+  @override
+  final String? currentUser;
+  @override
+  final String? uptime;
+  final DateTime? updatedAt;
 
   Notebook({
     required super.id,
@@ -59,26 +65,21 @@ class Notebook extends ManagedAsset {
     this.lastUpdateCheck,
     this.hardwareInfo,
     this.isEncrypted = false,
-    this.lastSyncTime,
     this.currentUser,
-    this.uptimeSeconds,
+    this.uptime,
+    this.updatedAt,
   }) : super(assetType: 'notebook');
 
-  // ===================================================================
-  // ✅ CONSTRUTOR ATUALIZADO
-  // ===================================================================
   factory Notebook.fromJson(
     Map<String, dynamic> json,
     List<Unit> units, [
     List<BssidMapping>? bssidMappings,
   ]) {
-    // ✅ PRIORIZA DADOS DO SERVIDOR
     String? unit = json['unit'];
     String? sector = json['sector'];
     String? floor = json['floor'];
     String? location = json['location'];
 
-    // ✅ LOGS DE DEBUG PARA DIAGNÓSTICO
     final serialNumber = json['serial_number'] ?? 'N/A';
     final macAddress =
         json['mac_address'] ?? json['mac_address_radio'] ?? 'N/A';
@@ -90,7 +91,6 @@ class Notebook extends ManagedAsset {
     print('   Sector (servidor): $sector');
     print('   Floor (servidor): $floor');
 
-    // 🔥 SÓ MAPEIA SE AUSENTE
     final bool shouldMap =
         (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
         (sector == null || sector == 'Desconhecido') ||
@@ -103,7 +103,7 @@ class Notebook extends ManagedAsset {
         units: units,
         bssidMappings: bssidMappings ?? [],
         ip: json['ip_address'] ?? 'N/A',
-        macAddress: macAddress, // ✅ USA A VARIÁVEL JÁ PROCESSADA
+        macAddress: macAddress,
         originalLocation: location ?? 'N/D',
       );
 
@@ -117,10 +117,6 @@ class Notebook extends ManagedAsset {
       print('✅ Notebook $serialNumber: Usando dados do servidor');
     }
 
-    // ===================================================================
-    // FIM DA SEÇÃO ATUALIZADA
-    // ===================================================================
-
     return Notebook(
       id: json['_id'] ?? json['id'],
       assetName: json['asset_name'] ?? json['hostname'],
@@ -133,13 +129,15 @@ class Notebook extends ManagedAsset {
           json['custom_data'] != null
               ? Map<String, dynamic>.from(json['custom_data'])
               : {},
-      lastSyncTime:
-          json['last_sync_time'] != null
-              ? DateTime.parse(json['last_sync_time'])
-              : null,
+
+      // ✅ CAMPOS CORRIGIDOS
+      updatedAt:
+          json['updated_at'] != null
+              ? DateTime.parse(json['updated_at'])
+              : DateTime.parse(json['last_seen']),
       currentUser: json['current_user'],
-      uptimeSeconds: json['uptime_seconds'],
-      // ✅ USA OS DADOS FINAIS (servidor ou mapeados)
+      uptime: json['uptime'],
+
       unit: unit,
       sector: sector,
       floor: floor,
@@ -186,9 +184,12 @@ class Notebook extends ManagedAsset {
       'location': location,
       'assigned_to': assignedTo,
       'custom_data': customData,
-      'last_sync_time': lastSyncTime?.toIso8601String(),
+
+      // ✅ CAMPOS ADICIONADOS
+      'updated_at': updatedAt?.toIso8601String(),
       'current_user': currentUser,
-      'uptime_seconds': uptimeSeconds,
+      'uptime': uptime,
+
       'unit': unit,
       'sector': sector,
       'floor': floor,
@@ -216,22 +217,5 @@ class Notebook extends ManagedAsset {
       'hardware_info': hardwareInfo,
       'is_encrypted': isEncrypted,
     };
-  }
-  
-  String get formattedUptime {
-    if (uptimeSeconds == null) return 'N/D';
-    
-    final duration = Duration(seconds: uptimeSeconds!);
-    final days = duration.inDays;
-    final hours = duration.inHours % 24;
-    final minutes = duration.inMinutes % 60;
-    
-    if (days > 0) {
-      return '${days}d ${hours}h ${minutes}m';
-    } else if (hours > 0) {
-      return '${hours}h ${minutes}m';
-    } else {
-      return '${minutes}m';
-    }
   }
 }

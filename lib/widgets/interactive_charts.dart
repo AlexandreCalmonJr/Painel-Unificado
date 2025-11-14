@@ -6,7 +6,7 @@ import 'package:painel_windowns/models/asset_module_base.dart'; // Import presum
 class AssetStatusChart extends StatelessWidget {
   final List<ManagedAsset> assets;
 
-  const AssetStatusChart({Key? key, required this.assets}) : super(key: key);
+  const AssetStatusChart({super.key, required this.assets});
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +67,7 @@ class AssetStatusChart extends StatelessWidget {
 class LocationHeatmap extends StatelessWidget {
   final List<ManagedAsset> assets;
 
-  const LocationHeatmap({Key? key, required this.assets}) : super(key: key);
+  const LocationHeatmap({super.key, required this.assets});
 
   @override
   Widget build(BuildContext context) {

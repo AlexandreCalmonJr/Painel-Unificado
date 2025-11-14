@@ -6,7 +6,7 @@ import 'package:painel_windowns/widgets/asset_search_filter.dart';
 class AdvancedSearchBar extends StatefulWidget {
   final Function(AssetSearchFilter) onSearch;
 
-  const AdvancedSearchBar({Key? key, required this.onSearch}) : super(key: key);
+  const AdvancedSearchBar({super.key, required this.onSearch});
 
   @override
   State<AdvancedSearchBar> createState() => _AdvancedSearchBarState();
@@ -67,7 +67,7 @@ class _AdvancedSearchBarState extends State<AdvancedSearchBar> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _selectedStatus,
+                    initialValue: _selectedStatus,
                     decoration: const InputDecoration(
                       labelText: 'Status',
                       border: OutlineInputBorder(),
@@ -84,7 +84,7 @@ class _AdvancedSearchBarState extends State<AdvancedSearchBar> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _selectedUnit,
+                    initialValue: _selectedUnit,
                     decoration: const InputDecoration(
                       labelText: 'Unidade',
                       border: OutlineInputBorder(),
@@ -103,7 +103,7 @@ class _AdvancedSearchBarState extends State<AdvancedSearchBar> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _selectedSector,
+                    initialValue: _selectedSector,
                     decoration: const InputDecoration(
                       labelText: 'Setor',
                       border: OutlineInputBorder(),

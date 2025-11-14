@@ -11,7 +11,7 @@ class GenericDashboardTab extends StatelessWidget {
   final String moduleType;
   final List<TableColumnConfig> columns; // <-- CAMPO ADICIONADO
   final dynamic authService;
-  
+
   final dynamic moduleConfig; // <-- ADICIONADO
 
   const GenericDashboardTab({
@@ -22,7 +22,7 @@ class GenericDashboardTab extends StatelessWidget {
     required this.moduleType,
     required this.columns, // <-- CAMPO ADICIONADO
     required this.authService,
-    required this.moduleConfig,// <-- ADICIONADO
+    required this.moduleConfig, // <-- ADICIONADO
   });
 
   @override
@@ -91,9 +91,10 @@ class GenericDashboardTab extends StatelessWidget {
           Expanded(
             child: GenericManagedAssetsCard(
               title: '($moduleType) Gerenciados (${allAssets.length})',
-              columns: columns, 
+              columns: columns,
               assets: allAssets,
               showActions: false,
+              onAssetChanged: onRefresh,
               authService: authService,
               moduleConfig: moduleConfig,
               // ✅ ADICIONAR

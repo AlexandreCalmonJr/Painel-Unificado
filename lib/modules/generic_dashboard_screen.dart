@@ -588,8 +588,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
             onPageChange: _changePage,
             onSearch: _performSearch,
             onRefresh: () => _loadAssets(isInitialLoad: true),
-            onAssetUpdate: (asset) => _showEditAssetDialog(asset),
-            onAssetDelete: (asset) => _showDeleteAssetDialog(asset),
+            
             columns: columns,
             authService: widget.authService,
             moduleConfig: widget.moduleConfig, selectedAssets: [], onSelectionChanged: (List<ManagedAsset> p1) {  },);
@@ -602,8 +601,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
           moduleService: _moduleService,
           onRefresh: () => _loadAssets(isInitialLoad: true),
           showSnackbar: _showSnackbar,
-          onEditAsset: (asset) => _showEditAssetDialog(asset),
-          onDeleteAsset: (asset) => _showDeleteAssetDialog(asset),
+                   
           columns: columns,
           authService: widget.authService,
         );
