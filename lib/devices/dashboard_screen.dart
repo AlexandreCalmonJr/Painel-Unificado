@@ -90,25 +90,12 @@ class _MDMDashboardState extends State<MDMDashboard> {
   Future<void> _loadUnits() async {
     final token = widget.authService.currentToken;
     if (token == null) return;
+    
     try {
-      final config = ServerConfigService.instance.loadConfig();
-      final response = await http.get(
-        Uri.parse("http://${config['ip']}:${config['port']}/api/units"),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-      if (mounted && response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        if (data['success'] == true && data['units'] is List) {
-          final List<dynamic> unitsList = data['units'];
-          setState(
-            () => units = unitsList.map((json) => Unit.fromJson(json)).toList(),
-          );
-        } else {
-          throw Exception(
-            data['message'] ??
-                'Formato de resposta inválido ao carregar unidades',
-          );
-        }
+      // ✅ CORREÇÃO: Usando o DeviceService centralizado
+      final fetchedUnits = await _deviceService.fetchUnits(token);
+      if (mounted) {
+        setState(() => units = fetchedUnits);
       }
     } catch (e) {
       if (mounted) {

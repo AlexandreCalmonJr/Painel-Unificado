@@ -46,8 +46,9 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
 
       String? serialNumber = widget.device.serialNumber;
 
-      if (serialNumber!.isEmpty) {
-        print('DEBUG: Serial number não encontrado no dispositivo');
+      // ✅ CORREÇÃO: Verificação segura para nulo ou vazio
+      if (serialNumber == null || serialNumber.isEmpty) {
+        print('DEBUG: Serial number nulo ou vazio no dispositivo');
         return [];
       }
 

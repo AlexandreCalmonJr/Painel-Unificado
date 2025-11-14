@@ -61,12 +61,12 @@ class DeviceService {
     final data = jsonDecode(response.body);
 
     List<dynamic> devicesList;
-    if (data is List) {
-      devicesList = data;
-    } else if (data is Map<String, dynamic> && data.containsKey('devices')) {
+    
+    // ✅ CORREÇÃO: Simplificado para corresponder à API (que sempre retorna um Map)
+    if (data is Map<String, dynamic> && data.containsKey('devices')) {
       devicesList = data['devices'] as List;
     } else {
-      throw Exception('Resposta inválida do servidor: Esperado uma lista de dispositivos.');
+      throw Exception('Resposta inválida do servidor: Esperado um mapa com a chave "devices".');
     }
     
     return devicesList.map((json) => Device.fromJson(json, units)).toList();
@@ -261,12 +261,20 @@ class DeviceService {
     );
 
     final data = jsonDecode(response.body);
-    if (data is List) {
+    
+    // ✅ CORREÇÃO: Lógica ajustada para ler a resposta da API corretamente
+    if (data is Map<String, dynamic> &&
+        data['success'] == true &&
+        data['units'] is List) {
+      return (data['units'] as List)
+          .map((json) => Unit.fromJson(json))
+          .toList();
+    } else if (data is List) {
+      // Mantendo por segurança caso alguma rota antiga ainda retorne lista pura
       return data.map((json) => Unit.fromJson(json)).toList();
-    } else if (data is Map<String, dynamic> && data.containsKey('units')) {
-      return (data['units'] as List).map((json) => Unit.fromJson(json)).toList();
     } else {
-      throw Exception('Resposta inválida do servidor: Esperado uma lista de unidades.');
+      throw Exception(
+          'Resposta inválida do servidor: Esperado "success: true" e uma lista de "units".');
     }
   }
 
