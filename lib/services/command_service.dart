@@ -105,7 +105,7 @@ class CommandService {
       'color': 'blue',
     },
     'restart_print_spooler': {
-      'label': 'Reiniciar Spooler de Impressão',
+      'label': 'Reiniciar Spooler',
       'icon': 'print',
       'description': 'Reinicia o serviço de impressão do Windows',
       'requiresElevation': true,
@@ -126,7 +126,7 @@ class CommandService {
       'color': 'teal',
     },
     'clear_temp': {
-      'label': 'Limpar Arquivos Temporários',
+      'label': 'Limpar Arquivos Temp',
       'icon': 'delete_sweep',
       'description': 'Remove arquivos da pasta TEMP',
       'requiresElevation': false,
@@ -138,6 +138,31 @@ class CommandService {
       'description': 'Reseta configurações de rede (Winsock, TCP/IP)',
       'requiresElevation': true,
       'color': 'indigo',
+    },
+    // ✅ NOVOS COMANDOS ADICIONADOS
+    'map_lpt2': {
+      'label': 'Mapear LPT2',
+      'icon': 'print',
+      'description': 'Mapeia compartilhamento de rede para LPT2',
+      'requiresElevation': true,
+      'color': 'teal',
+      'hasParams': true, // Habilita inputs no Dialog
+    },
+    'download_file': {
+      'label': 'Enviar Arquivo',
+      'icon': 'file_download',
+      'description': 'Baixa um arquivo da web para o disco local',
+      'requiresElevation': false,
+      'color': 'indigo',
+      'hasParams': true, // Habilita inputs no Dialog
+    },
+    'auto_start_app': {
+      'label': 'Auto Iniciar App',
+      'icon': 'play_circle',
+      'description': 'Configura app para iniciar ao ligar o PC',
+      'requiresElevation': true,
+      'color': 'green',
+      'hasParams': true, // Habilita inputs no Dialog
     },
   };
 }
