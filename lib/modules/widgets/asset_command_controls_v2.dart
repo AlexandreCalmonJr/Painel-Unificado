@@ -12,6 +12,7 @@ class AssetCommandControlsV2 extends StatelessWidget {
   final ManagedAsset asset;
   final String assetType;
   final String token;
+  final AuthService authService; // ✅ Adicionado
   final VoidCallback? onCommandExecuted;
 
   const AssetCommandControlsV2({
@@ -19,6 +20,7 @@ class AssetCommandControlsV2 extends StatelessWidget {
     required this.asset,
     required this.assetType,
     required this.token,
+    required this.authService, // ✅ Adicionado
     this.onCommandExecuted,
   });
 
@@ -81,39 +83,30 @@ class AssetCommandControlsV2 extends StatelessWidget {
     if (data == null) return;
 
     final service = ModuleManagementService(authService: authService);
-    final result = await service.setAssetMaintenance(
-      token: token,
-      assetType: assetType,
+    // ✅ CORREÇÃO: Usando setMaintenanceMode com argumentos corretos
+    await service.setMaintenanceMode(
+      moduleId: assetType,
       assetId: asset.id,
+      maintenanceMode: true,
       reason: data['reason'] ?? '',
-      ticketNumber: data['ticketNumber'] ?? '',
     );
 
-    if (result['success']) {
-      onCommandExecuted?.call();
-    } else {
-      throw Exception(result['message'] ?? 'Erro ao marcar manutenção');
-    }
+    onCommandExecuted?.call();
   }
 
   Future<void> _returnToProduction(BuildContext context, ManagedAsset asset) async {
     final service = ModuleManagementService(authService: authService);
-    final result = await service.returnAssetToProduction(
-      token: token,
-      assetType: assetType,
+    // ✅ CORREÇÃO: Usando setMaintenanceMode com maintenanceMode: false
+    await service.setMaintenanceMode(
+      moduleId: assetType,
       assetId: asset.id,
+      maintenanceMode: false,
     );
 
-    if (result['success']) {
-      onCommandExecuted?.call();
-    } else {
-      throw Exception(result['message'] ?? 'Erro ao retornar à produção');
-    }
+    onCommandExecuted?.call();
   }
 
   Future<void> _viewDetails(BuildContext context, ManagedAsset asset) async {
-    // Navegação para detalhes já é feita pelo onTap da tabela
-    // Este comando pode ser usado em outros contextos
     Navigator.pushNamed(
       context,
       '/asset-details',
@@ -123,16 +116,12 @@ class AssetCommandControlsV2 extends StatelessWidget {
 
   Future<void> _deleteAsset(BuildContext context, ManagedAsset asset) async {
     final service = ModuleManagementService(authService: authService);
-    final result = await service.deleteAsset(
-      token: token,
-      assetType: assetType,
+    // ✅ CORREÇÃO: Usando deleteAsset com argumentos corretos e sem token
+    await service.deleteAsset(
+      moduleId: assetType,
       assetId: asset.id,
     );
 
-    if (result['success']) {
-      onCommandExecuted?.call();
-    } else {
-      throw Exception(result['message'] ?? 'Erro ao deletar ativo');
-    }
+    onCommandExecuted?.call();
   }
 }
