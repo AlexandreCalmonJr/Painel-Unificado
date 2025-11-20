@@ -8,6 +8,7 @@
 
 import 'package:file_picker/_internal/file_picker_web.dart';
 import 'package:file_saver/file_saver_web.dart';
+import 'package:flutter_secure_storage_web/flutter_secure_storage_web.dart';
 import 'package:shared_preferences_web/shared_preferences_web.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
@@ -15,6 +16,7 @@ void registerPlugins([final Registrar? pluginRegistrar]) {
   final Registrar registrar = pluginRegistrar ?? webPluginRegistrar;
   FilePickerWeb.registerWith(registrar);
   FileSaverWeb.registerWith(registrar);
+  FlutterSecureStorageWeb.registerWith(registrar);
   SharedPreferencesPlugin.registerWith(registrar);
   registrar.registerMessageHandler();
 }
