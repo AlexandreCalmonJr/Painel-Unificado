@@ -86,49 +86,30 @@ class BaseDataTable<T> extends StatefulWidget {
 }
 
 class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
-  int _currentPage = 0;
   String _sortColumn = '';
   bool _sortAscending = true;
   String _searchQuery = '';
-
-  @override
-  void didUpdateWidget(BaseDataTable<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Reset page when items change to prevent RangeError
-    if (oldWidget.items.length != widget.items.length) {
-      _currentPage = 0;
-    }
-  }
 
   List<T> get _filteredItems {
     // TODO: Implementar busca se showSearch = true
     return widget.items;
   }
 
-  List<T> get _paginatedItems {
-    if (!widget.showPagination) return _filteredItems;
+  // Sempre retorna todos os itens - sem paginação
+  List<T> get _displayedItems => _filteredItems;
 
-    // Ensure current page is valid
-    final maxPage = _totalPages > 0 ? _totalPages - 1 : 0;
-    if (_currentPage > maxPage) {
-      _currentPage = maxPage;
-    }
-
-    final start = _currentPage * widget.pageSize;
-    final end = (start + widget.pageSize).clamp(0, _filteredItems.length);
-
-    // Safety check to prevent RangeError
-    if (start >= _filteredItems.length) {
-      return [];
-    }
-
-    return _filteredItems.sublist(start, end);
+  void _handleSort(String columnLabel) {
+    setState(() {
+      if (_sortColumn == columnLabel) {
+        // Se já está ordenando por esta coluna, inverte a direção
+        _sortAscending = !_sortAscending;
+      } else {
+        // Nova coluna, começa em ordem ascendente
+        _sortColumn = columnLabel;
+        _sortAscending = true;
+      }
+    });
   }
-
-  int get _totalPages =>
-      _filteredItems.isEmpty
-          ? 0
-          : (_filteredItems.length / widget.pageSize).ceil();
 
   @override
   Widget build(BuildContext context) {
@@ -158,11 +139,14 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
       mainAxisSize:
           MainAxisSize.min, // Importante para evitar conflito com BaseCard
       children: [
-        Flexible(
+        ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxHeight: 600, // Altura máxima para prevenir overflow
+          ),
           child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+            scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
+              scrollDirection: Axis.horizontal,
               child: DataTable(
                 headingRowColor: WidgetStateProperty.all(AppColors.grey100),
                 columns: [
@@ -185,7 +169,7 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
                     DataColumn(label: TableHeader(text: 'Ações')),
                 ],
                 rows:
-                    _paginatedItems.map((item) {
+                    _displayedItems.map((item) {
                       debugPrint(
                         'BaseDataTable: Creating row for item: ${item.toString().substring(0, 50)}...',
                       );
@@ -213,7 +197,6 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
             ),
           ),
         ),
-        if (widget.showPagination) _buildPagination(),
       ],
     );
   }
@@ -259,57 +242,5 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
         }).toList();
       },
     );
-  }
-
-  Widget _buildPagination() {
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.spacingM),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Mostrando ${_currentPage * widget.pageSize + 1}-${((_currentPage + 1) * widget.pageSize).clamp(0, _filteredItems.length)} de ${_filteredItems.length}',
-            style: AppTextStyles.bodySmall,
-          ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left),
-                onPressed:
-                    _currentPage > 0
-                        ? () => setState(() => _currentPage--)
-                        : null,
-              ),
-              Text(
-                'Página ${_currentPage + 1} de $_totalPages',
-                style: AppTextStyles.bodySmall,
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right),
-                onPressed:
-                    _currentPage < _totalPages - 1
-                        ? () => setState(() => _currentPage++)
-                        : null,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _handleSort(String column) {
-    setState(() {
-      if (_sortColumn == column) {
-        _sortAscending = !_sortAscending;
-      } else {
-        _sortColumn = column;
-        _sortAscending = true;
-      }
-      // TODO: Implementar lógica de ordenação
-    });
   }
 }
