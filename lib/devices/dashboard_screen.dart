@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:painel_windowns/devices/device_detail_screen.dart';
 import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/devices/utils/test_tab.dart';
@@ -23,7 +21,6 @@ import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/screen/login_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
-import 'package:painel_windowns/services/server_config_service.dart';
 
 class MDMDashboard extends StatefulWidget {
   final AuthService authService;

@@ -173,6 +173,10 @@ abstract class ManagedAsset {
     this.floor,
   });
 
+  get uptime => null;
+
+  get currentUser => null;
+
   Map<String, dynamic> toJson();
 }
 
