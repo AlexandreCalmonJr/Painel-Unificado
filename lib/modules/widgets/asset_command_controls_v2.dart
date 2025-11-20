@@ -80,7 +80,7 @@ class AssetCommandControlsV2 extends StatelessWidget {
 
     if (data == null) return;
 
-    final service = ModuleManagementService();
+    final service = ModuleManagementService(authService: authService);
     final result = await service.setAssetMaintenance(
       token: token,
       assetType: assetType,
@@ -97,7 +97,7 @@ class AssetCommandControlsV2 extends StatelessWidget {
   }
 
   Future<void> _returnToProduction(BuildContext context, ManagedAsset asset) async {
-    final service = ModuleManagementService();
+    final service = ModuleManagementService(authService: authService);
     final result = await service.returnAssetToProduction(
       token: token,
       assetType: assetType,
@@ -122,7 +122,7 @@ class AssetCommandControlsV2 extends StatelessWidget {
   }
 
   Future<void> _deleteAsset(BuildContext context, ManagedAsset asset) async {
-    final service = ModuleManagementService();
+    final service = ModuleManagementService(authService: authService);
     final result = await service.deleteAsset(
       token: token,
       assetType: assetType,

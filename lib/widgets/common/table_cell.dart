@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 /// Widget reutilizável para células de tabela
-class TableCell extends StatelessWidget {
+class DataTableCellWidget extends StatelessWidget {
   final dynamic value;
   final bool isClickable;
   final VoidCallback? onTap;
@@ -11,7 +11,7 @@ class TableCell extends StatelessWidget {
   final Widget? trailing;
   final int? maxLines;
 
-  const TableCell({
+  const DataTableCellWidget({
     super.key,
     required this.value,
     this.isClickable = false,

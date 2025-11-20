@@ -1,1 +1,0 @@
- C:\\Users\\alexandrej\\Downloads\\Painel-Unificado-main\\.dart_tool\\flutter_build\\36147bc65fd6216360db7ecd230b31fb\\native_assets.json: 

@@ -27,7 +27,7 @@ class DataTableColumn<T> {
     if (builder != null) {
       return builder!(item);
     }
-    return TableCell(
+    return DataTableCellWidget(
       value: value!(item),
       alignment: alignment,
     );

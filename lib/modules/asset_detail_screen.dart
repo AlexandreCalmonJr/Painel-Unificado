@@ -47,7 +47,6 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       // ✅ CORREÇÃO: Usa o 'moduleConfig.id' e 'asset.id' para a chamada
       return await _moduleService.fetchAssetHistory(
         token,
-        widget.moduleConfig.id, // Passa o ModuleID
         widget.asset.id, // Passa o AssetID
       );
     } catch (e) {

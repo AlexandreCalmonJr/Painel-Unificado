@@ -123,13 +123,9 @@ class CommandControlsV2 extends StatelessWidget {
 
   Future<void> _deleteDevice(BuildContext context, Device device) async {
     final service = DeviceService();
-    final result = await service.deleteDevice(token, device.serialNumber!);
-
-    if (result['success']) {
-      onCommandExecuted?.call();
-    } else {
-      throw Exception(result['message'] ?? 'Erro ao deletar dispositivo');
-    }
+    // O serviço retorna uma String com a mensagem de sucesso ou lança exceção
+    await service.deleteDevice(token, device.serialNumber!);
+    onCommandExecuted?.call();
   }
 
   Future<void> _executeCommand(
@@ -138,17 +134,13 @@ class CommandControlsV2 extends StatelessWidget {
     Map<String, dynamic> parameters,
   ) async {
     final service = DeviceService();
-    final result = await service.sendCommand(
+    // O serviço retorna uma String com a mensagem de sucesso ou lança exceção
+    await service.sendCommand(
       token,
       device.serialNumber!,
       command,
       parameters,
     );
-
-    if (result['success']) {
-      onCommandExecuted?.call();
-    } else {
-      throw Exception(result['message'] ?? 'Erro ao executar comando');
-    }
+    onCommandExecuted?.call();
   }
 }

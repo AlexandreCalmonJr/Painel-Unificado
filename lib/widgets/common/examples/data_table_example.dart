@@ -27,7 +27,7 @@ class DeviceTableExample extends StatelessWidget {
       columns: [
         DataTableColumn<Device>(
           label: 'Nome',
-          builder: (device) => TableCell(
+          builder: (device) => DataTableCellWidget(
             value: device.deviceName,
             isClickable: true,
             onTap: () => onDeviceSelected(device),
