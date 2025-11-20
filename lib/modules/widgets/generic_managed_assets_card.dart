@@ -132,6 +132,21 @@ class GenericManagedAssetsCard extends StatelessWidget {
                         icon: Icons.more_vert,
                         label: 'Ações',
                         onTap: (asset) {}, // Placeholder
+                      ),
+                    ]
+                  : null,
+              customRow: showActions
+                  ? (asset) => AssetCommandControlsV2(
+                        asset: asset,
+                        assetType: moduleConfig.id,
+                        token: authService.currentToken ?? '',
+                        authService: authService,
+                        onCommandExecuted: onAssetChanged,
+                      )
+                  : null,
+              showPagination: false,
+            ),
+    );
   }
 
   Widget _buildSectorFloorCell(Map<String, dynamic> assetData) {
