@@ -231,7 +231,7 @@
     },
     {
       "name": "flutter",
-      "rootUri": "file:///C:/Users/Administrator/SDK/flutter/packages/flutter",
+      "rootUri": "file:///C:/Users/Administrator/flutter/packages/flutter",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
@@ -285,13 +285,13 @@
     },
     {
       "name": "flutter_test",
-      "rootUri": "file:///C:/Users/Administrator/SDK/flutter/packages/flutter_test",
+      "rootUri": "file:///C:/Users/Administrator/flutter/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
     {
       "name": "flutter_web_plugins",
-      "rootUri": "file:///C:/Users/Administrator/SDK/flutter/packages/flutter_web_plugins",
+      "rootUri": "file:///C:/Users/Administrator/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
@@ -411,9 +411,9 @@
     },
     {
       "name": "meta",
-      "rootUri": "file:///C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.17.0",
+      "rootUri": "file:///C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.16.0",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "2.12"
     },
     {
       "name": "mime",
@@ -597,7 +597,7 @@
     },
     {
       "name": "sky_engine",
-      "rootUri": "file:///C:/Users/Administrator/SDK/flutter/bin/cache/pkg/sky_engine",
+      "rootUri": "file:///C:/Users/Administrator/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
@@ -651,7 +651,7 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/test_api-0.7.7",
+      "rootUri": "file:///C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/test_api-0.7.6",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -735,8 +735,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.10.0",
-  "flutterRoot": "file:///C:/Users/Administrator/SDK/flutter",
-  "flutterVersion": "3.38.1",
+  "generatorVersion": "3.9.2",
+  "flutterRoot": "file:///C:/Users/Administrator/flutter",
+  "flutterVersion": "3.35.7",
   "pubCache": "file:///C:/Users/Administrator/AppData/Local/Pub/Cache"
 }

@@ -13,6 +13,7 @@ class BaseCard extends StatelessWidget {
   final BorderRadius? borderRadius;
   final Widget? leading;
   final Widget? subtitle;
+  final bool expandChild;
 
   const BaseCard({
     super.key,
@@ -25,6 +26,7 @@ class BaseCard extends StatelessWidget {
     this.borderRadius,
     this.leading,
     this.subtitle,
+    this.expandChild = false,
   });
 
   @override
@@ -32,17 +34,26 @@ class BaseCard extends StatelessWidget {
     return Card(
       elevation: elevation ?? 2,
       shape: RoundedRectangleBorder(
-        borderRadius: borderRadius ?? BorderRadius.circular(AppConstants.radiusM),
+        borderRadius:
+            borderRadius ?? BorderRadius.circular(AppConstants.radiusM),
       ),
       color: backgroundColor ?? AppColors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (title != null || actions != null) _buildHeader(),
-          Padding(
-            padding: padding ?? const EdgeInsets.all(AppConstants.spacingM),
-            child: child,
-          ),
+          if (expandChild)
+            Expanded(
+              child: Padding(
+                padding: padding ?? const EdgeInsets.all(AppConstants.spacingM),
+                child: child,
+              ),
+            )
+          else
+            Padding(
+              padding: padding ?? const EdgeInsets.all(AppConstants.spacingM),
+              child: child,
+            ),
         ],
       ),
     );
@@ -52,9 +63,7 @@ class BaseCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingM),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.border),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         children: [
@@ -66,15 +75,8 @@ class BaseCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (title != null)
-                  Text(
-                    title!,
-                    style: AppTextStyles.h5,
-                  ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 4),
-                  subtitle!,
-                ],
+                if (title != null) Text(title!, style: AppTextStyles.h5),
+                if (subtitle != null) ...[const SizedBox(height: 4), subtitle!],
               ],
             ),
           ),

@@ -82,32 +82,38 @@ class GenericAssetsListTab extends StatelessWidget {
                   ),
                 ],
               ),
-              child: (isLoading && displayedAssets.isEmpty)
-                  ? const Center(child: CircularProgressIndicator())
-                  : (displayedAssets.isEmpty)
+              child:
+                  (isLoading && displayedAssets.isEmpty)
+                      ? const Center(child: CircularProgressIndicator())
+                      : (displayedAssets.isEmpty)
                       ? const Center(child: Text('Nenhum ativo encontrado'))
                       : Column(
-                          children: [
-                            Expanded(
-                              child: GenericManagedAssetsCard(
-                                title:
-                                    'Lista de Ativos ($currentPage/$totalPages)',
-                                columns: columns,
-                                assets: displayedAssets,
-                                showActions: true,
-                                
-                                // ✅ CORREÇÃO APLICADA AQUI
-                                onAssetChanged: onRefresh, // Passa a função de recarregar
-                                
-                                moduleConfig: moduleConfig,
-                                authService: authService,                                
-                              ),
+                        children: [
+                          Expanded(
+                            child: GenericManagedAssetsCard(
+                              title:
+                                  'Lista de Ativos ($currentPage/$totalPages)',
+                              columns: columns,
+                              assets: displayedAssets,
+                              showActions: true,
+
+                              // ✅ CORREÇÃO APLICADA AQUI
+                              onAssetChanged:
+                                  onRefresh, // Passa a função de recarregar
+
+                              moduleConfig: moduleConfig,
+                              authService: authService,
+                              expand: true,
                             ),
-                            if (totalPages > 1)
-                              _buildPagination(
-                                  currentPage, totalPages, onPageChange),
-                          ],
-                        ),
+                          ),
+                          if (totalPages > 1)
+                            _buildPagination(
+                              currentPage,
+                              totalPages,
+                              onPageChange,
+                            ),
+                        ],
+                      ),
             ),
           ),
         ),
@@ -116,7 +122,10 @@ class GenericAssetsListTab extends StatelessWidget {
   }
 
   Widget _buildPagination(
-      int currentPage, int totalPages, Function(int) onPageChange) {
+    int currentPage,
+    int totalPages,
+    Function(int) onPageChange,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

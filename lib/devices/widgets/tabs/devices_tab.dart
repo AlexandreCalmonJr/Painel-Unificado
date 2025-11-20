@@ -145,6 +145,7 @@ class _DevicesTabState extends State<DevicesTab> {
             token: widget.token,
             onDeviceUpdate: widget.onDeviceUpdate,
             currentUser: widget.currentUser,
+            expand: true,
           ),
         ),
         Padding(

@@ -1,8 +1,8 @@
 // File: lib/widgets/common/base_data_table.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
-import 'package:painel_windowns/widgets/common/table_cell.dart';
 import 'package:painel_windowns/widgets/common/loading_indicator.dart';
+import 'package:painel_windowns/widgets/common/table_cell.dart';
 
 /// Configuração de coluna para BaseDataTable
 class DataTableColumn<T> {
@@ -170,8 +170,9 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
                 ],
                 rows:
                     _displayedItems.map((item) {
+                      final itemStr = item.toString();
                       debugPrint(
-                        'BaseDataTable: Creating row for item: ${item.toString().substring(0, 50)}...',
+                        'BaseDataTable: Creating row for item: ${itemStr.length > 50 ? itemStr.substring(0, 50) : itemStr}...',
                       );
                       return DataRow(
                         onSelectChanged:

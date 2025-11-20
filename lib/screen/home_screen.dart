@@ -92,10 +92,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void _logout(BuildContext context) async {
     await widget.authService.logout();
     if (mounted) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/login',
-        (Route<dynamic> route) => false,
-      );
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
     }
   }
 
@@ -130,10 +129,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GenericDashboardScreen(
-          authService: widget.authService,
-          moduleConfig: module,
-        ),
+        builder:
+            (context) => GenericDashboardScreen(
+              authService: widget.authService,
+              moduleConfig: module,
+            ),
       ),
     );
   }
@@ -154,179 +154,187 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ),
         child: Center(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: Card(
-                elevation: 20,
-                shadowColor: Colors.blue.withOpacity(0.3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 900),
-                  padding: const EdgeInsets.all(32.0),
-                  decoration: BoxDecoration(
+          child: SingleChildScrollView(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Card(
+                  elevation: 20,
+                  shadowColor: Colors.blue.withOpacity(0.3),
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
-                    color: Colors.white,
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.blue.shade600,
-                              Colors.indigo.shade700,
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 900),
+                    padding: const EdgeInsets.all(32.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      color: Colors.white,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.blue.shade600,
+                                Colors.indigo.shade700,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.blue.withOpacity(0.3),
+                                blurRadius: 15,
+                                offset: const Offset(0, 8),
+                              ),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blue.withOpacity(0.3),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: const Column(
-                          children: [
-                            Icon(Icons.apps, size: 48, color: Colors.white),
-                            SizedBox(height: 12),
-                            Text(
-                              'Central de Módulos',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 1.2,
+                          child: const Column(
+                            children: [
+                              Icon(Icons.apps, size: 48, color: Colors.white),
+                              SizedBox(height: 12),
+                              Text(
+                                'Central de Módulos',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1.2,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.blue.shade50,
-                              Colors.indigo.shade50,
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.blue.shade100,
-                            width: 1,
-                          ),
                         ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.blue.withOpacity(0.2),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                widget.authService.isAdmin
-                                    ? Icons.admin_panel_settings
-                                    : Icons.person,
-                                color: widget.authService.isAdmin
-                                    ? Colors.red.shade600
-                                    : Colors.blue.shade600,
-                                size: 20,
-                              ),
+                        const SizedBox(height: 30),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.blue.shade50,
+                                Colors.indigo.shade50,
+                              ],
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Bem-vindo de volta!',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                      fontWeight: FontWeight.w500,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.blue.shade100,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.blue.withOpacity(0.2),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
                                     ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    widget.authService.currentUser?['username'] ??
-                                        'Usuário',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.blueGrey.shade800,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  if (widget.authService.currentUser?['role'] !=
-                                      null)
+                                  ],
+                                ),
+                                child: Icon(
+                                  widget.authService.isAdmin
+                                      ? Icons.admin_panel_settings
+                                      : Icons.person,
+                                  color:
+                                      widget.authService.isAdmin
+                                          ? Colors.red.shade600
+                                          : Colors.blue.shade600,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      widget.authService.currentUser!['role']
-                                          .toString()
-                                          .toUpperCase(),
+                                      'Bem-vindo de volta!',
                                       style: TextStyle(
-                                        fontSize: 10,
-                                        color: widget.authService.isAdmin
-                                            ? Colors.red.shade600
-                                            : Colors.blue.shade600,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.5,
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                ],
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      widget
+                                              .authService
+                                              .currentUser?['username'] ??
+                                          'Usuário',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.blueGrey.shade800,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    if (widget
+                                            .authService
+                                            .currentUser?['role'] !=
+                                        null)
+                                      Text(
+                                        widget.authService.currentUser!['role']
+                                            .toString()
+                                            .toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color:
+                                              widget.authService.isAdmin
+                                                  ? Colors.red.shade600
+                                                  : Colors.blue.shade600,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade50,
-                                shape: BoxShape.circle,
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green.shade600,
+                                  size: 16,
+                                ),
                               ),
-                              child: Icon(
-                                Icons.check_circle,
-                                color: Colors.green.shade600,
-                                size: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      if (_isLoadingModules)
-                        const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(32.0),
-                            child: CircularProgressIndicator(),
+                            ],
                           ),
-                        )
-                      else
-                        _buildModulesGrid(),
-                      const SizedBox(height: 32),
-                      _buildActionButton(
-                        onPressed: () => _logout(context),
-                        text: 'Sair',
-                        icon: Icons.logout,
-                        color: Colors.red.shade600,
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: 32),
+                        if (_isLoadingModules)
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(32.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        else
+                          _buildModulesGrid(),
+                        const SizedBox(height: 32),
+                        _buildActionButton(
+                          onPressed: () => _logout(context),
+                          text: 'Sair',
+                          icon: Icons.logout,
+                          color: Colors.red.shade600,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -379,9 +387,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         HubMenuItem(
           icon: _getModuleIcon(module.type.iconName),
           title: module.name,
-          subtitle: module.description.isNotEmpty
-              ? module.description
-              : module.type.displayName,
+          subtitle:
+              module.description.isNotEmpty
+                  ? module.description
+                  : module.type.displayName,
           onTap: () => _navigateToModule(module),
         ),
       );
@@ -445,25 +454,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       height: 52,
       child: ElevatedButton.icon(
         onPressed: isLoading ? null : onPressed,
-        icon: isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
+        icon:
+            isLoading
+                ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+                : Icon(icon, size: 18),
+        label:
+            isLoading
+                ? const Text('Aguarde...')
+                : Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              )
-            : Icon(icon, size: 18),
-        label: isLoading
-            ? const Text('Aguarde...')
-            : Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,
