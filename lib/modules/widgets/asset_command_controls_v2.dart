@@ -7,6 +7,7 @@ import 'package:painel_windowns/services/module_management_service.dart';
 import 'package:painel_windowns/widgets/common/base_command_menu.dart';
 import 'package:painel_windowns/widgets/dialogs/base_dialog.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
+import 'package:painel_windowns/services/auth_service.dart';
 
 class AssetCommandControlsV2 extends StatelessWidget {
   final ManagedAsset asset;
