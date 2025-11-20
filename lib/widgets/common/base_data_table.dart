@@ -20,17 +20,16 @@ class DataTableColumn<T> {
     this.alignment = TextAlign.left,
     this.sortable = false,
     this.flex = 1,
-  }) : assert(value != null || builder != null,
-            'Either value or builder must be provided');
+  }) : assert(
+         value != null || builder != null,
+         'Either value or builder must be provided',
+       );
 
   Widget buildCell(T item) {
     if (builder != null) {
       return builder!(item);
     }
-    return DataTableCellWidget(
-      value: value!(item),
-      alignment: alignment,
-    );
+    return DataTableCellWidget(value: value!(item), alignment: alignment);
   }
 }
 
@@ -106,8 +105,7 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
     return _filteredItems.sublist(start, end);
   }
 
-  int get _totalPages =>
-      (_filteredItems.length / widget.pageSize).ceil();
+  int get _totalPages => (_filteredItems.length / widget.pageSize).ceil();
 
   @override
   Widget build(BuildContext context) {
@@ -130,49 +128,48 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
     }
 
     return Column(
+      mainAxisSize:
+          MainAxisSize.min, // Importante para evitar conflito com BaseCard
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SingleChildScrollView(
-              child: DataTable(
-                headingRowColor: WidgetStateProperty.all(
-                  AppColors.grey100,
-                ),
-                columns: widget.columns.map((col) {
-                  return DataColumn(
-                    label: TableHeader(
-                      text: col.label,
-                      alignment: col.alignment,
-                      sortable: col.sortable,
-                      isSorted: _sortColumn == col.label,
-                      isAscending: _sortAscending,
-                      onSort: col.sortable
-                          ? () => _handleSort(col.label)
-                          : null,
-                    ),
-                  );
-                }).toList()
-                  ..add(
-                    DataColumn(
-                      label: TableHeader(text: 'Ações'),
-                    ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            headingRowColor: WidgetStateProperty.all(AppColors.grey100),
+            columns: [
+              ...widget.columns.map((col) {
+                return DataColumn(
+                  label: TableHeader(
+                    text: col.label,
+                    alignment: col.alignment,
+                    sortable: col.sortable,
+                    isSorted: _sortColumn == col.label,
+                    isAscending: _sortAscending,
+                    onSort: col.sortable ? () => _handleSort(col.label) : null,
                   ),
-                rows: _paginatedItems.map((item) {
+                );
+              }),
+              if (widget.actions != null && widget.actions!.isNotEmpty ||
+                  widget.customRow != null)
+                DataColumn(label: TableHeader(text: 'Ações')),
+            ],
+            rows:
+                _paginatedItems.map((item) {
                   return DataRow(
-                    onSelectChanged: widget.onTap != null
-                        ? (_) => widget.onTap!(item)
-                        : null,
+                    onSelectChanged:
+                        widget.onTap != null
+                            ? (_) => widget.onTap!(item)
+                            : null,
                     cells: [
                       ...widget.columns.map((col) {
                         return DataCell(col.buildCell(item));
                       }),
-                      DataCell(_buildActionsCell(item)),
+                      if (widget.actions != null &&
+                              widget.actions!.isNotEmpty ||
+                          widget.customRow != null)
+                        DataCell(_buildActionsCell(item)),
                     ],
                   );
                 }).toList(),
-              ),
-            ),
           ),
         ),
         if (widget.showPagination) _buildPagination(),
@@ -181,13 +178,19 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
   }
 
   Widget _buildActionsCell(T item) {
+    // Se customRow for fornecido, usa-o para renderizar a célula de ações
+    if (widget.customRow != null) {
+      return widget.customRow!(item);
+    }
+
     if (widget.actions == null || widget.actions!.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    final visibleActions = widget.actions!
-        .where((action) => action.isVisible?.call(item) ?? true)
-        .toList();
+    final visibleActions =
+        widget.actions!
+            .where((action) => action.isVisible?.call(item) ?? true)
+            .toList();
 
     if (visibleActions.isEmpty) {
       return const SizedBox.shrink();
@@ -221,9 +224,7 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingM),
       decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: AppColors.border),
-        ),
+        border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -236,9 +237,10 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
             children: [
               IconButton(
                 icon: const Icon(Icons.chevron_left),
-                onPressed: _currentPage > 0
-                    ? () => setState(() => _currentPage--)
-                    : null,
+                onPressed:
+                    _currentPage > 0
+                        ? () => setState(() => _currentPage--)
+                        : null,
               ),
               Text(
                 'Página ${_currentPage + 1} de $_totalPages',
@@ -246,9 +248,10 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
               ),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
-                onPressed: _currentPage < _totalPages - 1
-                    ? () => setState(() => _currentPage++)
-                    : null,
+                onPressed:
+                    _currentPage < _totalPages - 1
+                        ? () => setState(() => _currentPage++)
+                        : null,
               ),
             ],
           ),
