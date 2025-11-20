@@ -136,65 +136,76 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
     }
 
     return Column(
-      mainAxisSize:
-          MainAxisSize.min, // Importante para evitar conflito com BaseCard
+      mainAxisSize: MainAxisSize.min,
       children: [
         ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxHeight: 600, // Altura máxima para prevenir overflow
-          ),
+          constraints: const BoxConstraints(maxHeight: 600),
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor: WidgetStateProperty.all(AppColors.grey100),
-                columns: [
-                  ...widget.columns.map((col) {
-                    debugPrint('BaseDataTable: Creating column "${col.label}"');
-                    return DataColumn(
-                      label: TableHeader(
-                        text: col.label,
-                        alignment: col.alignment,
-                        sortable: col.sortable,
-                        isSorted: _sortColumn == col.label,
-                        isAscending: _sortAscending,
-                        onSort:
-                            col.sortable ? () => _handleSort(col.label) : null,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                    child: DataTable(
+                      headingRowColor: WidgetStateProperty.all(
+                        AppColors.grey100,
                       ),
-                    );
-                  }),
-                  if (widget.actions != null && widget.actions!.isNotEmpty ||
-                      widget.customRow != null)
-                    DataColumn(label: TableHeader(text: 'Ações')),
-                ],
-                rows:
-                    _displayedItems.map((item) {
-                      final itemStr = item.toString();
-                      debugPrint(
-                        'BaseDataTable: Creating row for item: ${itemStr.length > 50 ? itemStr.substring(0, 50) : itemStr}...',
-                      );
-                      return DataRow(
-                        onSelectChanged:
-                            widget.onTap != null
-                                ? (_) => widget.onTap!(item)
-                                : null,
-                        cells: [
-                          ...widget.columns.map((col) {
-                            final cell = col.buildCell(item);
+                      columns: [
+                        ...widget.columns.map((col) {
+                          debugPrint(
+                            'BaseDataTable: Creating column "${col.label}"',
+                          );
+                          return DataColumn(
+                            label: TableHeader(
+                              text: col.label,
+                              alignment: col.alignment,
+                              sortable: col.sortable,
+                              isSorted: _sortColumn == col.label,
+                              isAscending: _sortAscending,
+                              onSort:
+                                  col.sortable
+                                      ? () => _handleSort(col.label)
+                                      : null,
+                            ),
+                          );
+                        }),
+                        if (widget.actions != null &&
+                                widget.actions!.isNotEmpty ||
+                            widget.customRow != null)
+                          DataColumn(label: TableHeader(text: 'Ações')),
+                      ],
+                      rows:
+                          _displayedItems.map((item) {
+                            final itemStr = item.toString();
                             debugPrint(
-                              'BaseDataTable: Built cell for column "${col.label}"',
+                              'BaseDataTable: Creating row for item: ${itemStr.length > 50 ? itemStr.substring(0, 50) : itemStr}...',
                             );
-                            return DataCell(cell);
-                          }),
-                          if (widget.actions != null &&
-                                  widget.actions!.isNotEmpty ||
-                              widget.customRow != null)
-                            DataCell(_buildActionsCell(item)),
-                        ],
-                      );
-                    }).toList(),
-              ),
+                            return DataRow(
+                              onSelectChanged:
+                                  widget.onTap != null
+                                      ? (_) => widget.onTap!(item)
+                                      : null,
+                              cells: [
+                                ...widget.columns.map((col) {
+                                  final cell = col.buildCell(item);
+                                  debugPrint(
+                                    'BaseDataTable: Built cell for column "${col.label}"',
+                                  );
+                                  return DataCell(cell);
+                                }),
+                                if (widget.actions != null &&
+                                        widget.actions!.isNotEmpty ||
+                                    widget.customRow != null)
+                                  DataCell(_buildActionsCell(item)),
+                              ],
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),

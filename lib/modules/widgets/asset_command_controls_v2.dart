@@ -3,11 +3,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
+import 'package:painel_windowns/modules/widgets/send_command_dialog.dart';
+import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
+import 'package:painel_windowns/utils/app_constants.dart';
 import 'package:painel_windowns/widgets/common/base_command_menu.dart';
 import 'package:painel_windowns/widgets/dialogs/base_dialog.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
-import 'package:painel_windowns/services/auth_service.dart';
 
 class AssetCommandControlsV2 extends StatelessWidget {
   final ManagedAsset asset;
@@ -30,6 +31,12 @@ class AssetCommandControlsV2 extends StatelessWidget {
     return BaseCommandMenu<ManagedAsset>(
       item: asset,
       actions: [
+        CommandAction<ManagedAsset>(
+          label: 'Enviar Comando',
+          icon: Icons.terminal,
+          onTap: _sendCommand,
+          color: Colors.blue,
+        ),
         CommandAction<ManagedAsset>(
           label: 'Marcar Manutenção',
           icon: Icons.build,
@@ -60,6 +67,21 @@ class AssetCommandControlsV2 extends StatelessWidget {
           color: AppColors.danger,
         ),
       ],
+    );
+  }
+
+  Future<void> _sendCommand(BuildContext context, ManagedAsset asset) async {
+    await showDialog(
+      context: context,
+      builder:
+          (context) => SendCommandDialog(
+            asset: asset,
+            moduleId: assetType,
+            authService: authService,
+            onCommandSent: () {
+              onCommandExecuted?.call();
+            },
+          ),
     );
   }
 
@@ -95,7 +117,10 @@ class AssetCommandControlsV2 extends StatelessWidget {
     onCommandExecuted?.call();
   }
 
-  Future<void> _returnToProduction(BuildContext context, ManagedAsset asset) async {
+  Future<void> _returnToProduction(
+    BuildContext context,
+    ManagedAsset asset,
+  ) async {
     final service = ModuleManagementService(authService: authService);
     // ✅ CORREÇÃO: Usando setMaintenanceMode com maintenanceMode: false
     await service.setMaintenanceMode(
@@ -118,10 +143,7 @@ class AssetCommandControlsV2 extends StatelessWidget {
   Future<void> _deleteAsset(BuildContext context, ManagedAsset asset) async {
     final service = ModuleManagementService(authService: authService);
     // ✅ CORREÇÃO: Usando deleteAsset com argumentos corretos e sem token
-    await service.deleteAsset(
-      moduleId: assetType,
-      assetId: asset.id,
-    );
+    await service.deleteAsset(moduleId: assetType, assetId: asset.id);
 
     onCommandExecuted?.call();
   }
