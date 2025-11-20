@@ -32,10 +32,8 @@ class DeviceController extends GetxController {
   }
 
   // Estatísticas
-  int get onlineDevices =>
-      devices.where((d) => d.status == 'online').length;
-  int get offlineDevices =>
-      devices.where((d) => d.status == 'offline').length;
+  int get onlineDevices => devices.where((d) => d.status == 'online').length;
+  int get offlineDevices => devices.where((d) => d.status == 'offline').length;
   int get maintenanceDevices =>
       devices.where((d) => d.status == 'maintenance').length;
 
@@ -47,11 +45,7 @@ class DeviceController extends GetxController {
 
   /// Inicializa dados
   Future<void> _initializeData() async {
-    await Future.wait([
-      fetchUnits(),
-      fetchDevices(),
-      fetchBssidMappings(),
-    ]);
+    await Future.wait([fetchUnits(), fetchDevices(), fetchBssidMappings()]);
   }
 
   /// Busca dispositivos
@@ -117,21 +111,16 @@ class DeviceController extends GetxController {
         return false;
       }
 
-      final result = await _deviceService.sendCommand(
+      await _deviceService.sendCommand(
         token,
         serialNumber,
         command,
         parameters,
       );
 
-      if (result['success']) {
-        // Atualiza o dispositivo na lista se necessário
-        await fetchDevices();
-        return true;
-      } else {
-        errorMessage.value = result['message'] ?? 'Erro ao enviar comando';
-        return false;
-      }
+      // Atualiza o dispositivo na lista se necessário
+      await fetchDevices();
+      return true;
     } catch (e) {
       errorMessage.value = 'Erro ao enviar comando: ${e.toString()}';
       return false;
@@ -152,15 +141,10 @@ class DeviceController extends GetxController {
         return false;
       }
 
-      final result = await _deviceService.deleteDevice(token, serialNumber);
+      await _deviceService.deleteDevice(token, serialNumber);
 
-      if (result['success']) {
-        devices.removeWhere((d) => d.serialNumber == serialNumber);
-        return true;
-      } else {
-        errorMessage.value = result['message'] ?? 'Erro ao deletar dispositivo';
-        return false;
-      }
+      devices.removeWhere((d) => d.serialNumber == serialNumber);
+      return true;
     } catch (e) {
       errorMessage.value = 'Erro ao deletar dispositivo: ${e.toString()}';
       return false;
@@ -181,15 +165,10 @@ class DeviceController extends GetxController {
         return false;
       }
 
-      final result = await _deviceService.createUnit(token, unit);
+      await _deviceService.createUnit(token, unit);
 
-      if (result['success']) {
-        units.add(unit);
-        return true;
-      } else {
-        errorMessage.value = result['message'] ?? 'Erro ao criar unidade';
-        return false;
-      }
+      units.add(unit);
+      return true;
     } catch (e) {
       errorMessage.value = 'Erro ao criar unidade: ${e.toString()}';
       return false;
@@ -210,18 +189,13 @@ class DeviceController extends GetxController {
         return false;
       }
 
-      final result = await _deviceService.updateUnit(token, unitName, unit);
+      await _deviceService.updateUnit(token, unitName, unit);
 
-      if (result['success']) {
-        final index = units.indexWhere((u) => u.name == unitName);
-        if (index != -1) {
-          units[index] = unit;
-        }
-        return true;
-      } else {
-        errorMessage.value = result['message'] ?? 'Erro ao atualizar unidade';
-        return false;
+      final index = units.indexWhere((u) => u.name == unitName);
+      if (index != -1) {
+        units[index] = unit;
       }
+      return true;
     } catch (e) {
       errorMessage.value = 'Erro ao atualizar unidade: ${e.toString()}';
       return false;
@@ -242,15 +216,10 @@ class DeviceController extends GetxController {
         return false;
       }
 
-      final result = await _deviceService.deleteUnit(token, unitName);
+      await _deviceService.deleteUnit(token, unitName);
 
-      if (result['success']) {
-        units.removeWhere((u) => u.name == unitName);
-        return true;
-      } else {
-        errorMessage.value = result['message'] ?? 'Erro ao deletar unidade';
-        return false;
-      }
+      units.removeWhere((u) => u.name == unitName);
+      return true;
     } catch (e) {
       errorMessage.value = 'Erro ao deletar unidade: ${e.toString()}';
       return false;

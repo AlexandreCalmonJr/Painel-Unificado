@@ -26,6 +26,7 @@ class Device {
   final String? lastSync;
   final String? sector;
   final String? floor;
+  final String? location;
   final bool? maintenanceStatus;
   final String? maintenanceTicket;
   final String? maintenanceReason;
@@ -56,6 +57,7 @@ class Device {
     this.lastSync,
     this.sector,
     this.floor,
+    this.location,
     this.maintenanceStatus,
     this.maintenanceTicket,
     this.maintenanceReason,
@@ -113,6 +115,7 @@ class Device {
         lastSync: json['last_sync']?.toString(),
         sector: json['sector']?.toString(),
         floor: json['floor']?.toString(),
+        location: json['location']?.toString(),
         maintenanceStatus:
             json['maintenance_status'] is bool ? json['maintenance_status'] : false,
         maintenanceTicket: json["maintenance_ticket"]?.toString(),

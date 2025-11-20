@@ -91,6 +91,15 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
   bool _sortAscending = true;
   String _searchQuery = '';
 
+  @override
+  void didUpdateWidget(BaseDataTable<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reset page when items change to prevent RangeError
+    if (oldWidget.items.length != widget.items.length) {
+      _currentPage = 0;
+    }
+  }
+
   List<T> get _filteredItems {
     // TODO: Implementar busca se showSearch = true
     return widget.items;
@@ -99,16 +108,34 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
   List<T> get _paginatedItems {
     if (!widget.showPagination) return _filteredItems;
 
+    // Ensure current page is valid
+    final maxPage = _totalPages > 0 ? _totalPages - 1 : 0;
+    if (_currentPage > maxPage) {
+      _currentPage = maxPage;
+    }
+
     final start = _currentPage * widget.pageSize;
     final end = (start + widget.pageSize).clamp(0, _filteredItems.length);
+
+    // Safety check to prevent RangeError
+    if (start >= _filteredItems.length) {
+      return [];
+    }
 
     return _filteredItems.sublist(start, end);
   }
 
-  int get _totalPages => (_filteredItems.length / widget.pageSize).ceil();
+  int get _totalPages =>
+      _filteredItems.isEmpty
+          ? 0
+          : (_filteredItems.length / widget.pageSize).ceil();
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(
+      'BaseDataTable: Building with ${widget.items.length} items and ${widget.columns.length} columns',
+    );
+
     if (widget.isLoading) {
       return const LoadingIndicator(message: 'Carregando dados...');
     }
@@ -131,45 +158,59 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
       mainAxisSize:
           MainAxisSize.min, // Importante para evitar conflito com BaseCard
       children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowColor: WidgetStateProperty.all(AppColors.grey100),
-            columns: [
-              ...widget.columns.map((col) {
-                return DataColumn(
-                  label: TableHeader(
-                    text: col.label,
-                    alignment: col.alignment,
-                    sortable: col.sortable,
-                    isSorted: _sortColumn == col.label,
-                    isAscending: _sortAscending,
-                    onSort: col.sortable ? () => _handleSort(col.label) : null,
-                  ),
-                );
-              }),
-              if (widget.actions != null && widget.actions!.isNotEmpty ||
-                  widget.customRow != null)
-                DataColumn(label: TableHeader(text: 'Ações')),
-            ],
-            rows:
-                _paginatedItems.map((item) {
-                  return DataRow(
-                    onSelectChanged:
-                        widget.onTap != null
-                            ? (_) => widget.onTap!(item)
-                            : null,
-                    cells: [
-                      ...widget.columns.map((col) {
-                        return DataCell(col.buildCell(item));
-                      }),
-                      if (widget.actions != null &&
-                              widget.actions!.isNotEmpty ||
-                          widget.customRow != null)
-                        DataCell(_buildActionsCell(item)),
-                    ],
-                  );
-                }).toList(),
+        Flexible(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: DataTable(
+                headingRowColor: WidgetStateProperty.all(AppColors.grey100),
+                columns: [
+                  ...widget.columns.map((col) {
+                    debugPrint('BaseDataTable: Creating column "${col.label}"');
+                    return DataColumn(
+                      label: TableHeader(
+                        text: col.label,
+                        alignment: col.alignment,
+                        sortable: col.sortable,
+                        isSorted: _sortColumn == col.label,
+                        isAscending: _sortAscending,
+                        onSort:
+                            col.sortable ? () => _handleSort(col.label) : null,
+                      ),
+                    );
+                  }),
+                  if (widget.actions != null && widget.actions!.isNotEmpty ||
+                      widget.customRow != null)
+                    DataColumn(label: TableHeader(text: 'Ações')),
+                ],
+                rows:
+                    _paginatedItems.map((item) {
+                      debugPrint(
+                        'BaseDataTable: Creating row for item: ${item.toString().substring(0, 50)}...',
+                      );
+                      return DataRow(
+                        onSelectChanged:
+                            widget.onTap != null
+                                ? (_) => widget.onTap!(item)
+                                : null,
+                        cells: [
+                          ...widget.columns.map((col) {
+                            final cell = col.buildCell(item);
+                            debugPrint(
+                              'BaseDataTable: Built cell for column "${col.label}"',
+                            );
+                            return DataCell(cell);
+                          }),
+                          if (widget.actions != null &&
+                                  widget.actions!.isNotEmpty ||
+                              widget.customRow != null)
+                            DataCell(_buildActionsCell(item)),
+                        ],
+                      );
+                    }).toList(),
+              ),
+            ),
           ),
         ),
         if (widget.showPagination) _buildPagination(),

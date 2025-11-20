@@ -12,7 +12,6 @@ import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:painel_windowns/widgets/common/index.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
 import 'package:painel_windowns/devices/widgets/command_controls_v2.dart';
 
 class ManagedDevicesCard extends StatelessWidget {

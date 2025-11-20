@@ -1,0 +1,6 @@
+2025/11/20-09:13:44.553 231c Creating DB C:\Users\ADMINI~1\AppData\Local\Temp\flutter_tools.da081887\flutter_tools_chrome_device.1640e082\Default\IndexedDB\https_xanimeporn.com_0.indexeddb.leveldb since it was missing.
+2025/11/20-09:13:44.583 231c Reusing MANIFEST C:\Users\ADMINI~1\AppData\Local\Temp\flutter_tools.da081887\flutter_tools_chrome_device.1640e082\Default\IndexedDB\https_xanimeporn.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/11/20-09:13:45.451 2980 Level-0 table #5: started
+2025/11/20-09:13:45.467 2980 Level-0 table #5: 1415 bytes OK
+2025/11/20-09:13:45.487 2980 Delete type=0 #3
+2025/11/20-09:13:45.488 231c Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)

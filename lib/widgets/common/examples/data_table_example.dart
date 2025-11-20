@@ -27,33 +27,35 @@ class DeviceTableExample extends StatelessWidget {
       columns: [
         DataTableColumn<Device>(
           label: 'Nome',
-          builder: (device) => DataTableCellWidget(
-            value: device.deviceName,
-            isClickable: true,
-            onTap: () => onDeviceSelected(device),
-          ),
+          builder:
+              (device) => DataTableCellWidget(
+                value: device.deviceName,
+                isClickable: true,
+                onTap: () => onDeviceSelected(device),
+              ),
         ),
         DataTableColumn<Device>(
           label: 'Status',
-          builder: (device) => StatusChip(
-            status: device.status ?? 'offline',
-            type: StatusType.device,
-          ),
+          builder:
+              (device) =>
+                  StatusChip(status: device.status, type: StatusType.device),
         ),
         DataTableColumn<Device>(
           label: 'Bateria',
-          builder: (device) => BatteryIcon(
-            batteryLevel: device.batteryLevel,
-            showPercentage: true,
-          ),
+          builder:
+              (device) => BatteryIcon(
+                batteryLevel: device.battery,
+                showPercentage: true,
+              ),
         ),
         DataTableColumn<Device>(
           label: 'Localização',
-          value: (device) => device.location ?? '-',
+          value:
+              (device) => '${device.unit ?? 'N/D'} - ${device.sector ?? 'N/D'}',
         ),
         DataTableColumn<Device>(
-          label: 'Última Atualização',
-          value: (device) => device.lastUpdate?.toString() ?? '-',
+          label: 'Última Sincronização',
+          value: (device) => device.lastSeen ?? '-',
         ),
       ],
       actions: [
