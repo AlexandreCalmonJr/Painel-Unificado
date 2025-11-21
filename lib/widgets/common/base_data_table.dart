@@ -150,16 +150,31 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
                     constraints: BoxConstraints(minWidth: constraints.maxWidth),
                     child: DataTable(
                       headingRowColor: WidgetStateProperty.all(
-                        AppColors.grey100,
+                        AppColors.surfaceLight,
                       ),
+                      dataRowColor: WidgetStateProperty.resolveWith<Color?>((
+                        Set<WidgetState> states,
+                      ) {
+                        if (states.contains(WidgetState.selected)) {
+                          return AppColors.primary.withOpacity(0.1);
+                        }
+                        return AppColors.surface;
+                      }),
+                      headingTextStyle: AppTextStyles.labelLarge.copyWith(
+                        color: AppColors.textSecondary,
+                        letterSpacing: 1.0,
+                      ),
+                      dataTextStyle: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                      dividerThickness: 1,
+                      horizontalMargin: AppConstants.spacingL,
+                      columnSpacing: AppConstants.spacingXL,
                       columns: [
                         ...widget.columns.map((col) {
-                          debugPrint(
-                            'BaseDataTable: Creating column "${col.label}"',
-                          );
                           return DataColumn(
                             label: TableHeader(
-                              text: col.label,
+                              text: col.label.toUpperCase(),
                               alignment: col.alignment,
                               sortable: col.sortable,
                               isSorted: _sortColumn == col.label,
@@ -174,14 +189,10 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
                         if (widget.actions != null &&
                                 widget.actions!.isNotEmpty ||
                             widget.customRow != null)
-                          DataColumn(label: TableHeader(text: 'Ações')),
+                          DataColumn(label: TableHeader(text: 'AÇÕES')),
                       ],
                       rows:
                           _displayedItems.map((item) {
-                            final itemStr = item.toString();
-                            debugPrint(
-                              'BaseDataTable: Creating row for item: ${itemStr.length > 50 ? itemStr.substring(0, 50) : itemStr}...',
-                            );
                             return DataRow(
                               onSelectChanged:
                                   widget.onTap != null
@@ -190,9 +201,6 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
                               cells: [
                                 ...widget.columns.map((col) {
                                   final cell = col.buildCell(item);
-                                  debugPrint(
-                                    'BaseDataTable: Built cell for column "${col.label}"',
-                                  );
                                   return DataCell(cell);
                                 }),
                                 if (widget.actions != null &&

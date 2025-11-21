@@ -9,6 +9,7 @@ class BaseCard extends StatelessWidget {
   final List<Widget>? actions;
   final EdgeInsets? padding;
   final Color? backgroundColor;
+  final Gradient? gradient;
   final double? elevation;
   final BorderRadius? borderRadius;
   final Widget? leading;
@@ -22,6 +23,7 @@ class BaseCard extends StatelessWidget {
     this.actions,
     this.padding,
     this.backgroundColor,
+    this.gradient,
     this.elevation,
     this.borderRadius,
     this.leading,
@@ -31,15 +33,24 @@ class BaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: elevation ?? 2,
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
+        color: gradient == null ? (backgroundColor ?? AppColors.surface) : null,
+        gradient: gradient,
         borderRadius:
-            borderRadius ?? BorderRadius.circular(AppConstants.radiusM),
+            borderRadius ?? BorderRadius.circular(AppConstants.radiusL),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadow,
+            blurRadius: elevation ?? 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: AppColors.border.withOpacity(0.1), width: 1),
       ),
-      color: backgroundColor ?? AppColors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (title != null || actions != null) _buildHeader(),
           if (expandChild)
@@ -63,7 +74,9 @@ class BaseCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingM),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+        border: Border(
+          bottom: BorderSide(color: AppColors.border.withOpacity(0.1)),
+        ),
       ),
       child: Row(
         children: [
@@ -75,8 +88,22 @@ class BaseCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (title != null) Text(title!, style: AppTextStyles.h5),
-                if (subtitle != null) ...[const SizedBox(height: 4), subtitle!],
+                if (title != null)
+                  Text(
+                    title!,
+                    style: AppTextStyles.h5.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  DefaultTextStyle(
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    child: subtitle!,
+                  ),
+                ],
               ],
             ),
           ),

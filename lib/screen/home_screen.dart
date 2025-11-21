@@ -1,12 +1,15 @@
 // File: lib/home_screen.dart (ATUALIZADO)
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/devices/widgets/hub_menu_item.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/generic_dashboard_screen.dart';
 // ✅ CORREÇÃO APLICADA AQUI
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
+import 'package:painel_windowns/utils/app_constants.dart';
 
 class HomeScreen extends StatefulWidget {
   final AuthService authService;
@@ -142,204 +145,235 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.blue.shade50,
-              Colors.indigo.shade100,
-              Colors.purple.shade50,
-            ],
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: Card(
-                  elevation: 20,
-                  shadowColor: Colors.blue.withOpacity(0.3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Container(
-                    constraints: const BoxConstraints(maxWidth: 900),
-                    padding: const EdgeInsets.all(32.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: Colors.white,
+        decoration: const BoxDecoration(gradient: AppGradients.loginBackground),
+        child: Stack(
+          children: [
+            // Logout Button (Top Right)
+            Positioned(
+              top: 24,
+              right: 24,
+              child: Row(
+                children: [
+                  // Theme Toggle Button
+                  Obx(() {
+                    final themeController = ThemeController.to;
+                    return IconButton(
+                      onPressed: themeController.toggleTheme,
+                      icon: Icon(
+                        themeController.isDarkMode
+                            ? Icons.light_mode
+                            : Icons.dark_mode,
+                        color: AppColors.textSecondary,
+                      ),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.surface.withOpacity(0.5),
+                        padding: const EdgeInsets.all(12),
+                      ),
+                    );
+                  }),
+                  const SizedBox(width: 16),
+
+                  TextButton.icon(
+                    onPressed: () => _logout(context),
+                    icon: const Icon(
+                      Icons.logout,
+                      color: AppColors.textSecondary,
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.blue.shade600,
-                                Colors.indigo.shade700,
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.blue.withOpacity(0.3),
-                                blurRadius: 15,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: const Column(
-                            children: [
-                              Icon(Icons.apps, size: 48, color: Colors.white),
-                              SizedBox(height: 12),
-                              Text(
-                                'Central de Módulos',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ],
-                          ),
+                    label: const Text(
+                      'Sair',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppColors.surface.withOpacity(0.5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.radiusM,
                         ),
-                        const SizedBox(height: 30),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.blue.shade50,
-                                Colors.indigo.shade50,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: 1000),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Header Section
+                          Container(
+                            padding: const EdgeInsets.all(32),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: AppColors.border.withOpacity(0.1),
+                              ),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: AppColors.shadow,
+                                  blurRadius: 20,
+                                  offset: Offset(0, 10),
+                                ),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.blue.shade100,
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.blue.withOpacity(0.2),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
+                            child: Column(
+                              children: [
+                                // Logo / Title
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.grid_view_rounded,
+                                    size: 48,
+                                    color: AppColors.primary,
+                                  ),
                                 ),
-                                child: Icon(
-                                  widget.authService.isAdmin
-                                      ? Icons.admin_panel_settings
-                                      : Icons.person,
-                                  color:
-                                      widget.authService.isAdmin
-                                          ? Colors.red.shade600
-                                          : Colors.blue.shade600,
-                                  size: 20,
+                                const SizedBox(height: 24),
+                                const Text(
+                                  'Central de Módulos',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
+                                    letterSpacing: -0.5,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Bem-vindo de volta!',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade600,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Selecione um módulo para gerenciar',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+
+                                // User Info Badge
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.background,
+                                    borderRadius: BorderRadius.circular(50),
+                                    border: Border.all(
+                                      color: AppColors.border.withOpacity(0.5),
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      widget
-                                              .authService
-                                              .currentUser?['username'] ??
-                                          'Usuário',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.blueGrey.shade800,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    if (widget
-                                            .authService
-                                            .currentUser?['role'] !=
-                                        null)
-                                      Text(
-                                        widget.authService.currentUser!['role']
-                                            .toString()
-                                            .toUpperCase(),
-                                        style: TextStyle(
-                                          fontSize: 10,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 16,
+                                        backgroundColor:
+                                            widget.authService.isAdmin
+                                                ? AppColors.danger.withOpacity(
+                                                  0.2,
+                                                )
+                                                : AppColors.primary.withOpacity(
+                                                  0.2,
+                                                ),
+                                        child: Icon(
+                                          widget.authService.isAdmin
+                                              ? Icons.admin_panel_settings
+                                              : Icons.person,
+                                          size: 18,
                                           color:
                                               widget.authService.isAdmin
-                                                  ? Colors.red.shade600
-                                                  : Colors.blue.shade600,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 0.5,
+                                                  ? AppColors.danger
+                                                  : AppColors.primary,
                                         ),
                                       ),
-                                  ],
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            widget
+                                                    .authService
+                                                    .currentUser?['username'] ??
+                                                'Usuário',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.textPrimary,
+                                            ),
+                                          ),
+                                          if (widget
+                                                  .authService
+                                                  .currentUser?['role'] !=
+                                              null)
+                                            Text(
+                                              widget
+                                                  .authService
+                                                  .currentUser!['role']
+                                                  .toString()
+                                                  .toUpperCase(),
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color:
+                                                    widget.authService.isAdmin
+                                                        ? AppColors.danger
+                                                        : AppColors.primary,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.success,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade50,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green.shade600,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        if (_isLoadingModules)
-                          const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(32.0),
-                              child: CircularProgressIndicator(),
+                              ],
                             ),
-                          )
-                        else
-                          _buildModulesGrid(),
-                        const SizedBox(height: 32),
-                        _buildActionButton(
-                          onPressed: () => _logout(context),
-                          text: 'Sair',
-                          icon: Icons.logout,
-                          color: Colors.red.shade600,
-                        ),
-                      ],
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          // Modules Grid
+                          if (_isLoadingModules)
+                            const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                              ),
+                            )
+                          else
+                            _buildModulesGrid(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -355,9 +389,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           icon: Icons.phone_android,
           title: 'Módulo Mobile',
           subtitle: 'Gestão de Dispositivos',
-          onTap: () {
-            Navigator.pushNamed(context, '/dashboard');
-          },
+          onTap: () => Navigator.pushNamed(context, '/dashboard'),
         ),
       );
     }
@@ -368,16 +400,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           icon: Icons.desktop_windows,
           title: 'Módulo Totem',
           subtitle: 'Monitoramento de Totens',
-          onTap: () {
-            Navigator.pushNamed(context, '/totem_dashboard');
-          },
+          onTap: () => Navigator.pushNamed(context, '/totem_dashboard'),
         ),
       );
     }
 
     // Adiciona módulos dinâmicos
     for (final module in _availableModules) {
-      // Pula os módulos fixos que já foram adicionados
       if (module.type == AssetModuleType.mobile ||
           module.type == AssetModuleType.totem) {
         continue;
@@ -403,30 +432,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           icon: Icons.admin_panel_settings,
           title: 'Painel de Controle',
           subtitle: 'Gerenciamento do Sistema',
-          onTap: () {
-            Navigator.pushNamed(context, '/admin_dashboard');
-          },
+          onTap: () => Navigator.pushNamed(context, '/admin_dashboard'),
         ),
       );
     }
 
     if (moduleCards.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(32.0),
-        child: Column(
-          children: [
-            Icon(Icons.info_outline, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'Nenhum módulo disponível',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Entre em contato com o administrador',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
+      return const Center(
+        child: Text(
+          'Nenhum módulo disponível',
+          style: TextStyle(color: AppColors.textSecondary),
         ),
       );
     }
@@ -434,57 +449,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: moduleCards.length >= 4 ? 3 : 2,
-      crossAxisSpacing: 16.0,
-      mainAxisSpacing: 16.0,
-      childAspectRatio: 1.2,
+      crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 3 : 2,
+      crossAxisSpacing: 24.0,
+      mainAxisSpacing: 24.0,
+      childAspectRatio: 1.4,
       children: moduleCards,
-    );
-  }
-
-  Widget _buildActionButton({
-    required VoidCallback onPressed,
-    required String text,
-    required IconData icon,
-    required Color color,
-    bool isLoading = false,
-  }) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton.icon(
-        onPressed: isLoading ? null : onPressed,
-        icon:
-            isLoading
-                ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-                : Icon(icon, size: 18),
-        label:
-            isLoading
-                ? const Text('Aguarde...')
-                : Text(
-                  text,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: Colors.white,
-          elevation: 2,
-          shadowColor: color.withOpacity(0.3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
     );
   }
 }

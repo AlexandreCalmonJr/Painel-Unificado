@@ -6,6 +6,7 @@ import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/asset_detail_screen.dart';
 import 'package:painel_windowns/modules/widgets/asset_command_controls_v2.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/utils/app_constants.dart';
 import 'package:painel_windowns/widgets/common/index.dart';
 
 class GenericManagedAssetsCard extends StatelessWidget {
@@ -42,10 +43,15 @@ class GenericManagedAssetsCard extends StatelessWidget {
             icon: const Icon(Icons.download, size: 16),
             label: const Text('Baixar CSV'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.success,
               foregroundColor: Colors.white,
-              textStyle: const TextStyle(fontSize: 12),
+              textStyle: AppTextStyles.bodySmall.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppConstants.radiusS),
+              ),
             ),
           ),
       ],
@@ -57,15 +63,17 @@ class GenericManagedAssetsCard extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.inbox_outlined,
                         size: 80,
-                        color: Colors.grey[400],
+                        color: AppColors.textSecondary,
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'Nenhum ativo encontrado.',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -106,7 +114,10 @@ class GenericManagedAssetsCard extends StatelessWidget {
                                   ),
                               child: Text(
                                 value?.toString() ?? 'N/D',
-                                style: const TextStyle(fontSize: 12),
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             );
@@ -124,7 +135,9 @@ class GenericManagedAssetsCard extends StatelessWidget {
                           // Células padrão
                           return Text(
                             value?.toString() ?? 'N/D',
-                            style: const TextStyle(fontSize: 12),
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           );
                         },
@@ -170,7 +183,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
 
     return Text(
       displayValue,
-      style: const TextStyle(fontSize: 12),
+      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary),
       overflow: TextOverflow.ellipsis,
     );
   }

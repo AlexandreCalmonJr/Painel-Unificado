@@ -11,6 +11,7 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/totem_service.dart';
 import 'package:painel_windowns/totem/tabs/totems_list_tab.dart';
 import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
+import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
 
 class TotemDashboardScreen extends StatefulWidget {
   final AuthService authService;
@@ -51,7 +52,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
   Future<void> _initializeData() async {
     // Carrega os totens na inicialização
     await _loadTotems(isInitialLoad: true);
-    
+
     // Inicia o timer para atualização automática
     _refreshTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       if (mounted) _loadTotems();
@@ -104,7 +105,8 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-            builder: (context) => LoginScreen(authService: widget.authService)),
+          builder: (context) => LoginScreen(authService: widget.authService),
+        ),
         (Route<dynamic> route) => false,
       );
     }
@@ -114,14 +116,15 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     List<Totem> filteredList = List.from(_allFetchedTotems);
 
     if (_searchQuery.isNotEmpty) {
-      filteredList = _allFetchedTotems.where((totem) {
-        final query = _searchQuery.toLowerCase();
-        return (totem.hostname.toLowerCase().contains(query)) ||
-            (totem.serialNumber.toLowerCase().contains(query)) ||
-            (totem.ip.toLowerCase().contains(query)) ||
-            (totem.unit?.toLowerCase().contains(query) ?? false) ||
-            (totem.location?.toLowerCase().contains(query) ?? false);
-      }).toList();
+      filteredList =
+          _allFetchedTotems.where((totem) {
+            final query = _searchQuery.toLowerCase();
+            return (totem.hostname.toLowerCase().contains(query)) ||
+                (totem.serialNumber.toLowerCase().contains(query)) ||
+                (totem.ip.toLowerCase().contains(query)) ||
+                (totem.unit?.toLowerCase().contains(query) ?? false) ||
+                (totem.location?.toLowerCase().contains(query) ?? false);
+          }).toList();
     }
 
     _totalPages = (filteredList.length / _itemsPerPage).ceil();
@@ -129,9 +132,10 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     if (_currentPage > _totalPages) _currentPage = _totalPages;
 
     final startIndex = (_currentPage - 1) * _itemsPerPage;
-    final endIndex = (startIndex + _itemsPerPage > filteredList.length)
-        ? filteredList.length
-        : startIndex + _itemsPerPage;
+    final endIndex =
+        (startIndex + _itemsPerPage > filteredList.length)
+            ? filteredList.length
+            : startIndex + _itemsPerPage;
 
     setState(() {
       _displayedTotems = filteredList.sublist(startIndex, endIndex);
@@ -171,13 +175,18 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         _showRealTimeAlert(
           title: 'Mudança de Status: ${newTotem.hostname}',
           description: Text(
-              'O totem em "${newTotem.location}" ficou ${newStatus == 'online' ? 'Online' : (newStatus == 'offline' ? 'Offline' : newStatus)}.'),
-          icon: newStatus == 'online'
-              ? Icons.wifi
-              : (newStatus == 'offline' ? Icons.wifi_off : Icons.warning_amber),
-          color: newStatus == 'online'
-              ? Colors.blueAccent
-              : (newStatus == 'offline' ? Colors.redAccent : Colors.orange),
+            'O totem em "${newTotem.location}" ficou ${newStatus == 'online' ? 'Online' : (newStatus == 'offline' ? 'Offline' : newStatus)}.',
+          ),
+          icon:
+              newStatus == 'online'
+                  ? Icons.wifi
+                  : (newStatus == 'offline'
+                      ? Icons.wifi_off
+                      : Icons.warning_amber),
+          color:
+              newStatus == 'online'
+                  ? Colors.blueAccent
+                  : (newStatus == 'offline' ? Colors.redAccent : Colors.orange),
         );
       }
     }
@@ -237,123 +246,42 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
   }
 
   Widget _buildSidebar() {
-    return Container(
-      width: 250,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [const Color(0xFF2D3748), const Color(0xFF1A202C)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(2, 0),
-          ),
-        ],
+    final menuItems = [
+      const SidebarMenuItem(
+        icon: Icons.dashboard,
+        title: 'Painel',
+        subtitle: 'Visão Geral',
+        index: 0,
       ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.white24)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.desktop_windows, color: Colors.white, size: 32),
-                const SizedBox(width: 12),
-                const Text(
-                  'Módulo Totem',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _buildMenuItem(
-                  icon: Icons.dashboard,
-                  title: 'Painel',
-                  subtitle: 'Visão Geral',
-                  index: 0,
-                  selected: selectedIndex == 0,
-                  onTap: (index) => setState(() => selectedIndex = index),
-                ),
-                _buildMenuItem(
-                  icon: Icons.desktop_windows,
-                  title: 'Totens',
-                  subtitle: 'Listar Dispositivos',
-                  index: 1,
-                  selected: selectedIndex == 1,
-                  onTap: (index) => setState(() => selectedIndex = index),
-                ),
-                const Divider(color: Colors.white24, indent: 16, endIndent: 16),
-                _buildMenuItem(
-                  icon: Icons.arrow_back,
-                  title: 'Voltar',
-                  subtitle: 'Menu Principal',
-                  index: 99,
-                  selected: false,
-                  onTap: (_) => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(10),
-            child: Text(
-              'Desenvolvido por Alexandre Calmon',
-              style: TextStyle(color: Colors.white70, fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
+      const SidebarMenuItem(
+        icon: Icons.desktop_windows,
+        title: 'Totens',
+        subtitle: 'Listar Dispositivos',
+        index: 1,
       ),
-    );
-  }
+      SidebarMenuItem(
+        icon: Icons.arrow_back,
+        title: 'Voltar',
+        subtitle: 'Menu Principal',
+        index: 99,
+        showDividerBefore: true,
+      ),
+    ];
 
-  Widget _buildMenuItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required int index,
-    required bool selected,
-    required Function(int) onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      color: selected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: Icon(icon, color: selected ? Colors.blue : Colors.white70),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: selected ? Colors.blue : Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: selected ? Colors.blue : Colors.white70,
-            fontSize: 12,
-          ),
-        ),
-        trailing:
-            selected ? const Icon(Icons.chevron_right, color: Colors.blue) : null,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        onTap: () => onTap(index),
-      ),
+    return CustomSidebar(
+      title: 'Módulo Totem',
+      titleIcon: Icons.desktop_windows,
+      menuItems: menuItems,
+      selectedIndex: selectedIndex,
+      onItemTap: (index) {
+        if (index == 99) {
+          Navigator.of(context).pop();
+        } else {
+          setState(() => selectedIndex = index);
+        }
+      },
+      isAdmin: false,
+      footerText: 'Desenvolvido por Alexandre Calmon',
     );
   }
 
@@ -395,8 +323,8 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              onPressed: () =>
-                  setState(() => _isSidebarVisible = !_isSidebarVisible),
+              onPressed:
+                  () => setState(() => _isSidebarVisible = !_isSidebarVisible),
               tooltip: 'Esconder/Mostrar Menu',
             ),
             const SizedBox(width: 12),
@@ -414,8 +342,10 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
             Row(
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(20),
@@ -429,7 +359,9 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                             : Icons.person,
                         size: 16,
                         color:
-                            role == 'admin' ? Colors.red[600] : Colors.blue[600],
+                            role == 'admin'
+                                ? Colors.red[600]
+                                : Colors.blue[600],
                       ),
                       const SizedBox(width: 6),
                       Column(
@@ -446,8 +378,10 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                           ),
                           Text(
                             role.toUpperCase(),
-                            style:
-                                TextStyle(fontSize: 10, color: Colors.grey[600]),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey[600],
+                            ),
                           ),
                         ],
                       ),
@@ -469,7 +403,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                     ),
                   ),
                 const SizedBox(width: 15),
-                
+
                 // 6. BOTÃO DE ATUALIZAR MAPEAMENTO AJUSTADO
                 // Este botão agora simplesmente força uma recarga.
                 // A lógica de cache era do serviço antigo e não se aplica
@@ -520,18 +454,26 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                       _showLogoutDialog();
                     }
                   },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'logout',
-                      child: Row(
-                        children: [
-                          Icon(Icons.logout, size: 18, color: Colors.red[600]),
-                          const SizedBox(width: 8),
-                          Text('Sair', style: TextStyle(color: Colors.red[600])),
-                        ],
-                      ),
-                    ),
-                  ],
+                  itemBuilder:
+                      (context) => [
+                        PopupMenuItem(
+                          value: 'logout',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.logout,
+                                size: 18,
+                                color: Colors.red[600],
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Sair',
+                                style: TextStyle(color: Colors.red[600]),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                 ),
               ],
             ),
@@ -544,27 +486,28 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar Logout'),
-        content: const Text('Tem certeza que deseja sair do sistema?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirmar Logout'),
+            content: const Text('Tem certeza que deseja sair do sistema?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _logout();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[600],
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Sair'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _logout();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[600],
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Sair'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -589,15 +532,18 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
   }
 
   Widget _buildDashboardWithTable() {
-    int onlineCount = _allFetchedTotems
-        .where((t) => t.status.toLowerCase() == 'online')
-        .length;
-    int offlineCount = _allFetchedTotems
-        .where((t) => t.status.toLowerCase() == 'offline')
-        .length;
-    int errorCount = _allFetchedTotems
-        .where((t) => t.status.toLowerCase() == 'com erro')
-        .length;
+    int onlineCount =
+        _allFetchedTotems
+            .where((t) => t.status.toLowerCase() == 'online')
+            .length;
+    int offlineCount =
+        _allFetchedTotems
+            .where((t) => t.status.toLowerCase() == 'offline')
+            .length;
+    int errorCount =
+        _allFetchedTotems
+            .where((t) => t.status.toLowerCase() == 'com erro')
+            .length;
 
     return RefreshIndicator(
       onRefresh: () => _loadTotems(isInitialLoad: true),

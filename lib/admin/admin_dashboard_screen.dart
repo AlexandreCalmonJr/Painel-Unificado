@@ -5,6 +5,7 @@ import 'package:painel_windowns/admin/tabs/admin_locations_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_modules_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   final AuthService authService;
@@ -53,131 +54,54 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildSidebar() {
-    return Container(
-      width: 250,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [const Color(0xFF2D3748), const Color(0xFF1A202C)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(2, 0),
-          ),
-        ],
+    final menuItems = [
+      const SidebarMenuItem(
+        icon: Icons.people,
+        title: 'Utilizadores',
+        subtitle: 'Gerir acessos',
+        index: 0,
       ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.white24)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.admin_panel_settings, color: Colors.white, size: 32),
-                const SizedBox(width: 12),
-                const Text(
-                  'Administrativo',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _buildMenuItem(
-                  icon: Icons.people,
-                  title: 'Utilizadores',
-                  subtitle: 'Gerir acessos',
-                  index: 0,
-                  selected: selectedIndex == 0,
-                  onTap: (index) => setState(() => selectedIndex = index),
-                ),
-                _buildMenuItem(
-                  icon: Icons.location_on,
-                  title: 'Localização',
-                  subtitle: 'Mapeamento de IP',
-                  index: 1,
-                  selected: selectedIndex == 1,
-                  onTap: (index) => setState(() => selectedIndex = index),
-                ),
-                // NOVO: Item de menu para Módulos
-                _buildMenuItem(
-                  icon: Icons.apps,
-                  title: 'Módulos',
-                  subtitle: 'Gestão de Ativos',
-                  index: 2,
-                  selected: selectedIndex == 2,
-                  onTap: (index) => setState(() => selectedIndex = index),
-                ),
-                const Divider(color: Colors.white24, indent: 16, endIndent: 16),
-                _buildMenuItem(
-                  icon: Icons.android,
-                  title: 'Gestor de APKs',
-                  subtitle: 'Instalar/Remover APKs',
-                  index: 3,
-                  selected: selectedIndex == 3,
-                  onTap: (index) => setState(() => selectedIndex = index),
-                ),
-                _buildMenuItem(
-                  icon: Icons.arrow_back,
-                  title: 'Voltar',
-                  subtitle: 'Menu Principal',
-                  index: 99,
-                  selected: false,
-                  onTap: (_) => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-        ],
+      const SidebarMenuItem(
+        icon: Icons.location_on,
+        title: 'Localização',
+        subtitle: 'Mapeamento de IP',
+        index: 1,
       ),
-    );
-  }
+      const SidebarMenuItem(
+        icon: Icons.apps,
+        title: 'Módulos',
+        subtitle: 'Gestão de Ativos',
+        index: 2,
+      ),
+      const SidebarMenuItem(
+        icon: Icons.android,
+        title: 'Gestor de APKs',
+        subtitle: 'Instalar/Remover APKs',
+        index: 3,
+        showDividerBefore: true,
+      ),
+      SidebarMenuItem(
+        icon: Icons.arrow_back,
+        title: 'Voltar',
+        subtitle: 'Menu Principal',
+        index: 99,
+        showDividerBefore: false,
+      ),
+    ];
 
-  Widget _buildMenuItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required int index,
-    required bool selected,
-    required Function(int) onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      color: selected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: Icon(icon, color: selected ? Colors.blue : Colors.white70),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: selected ? Colors.blue : Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: selected ? Colors.blue : Colors.white70,
-            fontSize: 12,
-          ),
-        ),
-        trailing: selected ? const Icon(Icons.chevron_right, color: Colors.blue) : null,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        onTap: () => onTap(index),
-      ),
+    return CustomSidebar(
+      title: 'Administrativo',
+      titleIcon: Icons.admin_panel_settings,
+      menuItems: menuItems,
+      selectedIndex: selectedIndex,
+      onItemTap: (index) {
+        if (index == 99) {
+          Navigator.of(context).pop();
+        } else {
+          setState(() => selectedIndex = index);
+        }
+      },
+      isAdmin: true,
     );
   }
 
@@ -218,7 +142,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              onPressed: () => setState(() => _isSidebarVisible = !_isSidebarVisible),
+              onPressed:
+                  () => setState(() => _isSidebarVisible = !_isSidebarVisible),
               tooltip: 'Esconder/Mostrar Menu',
             ),
             const SizedBox(width: 12),

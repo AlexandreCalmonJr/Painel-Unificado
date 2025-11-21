@@ -52,67 +52,94 @@ class AppConstants {
 
 /// Cores da aplicação
 class AppColors {
-  // ===== CORES PRIMÁRIAS =====
-  static const Color primary = Color(0xFF2196F3);
-  static const Color primaryDark = Color(0xFF1976D2);
-  static const Color primaryLight = Color(0xFF64B5F6);
+  // ===== PALETA CYBER/ENTERPRISE (DARK MODE) =====
 
-  static const Color secondary = Color(0xFF607D8B);
-  static const Color secondaryDark = Color(0xFF455A64);
-  static const Color secondaryLight = Color(0xFF90A4AE);
+  // Backgrounds
+  static const Color background = Color(0xFF0B1120); // Rich Black/Blue
+  static const Color surface = Color(0xFF1E293B); // Slate 800
+  static const Color surfaceLight = Color(0xFF334155); // Slate 700
 
-  // ===== CORES DE STATUS =====
-  static const Color success = Color(0xFF4CAF50);
-  static const Color warning = Color(0xFFFF9800);
-  static const Color danger = Color(0xFFF44336);
-  static const Color info = Color(0xFF2196F3);
+  // Brand Colors
+  static const Color primary = Color(0xFF3B82F6); // Royal Blue
+  static const Color primaryDark = Color(0xFF2563EB); // Deep Blue
+  static const Color accent = Color(0xFF06B6D4); // Cyan/Neon Blue
 
-  // ===== CORES DE ESTADO DE DISPOSITIVO =====
-  static const Color online = Color(0xFF4CAF50);
-  static const Color offline = Color(0xFF9E9E9E);
-  static const Color maintenance = Color(0xFFFF9800);
-  static const Color collected = Color(0xFF9C27B0);
-  static const Color production = Color(0xFF2196F3);
+  // Status Colors (Vibrant for Dark Mode)
+  static const Color success = Color(0xFF10B981); // Emerald
+  static const Color warning = Color(0xFFF59E0B); // Amber
+  static const Color danger = Color(0xFFEF4444); // Red
+  static const Color info = Color(0xFF3B82F6); // Blue
 
-  // ===== CORES DE BATERIA =====
-  static const Color batteryFull = Color(0xFF4CAF50);
-  static const Color batteryHigh = Color(0xFF8BC34A);
-  static const Color batteryMedium = Color(0xFFFFC107);
-  static const Color batteryLow = Color(0xFFFF9800);
-  static const Color batteryCritical = Color(0xFFF44336);
+  // Text Colors
+  static const Color textPrimary = Color(0xFFF8FAFC); // Slate 50 (White-ish)
+  static const Color textSecondary = Color(0xFF94A3B8); // Slate 400
+  static const Color textHint = Color(0xFF64748B); // Slate 500
+  static const Color textDisabled = Color(0xFF475569); // Slate 600
 
-  // ===== CORES NEUTRAS =====
+  // Borders & Dividers
+  static const Color border = Color(0xFF334155); // Slate 700
+
+  // Legacy Mappings (para manter compatibilidade enquanto migra)
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
-  static const Color grey50 = Color(0xFFFAFAFA);
-  static const Color grey100 = Color(0xFFF5F5F5);
-  static const Color grey200 = Color(0xFFEEEEEE);
-  static const Color grey300 = Color(0xFFE0E0E0);
-  static const Color grey400 = Color(0xFFBDBDBD);
-  static const Color grey500 = Color(0xFF9E9E9E);
-  static const Color grey600 = Color(0xFF757575);
-  static const Color grey700 = Color(0xFF616161);
-  static const Color grey800 = Color(0xFF424242);
-  static const Color grey900 = Color(0xFF212121);
+  static const Color grey100 = Color(0xFF1E293B); // Mapped to Surface
+  static const Color grey200 = Color(0xFF334155); // Mapped to Surface Light
 
-  // ===== CORES DE FUNDO =====
-  static const Color background = Color(0xFFF5F5F5);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceDark = Color(0xFFF5F5F5);
+  // Device Status Colors
+  static const Color online = success;
+  static const Color offline = textDisabled;
+  static const Color maintenance = warning;
+  static const Color collected = Color(0xFFA855F7); // Purple
+  static const Color production = primary;
 
-  // ===== CORES DE TEXTO =====
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
-  static const Color textDisabled = Color(0xFFBDBDBD);
-  static const Color textHint = Color(0xFF9E9E9E);
+  // Battery Colors
+  static const Color batteryFull = success;
+  static const Color batteryHigh = Color(0xFF84CC16); // Lime
+  static const Color batteryMedium = warning;
+  static const Color batteryLow = Color(0xFFF97316); // Orange
+  static const Color batteryCritical = danger;
 
-  // ===== CORES DE BORDA =====
-  static const Color border = Color(0xFFE0E0E0);
-  static const Color borderDark = Color(0xFFBDBDBD);
+  // Shadows
+  static const Color shadow = Color(0x40000000); // Darker shadow
 
-  // ===== CORES DE SOMBRA =====
-  static const Color shadow = Color(0x1F000000);
-  static const Color shadowDark = Color(0x3D000000);
+  // ===== LIGHT MODE PALETTE =====
+  static const Color backgroundLight = Color(0xFFF1F5F9); // Slate 100
+  static const Color surfaceLightMode = Color(0xFFFFFFFF); // White
+  static const Color surfaceLightVariant = Color(0xFFE2E8F0); // Slate 200
+
+  static const Color textPrimaryLight = Color(0xFF0F172A); // Slate 900
+  static const Color textSecondaryLight = Color(0xFF64748B); // Slate 500
+  static const Color borderLight = Color(0xFFCBD5E1); // Slate 300
+}
+
+class AppGradients {
+  static const LinearGradient sidebar = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF1E3A8A), // Blue 900
+      Color(0xFF0F172A), // Slate 900
+    ],
+  );
+
+  static const LinearGradient primaryButton = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [
+      Color(0xFF3B82F6), // Blue 500
+      Color(0xFF2563EB), // Blue 600
+    ],
+  );
+
+  static const LinearGradient loginBackground = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF0F172A), // Slate 900
+      Color(0xFF1E3A8A), // Blue 900
+      Color(0xFF000000), // Black
+    ],
+  );
 }
 
 /// Estilos de texto da aplicação

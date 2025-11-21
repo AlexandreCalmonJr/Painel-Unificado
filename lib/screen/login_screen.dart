@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:painel_windowns/screen/home_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
+import 'package:painel_windowns/utils/app_constants.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService;
@@ -43,21 +44,16 @@ class _LoginScreenState extends State<LoginScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutBack,
-    ));
+    ).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack),
+    );
 
     // Inicia as animações
     _fadeController.forward();
@@ -89,10 +85,10 @@ class _LoginScreenState extends State<LoginScreen>
 
     setState(() => _isLoading = true);
     try {
-       final result = await widget.authService.login(
-      _usernameController.text,
-      _passwordController.text,
-    );
+      final result = await widget.authService.login(
+        _usernameController.text,
+        _passwordController.text,
+      );
 
       if (mounted) {
         if (result['success']) {
@@ -101,7 +97,9 @@ class _LoginScreenState extends State<LoginScreen>
           await Future.delayed(const Duration(milliseconds: 1000));
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
-              pageBuilder: (context, animation, _) => HomeScreen(authService: widget.authService),
+              pageBuilder:
+                  (context, animation, _) =>
+                      HomeScreen(authService: widget.authService),
               transitionDuration: const Duration(milliseconds: 500),
               transitionsBuilder: (context, animation, _, child) {
                 return FadeTransition(
@@ -157,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen>
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.red.shade600,
+        backgroundColor: AppColors.danger,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -175,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen>
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.green.shade600,
+        backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -187,173 +185,148 @@ class _LoginScreenState extends State<LoginScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.blue.shade50,
-              Colors.indigo.shade100,
-              Colors.purple.shade50,
-            ],
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: AppGradients.loginBackground),
         child: Center(
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: SlideTransition(
               position: _slideAnimation,
-              child: Card(
-                elevation: 20,
-                shadowColor: Colors.blue.withOpacity(0.3),
-                shape: RoundedRectangleBorder(
+              child: Container(
+                width: 420,
+                padding: const EdgeInsets.all(32.0),
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
+                  color: AppColors.surface,
+                  border: Border.all(color: AppColors.border.withOpacity(0.1)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.shadow,
+                      blurRadius: 20,
+                      offset: Offset(0, 10),
+                    ),
+                  ],
                 ),
-                child: Container(
-                  width: 420,
-                  padding: const EdgeInsets.all(32.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Logo e título
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.blue.shade600, Colors.indigo.shade700],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Logo e título
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.admin_panel_settings,
+                        size: 48,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'MDM Control Panel',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Tabs com design melhorado
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppColors.border.withOpacity(0.5),
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: TabBar(
+                        controller: _tabController,
+                        indicator: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: AppGradients.primaryButton,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.blue.withOpacity(0.3),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
+                              color: AppColors.primary.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        child: const Column(
-                          children: [
-                            Icon(
-                              Icons.admin_panel_settings,
-                              size: 48,
-                              color: Colors.white,
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              'MDM Control Panel',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                          ],
+                        labelColor: Colors.white,
+                        unselectedLabelColor: AppColors.textSecondary,
+                        dividerColor: Colors.transparent,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        splashFactory: NoSplash.splashFactory,
+                        overlayColor: WidgetStateProperty.all(
+                          Colors.transparent,
                         ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Tabs com design melhorado
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: const EdgeInsets.all(4),
-                        child: TabBar(
-                          controller: _tabController,
-                          indicator: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.blue.shade600,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.blue.withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                        tabs: const [
+                          Tab(
+                            icon: Icon(Icons.login, size: 20),
+                            text: 'Login',
+                            height: 56,
                           ),
-                          labelColor: Colors.white,
-                          unselectedLabelColor: Colors.grey.shade600,
-                          dividerColor: Colors.transparent,
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          splashFactory: NoSplash.splashFactory,
-                          overlayColor: WidgetStateProperty.all(Colors.transparent),
-                          tabs: const [
-                            Tab(
-                              icon: Icon(Icons.login, size: 20),
-                              text: 'Login',
-                              height: 56,
-                            ),
-                            Tab(
-                              icon: Icon(Icons.settings, size: 20),
-                              text: 'Servidor',
-                              height: 56,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Conteúdo das tabs
-                      SizedBox(
-                        height: 280,
-                        child: TabBarView(
-                          controller: _tabController,
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: [
-                            _buildLoginForm(),
-                            _buildServerConfigForm(),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Assinatura do desenvolvedor
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.grey.shade100,
-                              Colors.grey.shade50,
-                            ],
+                          Tab(
+                            icon: Icon(Icons.settings, size: 20),
+                            text: 'Servidor',
+                            height: 56,
                           ),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.grey.shade200,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.code,
-                              size: 18,
-                              color: Colors.grey.shade600,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Desenvolvido por Alexandre Calmon - TI Bahia',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Conteúdo das tabs
+                    SizedBox(
+                      height: 280,
+                      child: TabBarView(
+                        controller: _tabController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [_buildLoginForm(), _buildServerConfigForm()],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Assinatura do desenvolvedor
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.background.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.border.withOpacity(0.2),
                         ),
                       ),
-                    ],
-                  ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.code,
+                            size: 18,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Desenvolvido por Alexandre Calmon - TI Bahia',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -384,9 +357,10 @@ class _LoginScreenState extends State<LoginScreen>
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                color: Colors.grey.shade600,
+                color: AppColors.textSecondary,
               ),
-              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+              onPressed:
+                  () => setState(() => _obscurePassword = !_obscurePassword),
             ),
           ),
           const SizedBox(height: 32),
@@ -394,7 +368,7 @@ class _LoginScreenState extends State<LoginScreen>
             onPressed: _login,
             text: 'Entrar',
             icon: Icons.login,
-            color: Colors.blue.shade600,
+            gradient: AppGradients.primaryButton,
             isLoading: _isLoading,
           ),
         ],
@@ -426,7 +400,7 @@ class _LoginScreenState extends State<LoginScreen>
             onPressed: _saveServerConfig,
             text: 'Salvar Configuração',
             icon: Icons.save,
-            color: Colors.green.shade600,
+            color: AppColors.success,
           ),
         ],
       ),
@@ -449,31 +423,31 @@ class _LoginScreenState extends State<LoginScreen>
       textInputAction: textInputAction,
       keyboardType: keyboardType,
       onFieldSubmitted: onFieldSubmitted,
-      style: const TextStyle(fontSize: 16),
+      style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(
-          color: Colors.grey.shade600,
+        labelStyle: const TextStyle(
+          color: AppColors.textSecondary,
           fontSize: 14,
         ),
         prefixIcon: Container(
           margin: const EdgeInsets.only(right: 12),
-          child: Icon(icon, color: Colors.grey.shade600, size: 20),
+          child: Icon(icon, color: AppColors.textSecondary, size: 20),
         ),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: Colors.grey.shade50,
+        fillColor: AppColors.background,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -487,38 +461,53 @@ class _LoginScreenState extends State<LoginScreen>
     required VoidCallback onPressed,
     required String text,
     required IconData icon,
-    required Color color,
+    Color? color,
+    Gradient? gradient,
     bool isLoading = false,
   }) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 52,
+      decoration: BoxDecoration(
+        gradient: gradient,
+        color: gradient == null ? color : null,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: (color ?? AppColors.primary).withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ElevatedButton.icon(
         onPressed: isLoading ? null : onPressed,
-        icon: isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
+        icon:
+            isLoading
+                ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+                : Icon(icon, size: 18),
+        label:
+            isLoading
+                ? const Text('Carregando...')
+                : Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              )
-            : Icon(icon, size: 18),
-        label: isLoading
-            ? const Text('Carregando...')
-            : Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: color,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          elevation: 2,
-          shadowColor: color.withOpacity(0.3),
+          elevation: 0,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
