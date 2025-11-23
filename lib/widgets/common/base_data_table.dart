@@ -88,14 +88,23 @@ class BaseDataTable<T> extends StatefulWidget {
 class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
   String _sortColumn = '';
   bool _sortAscending = true;
-  String _searchQuery = '';
+  final String _searchQuery = '';
 
   List<T> get _filteredItems {
-    // TODO: Implementar busca se showSearch = true
+    if (widget.showSearch) {
+      return widget.items.where((item) {
+        return widget.columns.any((col) {
+          final value = col.value?.call(item);
+          return value?.toString().toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ) ??
+              false;
+        });
+      }).toList();
+    }
     return widget.items;
   }
 
-  // Sempre retorna todos os itens - sem paginação
   List<T> get _displayedItems => _filteredItems;
 
   void _handleSort(String columnLabel) {

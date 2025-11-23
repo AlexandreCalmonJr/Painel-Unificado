@@ -1,16 +1,13 @@
-// File: lib/admin/tabs/admin_apk_manager_tab.dart
-import 'dart:convert';
-
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+// File: lib/admin/tabs/admin_apk_manager_tab.dart (REDESIGNED)
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
+import 'package:painel_windowns/config/theme_config.dart';
+import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/server_config_service.dart';
+import 'package:painel_windowns/utils/app_constants.dart';
 
 class AdminApkManagerTab extends StatefulWidget {
   final AuthService authService;
-
   const AdminApkManagerTab({super.key, required this.authService});
 
   @override
@@ -18,447 +15,439 @@ class AdminApkManagerTab extends StatefulWidget {
 }
 
 class _AdminApkManagerTabState extends State<AdminApkManagerTab> {
-  List<Map<String, dynamic>> apks = [];
-  bool isLoading = false;
-  bool isUploading = false;
-  double uploadProgress = 0.0;
-  String? uploadingFileName;
+  String _searchQuery = '';
 
-  @override
-  void initState() {
-    super.initState();
-    _loadApks();
-  }
-
-  Future<void> _loadApks() async {
-    setState(() => isLoading = true);
-    try {
-      final config = ServerConfigService.instance.loadConfig();
-      final url = 'http://${config['ip']}:${config['port']}/api/server/apks';
-
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer ${widget.authService.currentToken}',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          apks = data.map((e) => Map<String, dynamic>.from(e)).toList();
-        });
-      } else {
-        _showSnackbar('Erro ao carregar APKs: ${response.statusCode}', isError: true);
-      }
-    } catch (e) {
-      _showSnackbar('Erro: $e', isError: true);
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> _uploadApk() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['apk'],
-      );
-
-      if (result == null) return;
-
-      setState(() {
-        isUploading = true;
-        uploadProgress = 0.0;
-        uploadingFileName = result.files.single.name;
-      });
-
-      final config = ServerConfigService.instance.loadConfig();
-      final url = 'http://${config['ip']}:${config['port']}/api/server/upload-apk';
-
-      var request = http.MultipartRequest('POST', Uri.parse(url));
-      request.headers['Authorization'] = 'Bearer ${widget.authService.currentToken}';
-
-      if (kIsWeb) {
-        request.files.add(http.MultipartFile.fromBytes(
-          'apk',
-          result.files.single.bytes!,
-          filename: result.files.single.name,
-        ));
-      } else {
-        request.files.add(await http.MultipartFile.fromPath(
-          'apk',
-          result.files.single.path!,
-          filename: result.files.single.name,
-        ));
-      }
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode == 200) {
-        _showSnackbar('APK enviado com sucesso!');
-        await _loadApks();
-      } else {
-        final error = jsonDecode(response.body);
-        _showSnackbar('Erro: ${error['message'] ?? response.statusCode}', isError: true);
-      }
-    } catch (e) {
-      _showSnackbar('Erro ao enviar APK: $e', isError: true);
-    } finally {
-      setState(() {
-        isUploading = false;
-        uploadProgress = 0.0;
-        uploadingFileName = null;
-      });
-    }
-  }
-
-  Future<void> _deleteApk(String fileName) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(Icons.warning, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Confirmar Exclusão'),
-          ],
-        ),
-        content: Text('Deseja realmente excluir "$fileName"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Excluir', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
-    try {
-      final config = ServerConfigService.instance.loadConfig();
-      final url = 'http://${config['ip']}:${config['port']}/api/server/apks/${Uri.encodeComponent(fileName)}';
-
-      final response = await http.delete(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer ${widget.authService.currentToken}',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        _showSnackbar('APK excluído com sucesso!');
-        await _loadApks();
-      } else {
-        final error = jsonDecode(response.body);
-        _showSnackbar('Erro: ${error['message'] ?? response.statusCode}', isError: true);
-      }
-    } catch (e) {
-      _showSnackbar('Erro ao excluir APK: $e', isError: true);
-    }
-  }
-
-  String _formatBytes(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
-  }
-
-  void _showSnackbar(String message, {bool isError = false}) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        duration: Duration(seconds: 4),
-      ),
-    );
-  }
+  // Dados de exemplo
+  final List<Map<String, dynamic>> _apks = [
+    {
+      'name': 'MDM Client',
+      'package': 'com.company.mdm.client',
+      'version': '3.2.1',
+      'versionCode': 321,
+      'size': '12.5 MB',
+      'uploadDate': '2025-01-15',
+      'downloads': 145,
+      'status': 'active',
+    },
+    {
+      'name': 'Inventory Scanner',
+      'package': 'com.company.inventory',
+      'version': '2.0.8',
+      'versionCode': 208,
+      'size': '8.3 MB',
+      'uploadDate': '2025-01-10',
+      'downloads': 89,
+      'status': 'active',
+    },
+    {
+      'name': 'Field Service',
+      'package': 'com.company.field',
+      'version': '1.9.2',
+      'versionCode': 192,
+      'size': '15.7 MB',
+      'uploadDate': '2024-12-28',
+      'downloads': 67,
+      'status': 'deprecated',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.purple.shade50, Colors.blue.shade50],
-        ),
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Obx(() {
+      final themeController = ThemeController.to;
+      final isDark = themeController.isDarkMode;
+      final palette = themeController.currentPalette;
+
+      final filteredApks =
+          _apks.where((apk) {
+            return apk['name'].toString().toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                ) ||
+                apk['package'].toString().toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                );
+          }).toList();
+
+      final totalSize = _apks.fold(0.0, (sum, apk) {
+        final sizeStr = apk['size'].toString().replaceAll(' MB', '');
+        return sum + double.parse(sizeStr);
+      });
+
+      final totalDownloads = _apks.fold(
+        0,
+        (sum, apk) => sum + (apk['downloads'] as int),
+      );
+
+      return Column(
+        children: [
+          // Header com estatísticas
+          Row(
             children: [
-              // Header
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Icon(Icons.android, color: Colors.green, size: 32),
-                      SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Gerenciamento de APKs',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Envie e gerencie aplicativos para dispositivos Android',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              Expanded(
+                child: _buildStatCard(
+                  'Total de APKs',
+                  _apks.length.toString(),
+                  Icons.android,
+                  palette['primary']!,
+                  isDark,
                 ),
               ),
-              SizedBox(height: 16),
-
-              // Upload Button
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Enviar novo APK',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Selecione um arquivo .apk para enviar ao servidor',
-                              style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      ElevatedButton.icon(
-                        onPressed: isUploading ? null : _uploadApk,
-                        icon: Icon(
-                          isUploading ? Icons.hourglass_empty : Icons.upload_file,
-                          color: Colors.white,
-                        ),
-                        label: Text(isUploading ? 'Enviando...' : 'Selecionar APK'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildStatCard(
+                  'Downloads Totais',
+                  totalDownloads.toString(),
+                  Icons.download,
+                  AppColors.success,
+                  isDark,
                 ),
               ),
-
-              // Upload Progress
-              if (isUploading) ...[
-                SizedBox(height: 16),
-                Card(
-                  color: Colors.blue.shade50,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 3),
-                            ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Enviando: $uploadingFileName',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.blue[800],
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-
-              SizedBox(height: 16),
-
-              // APK List
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.folder_open, color: Colors.blue),
-                              SizedBox(width: 8),
-                              Text(
-                                'APKs Disponíveis',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey[800],
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              '${apks.length} arquivo(s)',
-                              style: TextStyle(
-                                color: Colors.blue.shade800,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(height: 1),
-                    if (isLoading)
-                      Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    else if (apks.isEmpty)
-                      Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              Icon(Icons.inbox, size: 64, color: Colors.grey[400]),
-                              SizedBox(height: 16),
-                              Text(
-                                'Nenhum APK disponível',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Envie um arquivo APK para começar',
-                                style: TextStyle(color: Colors.grey[500], fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    else
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: apks.length,
-                        separatorBuilder: (context, index) => Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final apk = apks[index];
-                          return ListTile(
-                            leading: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade50,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(Icons.android, color: Colors.green, size: 24),
-                            ),
-                            title: Text(
-                              apk['name'] ?? 'Unknown',
-                              style: TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(height: 4),
-                                Text('Tamanho: ${_formatBytes(apk['size'] ?? 0)}'),
-                                if (apk['lastModified'] != null)
-                                  Text(
-                                    'Modificado: ${DateTime.parse(apk['lastModified']).toLocal().toString().split('.')[0]}',
-                                    style: TextStyle(fontSize: 12),
-                                  ),
-                              ],
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.link, color: Colors.blue),
-                                  tooltip: 'Copiar URL',
-                                  onPressed: () {
-                                    // TODO: Implementar copiar URL
-                                    _showSnackbar('URL: ${apk['url']}');
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete, color: Colors.red),
-                                  tooltip: 'Excluir',
-                                  onPressed: () => _deleteApk(apk['name']),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                  ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildStatCard(
+                  'Espaço Total',
+                  '${totalSize.toStringAsFixed(1)} MB',
+                  Icons.storage,
+                  palette['accent']!,
+                  isDark,
                 ),
               ),
             ],
           ),
+
+          const SizedBox(height: 20),
+
+          // Barra de busca e upload
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark ? AppColors.border : AppColors.borderLight,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: (value) => setState(() => _searchQuery = value),
+                    style: TextStyle(
+                      color:
+                          isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryLight,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Buscar APKs...',
+                      hintStyle: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.textSecondary
+                                : AppColors.textSecondaryLight,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color:
+                            isDark
+                                ? AppColors.textSecondary
+                                : AppColors.textSecondaryLight,
+                      ),
+                      filled: true,
+                      fillColor:
+                          isDark
+                              ? AppColors.background
+                              : AppColors.surfaceLightVariant,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Funcionalidade de upload em desenvolvimento',
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.upload_file, size: 20),
+                  label: const Text('Upload APK'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: palette['primary'],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Lista de APKs
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredApks.length,
+              itemBuilder: (context, index) {
+                final apk = filteredApks[index];
+                return _buildApkCard(apk, isDark, palette);
+              },
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    bool isDark,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.border : AppColors.borderLight,
         ),
       ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        isDark
+                            ? AppColors.textPrimary
+                            : AppColors.textPrimaryLight,
+                  ),
+                ),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color:
+                        isDark
+                            ? AppColors.textSecondary
+                            : AppColors.textSecondaryLight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildApkCard(
+    Map<String, dynamic> apk,
+    bool isDark,
+    Map<String, Color> palette,
+  ) {
+    final isActive = apk['status'] == 'active';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.border : AppColors.borderLight,
+        ),
+      ),
+      child: Row(
+        children: [
+          // Ícone do APK
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [palette['primary']!, palette['accent']!],
+              ),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(Icons.android, color: Colors.white, size: 32),
+          ),
+
+          const SizedBox(width: 20),
+
+          // Informações do APK
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        apk['name'],
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              isDark
+                                  ? AppColors.textPrimary
+                                  : AppColors.textPrimaryLight,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            isActive
+                                ? AppColors.success.withOpacity(0.1)
+                                : AppColors.warning.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        isActive ? 'Ativo' : 'Descontinuado',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color:
+                              isActive ? AppColors.success : AppColors.warning,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  apk['package'],
+                  style: TextStyle(
+                    fontSize: 12,
+                    color:
+                        isDark
+                            ? AppColors.textSecondary
+                            : AppColors.textSecondaryLight,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: [
+                    _buildInfoChip(
+                      Icons.tag,
+                      'v${apk['version']} (${apk['versionCode']})',
+                      isDark,
+                    ),
+                    _buildInfoChip(Icons.storage, apk['size'], isDark),
+                    _buildInfoChip(
+                      Icons.download,
+                      '${apk['downloads']} downloads',
+                      isDark,
+                    ),
+                    _buildInfoChip(
+                      Icons.calendar_today,
+                      apk['uploadDate'],
+                      isDark,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 20),
+
+          // Ações
+          Column(
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.download, size: 20),
+                style: IconButton.styleFrom(
+                  backgroundColor: palette['primary']!.withOpacity(0.1),
+                  foregroundColor: palette['primary'],
+                ),
+                tooltip: 'Download',
+              ),
+              const SizedBox(height: 8),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.info_outline, size: 20),
+                style: IconButton.styleFrom(
+                  backgroundColor: AppColors.info.withOpacity(0.1),
+                  foregroundColor: AppColors.info,
+                ),
+                tooltip: 'Detalhes',
+              ),
+              const SizedBox(height: 8),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.delete, size: 20),
+                style: IconButton.styleFrom(
+                  backgroundColor: AppColors.danger.withOpacity(0.1),
+                  foregroundColor: AppColors.danger,
+                ),
+                tooltip: 'Excluir',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoChip(IconData icon, String text, bool isDark) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 14,
+          color:
+              isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 12,
+            color:
+                isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+          ),
+        ),
+      ],
     );
   }
 }

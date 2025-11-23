@@ -2,14 +2,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:painel_windowns/config/theme_config.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/devices/widgets/hub_menu_item.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/generic_dashboard_screen.dart';
-// ✅ CORREÇÃO APLICADA AQUI
+import 'package:painel_windowns/screen/profile_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
+import 'package:painel_windowns/widgets/profile_avatar_widget.dart';
+import 'package:painel_windowns/widgets/theme_selector_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   final AuthService authService;
@@ -143,240 +146,279 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppGradients.loginBackground),
-        child: Stack(
-          children: [
-            // Logout Button (Top Right)
-            Positioned(
-              top: 24,
-              right: 24,
-              child: Row(
-                children: [
-                  // Theme Toggle Button
-                  Obx(() {
-                    final themeController = ThemeController.to;
-                    return IconButton(
-                      onPressed: themeController.toggleTheme,
-                      icon: Icon(
-                        themeController.isDarkMode
-                            ? Icons.light_mode
-                            : Icons.dark_mode,
-                        color: AppColors.textSecondary,
-                      ),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.surface.withOpacity(0.5),
-                        padding: const EdgeInsets.all(12),
-                      ),
-                    );
-                  }),
-                  const SizedBox(width: 16),
+    return Obx(() {
+      final themeController = ThemeController.to;
+      final isDark = themeController.isDarkMode;
+      final palette = themeController.currentPalette;
 
-                  TextButton.icon(
-                    onPressed: () => _logout(context),
-                    icon: const Icon(
-                      Icons.logout,
-                      color: AppColors.textSecondary,
-                    ),
-                    label: const Text(
-                      'Sair',
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                    style: TextButton.styleFrom(
-                      backgroundColor: AppColors.surface.withOpacity(0.5),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppConstants.radiusM,
+      return Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: ThemeGradients.getLoginBackgroundGradient(
+              themeController.colorScheme,
+            ),
+          ),
+          child: Stack(
+            children: [
+              // Header com botões (Top Right)
+              Positioned(
+                top: 24,
+                right: 24,
+                child: Row(
+                  children: [
+                    // Botão de Tema
+                    const ThemeSelectorButton(),
+                    const SizedBox(width: 12),
+
+                    // Botão de Perfil
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ProfileScreen(
+                                  authService: widget.authService,
+                                ),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(50),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: (isDark
+                                  ? AppColors.surface
+                                  : AppColors.surfaceLightMode)
+                              .withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(
+                            color: palette['primary']!.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            ProfileAvatarWidget(
+                              username:
+                                  widget.authService.currentUser?['username'] ??
+                                  'User',
+                              size: 32,
+                              isOnline: true,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              widget.authService.currentUser?['username'] ??
+                                  'Usuário',
+                              style: TextStyle(
+                                color:
+                                    isDark
+                                        ? AppColors.textPrimary
+                                        : AppColors.textPrimaryLight,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+
+                    // Botão de Logout
+                    IconButton(
+                      onPressed: () => _logout(context),
+                      icon: const Icon(Icons.logout),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.danger.withOpacity(0.2),
+                        foregroundColor: AppColors.danger,
+                        padding: const EdgeInsets.all(12),
+                      ),
+                      tooltip: 'Sair',
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Container(
-                      constraints: const BoxConstraints(maxWidth: 1000),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Header Section
-                          Container(
-                            padding: const EdgeInsets.all(32),
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: AppColors.border.withOpacity(0.1),
+              Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 1000),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Header Section
+                            Container(
+                              padding: const EdgeInsets.all(32),
+                              decoration: BoxDecoration(
+                                color: AppColors.surface,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: AppColors.border.withOpacity(0.1),
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: AppColors.shadow,
+                                    blurRadius: 20,
+                                    offset: Offset(0, 10),
+                                  ),
+                                ],
                               ),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: AppColors.shadow,
-                                  blurRadius: 20,
-                                  offset: Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                // Logo / Title
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary.withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.grid_view_rounded,
-                                    size: 48,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                const Text(
-                                  'Central de Módulos',
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
-                                    letterSpacing: -0.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Selecione um módulo para gerenciar',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                                const SizedBox(height: 32),
-
-                                // User Info Badge
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.background,
-                                    borderRadius: BorderRadius.circular(50),
-                                    border: Border.all(
-                                      color: AppColors.border.withOpacity(0.5),
+                              child: Column(
+                                children: [
+                                  // Logo / Title
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.grid_view_rounded,
+                                      size: 48,
+                                      color: AppColors.primary,
                                     ),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 16,
-                                        backgroundColor:
-                                            widget.authService.isAdmin
-                                                ? AppColors.danger.withOpacity(
-                                                  0.2,
-                                                )
-                                                : AppColors.primary.withOpacity(
-                                                  0.2,
-                                                ),
-                                        child: Icon(
-                                          widget.authService.isAdmin
-                                              ? Icons.admin_panel_settings
-                                              : Icons.person,
-                                          size: 18,
-                                          color:
+                                  const SizedBox(height: 24),
+                                  const Text(
+                                    'Central de Módulos',
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Selecione um módulo para gerenciar',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 32),
+
+                                  // User Info Badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.background,
+                                      borderRadius: BorderRadius.circular(50),
+                                      border: Border.all(
+                                        color: AppColors.border.withOpacity(
+                                          0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 16,
+                                          backgroundColor:
                                               widget.authService.isAdmin
                                                   ? AppColors.danger
-                                                  : AppColors.primary,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            widget
-                                                    .authService
-                                                    .currentUser?['username'] ??
-                                                'Usuário',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppColors.textPrimary,
-                                            ),
+                                                      .withOpacity(0.2)
+                                                  : AppColors.primary
+                                                      .withOpacity(0.2),
+                                          child: Icon(
+                                            widget.authService.isAdmin
+                                                ? Icons.admin_panel_settings
+                                                : Icons.person,
+                                            size: 18,
+                                            color:
+                                                widget.authService.isAdmin
+                                                    ? AppColors.danger
+                                                    : AppColors.primary,
                                           ),
-                                          if (widget
-                                                  .authService
-                                                  .currentUser?['role'] !=
-                                              null)
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
                                             Text(
                                               widget
-                                                  .authService
-                                                  .currentUser!['role']
-                                                  .toString()
-                                                  .toUpperCase(),
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                color:
-                                                    widget.authService.isAdmin
-                                                        ? AppColors.danger
-                                                        : AppColors.primary,
-                                                fontWeight: FontWeight.bold,
-                                                letterSpacing: 0.5,
+                                                      .authService
+                                                      .currentUser?['username'] ??
+                                                  'Usuário',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.textPrimary,
                                               ),
                                             ),
-                                        ],
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: const BoxDecoration(
-                                          color: AppColors.success,
-                                          shape: BoxShape.circle,
+                                            if (widget
+                                                    .authService
+                                                    .currentUser?['role'] !=
+                                                null)
+                                              Text(
+                                                widget
+                                                    .authService
+                                                    .currentUser!['role']
+                                                    .toString()
+                                                    .toUpperCase(),
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color:
+                                                      widget.authService.isAdmin
+                                                          ? AppColors.danger
+                                                          : AppColors.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.5,
+                                                ),
+                                              ),
+                                          ],
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 12),
+                                        Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: const BoxDecoration(
+                                            color: AppColors.success,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 32),
-
-                          // Modules Grid
-                          if (_isLoadingModules)
-                            const Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.primary,
+                                ],
                               ),
-                            )
-                          else
-                            _buildModulesGrid(),
-                        ],
+                            ),
+
+                            const SizedBox(height: 32),
+
+                            // Modules Grid
+                            if (_isLoadingModules)
+                              const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                ),
+                              )
+                            else
+                              _buildModulesGrid(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildModulesGrid() {

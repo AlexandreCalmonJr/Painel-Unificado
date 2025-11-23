@@ -1,10 +1,14 @@
 // File: lib/admin/admin_dashboard_screen.dart (ATUALIZADO)
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:painel_windowns/admin/tabs/admin_apk_manager_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_locations_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_modules_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
+import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/utils/app_constants.dart';
+import 'package:painel_windowns/widgets/app_bar_widget.dart';
 import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -21,36 +25,53 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.purple.shade50, Colors.blue.shade50],
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Row(
-          children: [
-            if (_isSidebarVisible) _buildSidebar(),
-            Expanded(
-              child: Column(
-                children: [
-                  _buildAppBar(),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: _buildTabContent(),
-                    ),
+    return Obx(() {
+      final themeController = ThemeController.to;
+      final isDark = themeController.isDarkMode;
+
+      return Container(
+        decoration: BoxDecoration(
+          gradient:
+              isDark
+                  ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.background, AppColors.surface],
+                  )
+                  : LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.backgroundLight,
+                      AppColors.surfaceLightVariant,
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ],
         ),
-      ),
-    );
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: CustomAppBar(
+            title: 'Painel Administrativo',
+            authService: widget.authService,
+            showBackButton: true,
+            showMenuButton: true,
+            onMenuPressed: () {
+              setState(() => _isSidebarVisible = !_isSidebarVisible);
+            },
+          ),
+          body: Row(
+            children: [
+              if (_isSidebarVisible) _buildSidebar(),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: _buildTabContent(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildSidebar() {
@@ -102,92 +123,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         }
       },
       isAdmin: true,
-    );
-  }
-
-  Widget _buildAppBar() {
-    final currentUser = widget.authService.currentUser;
-    final username = currentUser?['username'] ?? 'Usuário';
-
-    return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _isSidebarVisible ? Icons.menu_open : Icons.menu,
-                  color: Colors.grey[600],
-                ),
-              ),
-              onPressed:
-                  () => setState(() => _isSidebarVisible = !_isSidebarVisible),
-              tooltip: 'Esconder/Mostrar Menu',
-            ),
-            const SizedBox(width: 12),
-            Icon(Icons.dashboard, color: Colors.blue, size: 28),
-            const SizedBox(width: 12),
-            Text(
-              'Gestão do Sistema',
-              style: TextStyle(
-                color: Colors.blueGrey[800],
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Spacer(),
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.blue.withOpacity(0.1),
-                  child: Icon(Icons.person, color: Colors.blue, size: 20),
-                ),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Bem-vindo,',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                    ),
-                    Text(
-                      username,
-                      style: TextStyle(
-                        color: Colors.blueGrey[800],
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 
