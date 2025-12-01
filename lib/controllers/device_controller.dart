@@ -239,6 +239,7 @@ class DeviceController extends GetxController {
   }
 
   /// Atualiza dados (refresh)
+  @override
   Future<void> refresh() async {
     await _initializeData();
   }

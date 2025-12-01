@@ -7,11 +7,15 @@ import 'dart:io';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/devices/device_detail_screen.dart';
 import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/devices/widgets/command_controls_v2.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/utils/app_constants.dart';
+import 'package:painel_windowns/widgets/common/app_card.dart';
 import 'package:painel_windowns/widgets/common/index.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -163,161 +167,231 @@ class ManagedDevicesCard extends StatelessWidget {
       );
     });
 
-    return BaseCard(
-      title: title,
-      expandChild: expand,
-      actions: [
-        ElevatedButton.icon(
-          onPressed: () => _downloadDevicesCsv(context, filteredDevices),
-          icon: const Icon(Icons.download, size: 16),
-          label: const Text('Baixar CSV'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.white,
-            textStyle: const TextStyle(fontSize: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          ),
-        ),
-      ],
-      subtitle:
-          currentUser != null && currentUser!['role'] == 'user'
-              ? Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  border: Border.all(color: Colors.blue[200]!),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Filtrado por: ${currentUser!['sector']} | Dispositivos visíveis: ${filteredDevices.length}',
-                  style: TextStyle(color: Colors.blue[700], fontSize: 12),
-                ),
-              )
-              : null,
-      child: BaseDataTable<Device>(
-        items: filteredDevices,
-        columns: [
-          DataTableColumn<Device>(
-            label: 'Dispositivo', // Nome original mantido
-            builder:
-                (device) => InkWell(
-                  onTap:
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => DeviceDetailScreen(
-                                device: device,
-                                authService: authService,
-                              ),
-                        ),
+    return Obx(() {
+      final themeController = ThemeController.to;
+      final isDark = themeController.isDarkMode;
+      final titleColor =
+          isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
+      final subtitleColor =
+          isDark ? AppColors.textSecondary : AppColors.textSecondaryLight;
+
+      return AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
                       ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              device.deviceName ?? 'N/A',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            if (device.battery != null)
-                              Text(
-                                'Bateria: ${device.battery}%',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey[600],
+                    ),
+                    if (currentUser != null &&
+                        currentUser!['role'] == 'user') ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Filtrado por: ${currentUser!['sector']} | Dispositivos visíveis: ${filteredDevices.length}',
+                        style: TextStyle(color: subtitleColor, fontSize: 12),
+                      ),
+                    ],
+                  ],
+                ),
+                if (showActions)
+                  ElevatedButton.icon(
+                    onPressed:
+                        () => _downloadDevicesCsv(context, filteredDevices),
+                    icon: const Icon(Icons.download, size: 16),
+                    label: const Text('Baixar CSV'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      textStyle: const TextStyle(fontSize: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Content
+            Expanded(
+              child: BaseDataTable<Device>(
+                items: filteredDevices,
+                columns: [
+                  DataTableColumn<Device>(
+                    label: 'Dispositivo',
+                    builder:
+                        (device) => InkWell(
+                          onTap:
+                              () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => DeviceDetailScreen(
+                                        device: device,
+                                        authService: authService,
+                                      ),
                                 ),
                               ),
-                          ],
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.smartphone,
+                                  size: 20,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      device.deviceName ?? 'N/A',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    if (device.battery != null)
+                                      Text(
+                                        'Bateria: ${device.battery}%',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      BatteryIcon(batteryLevel: device.battery, size: 18),
-                    ],
                   ),
-                ),
-          ),
-          DataTableColumn<Device>(
-            label: 'Modelo', // Nome original mantido
-            value: (device) => device.deviceModel ?? 'N/A',
-          ),
-          DataTableColumn<Device>(
-            label: 'Serial', // Nome original mantido
-            value: (device) => device.serialNumber ?? 'N/A',
-          ),
-          DataTableColumn<Device>(
-            label: 'IMEI', // Nome original mantido
-            value: (device) => device.imei ?? 'N/A',
-          ),
-          DataTableColumn<Device>(
-            label: 'Status', // Nome original mantido
-            builder: (device) {
-              String statusText;
-              switch (device.displayStatus) {
-                case DeviceStatusType.collectedByIT:
-                  statusText = 'collected';
-                  break;
-                case DeviceStatusType.maintenance:
-                  statusText = 'maintenance';
-                  break;
-                case DeviceStatusType.online:
-                  statusText = 'online';
-                  break;
-                case DeviceStatusType.unmonitored:
-                  statusText = 'unmonitored';
-                  break;
-                default:
-                  statusText = 'offline';
-                  break;
-              }
-              return StatusChip(
-                status: statusText,
-                type: StatusType.device,
-                isCompact: true,
-              );
-            },
-          ),
-          DataTableColumn<Device>(
-            label: 'Última Sincronização', // Nome original mantido
-            value: (device) => formatDateTime(parseLastSeen(device.lastSeen)),
-          ),
-          DataTableColumn<Device>(
-            label: 'Unidade', // Nome original mantido
-            value: (device) => device.unit ?? 'N/D',
-          ),
-          DataTableColumn<Device>(
-            label: 'Setor/Andar', // Nome original mantido
-            value:
-                (device) =>
-                    '${device.sector ?? "N/D"} / ${device.floor ?? "N/D"}',
-          ),
-        ],
-        actions:
-            showActions
-                ? [
-                  TableAction<Device>(
-                    icon: Icons.more_vert,
-                    label: 'Ações',
-                    onTap:
-                        (device) {}, // Placeholder, menu é renderizado abaixo
+                  DataTableColumn<Device>(
+                    label: 'Modelo',
+                    value: (device) => device.deviceModel ?? 'N/A',
                   ),
-                ]
-                : null,
-        customRow:
-            showActions
-                ? (device) => CommandControlsV2(
-                  device: device,
-                  token: token!,
-                  onCommandExecuted: onDeviceUpdate,
-                )
-                : null,
-        showPagination: false,
-      ),
-    );
+                  DataTableColumn<Device>(
+                    label: 'Serial',
+                    value: (device) => device.serialNumber ?? 'N/A',
+                  ),
+                  DataTableColumn<Device>(
+                    label: 'IMEI',
+                    value: (device) => device.imei ?? 'N/A',
+                  ),
+                  DataTableColumn<Device>(
+                    label: 'Status',
+                    builder: (device) {
+                      String statusText;
+                      Color statusColor;
+                      switch (device.displayStatus) {
+                        case DeviceStatusType.collectedByIT:
+                          statusText = 'Recolhido';
+                          statusColor = Colors.purple;
+                          break;
+                        case DeviceStatusType.maintenance:
+                          statusText = 'Manutenção';
+                          statusColor = Colors.orange;
+                          break;
+                        case DeviceStatusType.online:
+                          statusText = 'Online';
+                          statusColor = Colors.green;
+                          break;
+                        case DeviceStatusType.unmonitored:
+                          statusText = 'Não Monitorado';
+                          statusColor = Colors.grey;
+                          break;
+                        default:
+                          statusText = 'Offline';
+                          statusColor = Colors.red;
+                          break;
+                      }
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: statusColor.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Text(
+                          statusText,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  DataTableColumn<Device>(
+                    label: 'Última Sincronização',
+                    value:
+                        (device) =>
+                            formatDateTime(parseLastSeen(device.lastSeen)),
+                  ),
+                  DataTableColumn<Device>(
+                    label: 'Unidade',
+                    value: (device) => device.unit ?? 'N/D',
+                  ),
+                  DataTableColumn<Device>(
+                    label: 'Setor/Andar',
+                    value:
+                        (device) =>
+                            '${device.sector ?? "N/D"} / ${device.floor ?? "N/D"}',
+                  ),
+                ],
+                actions:
+                    showActions
+                        ? [
+                          TableAction<Device>(
+                            icon: Icons.more_vert,
+                            label: 'Ações',
+                            onTap: (device) {},
+                          ),
+                        ]
+                        : null,
+                customRow:
+                    showActions
+                        ? (device) => CommandControlsV2(
+                          device: device,
+                          token: token!,
+                          onCommandExecuted: onDeviceUpdate,
+                        )
+                        : null,
+                showPagination: false,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

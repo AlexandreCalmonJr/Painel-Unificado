@@ -1,5 +1,7 @@
 // File: lib/utils/validators.dart
 /// Validadores reutilizáveis para formulários
+library;
+
 
 class Validators {
   /// Valida nome de usuário

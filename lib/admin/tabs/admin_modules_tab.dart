@@ -1,7 +1,6 @@
 // File: lib/admin/tabs/admin_modules_tab.dart (REDESIGNED)
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/config/theme_config.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/utils/app_constants.dart';

@@ -74,26 +74,30 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
 
       // Monta o payload de acordo com o tipo selecionado
       if (_selectedCommandType == 'map_lpt2') {
-        if (_param1Controller.text.isEmpty)
+        if (_param1Controller.text.isEmpty) {
           throw Exception("Caminho da impressora obrigatório");
+        }
         params = {'path': _param1Controller.text.trim()};
       } else if (_selectedCommandType == 'download_file') {
-        if (_param1Controller.text.isEmpty || _param2Controller.text.isEmpty)
+        if (_param1Controller.text.isEmpty || _param2Controller.text.isEmpty) {
           throw Exception("URL e Destino obrigatórios");
+        }
         params = {
           'url': _param1Controller.text.trim(),
           'destination': _param2Controller.text.trim(),
         };
       } else if (_selectedCommandType == 'auto_start_app') {
-        if (_param1Controller.text.isEmpty || _param2Controller.text.isEmpty)
+        if (_param1Controller.text.isEmpty || _param2Controller.text.isEmpty) {
           throw Exception("Nome e Caminho obrigatórios");
+        }
         params = {
           'name': _param1Controller.text.trim(),
           'path': _param2Controller.text.trim(),
         };
       } else if (_selectedCommandType == 'cmd_custom') {
-        if (_param1Controller.text.isEmpty)
+        if (_param1Controller.text.isEmpty) {
           throw Exception("Comando obrigatório");
+        }
         customCmd = _param1Controller.text.trim();
       }
 

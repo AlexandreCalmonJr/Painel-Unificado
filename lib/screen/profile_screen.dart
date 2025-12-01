@@ -603,7 +603,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: palette['primary'],
+          activeThumbColor: palette['primary'],
         ),
       ],
     );

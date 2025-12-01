@@ -353,7 +353,7 @@
     },
     {
       "name": "url_launcher_android",
-      "version": "6.3.27",
+      "version": "6.3.28",
       "dependencies": [
         "flutter",
         "url_launcher_platform_interface"

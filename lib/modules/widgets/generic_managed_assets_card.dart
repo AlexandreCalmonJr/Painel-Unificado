@@ -2,6 +2,8 @@
 // MIGRADO PARA USAR BaseDataTable MANTENDO COLUNAS DINÂMICAS ORIGINAIS
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/modules/asset_detail_screen.dart';
 import 'package:painel_windowns/modules/widgets/asset_command_controls_v2.dart';
@@ -33,142 +35,157 @@ class GenericManagedAssetsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BaseCard(
-      title: title,
-      expandChild: expand,
-      actions: [
-        if (showActions)
-          ElevatedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.download, size: 16),
-            label: const Text('Baixar CSV'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.success,
-              foregroundColor: Colors.white,
-              textStyle: AppTextStyles.bodySmall.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppConstants.radiusS),
+    return Obx(() {
+      final themeController = ThemeController.to;
+      final isDark = themeController.isDarkMode;
+      final textColor = isDark ? Colors.white : Colors.black;
+
+      return BaseCard(
+        title: title,
+        expandChild: expand,
+        actions: [
+          if (showActions)
+            ElevatedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.download, size: 16),
+              label: const Text('Baixar CSV'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.success,
+                foregroundColor: Colors.white,
+                textStyle: AppTextStyles.bodySmall.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppConstants.radiusS),
+                ),
               ),
             ),
-          ),
-      ],
-      child:
-          assets.isEmpty
-              ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.inbox_outlined,
-                        size: 80,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Nenhum ativo encontrado.',
-                        style: AppTextStyles.bodyMedium.copyWith(
+        ],
+        child:
+            assets.isEmpty
+                ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.inbox_outlined,
+                          size: 80,
                           color: AppColors.textSecondary,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-              : BaseDataTable<ManagedAsset>(
-                items: assets,
-                columns:
-                    columns.map((col) {
-                      return DataTableColumn<ManagedAsset>(
-                        label: col.label, // MANTÉM O NOME ORIGINAL DA COLUNA
-                        builder: (asset) {
-                          final assetData = asset.toJson();
-                          final dataKey = col.dataKey;
-
-                          // Tratamento especial para sector_floor
-                          if (dataKey == 'sector_floor') {
-                            return _buildSectorFloorCell(assetData);
-                          }
-
-                          final value = assetData[dataKey];
-
-                          // Célula clicável para hostname/asset_name
-                          if (dataKey == 'hostname' ||
-                              dataKey == 'asset_name') {
-                            return InkWell(
-                              onTap:
-                                  () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => AssetDetailScreen(
-                                            asset: asset,
-                                            authService: authService,
-                                            moduleConfig: moduleConfig,
-                                          ),
-                                    ),
-                                  ),
-                              child: Text(
-                                value?.toString() ?? 'N/D',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          }
-
-                          // Célula de status com chip
-                          if (dataKey == 'status') {
-                            return StatusChip(
-                              status: value?.toString() ?? 'unknown',
-                              type: StatusType.asset,
-                              isCompact: true,
-                            );
-                          }
-
-                          // Células padrão
-                          return Text(
-                            value?.toString() ?? 'N/D',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textPrimary,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          );
-                        },
-                      );
-                    }).toList(),
-                actions:
-                    showActions
-                        ? [
-                          TableAction<ManagedAsset>(
-                            icon: Icons.more_vert,
-                            label: 'Ações',
-                            onTap: (asset) {}, // Placeholder
+                        const SizedBox(height: 16),
+                        Text(
+                          'Nenhum ativo encontrado.',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
                           ),
-                        ]
-                        : null,
-                customRow:
-                    showActions
-                        ? (asset) => AssetCommandControlsV2(
-                          asset: asset,
-                          assetType: moduleConfig.id,
-                          token: authService.currentToken ?? '',
-                          authService: authService,
-                          onCommandExecuted: onAssetChanged,
-                        )
-                        : null,
-                showPagination: false,
-              ),
-    );
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                : BaseDataTable<ManagedAsset>(
+                  items: assets,
+                  columns:
+                      columns.map((col) {
+                        return DataTableColumn<ManagedAsset>(
+                          label: col.label, // MANTÉM O NOME ORIGINAL DA COLUNA
+                          builder: (asset) {
+                            final assetData = asset.toJson();
+                            final dataKey = col.dataKey;
+
+                            // Tratamento especial para sector_floor
+                            if (dataKey == 'sector_floor') {
+                              return _buildSectorFloorCell(
+                                assetData,
+                                textColor,
+                              );
+                            }
+
+                            final value = assetData[dataKey];
+
+                            // Célula clicável para hostname/asset_name
+                            if (dataKey == 'hostname' ||
+                                dataKey == 'asset_name') {
+                              return InkWell(
+                                onTap:
+                                    () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => AssetDetailScreen(
+                                              asset: asset,
+                                              authService: authService,
+                                              moduleConfig: moduleConfig,
+                                            ),
+                                      ),
+                                    ),
+                                child: Text(
+                                  value?.toString() ?? 'N/D',
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: textColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }
+
+                            // Célula de status com chip
+                            if (dataKey == 'status') {
+                              return StatusChip(
+                                status: value?.toString() ?? 'unknown',
+                                type: StatusType.asset,
+                                isCompact: true,
+                              );
+                            }
+
+                            // Células padrão
+                            return Text(
+                              value?.toString() ?? 'N/D',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: textColor,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          },
+                        );
+                      }).toList(),
+                  actions:
+                      showActions
+                          ? [
+                            TableAction<ManagedAsset>(
+                              icon: Icons.more_vert,
+                              label: 'Ações',
+                              onTap: (asset) {}, // Placeholder
+                            ),
+                          ]
+                          : null,
+                  customRow:
+                      showActions
+                          ? (asset) => AssetCommandControlsV2(
+                            asset: asset,
+                            assetType: moduleConfig.id,
+                            token: authService.currentToken ?? '',
+                            authService: authService,
+                            onCommandExecuted: onAssetChanged,
+                          )
+                          : null,
+                  showPagination: false,
+                ),
+      );
+    });
   }
 
-  Widget _buildSectorFloorCell(Map<String, dynamic> assetData) {
+  Widget _buildSectorFloorCell(
+    Map<String, dynamic> assetData,
+    Color textColor,
+  ) {
     String displayValue;
 
     if (assetData.containsKey('sector_floor') &&
@@ -183,7 +200,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
 
     return Text(
       displayValue,
-      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary),
+      style: AppTextStyles.bodySmall.copyWith(color: textColor),
       overflow: TextOverflow.ellipsis,
     );
   }

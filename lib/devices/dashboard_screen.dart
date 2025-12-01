@@ -311,34 +311,25 @@ class _MDMDashboardState extends State<MDMDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.purple.shade50, Colors.blue.shade50],
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Row(
-          children: [
-            if (_isSidebarVisible) _buildSidebar(),
-            Expanded(
-              child: Column(
-                children: [
-                  _buildAppBar(),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: _buildTabContent(),
-                    ),
+    return Scaffold(
+      backgroundColor: Colors.grey[50], // Clean background
+      body: Row(
+        children: [
+          if (_isSidebarVisible) _buildSidebar(),
+          Expanded(
+            child: Column(
+              children: [
+                _buildAppBar(),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: _buildTabContent(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -350,61 +341,61 @@ class _MDMDashboardState extends State<MDMDashboard> {
 
     final menuItems = [
       const SidebarMenuItem(
-        icon: Icons.dashboard,
+        icon: Icons.dashboard_outlined,
         title: 'Painel',
         subtitle: 'Visão Geral',
         index: 0,
       ),
       const SidebarMenuItem(
-        icon: Icons.devices,
+        icon: Icons.devices_outlined,
         title: 'Dispositivos',
         subtitle: 'Gerenciar',
         index: 1,
       ),
       const SidebarMenuItem(
-        icon: Icons.storage,
+        icon: Icons.dns_outlined,
         title: 'Servidor',
         subtitle: 'Configuração',
         index: 2,
         isAdminOnly: true,
       ),
       const SidebarMenuItem(
-        icon: Icons.security,
+        icon: Icons.security_outlined,
         title: 'Segurança',
         subtitle: 'Gerenciar',
         index: 3,
         isAdminOnly: true,
       ),
       const SidebarMenuItem(
-        icon: Icons.people,
+        icon: Icons.people_outline,
         title: 'Usuários',
         subtitle: 'Gerenciar',
         index: 4,
         isAdminOnly: true,
       ),
       const SidebarMenuItem(
-        icon: Icons.bar_chart,
+        icon: Icons.bar_chart_outlined,
         title: 'Relatórios',
         subtitle: 'Análises',
         index: 5,
         isAdminOnly: true,
       ),
       const SidebarMenuItem(
-        icon: Icons.warning,
+        icon: Icons.notifications_none_outlined,
         title: 'Alertas',
         subtitle: 'Notificações',
         index: 6,
         isAdminOnly: true,
       ),
       const SidebarMenuItem(
-        icon: Icons.business,
+        icon: Icons.business_outlined,
         title: 'Unidades',
         subtitle: 'Gerenciar',
         index: 8,
         isAdminOnly: true,
       ),
       const SidebarMenuItem(
-        icon: Icons.build,
+        icon: Icons.build_outlined,
         title: 'Manutenção',
         subtitle: 'Suporte',
         index: 9,
@@ -429,7 +420,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
 
     return CustomSidebar(
       title: 'Controle MDM',
-      titleIcon: Icons.phonelink,
+      titleIcon: Icons.phonelink_setup,
       menuItems: menuItems,
       selectedIndex: selectedIndex,
       onItemTap: (index) {
@@ -451,194 +442,174 @@ class _MDMDashboardState extends State<MDMDashboard> {
     final sector = currentUser?['sector'] ?? 'N/A';
 
     return Container(
-      height: 70,
+      height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
       ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          IconButton(
+            icon: Icon(
+              _isSidebarVisible ? Icons.menu_open : Icons.menu,
+              color: Colors.grey[700],
+            ),
+            onPressed:
+                () => setState(() => _isSidebarVisible = !_isSidebarVisible),
+            tooltip: 'Alternar Menu',
+          ),
+          const SizedBox(width: 16),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Painel de Controle',
+                style: TextStyle(
+                  color: Colors.grey[800],
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Visão Geral do Sistema',
+                style: TextStyle(color: Colors.grey[500], fontSize: 12),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  shape: BoxShape.circle,
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[200]!),
                 ),
-                child: Icon(
-                  _isSidebarVisible ? Icons.menu_open : Icons.menu,
-                  color: Colors.grey[600],
-                ),
-              ),
-              onPressed:
-                  () => setState(() => _isSidebarVisible = !_isSidebarVisible),
-              tooltip: 'Esconder/Mostrar Menu',
-            ),
-            const SizedBox(width: 12),
-            Icon(Icons.dashboard, color: Colors.blue, size: 28),
-            const SizedBox(width: 12),
-            Text(
-              'Painel de Controle MDM',
-              style: TextStyle(
-                color: Colors.blueGrey[800],
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Spacer(),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 14,
+                      backgroundColor:
+                          role == 'admin' ? Colors.red[50] : Colors.blue[50],
+                      child: Icon(
                         role == 'admin'
                             ? Icons.admin_panel_settings
                             : Icons.person,
                         size: 16,
                         color:
                             role == 'admin'
-                                ? Colors.red[600]
-                                : Colors.blue[600],
-                      ),
-                      const SizedBox(width: 6),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            username,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                          Text(
-                            '${role.toUpperCase()} • $sector',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 15),
-                if (isLoading)
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                const SizedBox(width: 15),
-                IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.refresh, color: Colors.green[700]),
-                  ),
-                  onPressed: () => _loadDevices(isInitialLoad: true),
-                  tooltip: 'Atualizar Agora',
-                ),
-                const SizedBox(width: 10),
-                PopupMenuButton<String>(
-                  icon: CircleAvatar(
-                    backgroundColor:
-                        role == 'admin' ? Colors.red[600] : Colors.blue[600],
-                    child: Text(
-                      username.isNotEmpty ? username[0].toUpperCase() : 'U',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                                ? Colors.red[700]
+                                : Colors.blue[700],
                       ),
                     ),
-                  ),
-                  tooltip: 'Menu do usuário',
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'logout':
-                        _showLogoutDialog();
-                        break;
-                      case 'change_password':
-                        _showChangePasswordDialog();
-                        break;
-                    }
-                  },
-                  itemBuilder:
-                      (context) => [
-                        PopupMenuItem(
-                          value: 'change_password',
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.lock,
-                                size: 18,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(width: 8),
-                              const Text('Alterar Senha'),
-                            ],
+                    const SizedBox(width: 12),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          username,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[800],
                           ),
                         ),
-                        const PopupMenuDivider(),
-                        PopupMenuItem(
-                          value: 'logout',
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.logout,
-                                size: 18,
-                                color: Colors.red[600],
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Sair',
-                                style: TextStyle(color: Colors.red[600]),
-                              ),
-                            ],
+                        Text(
+                          '${role.toUpperCase()} • $sector',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[500],
                           ),
                         ),
                       ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              const SizedBox(width: 16),
+              if (isLoading)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              const SizedBox(width: 16),
+              IconButton(
+                icon: Icon(Icons.refresh, color: Colors.grey[600]),
+                onPressed: () => _loadDevices(isInitialLoad: true),
+                tooltip: 'Atualizar Dados',
+              ),
+              const SizedBox(width: 8),
+              PopupMenuButton<String>(
+                offset: const Offset(0, 40),
+                icon: CircleAvatar(
+                  backgroundColor:
+                      role == 'admin' ? Colors.red[700] : Colors.blue[700],
+                  child: Text(
+                    username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                tooltip: 'Menu do usuário',
+                onSelected: (value) {
+                  switch (value) {
+                    case 'logout':
+                      _showLogoutDialog();
+                      break;
+                    case 'change_password':
+                      _showChangePasswordDialog();
+                      break;
+                  }
+                },
+                itemBuilder:
+                    (context) => [
+                      PopupMenuItem(
+                        value: 'change_password',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.lock_outline,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 12),
+                            const Text('Alterar Senha'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuDivider(),
+                      PopupMenuItem(
+                        value: 'logout',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.logout,
+                              size: 20,
+                              color: Colors.red[600],
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Sair',
+                              style: TextStyle(color: Colors.red[600]),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

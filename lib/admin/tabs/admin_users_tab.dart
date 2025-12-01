@@ -542,7 +542,7 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                               color: AppColors.danger,
                               size: 20,
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Text('Excluir'),
                           ],
                         ),

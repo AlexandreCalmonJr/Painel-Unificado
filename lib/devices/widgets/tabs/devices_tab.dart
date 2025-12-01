@@ -66,46 +66,33 @@ class _DevicesTabState extends State<DevicesTab> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 20.0),
+          padding: const EdgeInsets.only(bottom: 24.0),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 2,
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[200]!),
             ),
             child: TextField(
               controller: _searchController,
-              style: TextStyle(fontSize: 15, color: Colors.grey[800]),
+              style: TextStyle(fontSize: 14, color: Colors.grey[800]),
               decoration: InputDecoration(
                 labelText: 'Buscar dispositivos',
-                labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
+                labelStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
                 hintText: 'Nome, serial, IMEI...',
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-                prefixIcon: Container(
-                  padding: const EdgeInsets.all(12),
-                  child: Icon(Icons.search, color: Colors.blue[600], size: 22),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Colors.grey[400],
+                  size: 20,
                 ),
                 suffixIcon:
                     _searchController.text.isNotEmpty
                         ? IconButton(
-                          icon: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.clear,
-                              color: Colors.grey[600],
-                              size: 18,
-                            ),
+                          icon: Icon(
+                            Icons.close,
+                            color: Colors.grey[400],
+                            size: 18,
                           ),
                           onPressed: () {
                             _searchController.clear();
@@ -114,20 +101,7 @@ class _DevicesTabState extends State<DevicesTab> {
                           tooltip: 'Limpar busca',
                         )
                         : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.blue[400]!, width: 2),
-                ),
-                filled: true,
-                fillColor: Colors.grey[50],
+                border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 16,
@@ -149,29 +123,52 @@ class _DevicesTabState extends State<DevicesTab> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 16.0),
+          padding: const EdgeInsets.only(top: 24.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
+              OutlinedButton.icon(
                 onPressed:
                     widget.currentPage > 1
                         ? () => widget.onPageChange(-1)
                         : null,
-                child: const Text('Anterior'),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  'Página ${widget.currentPage} de ${widget.totalPages}',
+                icon: const Icon(Icons.chevron_left, size: 18),
+                label: const Text('Anterior'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.grey[700],
+                  side: BorderSide(color: Colors.grey[300]!),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                 ),
               ),
-              ElevatedButton(
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'Página ${widget.currentPage} de ${widget.totalPages}',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              OutlinedButton.icon(
                 onPressed:
                     widget.currentPage < widget.totalPages
                         ? () => widget.onPageChange(1)
                         : null,
-                child: const Text('Próxima'),
+                icon: const Icon(Icons.chevron_right, size: 18),
+                label: const Text('Próxima'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.grey[700],
+                  side: BorderSide(color: Colors.grey[300]!),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  // Icon on the right
+                ),
               ),
             ],
           ),

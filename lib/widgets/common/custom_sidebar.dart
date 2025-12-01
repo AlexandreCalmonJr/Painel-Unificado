@@ -49,77 +49,74 @@ class CustomSidebar extends StatelessWidget {
       final themeController = ThemeController.to;
       final isDark = themeController.isDarkMode;
 
-      // Use theme-aware colors
-      final textPrimary =
-          isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
+      // Professional Minimalist Colors
+      final backgroundColor = isDark ? const Color(0xFF1A202C) : Colors.white;
+      final textPrimary = isDark ? Colors.white : const Color(0xFF2D3748);
       final textSecondary =
-          isDark ? AppColors.textSecondary : AppColors.textSecondaryLight;
+          isDark ? Colors.grey[400]! : const Color(0xFF718096);
+      final dividerColor = isDark ? Colors.white10 : Colors.grey[200]!;
 
       return Container(
-        width: 250,
+        width: 260,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors:
-                isDark
-                    ? [const Color(0xFF2D3748), const Color(0xFF1A202C)]
-                    : [
-                      AppColors.surfaceLightMode,
-                      AppColors.surfaceLightVariant,
-                    ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(2, 0),
-            ),
-          ],
+          color: backgroundColor,
+          border: Border(right: BorderSide(color: dividerColor)),
         ),
         child: Column(
           children: [
             // Header
-            _buildHeader(textPrimary),
+            _buildHeader(textPrimary, dividerColor),
 
             // Menu Items
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                children: _buildMenuItems(textPrimary, textSecondary),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 12,
+                ),
+                children: _buildMenuItems(
+                  textPrimary,
+                  textSecondary,
+                  dividerColor,
+                ),
               ),
             ),
 
             // Footer
-            if (footerText != null) _buildFooter(textSecondary),
+            if (footerText != null) _buildFooter(textSecondary, dividerColor),
           ],
         ),
       );
     });
   }
 
-  Widget _buildHeader(Color textColor) {
+  Widget _buildHeader(Color textColor, Color dividerColor) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.white.withOpacity(0.24)),
-        ),
+        border: Border(bottom: BorderSide(color: dividerColor)),
       ),
       child: Row(
         children: [
-          Icon(titleIcon, color: textColor, size: 32),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(titleIcon, color: AppColors.primary, size: 24),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               title,
               style: TextStyle(
                 color: textColor,
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
               ),
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -128,7 +125,11 @@ class CustomSidebar extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildMenuItems(Color textPrimary, Color textSecondary) {
+  List<Widget> _buildMenuItems(
+    Color textPrimary,
+    Color textSecondary,
+    Color dividerColor,
+  ) {
     final List<Widget> widgets = [];
 
     for (final item in menuItems) {
@@ -138,7 +139,10 @@ class CustomSidebar extends StatelessWidget {
       // Add divider if requested
       if (item.showDividerBefore) {
         widgets.add(
-          const Divider(color: Colors.white24, indent: 16, endIndent: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Divider(color: dividerColor, indent: 8, endIndent: 8),
+          ),
         );
       }
 
@@ -162,45 +166,45 @@ class CustomSidebar extends StatelessWidget {
     required Color textPrimary,
     required Color textSecondary,
   }) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      color: selected ? AppColors.primary.withOpacity(0.2) : Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    final activeColor = AppColors.primary;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: selected ? activeColor.withOpacity(0.08) : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: ListTile(
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         leading: Icon(
           item.icon,
-          color: selected ? AppColors.primary : textSecondary,
+          color: selected ? activeColor : textSecondary,
+          size: 20,
         ),
         title: Text(
           item.title,
           style: TextStyle(
-            color: selected ? AppColors.primary : textPrimary,
-            fontWeight: FontWeight.w600,
+            color: selected ? activeColor : textPrimary,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            fontSize: 14,
           ),
         ),
-        subtitle: Text(
-          item.subtitle,
-          style: TextStyle(
-            color: selected ? AppColors.primary : textSecondary,
-            fontSize: 12,
-          ),
-        ),
-        trailing:
-            selected
-                ? const Icon(Icons.chevron_right, color: AppColors.primary)
-                : null,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         onTap: () => onItemTap(item.index),
       ),
     );
   }
 
-  Widget _buildFooter(Color textColor) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
+  Widget _buildFooter(Color textColor, Color dividerColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: dividerColor)),
+      ),
       child: Text(
         footerText!,
-        style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 12),
+        style: TextStyle(color: textColor, fontSize: 11),
         textAlign: TextAlign.center,
       ),
     );

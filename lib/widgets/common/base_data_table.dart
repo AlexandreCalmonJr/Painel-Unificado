@@ -1,5 +1,6 @@
-// File: lib/widgets/common/base_data_table.dart
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
 import 'package:painel_windowns/widgets/common/loading_indicator.dart';
 import 'package:painel_windowns/widgets/common/table_cell.dart';
@@ -144,90 +145,103 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
       );
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 600),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                    child: DataTable(
-                      headingRowColor: WidgetStateProperty.all(
-                        AppColors.surfaceLight,
+    return Obx(() {
+      final themeController = ThemeController.to;
+      final isDark = themeController.isDarkMode;
+
+      final headerColor =
+          isDark ? AppColors.surfaceLight : AppColors.surfaceLightVariant;
+      final rowColor = isDark ? AppColors.surface : AppColors.surfaceLightMode;
+      final textColor =
+          isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
+      final headerTextColor =
+          isDark ? AppColors.textSecondary : AppColors.textSecondaryLight;
+
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 600),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth,
                       ),
-                      dataRowColor: WidgetStateProperty.resolveWith<Color?>((
-                        Set<WidgetState> states,
-                      ) {
-                        if (states.contains(WidgetState.selected)) {
-                          return AppColors.primary.withOpacity(0.1);
-                        }
-                        return AppColors.surface;
-                      }),
-                      headingTextStyle: AppTextStyles.labelLarge.copyWith(
-                        color: AppColors.textSecondary,
-                        letterSpacing: 1.0,
-                      ),
-                      dataTextStyle: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                      dividerThickness: 1,
-                      horizontalMargin: AppConstants.spacingL,
-                      columnSpacing: AppConstants.spacingXL,
-                      columns: [
-                        ...widget.columns.map((col) {
-                          return DataColumn(
-                            label: TableHeader(
-                              text: col.label.toUpperCase(),
-                              alignment: col.alignment,
-                              sortable: col.sortable,
-                              isSorted: _sortColumn == col.label,
-                              isAscending: _sortAscending,
-                              onSort:
-                                  col.sortable
-                                      ? () => _handleSort(col.label)
-                                      : null,
-                            ),
-                          );
+                      child: DataTable(
+                        headingRowColor: WidgetStateProperty.all(headerColor),
+                        dataRowColor: WidgetStateProperty.resolveWith<Color?>((
+                          Set<WidgetState> states,
+                        ) {
+                          if (states.contains(WidgetState.selected)) {
+                            return AppColors.primary.withOpacity(0.1);
+                          }
+                          return rowColor;
                         }),
-                        if (widget.actions != null &&
-                                widget.actions!.isNotEmpty ||
-                            widget.customRow != null)
-                          DataColumn(label: TableHeader(text: 'AÇÕES')),
-                      ],
-                      rows:
-                          _displayedItems.map((item) {
-                            return DataRow(
-                              onSelectChanged:
-                                  widget.onTap != null
-                                      ? (_) => widget.onTap!(item)
-                                      : null,
-                              cells: [
-                                ...widget.columns.map((col) {
-                                  final cell = col.buildCell(item);
-                                  return DataCell(cell);
-                                }),
-                                if (widget.actions != null &&
-                                        widget.actions!.isNotEmpty ||
-                                    widget.customRow != null)
-                                  DataCell(_buildActionsCell(item)),
-                              ],
+                        headingTextStyle: AppTextStyles.labelLarge.copyWith(
+                          color: headerTextColor,
+                          letterSpacing: 1.0,
+                        ),
+                        dataTextStyle: AppTextStyles.bodyMedium.copyWith(
+                          color: textColor,
+                        ),
+                        dividerThickness: 1,
+                        horizontalMargin: AppConstants.spacingL,
+                        columnSpacing: AppConstants.spacingXL,
+                        columns: [
+                          ...widget.columns.map((col) {
+                            return DataColumn(
+                              label: TableHeader(
+                                text: col.label.toUpperCase(),
+                                alignment: col.alignment,
+                                sortable: col.sortable,
+                                isSorted: _sortColumn == col.label,
+                                isAscending: _sortAscending,
+                                onSort:
+                                    col.sortable
+                                        ? () => _handleSort(col.label)
+                                        : null,
+                              ),
                             );
-                          }).toList(),
+                          }),
+                          if (widget.actions != null &&
+                                  widget.actions!.isNotEmpty ||
+                              widget.customRow != null)
+                            DataColumn(label: TableHeader(text: 'AÇÕES')),
+                        ],
+                        rows:
+                            _displayedItems.map((item) {
+                              return DataRow(
+                                onSelectChanged:
+                                    widget.onTap != null
+                                        ? (_) => widget.onTap!(item)
+                                        : null,
+                                cells: [
+                                  ...widget.columns.map((col) {
+                                    final cell = col.buildCell(item);
+                                    return DataCell(cell);
+                                  }),
+                                  if (widget.actions != null &&
+                                          widget.actions!.isNotEmpty ||
+                                      widget.customRow != null)
+                                    DataCell(_buildActionsCell(item)),
+                                ],
+                              );
+                            }).toList(),
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildActionsCell(T item) {

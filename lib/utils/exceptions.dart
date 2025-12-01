@@ -1,5 +1,7 @@
 // File: lib/utils/exceptions.dart
 /// Exceções customizadas para tratamento de erros consistente
+library;
+
 
 abstract class AppException implements Exception {
   final String message;
