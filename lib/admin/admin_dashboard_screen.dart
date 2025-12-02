@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:painel_windowns/admin/tabs/admin_apk_manager_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_locations_tab.dart';
 import 'package:painel_windowns/admin/tabs/admin_modules_tab.dart';
+
 import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';

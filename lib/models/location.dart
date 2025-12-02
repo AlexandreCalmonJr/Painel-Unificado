@@ -4,6 +4,7 @@ import 'package:painel_windowns/models/unit.dart';
 class Location {
   final String name;
   final List<IpRange> ipRanges;
+  final List<String> bssids; // Lista de BSSIDs (MAC addresses de WiFi)
   final String? description;
   final int deviceCount;
   final bool isOnline;
@@ -12,11 +13,13 @@ class Location {
   Location({
     required this.name,
     List<IpRange>? ipRanges,
+    List<String>? bssids,
     this.description,
     this.deviceCount = 0,
     this.isOnline = false,
     this.lastSeen,
-  }) : ipRanges = ipRanges ?? [];
+  }) : ipRanges = ipRanges ?? [],
+       bssids = bssids ?? [];
 
   factory Location.fromJson(Map<String, dynamic> json) {
     // Parse múltiplas faixas de IP
@@ -44,9 +47,19 @@ class Location {
       ranges.add(IpRange(start: ipRange, end: ipRange));
     }
 
+    // Parse BSSIDs
+    List<String> bssidList = [];
+    if (json['bssids'] != null && json['bssids'] is List) {
+      bssidList = (json['bssids'] as List).map((b) => b.toString()).toList();
+    } else if (json['bssid'] != null) {
+      // Fallback para campo único
+      bssidList = [json['bssid'].toString()];
+    }
+
     return Location(
       name: json['name'] ?? json['unit_name'] ?? '',
       ipRanges: ranges,
+      bssids: bssidList,
       description: json['description'],
       deviceCount: json['device_count'] ?? json['deviceCount'] ?? 0,
       isOnline: json['is_online'] ?? json['isOnline'] ?? false,
@@ -61,6 +74,7 @@ class Location {
     return {
       'name': name,
       'ip_ranges': ipRanges.map((r) => r.toJson()).toList(),
+      'bssids': bssids,
       'description': description,
       'device_count': deviceCount,
       'is_online': isOnline,
@@ -89,9 +103,17 @@ class Location {
         : '${range.start} - ${range.end}';
   }
 
+  /// Retorna string formatada com BSSIDs
+  String get bssidsDisplay {
+    if (bssids.isEmpty) return 'Nenhum BSSID';
+    if (bssids.length == 1) return bssids.first;
+    return '${bssids.length} BSSIDs';
+  }
+
   Location copyWith({
     String? name,
     List<IpRange>? ipRanges,
+    List<String>? bssids,
     String? description,
     int? deviceCount,
     bool? isOnline,
@@ -100,6 +122,7 @@ class Location {
     return Location(
       name: name ?? this.name,
       ipRanges: ipRanges ?? this.ipRanges,
+      bssids: bssids ?? this.bssids,
       description: description ?? this.description,
       deviceCount: deviceCount ?? this.deviceCount,
       isOnline: isOnline ?? this.isOnline,
