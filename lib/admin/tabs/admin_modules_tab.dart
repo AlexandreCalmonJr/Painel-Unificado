@@ -1,8 +1,11 @@
-// File: lib/admin/tabs/admin_modules_tab.dart (REDESIGNED)
+// File: lib/admin/tabs/admin_modules_tab.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:painel_windowns/admin/widgets/module_dialog.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/models/module.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/module_management_service.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
 
 class AdminModulesTab extends StatefulWidget {
@@ -14,45 +17,148 @@ class AdminModulesTab extends StatefulWidget {
 }
 
 class _AdminModulesTabState extends State<AdminModulesTab> {
-  // Dados de exemplo
-  final List<Map<String, dynamic>> _modules = [
-    {
-      'name': 'Módulo Mobile',
-      'id': 'mobile',
-      'description': 'Gestão de dispositivos móveis',
-      'icon': Icons.phone_android,
-      'users': 45,
-      'status': 'active',
-      'version': '2.1.0',
-    },
-    {
-      'name': 'Módulo Totem',
-      'id': 'totem',
-      'description': 'Gestão de totens e quiosques',
-      'icon': Icons.tablet_mac,
-      'users': 23,
-      'status': 'active',
-      'version': '1.8.5',
-    },
-    {
-      'name': 'Módulo Admin',
-      'id': 'admin',
-      'description': 'Painel administrativo',
-      'icon': Icons.admin_panel_settings,
-      'users': 8,
-      'status': 'active',
-      'version': '3.0.1',
-    },
-    {
-      'name': 'Módulo Relatórios',
-      'id': 'reports',
-      'description': 'Geração de relatórios',
-      'icon': Icons.assessment,
-      'users': 12,
-      'status': 'inactive',
-      'version': '1.2.0',
-    },
-  ];
+  String _searchQuery = '';
+  List<Module> _modules = [];
+  bool _isLoading = true;
+  String? _error;
+  late ModuleManagementService _moduleService;
+
+  @override
+  void initState() {
+    super.initState();
+    _moduleService = ModuleManagementService(authService: widget.authService);
+    _loadModules();
+  }
+
+  Future<void> _loadModules() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final configs = await _moduleService.listModules();
+      setState(() {
+        _modules = configs.map((c) => Module.fromAssetModuleConfig(c)).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _showModuleDialog({Module? module}) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => ModuleDialog(
+            module: module,
+            onSave: (data) async {
+              if (module == null) {
+                // Create - usa as colunas que vêm do dialog
+                await _moduleService.createModule(
+                  name: data['name'],
+                  description: data['description'],
+                  type: _getModuleTypeFromIdentifier(data['type']),
+                  tableColumns: List<Map<String, String>>.from(
+                    data['table_columns'] ?? [],
+                  ),
+                );
+              } else {
+                // Update
+                await _moduleService.updateModule(
+                  moduleId: module.id,
+                  name: data['name'],
+                  description: data['description'],
+                  isActive: data['is_active'],
+                  type: module.type,
+                );
+              }
+            },
+          ),
+    );
+
+    if (result == true) {
+      _loadModules();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              module == null
+                  ? 'Módulo criado com sucesso!'
+                  : 'Módulo atualizado com sucesso!',
+            ),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteModule(Module module) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirmar Exclusão'),
+            content: Text(
+              'Tem certeza que deseja excluir o módulo "${module.name}"?\n\nEsta ação não pode ser desfeita.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.danger,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Excluir'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirm == true) {
+      try {
+        await _moduleService.deleteModule(module.id);
+        _loadModules();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Módulo excluído com sucesso!'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao excluir: $e'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  // Helper para converter string identifier para AssetModuleType
+  dynamic _getModuleTypeFromIdentifier(String identifier) {
+    return _modules
+        .firstWhere(
+          (m) => m.type.identifier == identifier,
+          orElse: () => _modules.first,
+        )
+        .type;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,12 +167,59 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
       final isDark = themeController.isDarkMode;
       final palette = themeController.currentPalette;
 
-      final activeModules =
-          _modules.where((m) => m['status'] == 'active').length;
-      final totalUsers = _modules.fold(
-        0,
-        (sum, m) => sum + (m['users'] as int),
-      );
+      final filteredModules =
+          _modules.where((mod) {
+            return mod.name.toLowerCase().contains(_searchQuery.toLowerCase());
+          }).toList();
+
+      if (_isLoading) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (_error != null) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: AppColors.danger),
+              const SizedBox(height: 16),
+              Text(
+                'Erro ao carregar módulos',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      isDark
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimaryLight,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _error!,
+                style: TextStyle(
+                  color:
+                      isDark
+                          ? AppColors.textSecondary
+                          : AppColors.textSecondaryLight,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _loadModules,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Tentar Novamente'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      final activeModules = _modules.where((m) => m.isActive).length;
 
       return Column(
         children: [
@@ -95,10 +248,10 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatCard(
-                  'Usuários Totais',
-                  totalUsers.toString(),
-                  Icons.people,
-                  palette['accent']!,
+                  'Módulos Inativos',
+                  (_modules.length - activeModules).toString(),
+                  Icons.pause_circle,
+                  AppColors.warning,
                   isDark,
                 ),
               ),
@@ -107,22 +260,133 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
 
           const SizedBox(height: 20),
 
+          // Barra de busca
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark ? AppColors.border : AppColors.borderLight,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: (value) => setState(() => _searchQuery = value),
+                    style: TextStyle(
+                      color:
+                          isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryLight,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Buscar módulos...',
+                      hintStyle: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.textSecondary
+                                : AppColors.textSecondaryLight,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color:
+                            isDark
+                                ? AppColors.textSecondary
+                                : AppColors.textSecondaryLight,
+                      ),
+                      filled: true,
+                      fillColor:
+                          isDark
+                              ? AppColors.background
+                              : AppColors.surfaceLightVariant,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () => _showModuleDialog(),
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text('Novo Módulo'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: palette['primary'],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: _loadModules,
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Atualizar',
+                  style: IconButton.styleFrom(
+                    backgroundColor: palette['primary']!.withOpacity(0.1),
+                    foregroundColor: palette['primary'],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
           // Lista de módulos
           Expanded(
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount:
-                    MediaQuery.of(context).size.width > 1400 ? 3 : 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.3,
-              ),
-              itemCount: _modules.length,
-              itemBuilder: (context, index) {
-                final module = _modules[index];
-                return _buildModuleCard(module, isDark, palette);
-              },
-            ),
+            child:
+                filteredModules.isEmpty
+                    ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.apps_outlined,
+                            size: 64,
+                            color:
+                                isDark
+                                    ? AppColors.textSecondary
+                                    : AppColors.textSecondaryLight,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _searchQuery.isEmpty
+                                ? 'Nenhum módulo encontrado'
+                                : 'Nenhum resultado para "$_searchQuery"',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color:
+                                  isDark
+                                      ? AppColors.textSecondary
+                                      : AppColors.textSecondaryLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                    : GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            MediaQuery.of(context).size.width > 1400 ? 3 : 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1.3,
+                      ),
+                      itemCount: filteredModules.length,
+                      itemBuilder: (context, index) {
+                        final module = filteredModules[index];
+                        return _buildModuleCard(module, isDark, palette);
+                      },
+                    ),
           ),
         ],
       );
@@ -190,11 +454,11 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
   }
 
   Widget _buildModuleCard(
-    Map<String, dynamic> module,
+    Module module,
     bool isDark,
     Map<String, Color> palette,
   ) {
-    final isActive = module['status'] == 'active';
+    final isActive = module.isActive;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -218,7 +482,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                   ),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(module['icon'], color: Colors.white, size: 28),
+                child: Icon(module.icon, color: Colors.white, size: 28),
               ),
               const Spacer(),
               Container(
@@ -248,7 +512,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      isActive ? 'Ativo' : 'Inativo',
+                      module.statusText,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -267,7 +531,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
           const SizedBox(height: 16),
 
           Text(
-            module['name'],
+            module.name,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -279,7 +543,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
           const SizedBox(height: 8),
 
           Text(
-            module['description'],
+            module.description,
             style: TextStyle(
               fontSize: 13,
               color:
@@ -300,7 +564,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
           Row(
             children: [
               Icon(
-                Icons.people_outline,
+                Icons.category_outlined,
                 size: 16,
                 color:
                     isDark
@@ -308,30 +572,17 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                         : AppColors.textSecondaryLight,
               ),
               const SizedBox(width: 6),
-              Text(
-                '${module['users']} usuários',
-                style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      isDark
-                          ? AppColors.textSecondary
-                          : AppColors.textSecondaryLight,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: palette['accent']!.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+              Expanded(
                 child: Text(
-                  'v${module['version']}',
+                  module.type.displayName,
                   style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: palette['accent'],
+                    fontSize: 12,
+                    color:
+                        isDark
+                            ? AppColors.textSecondary
+                            : AppColors.textSecondaryLight,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -340,37 +591,26 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
           const SizedBox(height: 12),
 
           Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.settings, size: 16),
-                  label: const Text('Configurar'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: palette['primary'],
-                    side: BorderSide(color: palette['primary']!),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
+              IconButton(
+                onPressed: () => _showModuleDialog(module: module),
+                icon: const Icon(Icons.edit, size: 18),
+                style: IconButton.styleFrom(
+                  backgroundColor: palette['primary']!.withOpacity(0.1),
+                  foregroundColor: palette['primary'],
                 ),
+                tooltip: 'Editar',
               ),
               const SizedBox(width: 8),
               IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  isActive ? Icons.pause_circle : Icons.play_circle,
-                  size: 20,
-                ),
+                onPressed: () => _deleteModule(module),
+                icon: const Icon(Icons.delete, size: 18),
                 style: IconButton.styleFrom(
-                  backgroundColor:
-                      isActive
-                          ? AppColors.warning.withOpacity(0.1)
-                          : AppColors.success.withOpacity(0.1),
-                  foregroundColor:
-                      isActive ? AppColors.warning : AppColors.success,
+                  backgroundColor: AppColors.danger.withOpacity(0.1),
+                  foregroundColor: AppColors.danger,
                 ),
-                tooltip: isActive ? 'Desativar' : 'Ativar',
+                tooltip: 'Excluir',
               ),
             ],
           ),
