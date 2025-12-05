@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/exceptions.dart';
 
 // Gera mocks automaticamente com build_runner
 @GenerateMocks([http.Client])

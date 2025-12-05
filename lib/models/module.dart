@@ -11,6 +11,7 @@ class Module {
   final bool isActive;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final List<Map<String, String>> tableColumns;
 
   Module({
     required this.id,
@@ -20,6 +21,7 @@ class Module {
     required this.isActive,
     required this.createdAt,
     this.updatedAt,
+    this.tableColumns = const [],
   });
 
   /// Cria um Module a partir de AssetModuleConfig
@@ -32,6 +34,7 @@ class Module {
       isActive: config.isActive,
       createdAt: config.createdAt,
       updatedAt: config.updatedAt,
+      tableColumns: config.tableColumns.map((c) => c.toJson()).toList(),
     );
   }
 
@@ -42,6 +45,7 @@ class Module {
       'description': description,
       'type': type.identifier,
       'is_active': isActive,
+      'table_columns': tableColumns,
     };
   }
 
@@ -79,6 +83,7 @@ class Module {
     bool? isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
+    List<Map<String, String>>? tableColumns,
   }) {
     return Module(
       id: id ?? this.id,
@@ -88,6 +93,7 @@ class Module {
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      tableColumns: tableColumns ?? this.tableColumns,
     );
   }
 }

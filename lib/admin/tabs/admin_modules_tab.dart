@@ -75,6 +75,9 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                   description: data['description'],
                   isActive: data['is_active'],
                   type: module.type,
+                  tableColumns: List<Map<String, String>>.from(
+                    data['table_columns'] ?? [],
+                  ),
                 );
               }
             },

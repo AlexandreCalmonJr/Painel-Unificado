@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/config/theme_config.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/devices/widgets/hub_menu_item.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
@@ -154,9 +153,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       return Scaffold(
         body: Container(
           decoration: BoxDecoration(
-            gradient: ThemeGradients.getLoginBackgroundGradient(
-              themeController.colorScheme,
-            ),
+            gradient:
+                isDark
+                    ? const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [AppColors.background, AppColors.surface],
+                    )
+                    : const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.backgroundLight,
+                        AppColors.surfaceLightVariant,
+                      ],
+                    ),
           ),
           child: Stack(
             children: [
@@ -257,16 +268,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             Container(
                               padding: const EdgeInsets.all(32),
                               decoration: BoxDecoration(
-                                color: AppColors.surface,
+                                color:
+                                    isDark
+                                        ? AppColors.surface
+                                        : AppColors.surfaceLightMode,
                                 borderRadius: BorderRadius.circular(24),
                                 border: Border.all(
-                                  color: AppColors.border.withOpacity(0.1),
+                                  color:
+                                      isDark
+                                          ? AppColors.border.withOpacity(0.1)
+                                          : AppColors.borderLight,
                                 ),
-                                boxShadow: const [
+                                boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.shadow,
+                                    color: Colors.black.withOpacity(0.1),
                                     blurRadius: 20,
-                                    offset: Offset(0, 10),
+                                    offset: const Offset(0, 10),
                                   ),
                                 ],
                               ),
@@ -276,31 +293,39 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primary.withOpacity(0.1),
+                                      color: palette['primary']!.withOpacity(
+                                        0.1,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.grid_view_rounded,
                                       size: 48,
-                                      color: AppColors.primary,
+                                      color: palette['primary'],
                                     ),
                                   ),
                                   const SizedBox(height: 24),
-                                  const Text(
+                                  Text(
                                     'Central de Módulos',
                                     style: TextStyle(
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.textPrimary,
+                                      color:
+                                          isDark
+                                              ? AppColors.textPrimary
+                                              : AppColors.textPrimaryLight,
                                       letterSpacing: -0.5,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  const Text(
+                                  Text(
                                     'Selecione um módulo para gerenciar',
                                     style: TextStyle(
                                       fontSize: 16,
-                                      color: AppColors.textSecondary,
+                                      color:
+                                          isDark
+                                              ? AppColors.textSecondary
+                                              : AppColors.textSecondaryLight,
                                     ),
                                   ),
                                   const SizedBox(height: 32),
@@ -312,12 +337,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       vertical: 12,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.background,
+                                      color:
+                                          isDark
+                                              ? AppColors.background
+                                              : AppColors.surfaceLightVariant,
                                       borderRadius: BorderRadius.circular(50),
                                       border: Border.all(
-                                        color: AppColors.border.withOpacity(
-                                          0.5,
-                                        ),
+                                        color:
+                                            isDark
+                                                ? AppColors.border.withOpacity(
+                                                  0.5,
+                                                )
+                                                : AppColors.borderLight,
                                       ),
                                     ),
                                     child: Row(
@@ -329,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                               widget.authService.isAdmin
                                                   ? AppColors.danger
                                                       .withOpacity(0.2)
-                                                  : AppColors.primary
+                                                  : palette['primary']!
                                                       .withOpacity(0.2),
                                           child: Icon(
                                             widget.authService.isAdmin
@@ -339,7 +370,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                             color:
                                                 widget.authService.isAdmin
                                                     ? AppColors.danger
-                                                    : AppColors.primary,
+                                                    : palette['primary'],
                                           ),
                                         ),
                                         const SizedBox(width: 12),
@@ -352,10 +383,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                       .authService
                                                       .currentUser?['username'] ??
                                                   'Usuário',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w600,
-                                                color: AppColors.textPrimary,
+                                                color:
+                                                    isDark
+                                                        ? AppColors.textPrimary
+                                                        : AppColors
+                                                            .textPrimaryLight,
                                               ),
                                             ),
                                             if (widget
@@ -373,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                   color:
                                                       widget.authService.isAdmin
                                                           ? AppColors.danger
-                                                          : AppColors.primary,
+                                                          : palette['primary'],
                                                   fontWeight: FontWeight.bold,
                                                   letterSpacing: 0.5,
                                                 ),
@@ -400,9 +435,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
                             // Modules Grid
                             if (_isLoadingModules)
-                              const Center(
+                              Center(
                                 child: CircularProgressIndicator(
-                                  color: AppColors.primary,
+                                  color: palette['primary'],
                                 ),
                               )
                             else

@@ -1,7 +1,6 @@
-// File: lib/modules/asset_detail_screen.dart (REVISADO E REPAGINADO)
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:painel_windowns/devices/utils/helpers.dart'; // Importe seu helper de data
+import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/models/desktop.dart';
 import 'package:painel_windowns/models/notebook.dart';
@@ -9,6 +8,7 @@ import 'package:painel_windowns/models/painel.dart';
 import 'package:painel_windowns/models/printer.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
+import 'package:painel_windowns/widgets/common/app_card.dart';
 
 class AssetDetailScreen extends StatefulWidget {
   final ManagedAsset asset;
@@ -44,11 +44,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       final token = widget.authService.currentToken;
       if (token == null || token.isEmpty) return [];
 
-      // ✅ CORREÇÃO: Usa o 'moduleConfig.id' e 'asset.id' para a chamada
-      return await _moduleService.fetchAssetHistory(
-        token,
-        widget.asset.id, // Passa o AssetID
-      );
+      return await _moduleService.fetchAssetHistory(token, widget.asset.id);
     } catch (e) {
       print('Erro ao buscar histórico: $e');
       return [];
@@ -76,121 +72,119 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     );
   }
 
-  IconData _getAssetIcon() {
-    switch (widget.asset.assetType) {
-      case 'desktop':
-        return Icons.computer;
-      case 'notebook':
-        return Icons.laptop;
-      case 'panel':
-        return Icons.tv;
-      case 'printer':
-        return Icons.print;
-      default:
-        return Icons.devices;
-    }
-  }
-
-  Widget _buildStatusChip(String status) {
+  Map<String, dynamic> _getAssetStatus() {
     Color color;
     String text;
-    switch (status.toLowerCase()) {
+    IconData icon;
+
+    switch (widget.asset.status.toLowerCase()) {
       case 'online':
         color = Colors.green;
         text = 'Online';
+        icon = Icons.check_circle_outline;
         break;
       case 'maintenance':
         color = Colors.orange;
         text = 'Manutenção';
+        icon = Icons.build_outlined;
+        break;
+      case 'retired':
+        color = Colors.purple;
+        text = 'Aposentado';
+        icon = Icons.archive_outlined;
         break;
       default:
         color = Colors.red;
         text = 'Offline';
+        icon = Icons.error_outline;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            text.toUpperCase(),
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
+    return {'color': color, 'text': text, 'icon': icon};
   }
 
   @override
   Widget build(BuildContext context) {
+    final status = _getAssetStatus();
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: RefreshIndicator(
-        onRefresh: () async => _refreshAssetHistory(),
-        child: CustomScrollView(
-          slivers: [
-            _buildHeader(),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                // ✅ NOVO: LayoutBuilder para layout responsivo
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    // Usa 2 colunas se a tela for larga (ex: > 800px)
-                    if (constraints.maxWidth > 800) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 3, // Coluna principal (mais larga)
-                            child: _buildPrimaryColumn(),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            flex: 2, // Coluna secundária (mais estreita)
-                            child: _buildSecondaryColumn(),
-                          ),
-                        ],
-                      );
-                    }
-                    // Usa 1 coluna se a tela for estreita
-                    return Column(
-                      children: [
-                        _buildPrimaryColumn(),
-                        const SizedBox(height: 16),
-                        _buildSecondaryColumn(),
-                      ],
-                    );
-                  },
-                ),
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: Text(
+          widget.asset.assetName,
+          style: const TextStyle(color: Colors.black87, fontSize: 18),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black87),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: Colors.grey[200], height: 1),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: (status['color'] as Color).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: (status['color'] as Color).withOpacity(0.3),
               ),
             ),
-          ],
+            child: Row(
+              children: [
+                Icon(
+                  status['icon'] as IconData,
+                  size: 16,
+                  color: status['color'] as Color,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  (status['text'] as String).toUpperCase(),
+                  style: TextStyle(
+                    color: status['color'] as Color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async => _refreshAssetHistory(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 800) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 3, child: _buildPrimaryColumn()),
+                    const SizedBox(width: 24),
+                    Expanded(flex: 2, child: _buildSecondaryColumn()),
+                  ],
+                );
+              }
+              return Column(
+                children: [
+                  _buildPrimaryColumn(),
+                  const SizedBox(height: 24),
+                  _buildSecondaryColumn(),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  // ✅ NOVO: Coluna da Esquerda (Informações Principais)
   Widget _buildPrimaryColumn() {
     return Column(
       children: [
-        // === Informações Básicas ===
         _buildSectionCard(
           title: 'Informações Básicas',
           icon: Icons.info_outline,
@@ -230,25 +224,22 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        // === Detalhes Específicos por Tipo ===
+        const SizedBox(height: 24),
         _buildAssetSpecificDetails(),
       ],
     );
   }
 
-  // ✅ NOVO: Coluna da Direita (Histórico e Dados Extras)
   Widget _buildSecondaryColumn() {
     return Column(
       children: [
-        // === Status e Conexão ===
         _buildSectionCard(
           title: 'Status e Conexão',
           icon: Icons.monitor_heart_outlined,
           children: [
             _buildDetailRow(
               'Última Sincronização',
-              formatDateTime(widget.asset.lastSeen), // Usa o helper de data
+              formatDateTime(widget.asset.lastSeen),
               Icons.access_time,
             ),
             _buildDetailRow(
@@ -258,140 +249,104 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-
-        // === Histórico de Manutenção ===
-        _buildSectionCard(
-          title: 'Histórico de Manutenção',
-          icon: Icons.history,
-          trailing: IconButton(
-            // Botão de Refresh
-            icon: const Icon(Icons.refresh, size: 20, color: Colors.grey),
-            onPressed: _refreshAssetHistory,
-            tooltip: 'Atualizar Histórico',
+        const SizedBox(height: 24),
+        _buildHistoryCard(),
+        const SizedBox(height: 24),
+        if (widget.asset.customData.isNotEmpty)
+          _buildSectionCard(
+            title: 'Dados Customizados',
+            icon: Icons.extension,
+            children:
+                widget.asset.customData.entries.map((entry) {
+                  return _buildDetailRow(
+                    entry.key,
+                    entry.value.toString(),
+                    Icons.info_outline,
+                  );
+                }).toList(),
           ),
-          children: [
-            _isLoadingHistory
-                ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-                : FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _assetHistoryFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(child: Text('Erro: ${snapshot.error}'));
-                    }
-                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                      return Column(
-                        children:
-                            snapshot.data!.map((entry) {
-                              final timestamp = DateTime.parse(
-                                entry['timestamp'] as String,
-                              );
-                              return _buildTimelineTile(
-                                title: entry['status'] as String,
-                                subtitle:
-                                    '${formatDateTime(timestamp)} - ${entry['reason'] ?? ''}',
-                              );
-                            }).toList(),
-                      );
-                    }
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('Nenhum histórico disponível'),
-                      ),
-                    );
-                  },
-                ),
-          ],
-        ),
-        const SizedBox(height: 16),
-
-        // === Dados Customizados ===
-        _buildSectionCard(
-          title: 'Dados Customizados',
-          icon: Icons.extension,
-          children: [
-            _buildDetailRow(
-              'Campo 1',
-              widget.asset.customData['custom_field_1']?.toString() ?? 'N/A',
-              Icons.info_outline,
-            ),
-            _buildDetailRow(
-              'Campo 2',
-              widget.asset.customData['custom_field_2']?.toString() ?? 'N/A',
-              Icons.info_outline,
-            ),
-          ],
-        ),
       ],
     );
   }
 
-  // --- Funções Helper de UI (Novas e Antigas) ---
-
-  SliverAppBar _buildHeader() {
-    final statusInfo = {
-      'online': {
-        'color': Colors.green,
-        'icon': Icons.cloud_done_outlined,
-        'text': 'Online',
-      },
-      'offline': {
-        'color': Colors.red,
-        'icon': Icons.cloud_off_outlined,
-        'text': 'Offline',
-      },
-      'maintenance': {
-        'color': Colors.orange,
-        'icon': Icons.build_outlined,
-        'text': 'Em Manutenção',
-      },
-      'retired': {
-        'color': Colors.purple,
-        'icon': Icons.archive_outlined,
-        'text': 'Aposentado',
-      },
-    };
-
-    final status =
-        statusInfo[widget.asset.status.toLowerCase()] ??
-        {
-          'color': Colors.grey,
-          'icon': Icons.help_outline,
-          'text': 'Desconhecido',
-        };
-
-    return SliverAppBar(
-      backgroundColor: status['color'] as Color,
-      foregroundColor: Colors.white,
-      pinned: true,
-      expandedHeight: 120.0,
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        centerTitle: false,
-        title: Text(
-          widget.asset.assetName,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+  Widget _buildHistoryCard() {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildCardTitle('Histórico de Manutenção', Icons.history),
+              IconButton(
+                icon: const Icon(Icons.refresh, size: 20),
+                onPressed: _refreshAssetHistory,
+                tooltip: 'Atualizar Histórico',
+                color: Colors.grey[600],
+              ),
+            ],
           ),
-        ),
-        background: Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _buildStatusChip(status['text'] as String),
-            ),
-          ),
-        ),
+          const SizedBox(height: 24),
+          _isLoadingHistory
+              ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+              : FutureBuilder<List<Map<String, dynamic>>>(
+                future: _assetHistoryFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Erro: ${snapshot.error}',
+                        style: TextStyle(color: Colors.red[400]),
+                      ),
+                    );
+                  }
+                  if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        final entry = snapshot.data![index];
+                        final timestamp = DateTime.parse(
+                          entry['timestamp'] as String,
+                        );
+                        return _buildTimelineTile(
+                          title: entry['status'] as String,
+                          subtitle:
+                              '${formatDateTime(timestamp)} - ${entry['reason'] ?? ''}',
+                          isFirst: index == 0,
+                          isLast: index == snapshot.data!.length - 1,
+                        );
+                      },
+                    );
+                  }
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.history_toggle_off,
+                            color: Colors.grey[300],
+                            size: 48,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Nenhum histórico disponível',
+                            style: TextStyle(color: Colors.grey[500]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+        ],
       ),
     );
   }
@@ -400,40 +355,33 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     required String title,
     required IconData icon,
     required List<Widget> children,
-    Widget? trailing,
   }) {
-    return Card(
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: Colors.blue, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                if (trailing != null) trailing,
-              ],
-            ),
-            const Divider(height: 24),
-            ...children,
-          ],
-        ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildCardTitle(title, icon),
+          const SizedBox(height: 24),
+          ...children,
+        ],
       ),
+    );
+  }
+
+  Widget _buildCardTitle(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.grey[800]),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 
@@ -451,12 +399,13 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
           Icon(icon, size: 20, color: Colors.grey[600]),
           const SizedBox(width: 12),
           SizedBox(
-            width: 110,
+            width: 120,
             child: Text(
               label,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.grey[700],
+                fontSize: 14,
               ),
             ),
           ),
@@ -465,12 +414,26 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Text(value, style: const TextStyle(fontSize: 14)),
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
                 if (copyable)
                   InkWell(
                     onTap: () => _copyToClipboard(value, label),
-                    child: Icon(Icons.copy, size: 16, color: Colors.grey[600]),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Icon(
+                        Icons.copy,
+                        size: 16,
+                        color: Colors.grey[400],
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -480,45 +443,62 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     );
   }
 
-  Widget _buildTimelineTile({required String title, required String subtitle}) {
+  Widget _buildTimelineTile({
+    required String title,
+    required String subtitle,
+    bool isFirst = false,
+    bool isLast = false,
+  }) {
     return IntrinsicHeight(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.blue.withOpacity(0.2),
+          SizedBox(
+            width: 24,
+            child: Column(
+              children: [
+                Container(
+                  width: 2,
+                  height: 16,
+                  color: isFirst ? Colors.transparent : Colors.grey[200],
                 ),
-                child: const Icon(
-                  Icons.event_note,
-                  color: Colors.blue,
-                  size: 16,
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    border: Border.all(color: Colors.blue, width: 2),
+                  ),
                 ),
-              ),
-              Expanded(child: Container(width: 2, color: Colors.grey[300])),
-            ],
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    color: isLast ? Colors.transparent : Colors.grey[200],
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: 16.0,
-              ), // Espaçamento inferior
+              padding: const EdgeInsets.only(bottom: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    style: TextStyle(color: Colors.grey[500], fontSize: 13),
                   ),
                 ],
               ),
@@ -529,7 +509,6 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     );
   }
 
-  // --- Funções de Detalhes Específicos ---
   Widget _buildAssetSpecificDetails() {
     if (widget.asset is Desktop) {
       return _buildSectionCard(

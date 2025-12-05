@@ -65,6 +65,7 @@ class BaseDataTable<T> extends StatefulWidget {
   final bool isLoading;
   final String? emptyMessage;
   final Widget Function(T item)? customRow;
+  final bool expand;
 
   const BaseDataTable({
     super.key,
@@ -80,6 +81,7 @@ class BaseDataTable<T> extends StatefulWidget {
     this.isLoading = false,
     this.emptyMessage,
     this.customRow,
+    this.expand = false,
   });
 
   @override
@@ -157,88 +159,89 @@ class _BaseDataTableState<T> extends State<BaseDataTable<T>> {
       final headerTextColor =
           isDark ? AppColors.textSecondary : AppColors.textSecondaryLight;
 
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 600),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: constraints.maxWidth,
-                      ),
-                      child: DataTable(
-                        headingRowColor: WidgetStateProperty.all(headerColor),
-                        dataRowColor: WidgetStateProperty.resolveWith<Color?>((
-                          Set<WidgetState> states,
-                        ) {
-                          if (states.contains(WidgetState.selected)) {
-                            return AppColors.primary.withOpacity(0.1);
-                          }
-                          return rowColor;
-                        }),
-                        headingTextStyle: AppTextStyles.labelLarge.copyWith(
-                          color: headerTextColor,
-                          letterSpacing: 1.0,
+      Widget tableContent = SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                child: DataTable(
+                  headingRowColor: WidgetStateProperty.all(headerColor),
+                  dataRowColor: WidgetStateProperty.resolveWith<Color?>((
+                    Set<WidgetState> states,
+                  ) {
+                    if (states.contains(WidgetState.selected)) {
+                      return AppColors.primary.withOpacity(0.1);
+                    }
+                    return rowColor;
+                  }),
+                  headingTextStyle: AppTextStyles.labelLarge.copyWith(
+                    color: headerTextColor,
+                    letterSpacing: 1.0,
+                  ),
+                  dataTextStyle: AppTextStyles.bodyMedium.copyWith(
+                    color: textColor,
+                  ),
+                  dividerThickness: 1,
+                  horizontalMargin: AppConstants.spacingL,
+                  columnSpacing: AppConstants.spacingXL,
+                  columns: [
+                    ...widget.columns.map((col) {
+                      return DataColumn(
+                        label: TableHeader(
+                          text: col.label.toUpperCase(),
+                          alignment: col.alignment,
+                          sortable: col.sortable,
+                          isSorted: _sortColumn == col.label,
+                          isAscending: _sortAscending,
+                          onSort:
+                              col.sortable
+                                  ? () => _handleSort(col.label)
+                                  : null,
                         ),
-                        dataTextStyle: AppTextStyles.bodyMedium.copyWith(
-                          color: textColor,
-                        ),
-                        dividerThickness: 1,
-                        horizontalMargin: AppConstants.spacingL,
-                        columnSpacing: AppConstants.spacingXL,
-                        columns: [
-                          ...widget.columns.map((col) {
-                            return DataColumn(
-                              label: TableHeader(
-                                text: col.label.toUpperCase(),
-                                alignment: col.alignment,
-                                sortable: col.sortable,
-                                isSorted: _sortColumn == col.label,
-                                isAscending: _sortAscending,
-                                onSort:
-                                    col.sortable
-                                        ? () => _handleSort(col.label)
-                                        : null,
-                              ),
-                            );
-                          }),
-                          if (widget.actions != null &&
-                                  widget.actions!.isNotEmpty ||
-                              widget.customRow != null)
-                            DataColumn(label: TableHeader(text: 'AÇÕES')),
-                        ],
-                        rows:
-                            _displayedItems.map((item) {
-                              return DataRow(
-                                onSelectChanged:
-                                    widget.onTap != null
-                                        ? (_) => widget.onTap!(item)
-                                        : null,
-                                cells: [
-                                  ...widget.columns.map((col) {
-                                    final cell = col.buildCell(item);
-                                    return DataCell(cell);
-                                  }),
-                                  if (widget.actions != null &&
-                                          widget.actions!.isNotEmpty ||
-                                      widget.customRow != null)
-                                    DataCell(_buildActionsCell(item)),
-                                ],
-                              );
-                            }).toList(),
-                      ),
-                    ),
-                  );
-                },
+                      );
+                    }),
+                    if (widget.actions != null && widget.actions!.isNotEmpty ||
+                        widget.customRow != null)
+                      DataColumn(label: TableHeader(text: 'AÇÕES')),
+                  ],
+                  rows:
+                      _displayedItems.map((item) {
+                        return DataRow(
+                          onSelectChanged:
+                              widget.onTap != null
+                                  ? (_) => widget.onTap!(item)
+                                  : null,
+                          cells: [
+                            ...widget.columns.map((col) {
+                              final cell = col.buildCell(item);
+                              return DataCell(cell);
+                            }),
+                            if (widget.actions != null &&
+                                    widget.actions!.isNotEmpty ||
+                                widget.customRow != null)
+                              DataCell(_buildActionsCell(item)),
+                          ],
+                        );
+                      }).toList(),
+                ),
               ),
-            ),
-          ),
+            );
+          },
+        ),
+      );
+
+      return Column(
+        mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          widget.expand
+              ? Expanded(child: tableContent)
+              : ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 600),
+                child: tableContent,
+              ),
         ],
       );
     });

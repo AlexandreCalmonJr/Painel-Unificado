@@ -1,4 +1,3 @@
-
 import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/unit.dart';
 
@@ -22,6 +21,8 @@ class Device {
   final String? serialNumber;
   final String? imei;
   final String? macAddress;
+  final String?
+  macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento de localização
   final String? lastSeen;
   final String? lastSync;
   final String? sector;
@@ -41,6 +42,7 @@ class Device {
   final List<Map<String, dynamic>>? installedApps;
   final Map<String, dynamic>? securityPolicies;
   final String status;
+  final bool? isOnline; // ✅ NOVO: Status em tempo real
 
   Device({
     this.id,
@@ -53,6 +55,7 @@ class Device {
     this.serialNumber,
     this.imei,
     this.macAddress,
+    this.macAddressRadio, // ✅ NOVO
     this.lastSeen,
     this.lastSync,
     this.sector,
@@ -72,6 +75,7 @@ class Device {
     this.installedApps,
     this.securityPolicies,
     required this.status,
+    this.isOnline, // ✅ NOVO
   });
 
   // ADICIONADO: Getter para centralizar a lógica de status
@@ -93,49 +97,64 @@ class Device {
 
   factory Device.fromJson(Map<String, dynamic> json, List<Unit> units) {
     return Device(
-        id: json['_id']?.toString(),
-        deviceId: json['device_id']?.toString(),
-        deviceName: json['device_name']?.toString() == 'N/A'
-            ? null
-            : json['device_name']?.toString(),
-        deviceModel: json['device_model']?.toString(),
-        battery: json['battery'] is num ? json['battery'] : null,
-        ipAddress: json['ip_address']?.toString() == 'N/A'
-            ? null
-            : json['ip_address']?.toString(),
-        network: json['network']?.toString() == 'N/A'
-            ? null
-            : json['network']?.toString(),
-        serialNumber: json['serial_number']?.toString(),
-        imei: json['imei']?.toString(),
-        macAddress: json['mac_address']?.toString() == 'N/A'
-            ? null
-            : json['mac_address']?.toString(),
-        lastSeen: json['last_seen']?.toString(),
-        lastSync: json['last_sync']?.toString(),
-        sector: json['sector']?.toString(),
-        floor: json['floor']?.toString(),
-        location: json['location']?.toString(),
-        maintenanceStatus:
-            json['maintenance_status'] is bool ? json['maintenance_status'] : false,
-        maintenanceTicket: json["maintenance_ticket"]?.toString(),
-        maintenanceReason: json["maintenance_reason"]?.toString(),
-        maintenanceHistory: (json['maintenance_history'] as List<dynamic>?)
-            ?.cast<Map<String, dynamic>>(),
-        unit: json['unit']?.toString() ??
-            getUnitFromIp(json['ip_address']?.toString(), units),
-        provisioningStatus: json['provisioning_status']?.toString(),
-        provisioningToken: json['provisioning_token']?.toString(),
-        enrollmentDate: json['enrollment_date']?.toString(),
-        configurationProfile: json['configuration_profile']?.toString(),
-        ownerOrganization: json['owner_organization']?.toString(),
-        complianceStatus: json['compliance_status']?.toString(),
-        installedApps: (json['installed_apps'] as List<dynamic>?)
-            ?.cast<Map<String, dynamic>>(),
-        securityPolicies: json['security_policies'] is Map
-            ? json['security_policies'] as Map<String, dynamic>
-            : null,
-        status: json['status'] ?? 'offline');
+      id: json['_id']?.toString(),
+      deviceId: json['device_id']?.toString(),
+      deviceName:
+          json['device_name']?.toString() == 'N/A'
+              ? null
+              : json['device_name']?.toString(),
+      deviceModel: json['device_model']?.toString(),
+      battery: json['battery'] is num ? json['battery'] : null,
+      ipAddress:
+          json['ip_address']?.toString() == 'N/A'
+              ? null
+              : json['ip_address']?.toString(),
+      network:
+          json['network']?.toString() == 'N/A'
+              ? null
+              : json['network']?.toString(),
+      serialNumber: json['serial_number']?.toString(),
+      imei: json['imei']?.toString(),
+      macAddress:
+          json['mac_address']?.toString() == 'N/A'
+              ? null
+              : json['mac_address']?.toString(),
+      macAddressRadio:
+          json['mac_address_radio']?.toString() == 'N/A'
+              ? null
+              : json['mac_address_radio']?.toString(), // ✅ NOVO: BSSID
+      lastSeen: json['last_seen']?.toString(),
+      lastSync: json['last_sync']?.toString(),
+      sector: json['sector']?.toString(),
+      floor: json['floor']?.toString(),
+      location: json['location']?.toString(),
+      maintenanceStatus:
+          json['maintenance_status'] is bool
+              ? json['maintenance_status']
+              : false,
+      maintenanceTicket: json["maintenance_ticket"]?.toString(),
+      maintenanceReason: json["maintenance_reason"]?.toString(),
+      maintenanceHistory:
+          (json['maintenance_history'] as List<dynamic>?)
+              ?.cast<Map<String, dynamic>>(),
+      unit:
+          json['unit']?.toString() ??
+          getUnitFromIp(json['ip_address']?.toString(), units),
+      provisioningStatus: json['provisioning_status']?.toString(),
+      provisioningToken: json['provisioning_token']?.toString(),
+      enrollmentDate: json['enrollment_date']?.toString(),
+      configurationProfile: json['configuration_profile']?.toString(),
+      ownerOrganization: json['owner_organization']?.toString(),
+      complianceStatus: json['compliance_status']?.toString(),
+      installedApps:
+          (json['installed_apps'] as List<dynamic>?)
+              ?.cast<Map<String, dynamic>>(),
+      securityPolicies:
+          json['security_policies'] is Map
+              ? json['security_policies'] as Map<String, dynamic>
+              : null,
+      status: json['status'] ?? 'offline',
+      isOnline: json['is_online'] is bool ? json['is_online'] : null,
+    ); // ✅ NOVO: Status em tempo real
   }
-  
 }

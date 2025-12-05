@@ -5,6 +5,7 @@ import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
+import 'package:painel_windowns/services/logger_service.dart';
 
 class Notebook extends ManagedAsset {
   final String hostname;
@@ -13,12 +14,14 @@ class Notebook extends ManagedAsset {
   final String processor;
   final String ram;
   final String storage;
+  final String storageType; // ✅ NOVO: Tipo de armazenamento (SSD/HDD)
   final String operatingSystem;
   final String osVersion;
   final String ipAddress;
   final String macAddress;
-  final int? batteryLevel;
-  final String? batteryHealth;
+  final String? macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento
+  final String? wifiSsid; // ✅ NOVO: Nome da rede WiFi
+  final String connectionType; // ✅ NOVO: WiFi/Ethernet
   final List<String> installedSoftware;
   final bool antivirusStatus;
   final String? antivirusVersion;
@@ -26,6 +29,10 @@ class Notebook extends ManagedAsset {
   final Map<String, dynamic>? hardwareInfo;
   final bool isEncrypted;
   final String biometricReaderStatus;
+
+  // ✅ Battery fields
+  final int? batteryLevel; // Battery percentage (0-100)
+  final String? batteryHealth; // Battery health status
 
   // ✅ CAMPOS CORRIGIDOS
   @override
@@ -52,19 +59,23 @@ class Notebook extends ManagedAsset {
     required this.processor,
     required this.ram,
     required this.storage,
+    required this.storageType, // ✅ NOVO
     required this.operatingSystem,
     required this.osVersion,
     required this.ipAddress,
     required this.macAddress,
+    this.macAddressRadio, // ✅ NOVO
+    this.wifiSsid, // ✅ NOVO
+    required this.connectionType, // ✅ NOVO
     required this.biometricReaderStatus,
-    this.batteryLevel,
-    this.batteryHealth,
     this.installedSoftware = const [],
     this.antivirusStatus = false,
     this.antivirusVersion,
     this.lastUpdateCheck,
     this.hardwareInfo,
     this.isEncrypted = false,
+    this.batteryLevel,
+    this.batteryHealth,
     this.currentUser,
     this.uptime,
     this.updatedAt,
@@ -81,15 +92,15 @@ class Notebook extends ManagedAsset {
     String? location = json['location'];
 
     final serialNumber = json['serial_number'] ?? 'N/A';
-    final macAddress =
-        json['mac_address'] ?? json['mac_address_radio'] ?? 'N/A';
 
-    print('🔍 Notebook $serialNumber:');
-    print('   MAC Address: $macAddress');
-    print('   IP: ${json['ip_address']}');
-    print('   Unit (servidor): $unit');
-    print('   Sector (servidor): $sector');
-    print('   Floor (servidor): $floor');
+    // ✅ CORRIGIDO: Priorizar mac_address_radio (BSSID) para mapeamento
+    final macAddressRadio = json['mac_address_radio'] ?? 'N/A';
+    final macAddress = json['mac_address'] ?? 'N/A';
+
+    logger.debug(
+      'Notebook $serialNumber - BSSID: $macAddressRadio, MAC: $macAddress, IP: ${json['ip_address']}, Unit: $unit, Sector: $sector, Floor: $floor',
+      tag: 'Notebook.fromJson',
+    );
 
     final bool shouldMap =
         (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
@@ -97,13 +108,16 @@ class Notebook extends ManagedAsset {
         (floor == null || floor == 'Desconhecido');
 
     if (shouldMap) {
-      print('⚠️ Notebook $serialNumber: Mapeando localização localmente...');
+      logger.info(
+        'Notebook $serialNumber: Mapeando localização localmente',
+        tag: 'Notebook.fromJson',
+      );
 
       final locationData = LocationMapperService.mapLocation(
         units: units,
         bssidMappings: bssidMappings ?? [],
         ip: json['ip_address'] ?? 'N/A',
-        macAddress: macAddress,
+        macAddress: macAddressRadio, // ✅ Usar BSSID para mapeamento
         originalLocation: location ?? 'N/D',
       );
 
@@ -112,9 +126,15 @@ class Notebook extends ManagedAsset {
       floor ??= locationData.floor;
       location ??= locationData.locationName;
 
-      print('✅ Mapeamento local: Unit=$unit | Sector=$sector | Floor=$floor');
+      logger.debug(
+        'Mapeamento local concluído - Unit: $unit, Sector: $sector, Floor: $floor',
+        tag: 'Notebook.fromJson',
+      );
     } else {
-      print('✅ Notebook $serialNumber: Usando dados do servidor');
+      logger.debug(
+        'Notebook $serialNumber: Usando dados do servidor',
+        tag: 'Notebook.fromJson',
+      );
     }
 
     return Notebook(
@@ -148,13 +168,17 @@ class Notebook extends ManagedAsset {
       processor: json['processor'] ?? 'N/A',
       ram: json['ram'] ?? 'N/A',
       storage: json['storage'] ?? 'N/A',
+      storageType: json['storage_type'] ?? 'N/A', // ✅ NOVO
       operatingSystem: json['operating_system'] ?? 'N/A',
       osVersion: json['os_version'] ?? 'N/A',
       ipAddress: json['ip_address'] ?? 'N/A',
-      macAddress: json['mac_address'] ?? 'N/A',
-      batteryLevel: json['battery_level'],
-      batteryHealth: json['battery_health'],
-      biometricReaderStatus: json['biometric_reader_status'] ?? 'N/A',
+      macAddress: macAddress == 'N/A' ? 'N/A' : macAddress,
+      macAddressRadio:
+          macAddressRadio == 'N/A' ? null : macAddressRadio, // ✅ NOVO
+      wifiSsid: json['wifi_ssid'], // ✅ NOVO
+      connectionType: json['connection_type'] ?? 'Desconhecido', // ✅ NOVO
+      biometricReaderStatus:
+          json['biometric_reader'] ?? json['biometric_reader_status'] ?? 'N/A',
       installedSoftware:
           json['installed_software'] != null
               ? List<String>.from(json['installed_software'])
@@ -170,6 +194,8 @@ class Notebook extends ManagedAsset {
               ? Map<String, dynamic>.from(json['hardware_info'])
               : null,
       isEncrypted: json['is_encrypted'] ?? false,
+      batteryLevel: json['battery_level'],
+      batteryHealth: json['battery_health'],
     );
   }
 
@@ -203,12 +229,14 @@ class Notebook extends ManagedAsset {
       'processor': processor,
       'ram': ram,
       'storage': storage,
+      'storage_type': storageType, // ✅ NOVO
       'operating_system': operatingSystem,
       'os_version': osVersion,
       'ip_address': ipAddress,
       'mac_address': macAddress,
-      'battery_level': batteryLevel,
-      'battery_health': batteryHealth,
+      'mac_address_radio': macAddressRadio, // ✅ NOVO
+      'wifi_ssid': wifiSsid, // ✅ NOVO
+      'connection_type': connectionType, // ✅ NOVO
       'biometric_reader_status': biometricReaderStatus,
       'installed_software': installedSoftware,
       'antivirus_status': antivirusStatus,
@@ -216,6 +244,8 @@ class Notebook extends ManagedAsset {
       'last_update_check': lastUpdateCheck?.toIso8601String(),
       'hardware_info': hardwareInfo,
       'is_encrypted': isEncrypted,
+      'battery_level': batteryLevel,
+      'battery_health': batteryHealth,
     };
   }
 }

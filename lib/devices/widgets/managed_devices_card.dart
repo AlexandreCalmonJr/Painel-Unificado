@@ -230,6 +230,7 @@ class ManagedDevicesCard extends StatelessWidget {
             // Content
             Expanded(
               child: BaseDataTable<Device>(
+                expand: true,
                 items: filteredDevices,
                 columns: [
                   DataTableColumn<Device>(

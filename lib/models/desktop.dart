@@ -5,6 +5,7 @@ import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
+import 'package:painel_windowns/services/logger_service.dart';
 
 class Desktop extends ManagedAsset {
   final String hostname;
@@ -26,6 +27,9 @@ class Desktop extends ManagedAsset {
 
   final String ipAddress;
   final String macAddress;
+  final String? macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento
+  final String? wifiSsid; // ✅ NOVO: Nome da rede WiFi
+  final String connectionType; // ✅ NOVO: WiFi/Ethernet
 
   final String? biometricReader;
   final String? connectedPrinter;
@@ -40,6 +44,7 @@ class Desktop extends ManagedAsset {
   final DateTime? lastUpdateCheck;
 
   final Map<String, dynamic>? hardwareInfo;
+  final bool isEncrypted; // ✅ NOVO: Status de criptografia
 
   Desktop({
     required super.id,
@@ -64,6 +69,9 @@ class Desktop extends ManagedAsset {
     required this.osVersion,
     required this.ipAddress,
     required this.macAddress,
+    this.macAddressRadio, // ✅ NOVO
+    this.wifiSsid, // ✅ NOVO
+    required this.connectionType, // ✅ NOVO
     this.biometricReader,
     this.connectedPrinter,
     this.installedSoftware = const [],
@@ -74,6 +82,7 @@ class Desktop extends ManagedAsset {
     this.antivirusVersion,
     this.lastUpdateCheck,
     this.hardwareInfo,
+    this.isEncrypted = false, // ✅ NOVO
     this.currentUser,
     this.uptime,
     this.updatedAt,
@@ -89,21 +98,25 @@ class Desktop extends ManagedAsset {
     String? floor = json['floor'];
     String? location = json['location'];
 
+    // ✅ CORRIGIDO: Priorizar mac_address_radio (BSSID) para mapeamento
+    final macAddressRadio = json['mac_address_radio'] ?? 'N/A';
+
     final bool shouldMap =
         (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
         (sector == null || sector == 'Desconhecido') ||
         (floor == null || floor == 'Desconhecido');
 
     if (shouldMap) {
-      print(
-        '⚠️ Desktop ${json['serial_number']}: Dados ausentes, mapeando localmente...',
+      logger.info(
+        'Desktop ${json['serial_number']}: Dados ausentes, mapeando localmente',
+        tag: 'Desktop.fromJson',
       );
 
       final locationData = LocationMapperService.mapLocation(
         units: units,
         bssidMappings: bssidMappings ?? [],
         ip: json['ip_address'] ?? 'N/A',
-        macAddress: json['mac_address'] ?? 'N/A',
+        macAddress: macAddressRadio, // ✅ Usar BSSID em vez de MAC
         originalLocation: location ?? 'N/D',
       );
 
@@ -112,9 +125,15 @@ class Desktop extends ManagedAsset {
       floor ??= locationData.floor;
       location ??= locationData.locationName;
 
-      print('✅ Mapeamento local: Unit=$unit | Sector=$sector | Floor=$floor');
+      logger.debug(
+        'Mapeamento local concluído - Unit: $unit, Sector: $sector, Floor: $floor',
+        tag: 'Desktop.fromJson',
+      );
     } else {
-      print('✅ Desktop ${json['serial_number']}: Usando dados do servidor');
+      logger.debug(
+        'Desktop ${json['serial_number']}: Usando dados do servidor',
+        tag: 'Desktop.fromJson',
+      );
     }
 
     return Desktop(
@@ -156,6 +175,10 @@ class Desktop extends ManagedAsset {
 
       ipAddress: json['ip_address'] ?? 'N/A',
       macAddress: json['mac_address'] ?? 'N/A',
+      macAddressRadio:
+          macAddressRadio == 'N/A' ? null : macAddressRadio, // ✅ NOVO
+      wifiSsid: json['wifi_ssid'], // ✅ NOVO
+      connectionType: json['connection_type'] ?? 'Desconhecido', // ✅ NOVO
 
       biometricReader: json['biometric_reader'],
       connectedPrinter: json['connected_printer'],
@@ -181,6 +204,7 @@ class Desktop extends ManagedAsset {
           json['hardware_info'] != null
               ? Map<String, dynamic>.from(json['hardware_info'])
               : null,
+      isEncrypted: json['is_encrypted'] ?? false, // ✅ NOVO
     );
   }
 
@@ -222,6 +246,9 @@ class Desktop extends ManagedAsset {
 
       'ip_address': ipAddress,
       'mac_address': macAddress,
+      'mac_address_radio': macAddressRadio, // ✅ NOVO
+      'wifi_ssid': wifiSsid, // ✅ NOVO
+      'connection_type': connectionType, // ✅ NOVO
 
       'biometric_reader': biometricReader,
       'connected_printer': connectedPrinter,
@@ -235,6 +262,7 @@ class Desktop extends ManagedAsset {
       'antivirus_version': antivirusVersion,
       'last_update_check': lastUpdateCheck?.toIso8601String(),
       'hardware_info': hardwareInfo,
+      'is_encrypted': isEncrypted, // ✅ NOVO
     };
   }
 }

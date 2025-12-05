@@ -49,10 +49,7 @@ class Totem extends ManagedAsset {
     required this.hdStorage,
     required this.zebraStatus,
     required this.bematechStatus,
-  }) : super(
-          assetName: hostname,
-          assetType: totemType,
-        );
+  }) : super(assetName: hostname, assetType: totemType);
 
   /// Factory com MAPEAMENTO DE LOCALIZAÇÃO
   factory Totem.fromJson(
@@ -64,12 +61,19 @@ class Totem extends ManagedAsset {
         DateTime.tryParse(json['lastSeen'] ?? '') ?? DateTime.now();
 
     // ⚡ MAPEAMENTO DE LOCALIZAÇÃO
+    // ✅ CORRIGIDO: Aceitar tanto 'unit' (novo) quanto 'unitRoutes' (legado)
+    final originalLocation =
+        json['unit'] ?? json['unitRoutes'] ?? 'Desconhecida';
+
+    // ✅ CORRIGIDO: Aceitar tanto 'macAddress' quanto 'mac_address_radio'
+    final macAddress = json['macAddress'] ?? json['mac_address_radio'] ?? 'N/A';
+
     final locationData = LocationMapperService.mapLocation(
       units: units,
       bssidMappings: bssidMappings,
       ip: json['ip'] ?? 'N/A',
-      macAddress: json['macAddress'] ?? json['mac_address_radio'] ?? 'N/A',
-      originalLocation: json['unitRoutes'] ?? 'Desconhecida',
+      macAddress: macAddress,
+      originalLocation: originalLocation,
     );
 
     return Totem(
@@ -87,7 +91,7 @@ class Totem extends ManagedAsset {
       model: json['model'] ?? 'N/A',
       serviceTag: json['serviceTag'] ?? 'N/A',
       ip: json['ip'] ?? 'N/A',
-      macAddress: json['macAddress'] ?? json['mac_address_radio'] ?? '',
+      macAddress: macAddress,
       installedPrograms: List<String>.from(json['installedPrograms'] ?? []),
       printerStatus: json['printerStatus'] ?? 'N/A',
       biometricReaderStatus: json['biometricReaderStatus'] ?? 'N/A',
@@ -114,10 +118,11 @@ class Totem extends ManagedAsset {
       'unit': unit,
       'sector': sector,
       'floor': floor,
-      'sector_floor': (sector != null || floor != null)
-          ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
-          : (location ?? 'N/D'),
-      
+      'sector_floor':
+          (sector != null || floor != null)
+              ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
+              : (location ?? 'N/D'),
+
       // Campos específicos
       'hostname': hostname,
       'model': model,

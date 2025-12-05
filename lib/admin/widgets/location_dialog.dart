@@ -37,8 +37,8 @@ class _LocationDialogState extends State<LocationDialog> {
   // Unidades e BSSIDs
   List<Unit> _availableUnits = [];
   List<BssidMapping> _allBssids = [];
-  Set<String> _selectedUnitNames = {};
-  Set<String> _selectedBssidMacs = {};
+  final Set<String> _selectedUnitNames = {};
+  final Set<String> _selectedBssidMacs = {};
 
   bool _isLoadingData = false;
   bool _isLoading = false;

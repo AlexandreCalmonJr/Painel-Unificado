@@ -6,15 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:painel_windowns/devices/device_detail_screen.dart';
 import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/devices/utils/test_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/alerts_tab.dart';
 import 'package:painel_windowns/devices/widgets/tabs/dashboard_tab.dart';
 import 'package:painel_windowns/devices/widgets/tabs/devices_tab.dart';
 import 'package:painel_windowns/devices/widgets/tabs/maintenance_tab.dart';
 import 'package:painel_windowns/devices/widgets/tabs/reports_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/security_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/server_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/units_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/users_tab.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/device.dart';
 import 'package:painel_windowns/models/unit.dart';
@@ -353,45 +348,10 @@ class _MDMDashboardState extends State<MDMDashboard> {
         index: 1,
       ),
       const SidebarMenuItem(
-        icon: Icons.dns_outlined,
-        title: 'Servidor',
-        subtitle: 'Configuração',
-        index: 2,
-        isAdminOnly: true,
-      ),
-      const SidebarMenuItem(
-        icon: Icons.security_outlined,
-        title: 'Segurança',
-        subtitle: 'Gerenciar',
-        index: 3,
-        isAdminOnly: true,
-      ),
-      const SidebarMenuItem(
-        icon: Icons.people_outline,
-        title: 'Usuários',
-        subtitle: 'Gerenciar',
-        index: 4,
-        isAdminOnly: true,
-      ),
-      const SidebarMenuItem(
         icon: Icons.bar_chart_outlined,
         title: 'Relatórios',
         subtitle: 'Análises',
         index: 5,
-        isAdminOnly: true,
-      ),
-      const SidebarMenuItem(
-        icon: Icons.notifications_none_outlined,
-        title: 'Alertas',
-        subtitle: 'Notificações',
-        index: 6,
-        isAdminOnly: true,
-      ),
-      const SidebarMenuItem(
-        icon: Icons.business_outlined,
-        title: 'Unidades',
-        subtitle: 'Gerenciar',
-        index: 8,
         isAdminOnly: true,
       ),
       const SidebarMenuItem(
@@ -659,30 +619,10 @@ class _MDMDashboardState extends State<MDMDashboard> {
           currentUser: widget.authService.currentUser,
           authService: widget.authService,
         );
-      case 2:
-        return ServerTab(serverIp: serverIp, serverPort: serverPort);
-      case 3:
-        return const SecurityTab();
-      case 4:
-        return UsersTab(authService: widget.authService);
       case 5:
         return ReportsTab(
           devices: _allFetchedDevices,
           currentUser: currentUser,
-          authService: widget.authService,
-        );
-      case 6:
-        return AlertsTab(devices: _allFetchedDevices);
-      case 8:
-        return UnitsTab(
-          units: units,
-          bssidMappings: bssidMappings,
-          token: token,
-          onDataUpdate: () {
-            _loadUnits();
-            _loadBssidMappings();
-            _loadDevices();
-          },
           authService: widget.authService,
         );
       case 9:

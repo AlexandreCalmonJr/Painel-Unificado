@@ -87,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          // Botão voltar
+          // Header com título centralizado
           Row(
             children: [
               IconButton(
@@ -106,20 +106,22 @@ class _ProfileScreenState extends State<ProfileScreen>
                       .withOpacity(0.5),
                 ),
               ),
-              const Spacer(),
-              Text(
-                'Meu Perfil',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color:
-                      isDark
-                          ? AppColors.textPrimary
-                          : AppColors.textPrimaryLight,
+              Expanded(
+                child: Center(
+                  child: Text(
+                    'Meu Perfil',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryLight,
+                    ),
+                  ),
                 ),
               ),
-              const Spacer(),
-              const SizedBox(width: 48), // Espaço para balancear o botão voltar
+              const SizedBox(width: 48), // Balancear o botão voltar
             ],
           ),
 
@@ -329,25 +331,40 @@ class _ProfileScreenState extends State<ProfileScreen>
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? AppColors.border : AppColors.borderLight,
+          width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: palette['primary'], size: 24),
-              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: palette['primary']!.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: palette['primary'], size: 22),
+              ),
+              const SizedBox(width: 16),
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color:
                       isDark
@@ -357,7 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           ...children,
         ],
       ),
@@ -532,13 +549,21 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildNotificationSettings(bool isDark, Map<String, Color> palette) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? AppColors.border : AppColors.borderLight,
+          width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -550,7 +575,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             isDark,
             palette,
           ),
-          const Divider(height: 24),
+          const Divider(height: 32),
           _buildSwitchRow(
             'Alertas de Dispositivos',
             true,
@@ -559,7 +584,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             isDark,
             palette,
           ),
-          const Divider(height: 24),
+          const Divider(height: 32),
           _buildSwitchRow(
             'Relatórios por Email',
             false,
@@ -587,14 +612,15 @@ class _ProfileScreenState extends State<ProfileScreen>
           icon,
           color:
               isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-          size: 20,
+          size: 22,
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 16),
         Expanded(
           child: Text(
             title,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
               color:
                   isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
             ),
@@ -603,7 +629,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         Switch(
           value: value,
           onChanged: onChanged,
-          activeThumbColor: palette['primary'],
+          activeColor: palette['primary'],
         ),
       ],
     );
@@ -630,27 +656,37 @@ class _ProfileScreenState extends State<ProfileScreen>
       children:
           activities.map((activity) {
             return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDark ? AppColors.border : AppColors.borderLight,
+                  width: 1,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: (isDark ? Colors.black : Colors.grey).withOpacity(
+                      0.1,
+                    ),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: palette['primary']!.withOpacity(0.1),
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       activity['icon'] as IconData,
                       color: palette['primary'],
-                      size: 20,
+                      size: 22,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -661,19 +697,19 @@ class _ProfileScreenState extends State<ProfileScreen>
                         Text(
                           activity['action'] as String,
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                             color:
                                 isDark
                                     ? AppColors.textPrimary
                                     : AppColors.textPrimaryLight,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           activity['time'] as String,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             color:
                                 isDark
                                     ? AppColors.textSecondary

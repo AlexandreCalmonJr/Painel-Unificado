@@ -25,6 +25,10 @@ class _ModuleDialogState extends State<ModuleDialog> {
   late bool _isActive;
   bool _isLoading = false;
 
+  // Gerenciamento de colunas
+  List<String> _selectedColumnKeys = [];
+  List<AssetColumnDefinition> _availableColumns = [];
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +38,36 @@ class _ModuleDialogState extends State<ModuleDialog> {
     );
     _selectedType = widget.module?.type ?? AssetModuleType.notebook;
     _isActive = widget.module?.isActive ?? true;
+
+    _loadAvailableColumns();
+    _initializeSelectedColumns();
+  }
+
+  void _loadAvailableColumns() {
+    _availableColumns = ModuleColumnDefaults.getColumnsForAssetType(
+      _selectedType.identifier,
+    );
+  }
+
+  void _initializeSelectedColumns() {
+    if (widget.module != null && widget.module!.tableColumns.isNotEmpty) {
+      // Carrega colunas existentes do módulo
+      _selectedColumnKeys =
+          widget.module!.tableColumns
+              .map((c) => c['dataKey'] as String)
+              .toList();
+
+      // Verifica se há novas colunas disponíveis que não estavam salvas e as adiciona se forem padrão?
+      // Por enquanto, mantemos apenas o que estava salvo para respeitar a escolha do usuário.
+      // Mas precisamos garantir que as chaves salvas ainda são válidas.
+      final availableKeys = _availableColumns.map((c) => c.key).toSet();
+      _selectedColumnKeys.removeWhere((key) => !availableKeys.contains(key));
+    } else {
+      // Carrega colunas padrão para novo módulo ou módulo sem colunas definidas
+      _selectedColumnKeys = ModuleColumnDefaults.getDefaultVisibleColumns(
+        _selectedType.identifier,
+      );
+    }
   }
 
   @override
@@ -43,14 +77,15 @@ class _ModuleDialogState extends State<ModuleDialog> {
     super.dispose();
   }
 
-  /// Gera as colunas padrão baseadas no tipo de módulo selecionado
-  List<Map<String, String>> _generateDefaultColumns() {
-    final columns = ModuleColumnDefaults.getColumnsForAssetType(
-      _selectedType.identifier,
-    );
-
-    return columns.map((col) {
-      return {'dataKey': col.key, 'label': col.label};
+  /// Gera a lista de colunas selecionadas para salvar
+  List<Map<String, String>> _getSelectedColumnsData() {
+    // Mapeia as chaves selecionadas para suas definições, preservando a ordem da lista _selectedColumnKeys
+    return _selectedColumnKeys.map((key) {
+      final colDef = _availableColumns.firstWhere(
+        (col) => col.key == key,
+        orElse: () => AssetColumnDefinition(key: key, label: key),
+      );
+      return {'dataKey': key, 'label': colDef.label};
     }).toList();
   }
 
@@ -63,12 +98,8 @@ class _ModuleDialogState extends State<ModuleDialog> {
         'description': _descriptionController.text.trim(),
         'type': _selectedType.identifier,
         'is_active': _isActive,
+        'table_columns': _getSelectedColumnsData(),
       };
-
-      // Se estiver criando um novo módulo, adiciona as colunas padrão
-      if (widget.module == null) {
-        data['table_columns'] = _generateDefaultColumns();
-      }
 
       try {
         await widget.onSave(data);
@@ -87,6 +118,80 @@ class _ModuleDialogState extends State<ModuleDialog> {
         }
       }
     }
+  }
+
+  void _showAddColumnDialog() {
+    final themeController = ThemeController.to;
+    final isDark = themeController.isDarkMode;
+
+    // Filtra colunas que ainda não foram selecionadas
+    final unselectedColumns =
+        _availableColumns
+            .where((col) => !_selectedColumnKeys.contains(col.key))
+            .toList();
+
+    if (unselectedColumns.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Todas as colunas já foram selecionadas.'),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor:
+                isDark ? AppColors.surface : AppColors.surfaceLightMode,
+            title: Text(
+              'Adicionar Colunas',
+              style: TextStyle(
+                color:
+                    isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: SizedBox(
+              width: 400,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: unselectedColumns.length,
+                itemBuilder: (context, index) {
+                  final col = unselectedColumns[index];
+                  return ListTile(
+                    title: Text(
+                      col.label,
+                      style: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.textPrimary
+                                : AppColors.textPrimaryLight,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.add_circle_outline,
+                      color: AppColors.primary,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _selectedColumnKeys.add(col.key);
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
@@ -265,26 +370,145 @@ class _ModuleDialogState extends State<ModuleDialog> {
                               }).toList(),
                           onChanged: (value) {
                             if (value != null) {
-                              setState(() => _selectedType = value);
+                              setState(() {
+                                _selectedType = value;
+                                _loadAvailableColumns();
+                                _initializeSelectedColumns();
+                              });
                             }
                           },
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'As colunas da tabela serão configuradas automaticamente',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                        color:
-                            isDark
-                                ? AppColors.textSecondary
-                                : AppColors.textSecondaryLight,
-                      ),
-                    ),
                     const SizedBox(height: 16),
                   ],
+
+                  // Configuração de Colunas
+                  Text(
+                    'Colunas da Tabela (Arraste para reordenar)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color:
+                          isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryLight,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color:
+                          isDark
+                              ? AppColors.background
+                              : AppColors.surfaceLightVariant,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color:
+                            isDark ? AppColors.border : AppColors.borderLight,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        if (_selectedColumnKeys.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'Nenhuma coluna selecionada',
+                              style: TextStyle(
+                                color:
+                                    isDark
+                                        ? AppColors.textSecondary
+                                        : AppColors.textSecondaryLight,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          )
+                        else
+                          ReorderableListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: _selectedColumnKeys.length,
+                            onReorder: (oldIndex, newIndex) {
+                              setState(() {
+                                if (oldIndex < newIndex) {
+                                  newIndex -= 1;
+                                }
+                                final item = _selectedColumnKeys.removeAt(
+                                  oldIndex,
+                                );
+                                _selectedColumnKeys.insert(newIndex, item);
+                              });
+                            },
+                            itemBuilder: (context, index) {
+                              final key = _selectedColumnKeys[index];
+                              final colDef = _availableColumns.firstWhere(
+                                (c) => c.key == key,
+                                orElse:
+                                    () => AssetColumnDefinition(
+                                      key: key,
+                                      label: key,
+                                    ),
+                              );
+
+                              return ListTile(
+                                key: ValueKey(key),
+                                title: Text(
+                                  colDef.label,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color:
+                                        isDark
+                                            ? AppColors.textPrimary
+                                            : AppColors.textPrimaryLight,
+                                  ),
+                                ),
+                                leading: Icon(
+                                  Icons.drag_handle,
+                                  color:
+                                      isDark
+                                          ? AppColors.textSecondary
+                                          : AppColors.textSecondaryLight,
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(
+                                    Icons.close,
+                                    size: 18,
+                                    color: AppColors.danger,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedColumnKeys.removeAt(index);
+                                    });
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+
+                        Divider(
+                          height: 1,
+                          color:
+                              isDark ? AppColors.border : AppColors.borderLight,
+                        ),
+
+                        // Botão para adicionar colunas
+                        ListTile(
+                          leading: Icon(Icons.add, color: AppColors.primary),
+                          title: Text(
+                            'Adicionar Coluna',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                          onTap: _showAddColumnDialog,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
                   // Switch de Status (apenas para edição)
                   if (isEditMode) ...[
@@ -307,7 +531,7 @@ class _ModuleDialogState extends State<ModuleDialog> {
                           onChanged: (value) {
                             setState(() => _isActive = value);
                           },
-                          activeColor: AppColors.success,
+                          activeThumbColor: AppColors.success,
                         ),
                       ],
                     ),

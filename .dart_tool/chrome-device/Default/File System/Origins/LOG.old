@@ -1,5 +1,9 @@
-2025/11/20-16:39:09.541 35a0 Log #3: 3 ops saved to Table #4 OK
-2025/11/20-16:39:09.542 35a0 Archiving C:\Users\ADMINI~1\AppData\Local\Temp\flutter_tools.fa5e9d83\flutter_tools_chrome_device.ea80d891\Default\File System\Origins/000003.log: OK
-2025/11/20-16:39:09.543 35a0 Table #4: 3 entries OK
-2025/11/20-16:39:09.544 35a0 Archiving C:\Users\ADMINI~1\AppData\Local\Temp\flutter_tools.fa5e9d83\flutter_tools_chrome_device.ea80d891\Default\File System\Origins/MANIFEST-000001: OK
-2025/11/20-16:39:09.547 35a0 **** Repaired leveldb C:\Users\ADMINI~1\AppData\Local\Temp\flutter_tools.fa5e9d83\flutter_tools_chrome_device.ea80d891\Default\File System\Origins; recovered 1 files; 179 bytes. Some data may have been lost. ****
+2025/12/03-11:16:51.714 4d34 Reusing MANIFEST C:\Users\ALEXAN~1\AppData\Local\Temp\flutter_tools.7b9a69b1\flutter_tools_chrome_device.d0d0f5b3\Default\File System\Origins/MANIFEST-000001
+2025/12/03-11:16:51.714 4d34 Recovering log #3
+2025/12/03-11:16:51.714 4d34 Level-0 table #10: started
+2025/12/03-11:16:51.716 4d34 Level-0 table #10: 179 bytes OK
+2025/12/03-11:16:51.716 4d34 Recovering log #6
+2025/12/03-11:16:51.716 4d34 Recovering log #10
+2025/12/03-11:16:51.717 4d34 Reusing old log C:\Users\ALEXAN~1\AppData\Local\Temp\flutter_tools.7b9a69b1\flutter_tools_chrome_device.d0d0f5b3\Default\File System\Origins/000010.log 
+2025/12/03-11:16:51.718 4d34 Delete type=0 #3
+2025/12/03-11:16:51.718 4d34 Delete type=0 #6
