@@ -29,7 +29,6 @@ class BadgeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
       final badgeColor =
           customColor ?? _getColor(type, themeController.currentPalette);
 

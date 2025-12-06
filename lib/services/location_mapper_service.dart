@@ -1,24 +1,23 @@
-// File: lib/services/location_mapper_service.dart
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 
-
+/// Classe para armazenar dados de localização mapeados
 class LocationData {
+  final String unitName;
+  final String sector;
+  final String floor;
   final String locationName;
-  final String? unitName;
-  final String? sector;
-  final String? floor;
 
   LocationData({
+    required this.unitName,
+    required this.sector,
+    required this.floor,
     required this.locationName,
-    this.unitName,
-    this.sector,
-    this.floor,
   });
 }
 
 class LocationMapperService {
-  /// Mapeia localização completa de um dispositivo
+  /// Mapeia a localização de um dispositivo baseado em BSSID ou IP
   static LocationData mapLocation({
     required List<Unit> units,
     required List<BssidMapping> bssidMappings,
@@ -26,37 +25,43 @@ class LocationMapperService {
     required String macAddress,
     required String originalLocation,
   }) {
-    // 1. Tenta mapear pela Unidade (IP)
     String? unitName;
-    if (ip != 'N/A' && ip.isNotEmpty) {
+    String? sector;
+    String? floor;
+
+    // 1️⃣ Tentar mapear por BSSID (WiFi MAC Address) primeiro
+    if (macAddress.isNotEmpty && macAddress != 'N/A') {
+      final bssidMatch = bssidMappings.firstWhere(
+        (mapping) =>
+            mapping.macAddressRadio.toLowerCase() == macAddress.toLowerCase(),
+        orElse:
+            () => BssidMapping(
+              macAddressRadio: '',
+              sector: '',
+              floor: '',
+              unitName: '',
+            ),
+      );
+
+      if (bssidMatch.macAddressRadio.isNotEmpty) {
+        unitName = bssidMatch.unitName.isNotEmpty ? bssidMatch.unitName : null;
+        sector = bssidMatch.sector.isNotEmpty ? bssidMatch.sector : null;
+        floor = bssidMatch.floor.isNotEmpty ? bssidMatch.floor : null;
+      }
+    }
+
+    // 2️⃣ Se BSSID não funcionou, tentar mapear por IP
+    if (unitName == null && ip.isNotEmpty && ip != 'N/A') {
       for (final unit in units) {
-        if (_isIpInRange(ip, unit.ipRanges)) {
+        if (_isIpInRangeStatic(ip, unit.ipRanges)) {
           unitName = unit.name;
           break;
         }
       }
     }
 
-    // 2. Tenta mapear Setor e Andar pelo BSSID (MAC Address)
-    String? sector;
-    String? floor;
-
-    if (macAddress != 'N/A' && macAddress.isNotEmpty) {
-      final bssidMapping = _findBssidMapping(macAddress, bssidMappings);
-
-      if (bssidMapping != null) {
-        sector = bssidMapping.sector.isNotEmpty ? bssidMapping.sector : null;
-        floor = bssidMapping.floor.isNotEmpty ? bssidMapping.floor : null;
-
-        // Se não encontrou Unit por IP, usa do BSSID
-        if (unitName == null && bssidMapping.unitName.isNotEmpty) {
-          unitName = bssidMapping.unitName;
-        }
-      }
-    }
-
-    // 3. Constrói string final de localização
-    String finalLocation = _buildLocationString(
+    // 3️⃣ Construir a string de localização
+    final locationName = _buildLocationStringStatic(
       unitName: unitName,
       sector: sector,
       floor: floor,
@@ -64,65 +69,15 @@ class LocationMapperService {
     );
 
     return LocationData(
-      locationName: finalLocation,
-      unitName: unitName,
-      sector: sector,
-      floor: floor,
+      unitName: unitName ?? 'Desconhecido',
+      sector: sector ?? 'Desconhecido',
+      floor: floor ?? 'Desconhecido',
+      locationName: locationName,
     );
   }
 
-  // ===================================================================
-  // ✅ FUNÇÃO ATUALIZADA (COM LOGS E NORMALIZAÇÃO ROBUSTA)
-  // ===================================================================
-  static BssidMapping? _findBssidMapping(
-    String macAddress,
-    List<BssidMapping> mappings,
-  ) {
-    if (macAddress.isEmpty || macAddress == 'N/A') {
-      print('⚠️ MAC Address inválido: "$macAddress"');
-      return null;
-    }
-
-    // ✅ NORMALIZAÇÃO ROBUSTA
-    final normalizedMac = macAddress
-        .toUpperCase()
-        .replaceAll('-', ':')
-        .replaceAll('.', ':')
-        .replaceAll(' ', ''); // ✅ REMOVE ESPAÇOS
-
-    print('🔍 Procurando BSSID: $normalizedMac');
-    print('   Total de BSSIDs no banco: ${mappings.length}');
-
-    for (final mapping in mappings) {
-      final normalizedMappingMac = mapping.macAddressRadio
-          .toUpperCase()
-          .replaceAll('-', ':')
-          .replaceAll('.', ':')
-          .replaceAll(' ', '');
-
-      if (normalizedMappingMac == normalizedMac) {
-        print('✅ BSSID ENCONTRADO: ${mapping.macAddressRadio}');
-        print(
-            '   Setor: ${mapping.sector}, Andar: ${mapping.floor}, Unidade: ${mapping.unitName}');
-        return mapping;
-      }
-    }
-
-    print('❌ BSSID NÃO ENCONTRADO: $normalizedMac');
-    print('   BSSIDs disponíveis:');
-    for (var m in mappings.take(5)) {
-      // Mostra apenas os 5 primeiros
-      print('   - ${m.macAddressRadio}');
-    }
-
-    return null;
-  }
-  // ===================================================================
-  // FIM DA SEÇÃO ATUALIZADA
-  // ===================================================================
-
-  /// Constrói a string de localização formatada
-  static String _buildLocationString({
+  /// Constrói a string de localização formatada (versão estática)
+  static String _buildLocationStringStatic({
     String? unitName,
     String? sector,
     String? floor,
@@ -149,13 +104,13 @@ class LocationMapperService {
     return parts.join(' - ');
   }
 
-  /// Verifica se um IP está dentro de uma faixa
-  static bool _isIpInRange(String ip, List<IpRange> ranges) {
+  /// Verifica se um IP está dentro de uma faixa (versão estática)
+  static bool _isIpInRangeStatic(String ip, List<IpRange> ranges) {
     try {
-      final ipNum = _ipToInt(ip);
+      final ipNum = _ipToIntStatic(ip);
       for (final range in ranges) {
-        final startNum = _ipToInt(range.start);
-        final endNum = _ipToInt(range.end);
+        final startNum = _ipToIntStatic(range.start);
+        final endNum = _ipToIntStatic(range.end);
         if (ipNum >= startNum && ipNum <= endNum) {
           return true;
         }
@@ -166,8 +121,8 @@ class LocationMapperService {
     }
   }
 
-  /// Converte IP string para inteiro
-  static int _ipToInt(String ip) {
+  /// Converte IP string para inteiro (versão estática)
+  static int _ipToIntStatic(String ip) {
     final parts = ip.split('.').map(int.parse).toList();
     return (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3];
   }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/logger_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
 class CommandService {
@@ -83,7 +84,11 @@ class CommandService {
       }
       return [];
     } catch (e) {
-      print('❌ Erro ao buscar histórico: $e');
+      logger.error(
+        'Erro ao buscar histórico de comandos',
+        tag: 'CommandService.getCommandHistory',
+        error: e,
+      );
       return [];
     }
   }

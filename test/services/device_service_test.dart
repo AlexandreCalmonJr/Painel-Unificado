@@ -3,21 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
-import 'package:painel_windowns/services/device_service.dart';
-import 'package:painel_windowns/models/unit.dart';
-import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'dart:convert';
 
 @GenerateMocks([http.Client])
 import 'device_service_test.mocks.dart';
 
 void main() {
-  late DeviceService deviceService;
   late MockClient mockClient;
-  const testToken = 'test-token-123';
 
   setUp(() {
-    deviceService = DeviceService();
     mockClient = MockClient();
   });
 
@@ -80,10 +74,6 @@ void main() {
     });
 
     test('addBssidMapping should send POST request', () async {
-      const unitName = 'Unidade A';
-      const bssid = 'AA:BB:CC:DD:EE:FF';
-      const location = 'Sala 101';
-
       when(
         mockClient.post(
           any,
@@ -106,8 +96,6 @@ void main() {
     });
 
     test('deleteBssidMapping should send DELETE request', () async {
-      const bssid = 'AA:BB:CC:DD:EE:FF';
-
       when(mockClient.delete(any, headers: anyNamed('headers'))).thenAnswer(
         (_) async => http.Response(json.encode({'success': true}), 200),
       );

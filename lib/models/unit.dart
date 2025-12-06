@@ -1,5 +1,4 @@
 // Um novo helper class para a faixa de IP
-import 'dart:convert';
 
 class IpRange {
   final String start;

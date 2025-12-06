@@ -119,6 +119,7 @@ class Desktop extends ManagedAsset {
         macAddress: macAddressRadio, // ✅ Usar BSSID em vez de MAC
         originalLocation: location ?? 'N/D',
       );
+      
 
       unit ??= locationData.unitName;
       sector ??= locationData.sector;

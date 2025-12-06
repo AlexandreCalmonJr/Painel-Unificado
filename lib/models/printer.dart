@@ -7,7 +7,6 @@ import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
 
 /// Modelo completo para Impressoras
-/// Modelo completo para Impressoras
 class Printer extends ManagedAsset {
   final String hostname;
   final String model;
@@ -32,6 +31,10 @@ class Printer extends ManagedAsset {
   final String? driverVersion;
   final DateTime? lastMaintenanceDate;
   final Map<String, dynamic>? maintenanceInfo;
+  final bool maintenanceStatus;
+  final String? maintenanceTicket;
+  final String? maintenanceReason;
+  final List<Map<String, dynamic>>? maintenanceHistory;
 
   Printer({
     required super.id,
@@ -68,13 +71,17 @@ class Printer extends ManagedAsset {
     this.driverVersion,
     this.lastMaintenanceDate,
     this.maintenanceInfo,
+    this.maintenanceStatus = false,
+    this.maintenanceTicket,
+    this.maintenanceReason,
+    this.maintenanceHistory,
   }) : super(assetType: 'printer');
 
   factory Printer.fromJson(
-    Map<String, dynamic> json, 
-    List<Unit> units,
-    [List<BssidMapping>? bssidMappings]
-  ) {
+    Map<String, dynamic> json,
+    List<Unit> units, [
+    List<BssidMapping>? bssidMappings,
+  ]) {
     // ✅ PRIORIZA DADOS DO SERVIDOR
     String? unit = json['unit'];
     String? sector = json['sector'];
@@ -85,14 +92,14 @@ class Printer extends ManagedAsset {
     final effectiveIp = json['ip_address'] ?? json['host_computer_ip'] ?? '';
 
     // 🔥 SÓ MAPEIA SE AUSENTE OU INVÁLIDO
-    final bool shouldMap = 
-      (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
-      (sector == null || sector == 'Desconhecido') ||
-      (floor == null || floor == 'Desconhecido');
+    final bool shouldMap =
+        (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
+        (sector == null || sector == 'Desconhecido') ||
+        (floor == null || floor == 'Desconhecido');
 
     if (shouldMap) {
       print('⚠️ Printer ${json['serial_number']}: Mapeando localização...');
-      
+
       final locationData = LocationMapperService.mapLocation(
         units: units,
         bssidMappings: bssidMappings ?? [],
@@ -105,7 +112,7 @@ class Printer extends ManagedAsset {
       sector ??= locationData.sector;
       floor ??= locationData.floor;
       location ??= locationData.locationName;
-      
+
       print('✅ Mapeamento: Unit=$unit | Sector=$sector | Floor=$floor');
     }
 
@@ -117,9 +124,10 @@ class Printer extends ManagedAsset {
       lastSeen: DateTime.parse(json['last_seen']),
       location: location,
       assignedTo: json['assigned_to'],
-      customData: json['custom_data'] != null 
-          ? Map<String, dynamic>.from(json['custom_data']) 
-          : {},
+      customData:
+          json['custom_data'] != null
+              ? Map<String, dynamic>.from(json['custom_data'])
+              : {},
 
       unit: unit,
       sector: sector,
@@ -137,25 +145,36 @@ class Printer extends ManagedAsset {
       totalPageCount: json['total_page_count'],
       colorPageCount: json['color_page_count'],
       blackWhitePageCount: json['black_white_page_count'],
-      tonerLevels: json['toner_levels'] != null
-          ? Map<String, dynamic>.from(json['toner_levels'])
-          : null,
+      tonerLevels:
+          json['toner_levels'] != null
+              ? Map<String, dynamic>.from(json['toner_levels'])
+              : null,
       paperLevel: json['paper_level'],
       isDuplex: json['is_duplex'],
       isColor: json['is_color'],
-      supportedPaperSizes: json['supported_paper_sizes'] != null
-          ? List<String>.from(json['supported_paper_sizes'])
-          : null,
+      supportedPaperSizes:
+          json['supported_paper_sizes'] != null
+              ? List<String>.from(json['supported_paper_sizes'])
+              : null,
       hostComputerName: json['host_computer_name'],
       hostComputerIp: json['host_computer_ip'],
       firmwareVersion: json['firmware_version'],
       driverVersion: json['driver_version'],
-      lastMaintenanceDate: json['last_maintenance_date'] != null
-          ? DateTime.parse(json['last_maintenance_date'])
-          : null,
-      maintenanceInfo: json['maintenance_info'] != null
-          ? Map<String, dynamic>.from(json['maintenance_info'])
-          : null,
+      lastMaintenanceDate:
+          json['last_maintenance_date'] != null
+              ? DateTime.parse(json['last_maintenance_date'])
+              : null,
+      maintenanceInfo:
+          json['maintenance_info'] != null
+              ? Map<String, dynamic>.from(json['maintenance_info'])
+              : null,
+      maintenanceStatus: json['maintenance_status'] ?? false,
+      maintenanceTicket: json['maintenance_ticket'],
+      maintenanceReason: json['maintenance_reason'],
+      maintenanceHistory:
+          json['maintenance_history'] != null
+              ? List<Map<String, dynamic>>.from(json['maintenance_history'])
+              : null,
     );
   }
 
@@ -173,10 +192,11 @@ class Printer extends ManagedAsset {
       'unit': unit,
       'sector': sector,
       'floor': floor,
-      'sector_floor': (sector != null || floor != null)
-          ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
-          : (location ?? 'N/D'),
-      
+      'sector_floor':
+          (sector != null || floor != null)
+              ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
+              : (location ?? 'N/D'),
+
       'hostname': hostname,
       'model': model,
       'manufacturer': manufacturer,
@@ -200,16 +220,18 @@ class Printer extends ManagedAsset {
       'driver_version': driverVersion,
       'last_maintenance_date': lastMaintenanceDate?.toIso8601String(),
       'maintenance_info': maintenanceInfo,
+      'maintenance_status': maintenanceStatus,
+      'maintenance_ticket': maintenanceTicket,
+      'maintenance_reason': maintenanceReason,
+      'maintenance_history': maintenanceHistory,
     };
   }
-  
+
   String getTonerStatusSummary() {
     if (tonerLevels == null || tonerLevels!.isEmpty) return 'N/D';
-    return tonerLevels!.entries
-        .map((e) => '${e.key}: ${e.value}%')
-        .join(', ');
+    return tonerLevels!.entries.map((e) => '${e.key}: ${e.value}%').join(', ');
   }
-  
+
   bool get hasLowToner {
     if (tonerLevels == null) return false;
     return tonerLevels!.values.any((level) => level is int && level < 20);

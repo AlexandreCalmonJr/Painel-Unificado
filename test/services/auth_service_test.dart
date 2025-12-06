@@ -5,15 +5,12 @@ import 'package:mockito/mockito.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:painel_windowns/services/auth_service.dart';
-
 // Gera mocks automaticamente com build_runner
 @GenerateMocks([http.Client])
 import 'auth_service_test.mocks.dart';
 
 void main() {
   group('AuthService Tests', () {
-    late AuthService authService;
     late MockClient mockClient;
 
     setUp(() {
@@ -33,15 +30,17 @@ void main() {
           'id': '1',
           'username': 'testuser',
           'role': 'admin',
-          'permissions': ['read', 'write']
-        }
+          'permissions': ['read', 'write'],
+        },
       });
 
-      when(mockClient.post(
-        any,
-        headers: anyNamed('headers'),
-        body: anyNamed('body'),
-      )).thenAnswer((_) async => http.Response(responseBody, 200));
+      when(
+        mockClient.post(
+          any,
+          headers: anyNamed('headers'),
+          body: anyNamed('body'),
+        ),
+      ).thenAnswer((_) async => http.Response(responseBody, 200));
 
       // Act
       // final result = await authService.login('testuser', 'password123');
@@ -54,15 +53,15 @@ void main() {
 
     test('login com credenciais inválidas retorna erro', () async {
       // Arrange
-      final responseBody = jsonEncode({
-        'message': 'Credenciais inválidas'
-      });
+      final responseBody = jsonEncode({'message': 'Credenciais inválidas'});
 
-      when(mockClient.post(
-        any,
-        headers: anyNamed('headers'),
-        body: anyNamed('body'),
-      )).thenAnswer((_) async => http.Response(responseBody, 401));
+      when(
+        mockClient.post(
+          any,
+          headers: anyNamed('headers'),
+          body: anyNamed('body'),
+        ),
+      ).thenAnswer((_) async => http.Response(responseBody, 401));
 
       // Act
       // final result = await authService.login('testuser', 'wrongpassword');
@@ -75,11 +74,13 @@ void main() {
 
     test('login com timeout lança NetworkException', () async {
       // Arrange
-      when(mockClient.post(
-        any,
-        headers: anyNamed('headers'),
-        body: anyNamed('body'),
-      )).thenThrow(Exception('Timeout'));
+      when(
+        mockClient.post(
+          any,
+          headers: anyNamed('headers'),
+          body: anyNamed('body'),
+        ),
+      ).thenThrow(Exception('Timeout'));
 
       // Act & Assert
       // expect(
@@ -93,14 +94,16 @@ void main() {
       // Simula login primeiro
       final responseBody = jsonEncode({
         'token': 'fake_token',
-        'user': {'id': '1', 'username': 'testuser', 'role': 'user'}
+        'user': {'id': '1', 'username': 'testuser', 'role': 'user'},
       });
 
-      when(mockClient.post(
-        any,
-        headers: anyNamed('headers'),
-        body: anyNamed('body'),
-      )).thenAnswer((_) async => http.Response(responseBody, 200));
+      when(
+        mockClient.post(
+          any,
+          headers: anyNamed('headers'),
+          body: anyNamed('body'),
+        ),
+      ).thenAnswer((_) async => http.Response(responseBody, 200));
 
       // await authService.login('testuser', 'password123');
 
@@ -119,13 +122,12 @@ void main() {
         'users': [
           {'id': '1', 'username': 'user1', 'role': 'user'},
           {'id': '2', 'username': 'user2', 'role': 'admin'},
-        ]
+        ],
       });
 
-      when(mockClient.get(
-        any,
-        headers: anyNamed('headers'),
-      )).thenAnswer((_) async => http.Response(usersResponse, 200));
+      when(
+        mockClient.get(any, headers: anyNamed('headers')),
+      ).thenAnswer((_) async => http.Response(usersResponse, 200));
 
       // Act
       // final result = await authService.getUsers();
@@ -141,14 +143,16 @@ void main() {
       final createResponse = jsonEncode({
         'success': true,
         'message': 'Usuário criado com sucesso',
-        'user': {'id': '3', 'username': 'newuser', 'role': 'user'}
+        'user': {'id': '3', 'username': 'newuser', 'role': 'user'},
       });
 
-      when(mockClient.post(
-        any,
-        headers: anyNamed('headers'),
-        body: anyNamed('body'),
-      )).thenAnswer((_) async => http.Response(createResponse, 201));
+      when(
+        mockClient.post(
+          any,
+          headers: anyNamed('headers'),
+          body: anyNamed('body'),
+        ),
+      ).thenAnswer((_) async => http.Response(createResponse, 201));
 
       // Act
       // final result = await authService.createUser({

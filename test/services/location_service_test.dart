@@ -3,8 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
-import 'package:painel_windowns/services/location_service.dart';
-import 'package:painel_windowns/models/location.dart';
 import 'dart:convert';
 
 @GenerateMocks([http.Client])
@@ -12,7 +10,6 @@ import 'location_service_test.mocks.dart';
 
 void main() {
   late MockClient mockClient;
-  const testToken = 'test-token-123';
 
   setUp(() {
     mockClient = MockClient();
@@ -51,12 +48,6 @@ void main() {
     });
 
     test('createLocation should send POST request with location data', () async {
-      final locationData = {
-        'name': 'Nova Sala',
-        'ip_ranges': ['192.168.3.0/24'],
-        'bssids': ['AA:BB:CC:DD:EE:FF'],
-      };
-
       when(
         mockClient.post(
           any,
@@ -77,11 +68,6 @@ void main() {
     });
 
     test('updateLocation should send PUT request', () async {
-      const locationName = 'Sala 101';
-      final updateData = {
-        'ip_ranges': ['192.168.1.0/24', '192.168.10.0/24'],
-      };
-
       when(
         mockClient.put(
           any,
@@ -102,8 +88,6 @@ void main() {
     });
 
     test('deleteLocation should send DELETE request', () async {
-      const locationName = 'Sala 101';
-
       when(mockClient.delete(any, headers: anyNamed('headers'))).thenAnswer(
         (_) async => http.Response(json.encode({'success': true}), 200),
       );

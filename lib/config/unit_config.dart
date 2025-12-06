@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/services/logger_service.dart';
 import 'package:path_provider/path_provider.dart';
 
 class UnitConfig {
@@ -21,7 +22,11 @@ class UnitConfig {
             .toList();
       }
     } catch (e) {
-      print('Erro ao carregar unidades do arquivo local: $e');
+      logger.error(
+        'Erro ao carregar unidades do arquivo local',
+        tag: 'UnitConfig.loadUnits',
+        error: e,
+      );
     }
     return [];
   }
@@ -32,7 +37,11 @@ class UnitConfig {
       final json = units.map((unit) => unit.toJson()).toList();
       await file.writeAsString(jsonEncode(json));
     } catch (e) {
-      print('Erro ao salvar unidades no arquivo local: $e');
+      logger.error(
+        'Erro ao salvar unidades no arquivo local',
+        tag: 'UnitConfig.saveUnits',
+        error: e,
+      );
     }
   }
 }

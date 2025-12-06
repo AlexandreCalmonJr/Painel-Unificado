@@ -6,8 +6,6 @@ import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:painel_windowns/admin/tabs/admin_locations_tab.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
-import 'package:painel_windowns/models/location.dart';
-import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/location_service.dart';
 import 'package:painel_windowns/services/device_service.dart';

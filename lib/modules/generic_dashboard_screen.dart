@@ -198,21 +198,6 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     );
   }
 
-  // --- Funções de Diálogo (Edit/Delete) ---
-  // (Estas funções são chamadas pelo asset_command_controls.dart agora,
-  // mas podem ser mantidas aqui se você quiser adicionar um pop-up de "Editar")
-
-  // Exemplo: _showEditAssetDialog é chamado por asset_command_controls
-  // (Você precisará implementar o pop-up de edição)
-  Future<void> _showEditAssetDialog(ManagedAsset asset) async {
-    _showSnackbar(
-      'Função "Editar" para ${asset.assetName} não implementada.',
-      isError: true,
-    );
-    // Após salvar a edição, chame _loadAssets
-    // _loadAssets(isInitialLoad: true);
-  }
-
   // _showDeleteAssetDialog não é mais necessário aqui,
   // pois asset_command_controls.dart cuida do pop-up de deleção.
 
