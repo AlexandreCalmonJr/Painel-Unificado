@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:painel_windowns/models/totem.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/totem/totem_detail_screen.dart';
+import 'package:painel_windowns/utils/status_formatter.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Widget que exibe uma lista de totens em um cartão com uma tabela
@@ -24,7 +25,9 @@ class ManagedTotemsCard extends StatelessWidget {
 
   /// Gera e baixa um arquivo CSV com os dados dos totens
   Future<void> _downloadTotemsCsv(
-      BuildContext context, List<Totem> totemsToExport) async {
+    BuildContext context,
+    List<Totem> totemsToExport,
+  ) async {
     final headers = [
       'Hostname',
       'Status',
@@ -36,26 +39,27 @@ class ManagedTotemsCard extends StatelessWidget {
       'Tipo de Totem',
       'Mozilla Firefox',
       'Java',
-      'Última Sincronização'
+      'Última Sincronização',
     ];
 
-    final rows = totemsToExport.map((totem) {
-      return [
-        totem.hostname,
-        totem.status,
-        totem.ip,
-        totem.location,
-        totem.serialNumber,
-        totem.zebraStatus,
-        totem.bematechStatus,
-        totem.totemType,
-        totem.mozillaVersion,
-        totem.javaVersion,
-        DateFormat('dd/MM/yyyy HH:mm:ss').format(totem.lastSeen),
-      ]
-          .map((value) => '"${value.toString().replaceAll('"', '""')}"')
-          .join(',');
-    }).toList();
+    final rows =
+        totemsToExport.map((totem) {
+          return [
+                totem.hostname,
+                totem.status,
+                totem.ip,
+                totem.location,
+                totem.serialNumber,
+                StatusFormatter.formatPeripheralStatus(totem.zebraStatus),
+                StatusFormatter.formatPeripheralStatus(totem.bematechStatus),
+                totem.totemType,
+                totem.mozillaVersion,
+                totem.javaVersion,
+                DateFormat('dd/MM/yyyy HH:mm:ss').format(totem.lastSeen),
+              ]
+              .map((value) => '"${value.toString().replaceAll('"', '""')}"')
+              .join(',');
+        }).toList();
 
     final csvContent = [headers.join(','), ...rows].join('\n');
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -85,8 +89,10 @@ class ManagedTotemsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Ordena os totens por hostname
     List<Totem> sortedTotems = List.from(totems);
-    sortedTotems.sort((a, b) =>
-        (a.hostname).toLowerCase().compareTo((b.hostname).toLowerCase()));
+    sortedTotems.sort(
+      (a, b) =>
+          (a.hostname).toLowerCase().compareTo((b.hostname).toLowerCase()),
+    );
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -143,16 +149,16 @@ class ManagedTotemsCard extends StatelessWidget {
                   ),
                 ),
                 columnWidths: const {
-                  0: FlexColumnWidth(2.0),  // Hostname
-                  1: FlexColumnWidth(1.2),  // Status
-                  2: FlexColumnWidth(1.5),  // IP
-                  3: FlexColumnWidth(2.0),  // Localização
-                  4: FlexColumnWidth(1.5),  // Serial
-                  5: FlexColumnWidth(1.3),  // Status Zebra
-                  6: FlexColumnWidth(1.5),  // Status Bematech
-                  7: FlexColumnWidth(1.3),  // Tipo de Totem
-                  8: FlexColumnWidth(1.2),  // Mozilla
-                  9: FlexColumnWidth(1.2),  // Java
+                  0: FlexColumnWidth(2.0), // Hostname
+                  1: FlexColumnWidth(1.2), // Status
+                  2: FlexColumnWidth(1.5), // IP
+                  3: FlexColumnWidth(2.0), // Localização
+                  4: FlexColumnWidth(1.5), // Serial
+                  5: FlexColumnWidth(1.3), // Status Zebra
+                  6: FlexColumnWidth(1.5), // Status Bematech
+                  7: FlexColumnWidth(1.3), // Tipo de Totem
+                  8: FlexColumnWidth(1.2), // Mozilla
+                  9: FlexColumnWidth(1.2), // Java
                   10: FlexColumnWidth(1.8), // Última Sincronização
                 },
                 children: [
@@ -203,14 +209,19 @@ class ManagedTotemsCard extends StatelessWidget {
       children: [
         _buildClickableTotemCell(context, totem),
         TableCell(
-            child: Center(
-                child: _buildStatusChip(
-                    totem.status, getStatusColor(totem.status)))),
+          child: Center(
+            child: _buildStatusChip(totem.status, getStatusColor(totem.status)),
+          ),
+        ),
         _buildTableCell(totem.ip),
         _buildTableCell(totem.unit ?? totem.location!),
         _buildTableCell(totem.serialNumber),
-        _buildTableCell(totem.zebraStatus),
-        _buildTableCell(totem.bematechStatus),
+        _buildTableCell(
+          StatusFormatter.formatPeripheralStatus(totem.zebraStatus),
+        ),
+        _buildTableCell(
+          StatusFormatter.formatPeripheralStatus(totem.bematechStatus),
+        ),
         _buildTableCell(totem.totemType),
         _buildTableCell(totem.mozillaVersion),
         _buildTableCell(totem.javaVersion),
@@ -219,30 +230,32 @@ class ManagedTotemsCard extends StatelessWidget {
     );
   }
 
-Widget _buildClickableTotemCell(BuildContext context, Totem totem) {
-  return TableCell(
-    verticalAlignment: TableCellVerticalAlignment.middle,
-    child: InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TotemDetailScreen(
-            totem: totem,
-            authService: authService, // ✅ Adicione esta linha
+  Widget _buildClickableTotemCell(BuildContext context, Totem totem) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: InkWell(
+        onTap:
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => TotemDetailScreen(
+                      totem: totem,
+                      authService: authService, // ✅ Adicione esta linha
+                    ),
+              ),
+            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+          child: Text(
+            totem.hostname,
+            style: const TextStyle(fontWeight: FontWeight.w500),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-        child: Text(
-          totem.hostname,
-          style: const TextStyle(fontWeight: FontWeight.w500),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildTableCell(String text) {
     return TableCell(

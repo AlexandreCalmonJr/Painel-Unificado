@@ -1,96 +1,132 @@
 // File: lib/services/websocket_service.dart
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io'; // Necessário para WebSocket
+import 'dart:io';
 
-import 'package:flutter/material.dart'; // Necessário para Colors
-import 'package:get/get.dart'; // Necessário para Get.snackbar
-import 'package:logger/logger.dart'; // Necessário para Logger
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 
 class WebSocketService {
   final Logger _logger;
   WebSocket? _socket;
   final _controller = StreamController<Map<String, dynamic>>.broadcast();
+  Timer? _heartbeatTimer;
+  Timer? _reconnectTimer;
+  bool _isDisposed = false;
+  String? _serverUrl;
 
-  WebSocketService(this._logger); // Adicionei o construtor que faltava
+  WebSocketService(this._logger);
 
   Stream<Map<String, dynamic>> get stream => _controller.stream;
 
   Future<void> connect(String serverUrl) async {
+    _serverUrl = serverUrl;
+    if (_socket != null && _socket!.readyState == WebSocket.open) return;
+
     try {
       final wsUrl = serverUrl.replaceFirst('http', 'ws');
-      _socket = await WebSocket.connect('$wsUrl/ws');
+      _logger.i('🔌 Conectando WebSocket em $wsUrl/ws...');
 
-      _logger.i('✅ WebSocket conectado');
+      // Conecta com timeout
+      _socket = await WebSocket.connect(
+        '$wsUrl/ws',
+      ).timeout(Duration(seconds: 5));
+
+      _logger.i('✅ WebSocket conectado!');
+
+      // Envia registro inicial
+      _sendRegister();
+
+      // Inicia heartbeat
+      _startHeartbeat();
 
       _socket!.listen(
         (message) {
-          final data = json.decode(message);
-          _controller.add(data);
-          _handleNotification(data);
+          try {
+            final data = json.decode(message);
+            _controller.add(data);
+            _handleNotification(data);
+          } catch (e) {
+            _logger.e('Erro ao processar mensagem WS: $e');
+          }
         },
-        onError: (error) => _logger.e('WebSocket error: $error'),
+        onError: (error) {
+          _logger.e('❌ WebSocket error: $error');
+          _scheduleReconnect();
+        },
         onDone: () {
-          _logger.w('WebSocket desconectado. Reconectando...');
-          Future.delayed(Duration(seconds: 5), () => connect(serverUrl));
+          _logger.w('🔌 WebSocket desconectado.');
+          _scheduleReconnect();
         },
       );
     } catch (e) {
-      _logger.e('Erro ao conectar WebSocket: $e');
+      _logger.e('❌ Falha na conexão WebSocket: $e');
+      _scheduleReconnect();
+    }
+  }
+
+  void _sendRegister() {
+    if (_socket?.readyState == WebSocket.open) {
+      final hostname = Platform.localHostname;
+      _socket!.add(
+        json.encode({
+          'type': 'register',
+          'hostname': hostname,
+          'platform': Platform.operatingSystem,
+        }),
+      );
+    }
+  }
+
+  void _startHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+      if (_socket?.readyState == WebSocket.open) {
+        _socket!.add(json.encode({'type': 'heartbeat'}));
+      }
+    });
+  }
+
+  void _scheduleReconnect() {
+    if (_isDisposed) return;
+
+    _heartbeatTimer?.cancel();
+    if (_reconnectTimer?.isActive ?? false) return;
+
+    _logger.i('🔄 Tentando reconectar em 5 segundos...');
+    _reconnectTimer = Timer(Duration(seconds: 5), () {
+      if (_serverUrl != null) {
+        connect(_serverUrl!);
+      }
+    });
+  }
+
+  Future<void> sendShutdownSignal() async {
+    if (_socket?.readyState == WebSocket.open) {
+      _logger.w('🛑 Enviando sinal de SHUTDOWN...');
+      final hostname = Platform.localHostname;
+      _socket!.add(json.encode({'type': 'shutdown', 'hostname': hostname}));
+      // Aguarda um pouco para garantir o envio
+      await Future.delayed(Duration(milliseconds: 500));
+      await _socket!.close();
     }
   }
 
   void _handleNotification(Map<String, dynamic> data) {
     final type = data['type'];
-
-    switch (type) {
-      case 'device_offline':
-        _showNotification(
-          'Dispositivo Offline',
-          '${data['device_name']} está offline há ${data['duration']}',
-          NotificationType.warning,
-        );
-        break;
-
-      case 'device_online':
-        _showNotification(
-          'Dispositivo Online',
-          '${data['device_name']} voltou a ficar online',
-          NotificationType.success,
-        );
-        break;
-
-      case 'maintenance_required':
-        _showNotification(
-          'Manutenção Necessária',
-          '${data['device_name']}: ${data['reason']}',
-          NotificationType.error,
-        );
-        break;
+    // Implementar lógica de notificação se necessário
+    // Por enquanto, apenas loga
+    if (type == 'device_offline' || type == 'device_online') {
+      _logger.d('Status update received: $type');
     }
   }
 
-  void _showNotification(String title, String message, NotificationType type) {
-    // Integra com sistema de notificações do Flutter
-    Get.snackbar(
-      title,
-      message,
-      backgroundColor: type == NotificationType.error
-          ? Colors.red
-          : type == NotificationType.warning
-              ? Colors.orange
-              : Colors.green,
-      colorText: Colors.white,
-      duration: Duration(seconds: 5),
-      snackPosition: SnackPosition.TOP,
-    );
-  }
-
-  // Adicionei um método para fechar a conexão
   void dispose() {
+    _isDisposed = true;
+    _heartbeatTimer?.cancel();
+    _reconnectTimer?.cancel();
     _socket?.close();
     _controller.close();
   }
 }
-
-enum NotificationType { success, warning, error }
