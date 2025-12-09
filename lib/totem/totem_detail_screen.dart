@@ -237,6 +237,8 @@ class TotemDetailScreen extends StatelessWidget {
           const Divider(height: 32),
           _buildSectionTitle('Rede'),
           _buildDetailRow('IP', totem.ip),
+          _buildDetailRow('MAC Address', totem.macAddress),
+          _buildDetailRow('BSSID', totem.macAddressRadio),
           _buildDetailRow(
             'Última vez visto',
             DateFormat('dd/MM/yyyy HH:mm:ss').format(totem.lastSeen.toLocal()),

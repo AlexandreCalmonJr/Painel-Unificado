@@ -1,20 +1,20 @@
-// File: lib/services/websocket_service.dart
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketService {
   final Logger _logger;
-  WebSocket? _socket;
+  WebSocketChannel? _channel;
   final _controller = StreamController<Map<String, dynamic>>.broadcast();
   Timer? _heartbeatTimer;
   Timer? _reconnectTimer;
   bool _isDisposed = false;
   String? _serverUrl;
+  bool _isConnected = false;
 
   WebSocketService(this._logger);
 
@@ -22,27 +22,29 @@ class WebSocketService {
 
   Future<void> connect(String serverUrl) async {
     _serverUrl = serverUrl;
-    if (_socket != null && _socket!.readyState == WebSocket.open) return;
+    // Se já estiver conectado na mesma URL, não faz nada
+    if (_isConnected && _channel != null) return;
 
     try {
       final wsUrl = serverUrl.replaceFirst('http', 'ws');
-      _logger.i('🔌 Conectando WebSocket em $wsUrl/ws...');
+      _logger.i('🔌 Tentando conectar WebSocket em $wsUrl/ws...');
 
-      // Conecta com timeout
-      _socket = await WebSocket.connect(
-        '$wsUrl/ws',
-      ).timeout(Duration(seconds: 5));
+      final uri = Uri.parse('$wsUrl/ws');
+      _channel = WebSocketChannel.connect(uri);
 
-      _logger.i('✅ WebSocket conectado!');
+      // Aguarda a primeira mensagem ou erro para confirmar conexão
+      // Na verdade, WebSocketChannel não tem callback de "conectado" explícito sem IO.
+      // Vamos assumir que está tentando e monitorar o stream.
 
-      // Envia registro inicial
-      _sendRegister();
-
-      // Inicia heartbeat
-      _startHeartbeat();
-
-      _socket!.listen(
+      _channel!.stream.listen(
         (message) {
+          if (!_isConnected) {
+            _isConnected = true;
+            _logger.i('✅ WebSocket conectado com sucesso em $wsUrl!');
+            _sendRegister();
+            _startHeartbeat();
+          }
+
           try {
             final data = json.decode(message);
             _controller.add(data);
@@ -53,37 +55,55 @@ class WebSocketService {
         },
         onError: (error) {
           _logger.e('❌ WebSocket error: $error');
+          _isConnected = false;
           _scheduleReconnect();
         },
         onDone: () {
           _logger.w('🔌 WebSocket desconectado.');
+          _isConnected = false;
           _scheduleReconnect();
         },
       );
+
+      // Envia um ping inicial para forçar a verificação da conexão
+      // Se falhar, vai cair no onError
+      // Mas só podemos enviar se o sink estiver aberto.
+      // O sink do WebSocketChannel geralmente está pronto.
     } catch (e) {
-      _logger.e('❌ Falha na conexão WebSocket: $e');
+      _logger.e('❌ Falha ao iniciar conexão WebSocket: $e');
+      _isConnected = false;
       _scheduleReconnect();
     }
   }
 
   void _sendRegister() {
-    if (_socket?.readyState == WebSocket.open) {
-      final hostname = Platform.localHostname;
-      _socket!.add(
-        json.encode({
-          'type': 'register',
-          'hostname': hostname,
-          'platform': Platform.operatingSystem,
-        }),
-      );
+    if (_isConnected) {
+      final hostname = kIsWeb ? 'Web Client' : Platform.localHostname;
+      final os = kIsWeb ? 'Web' : Platform.operatingSystem;
+
+      try {
+        _channel?.sink.add(
+          json.encode({
+            'type': 'register',
+            'hostname': hostname,
+            'platform': os,
+          }),
+        );
+      } catch (e) {
+        _logger.e('Erro ao enviar registro: $e');
+      }
     }
   }
 
   void _startHeartbeat() {
     _heartbeatTimer?.cancel();
     _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (timer) {
-      if (_socket?.readyState == WebSocket.open) {
-        _socket!.add(json.encode({'type': 'heartbeat'}));
+      if (_isConnected) {
+        try {
+          _channel?.sink.add(json.encode({'type': 'heartbeat'}));
+        } catch (e) {
+          _logger.e('Erro ao enviar heartbeat: $e');
+        }
       }
     });
   }
@@ -103,13 +123,20 @@ class WebSocketService {
   }
 
   Future<void> sendShutdownSignal() async {
-    if (_socket?.readyState == WebSocket.open) {
+    if (_isConnected) {
       _logger.w('🛑 Enviando sinal de SHUTDOWN...');
-      final hostname = Platform.localHostname;
-      _socket!.add(json.encode({'type': 'shutdown', 'hostname': hostname}));
-      // Aguarda um pouco para garantir o envio
-      await Future.delayed(Duration(milliseconds: 500));
-      await _socket!.close();
+      final hostname = kIsWeb ? 'Web Client' : Platform.localHostname;
+      try {
+        _channel?.sink.add(
+          json.encode({'type': 'shutdown', 'hostname': hostname}),
+        );
+        // Aguarda um pouco para garantir o envio
+        await Future.delayed(Duration(milliseconds: 500));
+        await _channel?.sink.close();
+      } catch (e) {
+        _logger.e('Erro ao enviar shutdown: $e');
+      }
+      _isConnected = false;
     }
   }
 
@@ -126,7 +153,8 @@ class WebSocketService {
     _isDisposed = true;
     _heartbeatTimer?.cancel();
     _reconnectTimer?.cancel();
-    _socket?.close();
+    _channel?.sink.close();
     _controller.close();
+    _isConnected = false;
   }
 }

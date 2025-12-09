@@ -24,11 +24,6 @@ Future<void> main() async {
   final wsService = WebSocketService(logger);
   Get.put(wsService);
 
-  // Conecta WebSocket se possível
-  final config = ServerConfigService.instance.loadConfig();
-  final baseUrl = 'http://${config['ip']}:${config['port']}';
-  wsService.connect(baseUrl);
-
   runApp(MyApp(authService: authService));
 }
 

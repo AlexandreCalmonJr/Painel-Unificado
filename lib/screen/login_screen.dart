@@ -4,6 +4,7 @@ import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/screen/home_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
+import 'package:painel_windowns/services/websocket_service.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -142,6 +143,16 @@ class _LoginScreenState extends State<LoginScreen>
       _ipController.text,
       _portController.text,
     );
+
+    // Tenta conectar o WebSocket com as novas configurações
+    try {
+      final wsService = Get.find<WebSocketService>();
+      final baseUrl = 'http://${_ipController.text}:${_portController.text}';
+      wsService.connect(baseUrl);
+    } catch (e) {
+      print('Erro ao conectar WebSocket: $e');
+    }
+
     if (mounted) {
       _showSuccessSnackbar('Configurações salvas com sucesso!');
     }

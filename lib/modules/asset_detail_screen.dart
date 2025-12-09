@@ -8,6 +8,8 @@ import 'package:painel_windowns/models/painel.dart';
 import 'package:painel_windowns/models/printer.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
+import 'package:painel_windowns/services/asset_command_service.dart';
+import 'package:painel_windowns/services/asset_maintenance_service.dart';
 import 'package:painel_windowns/widgets/common/app_card.dart';
 
 class AssetDetailScreen extends StatefulWidget {
@@ -252,19 +254,14 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
         const SizedBox(height: 24),
         _buildHistoryCard(),
         const SizedBox(height: 24),
-        if (widget.asset.customData.isNotEmpty)
-          _buildSectionCard(
-            title: 'Dados Customizados',
-            icon: Icons.extension,
-            children:
-                widget.asset.customData.entries.map((entry) {
-                  return _buildDetailRow(
-                    entry.key,
-                    entry.value.toString(),
-                    Icons.info_outline,
-                  );
-                }).toList(),
-          ),
+        // Ações Remotas (apenas para Desktop/Notebook)
+        if (_isCommandSupported()) _buildCommandsCard(),
+        if (_isCommandSupported()) const SizedBox(height: 24),
+        // Manutenção
+        _buildMaintenanceCard(),
+        const SizedBox(height: 24),
+        // Ações Rápidas
+        _buildQuickActionsCard(),
       ],
     );
   }
@@ -709,4 +706,295 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       Icons.palette,
     ),
   ];
+
+  // Verifica se o asset suporta comandos remotos
+  bool _isCommandSupported() {
+    return widget.asset is Desktop || widget.asset is Notebook;
+  }
+
+  // Card de Comandos Remotos
+  Widget _buildCommandsCard() {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildCardTitle('Ações Remotas', Icons.settings_remote),
+          const SizedBox(height: 16),
+          Text(
+            'Envie comandos para executar no dispositivo',
+            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildCommandButton(
+                'Reiniciar',
+                Icons.restart_alt,
+                'restart_computer',
+                Colors.orange,
+              ),
+              _buildCommandButton(
+                'Limpar DNS',
+                Icons.dns,
+                'flush_dns',
+                Colors.blue,
+              ),
+              _buildCommandButton(
+                'Spooler',
+                Icons.print,
+                'restart_print_spooler',
+                Colors.purple,
+              ),
+              _buildCommandButton(
+                'Limpar Temp',
+                Icons.cleaning_services,
+                'clear_temp',
+                Colors.green,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommandButton(
+    String label,
+    IconData icon,
+    String commandType,
+    Color color,
+  ) {
+    return ElevatedButton.icon(
+      onPressed: () => _sendCommand(commandType),
+      icon: Icon(icon, size: 18),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+  }
+
+  Future<void> _sendCommand(String commandType) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirmar Comando'),
+            content: Text('Deseja executar este comando no dispositivo?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Confirmar'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed != true) return;
+
+    final commandService = AssetCommandService(authService: widget.authService);
+    final success = await commandService.sendCommand(
+      moduleId: widget.moduleConfig.id,
+      assetId: widget.asset.id,
+      commandType: commandType,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            success ? 'Comando enviado!' : 'Erro ao enviar comando',
+          ),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+    }
+  }
+
+  // Card de Manutenção
+  Widget _buildMaintenanceCard() {
+    final isInMaintenance = widget.asset.status.toLowerCase() == 'maintenance';
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildCardTitle('Manutenção', Icons.build),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  isInMaintenance
+                      ? 'Dispositivo em manutenção'
+                      : 'Dispositivo operacional',
+                  style: TextStyle(
+                    color: isInMaintenance ? Colors.orange : Colors.green,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => _showMaintenanceDialog(!isInMaintenance),
+                icon: Icon(
+                  isInMaintenance ? Icons.check : Icons.build,
+                  size: 18,
+                ),
+                label: Text(isInMaintenance ? 'Retirar' : 'Colocar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      isInMaintenance ? Colors.green : Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showMaintenanceDialog(bool setToMaintenance) async {
+    final ticketController = TextEditingController();
+    final reasonController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              setToMaintenance
+                  ? 'Colocar em Manutenção'
+                  : 'Retirar de Manutenção',
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (setToMaintenance) ...[
+                  TextField(
+                    controller: ticketController,
+                    decoration: const InputDecoration(
+                      labelText: 'Ticket',
+                      hintText: 'Número do chamado',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: reasonController,
+                    decoration: const InputDecoration(
+                      labelText: 'Motivo',
+                      hintText: 'Descreva o motivo',
+                    ),
+                    maxLines: 3,
+                  ),
+                ] else
+                  const Text('Confirma retirar o dispositivo de manutenção?'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Confirmar'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed != true) return;
+
+    final maintenanceService = AssetMaintenanceService(
+      authService: widget.authService,
+    );
+    final success = await maintenanceService.setMaintenanceStatus(
+      moduleId: widget.moduleConfig.id,
+      assetId: widget.asset.id,
+      status: setToMaintenance,
+      ticket: ticketController.text,
+      reason: reasonController.text,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success ? 'Status atualizado!' : 'Erro ao atualizar'),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+
+      if (success) {
+        // Recarrega a tela
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  // Card de Ações Rápidas
+  Widget _buildQuickActionsCard() {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildCardTitle('Ações Rápidas', Icons.flash_on),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              _buildQuickActionButton('Copiar Serial', Icons.copy, () {
+                Clipboard.setData(
+                  ClipboardData(text: widget.asset.serialNumber),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Serial copiado!'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              }, Colors.blue),
+              _buildQuickActionButton('Atualizar', Icons.refresh, () {
+                Navigator.pop(context);
+                // Recarrega a tela
+              }, Colors.green),
+              _buildQuickActionButton('Exportar', Icons.download, () {
+                // TODO: Implementar exportação
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Em desenvolvimento')),
+                );
+              }, Colors.purple),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActionButton(
+    String label,
+    IconData icon,
+    VoidCallback onPressed,
+    Color color,
+  ) {
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 18),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: color,
+        side: BorderSide(color: color),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+  }
 }

@@ -393,7 +393,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
           _buildSectionTitle('Rede & Conexão'),
           _buildDetailRow('IP', widget.device.ipAddress ?? 'N/A'),
           _buildDetailRow('MAC', widget.device.macAddress ?? 'N/A'),
-          _buildDetailRow('BSSID', widget.device.macAddress ?? 'N/A'),
+          _buildDetailRow('BSSID', widget.device.macAddressRadio ?? 'N/A'),
         ],
       ),
     );

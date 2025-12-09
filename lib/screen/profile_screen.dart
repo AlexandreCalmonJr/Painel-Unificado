@@ -220,44 +220,49 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInfoCard(
-            isDark: isDark,
-            palette: palette,
-            title: 'Informações Pessoais',
-            icon: Icons.info_outline,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildInfoRow(
-                'Usuário',
-                user?['username'] ?? 'N/A',
-                Icons.person,
+              _buildInfoCard(
+                isDark: isDark,
+                palette: palette,
+                title: 'Informações Pessoais',
+                icon: Icons.info_outline,
+                children: [
+                  _buildInfoRow(
+                    'Usuário',
+                    user?['username'] ?? 'N/A',
+                    Icons.person,
+                  ),
+                  _buildInfoRow('Email', user?['email'] ?? 'N/A', Icons.email),
+                  _buildInfoRow('Função', user?['role'] ?? 'N/A', Icons.work),
+                  _buildInfoRow(
+                    'Criado em',
+                    user?['created_at'] ?? 'N/A',
+                    Icons.calendar_today,
+                  ),
+                ],
               ),
-              _buildInfoRow('Email', user?['email'] ?? 'N/A', Icons.email),
-              _buildInfoRow('Função', user?['role'] ?? 'N/A', Icons.work),
-              _buildInfoRow(
-                'Criado em',
-                user?['created_at'] ?? 'N/A',
-                Icons.calendar_today,
+
+              const SizedBox(height: 16),
+
+              _buildInfoCard(
+                isDark: isDark,
+                palette: palette,
+                title: 'Permissões',
+                icon: Icons.security,
+                children: [_buildPermissionsList()],
               ),
+
+              const SizedBox(height: 16),
+
+              _buildActionButtons(isDark, palette),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          _buildInfoCard(
-            isDark: isDark,
-            palette: palette,
-            title: 'Permissões',
-            icon: Icons.security,
-            children: [_buildPermissionsList()],
-          ),
-
-          const SizedBox(height: 16),
-
-          _buildActionButtons(isDark, palette),
-        ],
+        ),
       ),
     );
   }
@@ -265,37 +270,46 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget _buildPreferencesTab(bool isDark, Map<String, Color> palette) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Aparência',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color:
-                  isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-            ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Aparência',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      isDark
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimaryLight,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              const ThemeSelectorWidget(),
+
+              const SizedBox(height: 24),
+
+              Text(
+                'Notificações',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      isDark
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimaryLight,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              _buildNotificationSettings(isDark, palette),
+            ],
           ),
-          const SizedBox(height: 16),
-
-          const ThemeSelectorWidget(),
-
-          const SizedBox(height: 24),
-
-          Text(
-            'Notificações',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color:
-                  isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          _buildNotificationSettings(isDark, palette),
-        ],
+        ),
       ),
     );
   }
@@ -303,22 +317,29 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget _buildActivityTab(bool isDark, Map<String, Color> palette) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Atividades Recentes',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color:
-                  isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-            ),
-          ),
-          const SizedBox(height: 16),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Atividades Recentes',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      isDark
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimaryLight,
+                ),
+              ),
+              const SizedBox(height: 16),
 
-          _buildActivityList(isDark, palette),
-        ],
+              _buildActivityList(isDark, palette),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -629,7 +650,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: palette['primary'],
+          activeThumbColor: palette['primary'],
         ),
       ],
     );

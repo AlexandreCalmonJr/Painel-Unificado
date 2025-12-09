@@ -14,6 +14,7 @@ class Totem extends ManagedAsset {
   final String serviceTag;
   final String ip;
   final String macAddress;
+  final String macAddressRadio;
   final List<String> installedPrograms;
   final String printerStatus;
   final String biometricReaderStatus;
@@ -40,6 +41,7 @@ class Totem extends ManagedAsset {
     required this.serviceTag,
     required this.ip,
     required this.macAddress,
+    required this.macAddressRadio,
     required this.installedPrograms,
     required this.printerStatus,
     required this.biometricReaderStatus,
@@ -65,8 +67,10 @@ class Totem extends ManagedAsset {
     final originalLocation =
         json['unit'] ?? json['unitRoutes'] ?? 'Desconhecida';
 
-    // ✅ CORRIGIDO: Aceitar tanto 'macAddress' quanto 'mac_address_radio'
-    final macAddress = json['macAddress'] ?? json['mac_address_radio'] ?? 'N/A';
+    // ✅ CORRIGIDO: Aceitar tanto 'macAddress' quanto 'mac_address'
+    final macAddress = json['macAddress'] ?? json['mac_address'] ?? 'N/A';
+    final macAddressRadio =
+        json['macAddressRadio'] ?? json['mac_address_radio'] ?? 'N/A';
 
     final locationData = LocationMapperService.mapLocation(
       units: units,
@@ -92,6 +96,7 @@ class Totem extends ManagedAsset {
       serviceTag: json['serviceTag'] ?? 'N/A',
       ip: json['ip'] ?? 'N/A',
       macAddress: macAddress,
+      macAddressRadio: macAddressRadio,
       installedPrograms: List<String>.from(json['installedPrograms'] ?? []),
       printerStatus: json['printerStatus'] ?? 'N/A',
       biometricReaderStatus: json['biometricReaderStatus'] ?? 'N/A',
@@ -129,6 +134,7 @@ class Totem extends ManagedAsset {
       'serviceTag': serviceTag,
       'ip': ip,
       'macAddress': macAddress,
+      'macAddressRadio': macAddressRadio,
       'installedPrograms': installedPrograms,
       'printerStatus': printerStatus,
       'biometricReaderStatus': biometricReaderStatus,
