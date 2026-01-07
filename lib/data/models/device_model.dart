@@ -1,5 +1,6 @@
 import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/domain/entities/device_entity.dart';
 
 // ADICIONADO: Enum para os tipos de status
 enum DeviceStatusType {
@@ -156,5 +157,64 @@ class Device {
       status: json['status'] ?? 'offline',
       isOnline: json['is_online'] is bool ? json['is_online'] : null,
     ); // ✅ NOVO: Status em tempo real
+  }
+
+  /// Converte Model para Entity (Domain Layer)
+  DeviceEntity toEntity() {
+    return DeviceEntity(
+      id: id ?? deviceId ?? '',
+      deviceName: deviceName,
+      serialNumber: serialNumber,
+      imei: imei,
+      phoneNumber: null, // Não disponível no model atual
+      model: deviceModel,
+      manufacturer: null, // Não disponível no model atual
+      osVersion: null, // Não disponível no model atual
+      lastSeen: lastSeen,
+      battery: battery?.toInt(),
+      status: status,
+      location: location,
+      sector: sector,
+      floor: floor,
+      unit: unit,
+      isOnline: isOnline,
+    );
+  }
+
+  /// Cria Model a partir de Entity
+  factory Device.fromEntity(DeviceEntity entity) {
+    return Device(
+      id: entity.id,
+      deviceId: entity.id,
+      deviceName: entity.deviceName,
+      deviceModel: entity.model,
+      battery: entity.battery,
+      serialNumber: entity.serialNumber,
+      imei: entity.imei,
+      lastSeen: entity.lastSeen,
+      sector: entity.sector,
+      floor: entity.floor,
+      location: entity.location,
+      unit: entity.unit,
+      status: entity.status ?? 'offline',
+      isOnline: entity.isOnline,
+      ipAddress: null,
+      network: null,
+      macAddress: null,
+      macAddressRadio: null,
+      lastSync: null,
+      maintenanceStatus: false,
+      maintenanceTicket: null,
+      maintenanceReason: null,
+      maintenanceHistory: null,
+      provisioningStatus: null,
+      provisioningToken: null,
+      enrollmentDate: null,
+      configurationProfile: null,
+      ownerOrganization: null,
+      complianceStatus: null,
+      installedApps: null,
+      securityPolicies: null,
+    );
   }
 }
