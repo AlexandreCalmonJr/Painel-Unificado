@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:painel_windowns/domain/entities/module_entity.dart';
+import 'package:painel_windowns/domain/entities/totem_entity.dart';
 
 /// Base class for all totem-related states.
 abstract class TotemState extends Equatable {
@@ -21,7 +21,7 @@ class TotemLoading extends TotemState {
 
 /// State when totems have been successfully loaded.
 class TotemLoaded extends TotemState {
-  final List<ModuleEntity> totems;
+  final List<TotemEntity> totems;
 
   const TotemLoaded(this.totems);
 

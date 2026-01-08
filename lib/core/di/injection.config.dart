@@ -15,8 +15,6 @@ import 'package:painel_windowns/domain/repositories/i_auth_repository.dart'
     as _i868;
 import 'package:painel_windowns/domain/repositories/i_device_repository.dart'
     as _i576;
-import 'package:painel_windowns/domain/repositories/i_module_repository.dart'
-    as _i1;
 import 'package:painel_windowns/domain/repositories/i_totem_repository.dart'
     as _i888;
 import 'package:painel_windowns/domain/usecases/auth/login_usecase.dart'
@@ -31,8 +29,6 @@ import 'package:painel_windowns/domain/usecases/device/send_command_usecase.dart
     as _i849;
 import 'package:painel_windowns/domain/usecases/device/update_device_usecase.dart'
     as _i138;
-import 'package:painel_windowns/domain/usecases/module/get_modules_usecase.dart'
-    as _i1049;
 import 'package:painel_windowns/domain/usecases/totem/get_totem_by_id_usecase.dart'
     as _i567;
 import 'package:painel_windowns/domain/usecases/totem/get_totems_usecase.dart'
@@ -52,9 +48,6 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
-    gh.lazySingleton<_i1049.GetModulesUseCase>(
-      () => _i1049.GetModulesUseCase(gh<_i1.IModuleRepository>()),
-    );
     gh.lazySingleton<_i407.GetTotemsUseCase>(
       () => _i407.GetTotemsUseCase(gh<_i888.ITotemRepository>()),
     );
