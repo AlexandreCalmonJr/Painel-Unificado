@@ -1,7 +1,7 @@
 ﻿// File: lib/controllers/device_controller.dart
 import 'package:get/get.dart';
 import 'package:painel_windowns/data/models/device.dart';
-import 'package:painel_windowns/data/models/unit.dart';
+import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/services/device_service.dart';
 import 'package:painel_windowns/controllers/auth_controller.dart';

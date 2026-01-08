@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:painel_windowns/admin/widgets/location_dialog.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/data/models/location.dart';
-import 'package:painel_windowns/data/models/unit.dart';
+import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/screen/unit_bssids_page.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';

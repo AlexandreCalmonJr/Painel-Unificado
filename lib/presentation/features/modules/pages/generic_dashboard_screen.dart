@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 // Imports dos Modelos Específicos (Ajuste os caminhos)
-import 'package:painel_windowns/data/models/unit.dart';
+import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/modules/tabs/generic_assets_list_tab.dart';
 import 'package:painel_windowns/modules/tabs/generic_dashboard_tab.dart';
 import 'package:painel_windowns/modules/tabs/generic_maintenance_tab.dart';

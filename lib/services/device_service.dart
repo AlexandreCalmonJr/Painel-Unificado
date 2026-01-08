@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/device.dart';
 import 'package:painel_windowns/data/models/totem.dart';
-import 'package:painel_windowns/data/models/unit.dart';
+import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
 const int kMaxRetries = 3;

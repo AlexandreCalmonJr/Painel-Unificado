@@ -10,7 +10,7 @@ import 'package:painel_windowns/data/models/desktop.dart';
 import 'package:painel_windowns/data/models/notebook.dart';
 import 'package:painel_windowns/data/models/painel.dart';
 import 'package:painel_windowns/data/models/printer.dart';
-import 'package:painel_windowns/data/models/unit.dart';
+import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 

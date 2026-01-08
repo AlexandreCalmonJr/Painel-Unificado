@@ -3,7 +3,7 @@
 // printer('Módulo Impressoras', 'printer', 'print'),
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
-import 'package:painel_windowns/data/models/unit.dart';
+import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/domain/entities/module_entity.dart';
 

@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 // Importe o modelo Totem
 import 'package:painel_windowns/data/models/totem.dart';
-import 'package:painel_windowns/data/models/unit.dart';
+import 'package:painel_windowns/data/models/unit_model.dart';
 // Importe seu serviço de configuração de servidor
 import 'package:painel_windowns/services/server_config_service.dart'; 
 
