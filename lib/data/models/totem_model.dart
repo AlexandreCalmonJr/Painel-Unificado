@@ -5,6 +5,7 @@ import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
+import 'package:painel_windowns/domain/entities/totem_entity.dart';
 
 /// Modelo Totem que herda de ManagedAsset
 class Totem extends ManagedAsset {
@@ -169,5 +170,52 @@ class Totem extends ManagedAsset {
       }
     }
     return 'N/A';
+  }
+
+  /// Converte Totem model para TotemEntity (domain layer)
+  TotemEntity toEntity() {
+    return TotemEntity(
+      id: id ?? '',
+      name: hostname,
+      status: status,
+      location: location,
+      unit: unit,
+      sector: sector,
+      floor: floor,
+      model: model,
+      serialNumber: serialNumber,
+      ipAddress: ip,
+      macAddress: macAddress,
+      lastSeen: lastSeen,
+    );
+  }
+
+  /// Cria Totem model a partir de TotemEntity
+  factory Totem.fromEntity(TotemEntity entity) {
+    return Totem(
+      id: entity.id,
+      serialNumber: entity.serialNumber ?? 'N/A',
+      status: entity.status ?? 'Offline',
+      lastSeen: entity.lastSeen ?? DateTime.now(),
+      location: entity.location,
+      unit: entity.unit,
+      sector: entity.sector,
+      floor: entity.floor,
+      hostname: entity.name ?? 'N/A',
+      model: entity.model ?? 'N/A',
+      serviceTag: 'N/A',
+      ip: entity.ipAddress ?? 'N/A',
+      macAddress: entity.macAddress ?? 'N/A',
+      macAddressRadio: 'N/A',
+      installedPrograms: [],
+      printerStatus: 'N/A',
+      biometricReaderStatus: 'N/A',
+      totemType: 'N/A',
+      ram: 'N/A',
+      hdType: 'N/A',
+      hdStorage: 'N/A',
+      zebraStatus: 'Não detectado',
+      bematechStatus: 'Não detectado',
+    );
   }
 }

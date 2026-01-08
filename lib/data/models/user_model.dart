@@ -1,0 +1,102 @@
+import 'package:painel_windowns/domain/entities/user_entity.dart';
+
+/// Model de usuário para a camada de dados
+class User {
+  final String? id;
+  final String? username;
+  final String? email;
+  final String? password; // Usado apenas para criação
+  final String? role;
+  final bool? isActive;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  User({
+    this.id,
+    this.username,
+    this.email,
+    this.password,
+    this.role,
+    this.isActive,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  /// Converte JSON para User model
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['_id'] ?? json['id'],
+      username: json['username'],
+      email: json['email'],
+      role: json['role'],
+      isActive: json['isActive'] ?? json['is_active'] ?? true,
+      createdAt:
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+    );
+  }
+
+  /// Converte User model para JSON
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) '_id': id,
+      if (username != null) 'username': username,
+      if (email != null) 'email': email,
+      if (password != null) 'password': password,
+      if (role != null) 'role': role,
+      if (isActive != null) 'isActive': isActive,
+      if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
+      if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
+    };
+  }
+
+  /// Converte User model para UserEntity (domain layer)
+  UserEntity toEntity() {
+    return UserEntity(
+      id: id ?? '',
+      username: username ?? '',
+      email: email,
+      role: role ?? 'user',
+      isActive: isActive ?? true,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+
+  /// Cria User model a partir de UserEntity
+  factory User.fromEntity(UserEntity entity) {
+    return User(
+      id: entity.id,
+      username: entity.username,
+      email: entity.email,
+      role: entity.role,
+      isActive: entity.isActive,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+  }
+
+  /// Cria uma cópia do User com campos atualizados
+  User copyWith({
+    String? id,
+    String? username,
+    String? email,
+    String? password,
+    String? role,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return User(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      role: role ?? this.role,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+}
