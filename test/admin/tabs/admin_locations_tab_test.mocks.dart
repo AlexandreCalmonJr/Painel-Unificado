@@ -6,11 +6,9 @@
 import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i9;
-import 'package:painel_windowns/models/bssid_mapping.dart' as _i8;
-import 'package:painel_windowns/models/device.dart' as _i6;
-import 'package:painel_windowns/models/totem.dart' as _i10;
-import 'package:painel_windowns/models/unit.dart' as _i7;
+import 'package:mockito/src/dummies.dart' as _i8;
+import 'package:painel_windowns/data/models/bssid_mapping.dart' as _i7;
+import 'package:painel_windowns/data/models/unit_model.dart' as _i6;
 import 'package:painel_windowns/services/auth_service.dart' as _i2;
 import 'package:painel_windowns/services/device_service.dart' as _i5;
 import 'package:painel_windowns/services/location_service.dart' as _i4;
@@ -28,7 +26,6 @@ import 'package:painel_windowns/services/location_service.dart' as _i4;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
-// ignore_for_file: invalid_use_of_internal_member
 
 /// A class which mocks [AuthService].
 ///
@@ -151,38 +148,38 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
   }
 
   @override
-  _i3.Future<List<_i6.Device>> fetchDevices(
+  _i3.Future<List<dynamic>> fetchDevices(
     String? token,
-    List<_i7.Unit>? units,
+    List<_i6.Unit>? units,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#fetchDevices, [token, units]),
-            returnValue: _i3.Future<List<_i6.Device>>.value(<_i6.Device>[]),
+            returnValue: _i3.Future<List<dynamic>>.value(<dynamic>[]),
           )
-          as _i3.Future<List<_i6.Device>>);
+          as _i3.Future<List<dynamic>>);
 
   @override
-  _i3.Future<List<_i8.BssidMapping>> fetchBssidMappings(String? token) =>
+  _i3.Future<List<_i7.BssidMapping>> fetchBssidMappings(String? token) =>
       (super.noSuchMethod(
             Invocation.method(#fetchBssidMappings, [token]),
-            returnValue: _i3.Future<List<_i8.BssidMapping>>.value(
-              <_i8.BssidMapping>[],
+            returnValue: _i3.Future<List<_i7.BssidMapping>>.value(
+              <_i7.BssidMapping>[],
             ),
           )
-          as _i3.Future<List<_i8.BssidMapping>>);
+          as _i3.Future<List<_i7.BssidMapping>>);
 
   @override
-  _i3.Future<List<_i8.BssidMapping>> fetchBssidsForUnit(
+  _i3.Future<List<_i7.BssidMapping>> fetchBssidsForUnit(
     String? token,
     String? unitName,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#fetchBssidsForUnit, [token, unitName]),
-            returnValue: _i3.Future<List<_i8.BssidMapping>>.value(
-              <_i8.BssidMapping>[],
+            returnValue: _i3.Future<List<_i7.BssidMapping>>.value(
+              <_i7.BssidMapping>[],
             ),
           )
-          as _i3.Future<List<_i8.BssidMapping>>);
+          as _i3.Future<List<_i7.BssidMapping>>);
 
   @override
   _i3.Future<String> sendCommand(
@@ -199,7 +196,7 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
               parameters,
             ]),
             returnValue: _i3.Future<String>.value(
-              _i9.dummyValue<String>(
+              _i8.dummyValue<String>(
                 this,
                 Invocation.method(#sendCommand, [
                   token,
@@ -217,7 +214,7 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
       (super.noSuchMethod(
             Invocation.method(#deleteDevice, [token, serialNumber]),
             returnValue: _i3.Future<String>.value(
-              _i9.dummyValue<String>(
+              _i8.dummyValue<String>(
                 this,
                 Invocation.method(#deleteDevice, [token, serialNumber]),
               ),
@@ -226,11 +223,11 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
           as _i3.Future<String>);
 
   @override
-  _i3.Future<String> createUnit(String? token, _i7.Unit? unit) =>
+  _i3.Future<String> createUnit(String? token, _i6.Unit? unit) =>
       (super.noSuchMethod(
             Invocation.method(#createUnit, [token, unit]),
             returnValue: _i3.Future<String>.value(
-              _i9.dummyValue<String>(
+              _i8.dummyValue<String>(
                 this,
                 Invocation.method(#createUnit, [token, unit]),
               ),
@@ -242,12 +239,12 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
   _i3.Future<String> updateUnit(
     String? token,
     String? unitName,
-    _i7.Unit? unit,
+    _i6.Unit? unit,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#updateUnit, [token, unitName, unit]),
             returnValue: _i3.Future<String>.value(
-              _i9.dummyValue<String>(
+              _i8.dummyValue<String>(
                 this,
                 Invocation.method(#updateUnit, [token, unitName, unit]),
               ),
@@ -260,7 +257,7 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
       (super.noSuchMethod(
             Invocation.method(#deleteUnit, [token, unitName]),
             returnValue: _i3.Future<String>.value(
-              _i9.dummyValue<String>(
+              _i8.dummyValue<String>(
                 this,
                 Invocation.method(#deleteUnit, [token, unitName]),
               ),
@@ -271,12 +268,12 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
   @override
   _i3.Future<String> createBssidMapping(
     String? token,
-    _i8.BssidMapping? mapping,
+    _i7.BssidMapping? mapping,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#createBssidMapping, [token, mapping]),
             returnValue: _i3.Future<String>.value(
-              _i9.dummyValue<String>(
+              _i8.dummyValue<String>(
                 this,
                 Invocation.method(#createBssidMapping, [token, mapping]),
               ),
@@ -288,7 +285,7 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
   _i3.Future<String> updateBssidMapping(
     String? token,
     String? macAddressRadio,
-    _i8.BssidMapping? mapping,
+    _i7.BssidMapping? mapping,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#updateBssidMapping, [
@@ -297,7 +294,7 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
               mapping,
             ]),
             returnValue: _i3.Future<String>.value(
-              _i9.dummyValue<String>(
+              _i8.dummyValue<String>(
                 this,
                 Invocation.method(#updateBssidMapping, [
                   token,
@@ -317,7 +314,7 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
       (super.noSuchMethod(
             Invocation.method(#deleteBssidMapping, [token, macAddressRadio]),
             returnValue: _i3.Future<String>.value(
-              _i9.dummyValue<String>(
+              _i8.dummyValue<String>(
                 this,
                 Invocation.method(#deleteBssidMapping, [
                   token,
@@ -329,12 +326,12 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
           as _i3.Future<String>);
 
   @override
-  _i3.Future<List<_i7.Unit>> fetchUnits(String? token) =>
+  _i3.Future<List<_i6.Unit>> fetchUnits(String? token) =>
       (super.noSuchMethod(
             Invocation.method(#fetchUnits, [token]),
-            returnValue: _i3.Future<List<_i7.Unit>>.value(<_i7.Unit>[]),
+            returnValue: _i3.Future<List<_i6.Unit>>.value(<_i6.Unit>[]),
           )
-          as _i3.Future<List<_i7.Unit>>);
+          as _i3.Future<List<_i6.Unit>>);
 
   @override
   _i3.Future<List<Map<String, dynamic>>> fetchLocationHistory(
@@ -350,10 +347,10 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
           as _i3.Future<List<Map<String, dynamic>>>);
 
   @override
-  _i3.Future<List<_i10.Totem>> fetchTotems(String? token) =>
+  _i3.Future<List<dynamic>> fetchTotems(String? token) =>
       (super.noSuchMethod(
             Invocation.method(#fetchTotems, [token]),
-            returnValue: _i3.Future<List<_i10.Totem>>.value(<_i10.Totem>[]),
+            returnValue: _i3.Future<List<dynamic>>.value(<dynamic>[]),
           )
-          as _i3.Future<List<_i10.Totem>>);
+          as _i3.Future<List<dynamic>>);
 }
