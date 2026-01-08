@@ -6,6 +6,7 @@ import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/services/logger_service.dart';
+import 'package:painel_windowns/domain/entities/module_entity.dart';
 
 class Notebook extends ManagedAsset {
   final String hostname;
@@ -247,5 +248,53 @@ class Notebook extends ManagedAsset {
       'battery_level': batteryLevel,
       'battery_health': batteryHealth,
     };
+  }
+
+  /// Converte Notebook model para ModuleEntity (domain layer)
+  ModuleEntity toEntity() {
+    return ModuleEntity(
+      id: id ?? '',
+      assetTag: serialNumber,
+      serialNumber: serialNumber,
+      model: model,
+      manufacturer: manufacturer,
+      type: assetType,
+      status: status,
+      location: location,
+      sector: sector,
+      floor: floor,
+      unit: unit,
+      ipAddress: ipAddress,
+      macAddress: macAddress,
+      isOnline: status.toLowerCase() == 'online',
+    );
+  }
+
+  /// Cria Notebook model a partir de ModuleEntity
+  factory Notebook.fromEntity(ModuleEntity entity) {
+    return Notebook(
+      id: entity.id,
+      assetName: entity.assetTag ?? 'N/A',
+      serialNumber: entity.serialNumber ?? 'N/A',
+      status: entity.status ?? 'offline',
+      lastSeen: DateTime.now(),
+      location: entity.location,
+      unit: entity.unit,
+      sector: entity.sector,
+      floor: entity.floor,
+      hostname: entity.assetTag ?? 'N/A',
+      model: entity.model ?? 'N/A',
+      manufacturer: entity.manufacturer ?? 'N/A',
+      processor: 'N/A',
+      ram: 'N/A',
+      storage: 'N/A',
+      storageType: 'N/A',
+      operatingSystem: 'N/A',
+      osVersion: 'N/A',
+      ipAddress: entity.ipAddress ?? 'N/A',
+      macAddress: entity.macAddress ?? 'N/A',
+      connectionType: 'Desconhecido',
+      biometricReaderStatus: 'N/A',
+    );
   }
 }

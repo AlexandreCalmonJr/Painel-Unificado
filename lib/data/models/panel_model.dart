@@ -4,6 +4,7 @@ import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/services/logger_service.dart';
+import 'package:painel_windowns/domain/entities/module_entity.dart';
 
 /// Modelo completo para Painéis/TVs/Monitores
 class Panel extends ManagedAsset {
@@ -204,5 +205,49 @@ class Panel extends ManagedAsset {
       'maintenance_reason': maintenanceReason,
       'maintenance_history': maintenanceHistory,
     };
+  }
+
+  /// Converte Panel model para ModuleEntity (domain layer)
+  ModuleEntity toEntity() {
+    return ModuleEntity(
+      id: id ?? '',
+      assetTag: serialNumber,
+      serialNumber: serialNumber,
+      model: model,
+      manufacturer: manufacturer,
+      type: assetType,
+      status: status,
+      location: location,
+      sector: sector,
+      floor: floor,
+      unit: unit,
+      ipAddress: ipAddress,
+      macAddress: macAddress,
+      isOnline: isOnline,
+    );
+  }
+
+  /// Cria Panel model a partir de ModuleEntity
+  factory Panel.fromEntity(ModuleEntity entity) {
+    return Panel(
+      id: entity.id,
+      assetName: entity.assetTag ?? 'N/A',
+      serialNumber: entity.serialNumber ?? 'N/A',
+      status: entity.status ?? 'offline',
+      lastSeen: DateTime.now(),
+      location: entity.location,
+      unit: entity.unit,
+      sector: entity.sector,
+      floor: entity.floor,
+      hostname: entity.assetTag ?? 'N/A',
+      model: entity.model ?? 'N/A',
+      manufacturer: entity.manufacturer ?? 'N/A',
+      screenSize: 'N/A',
+      resolution: 'N/A',
+      ipAddress: entity.ipAddress ?? 'N/A',
+      macAddress: entity.macAddress ?? 'N/A',
+      firmwareVersion: 'N/A',
+      isOnline: entity.isOnline,
+    );
   }
 }

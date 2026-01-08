@@ -5,6 +5,7 @@ import 'package:painel_windowns/models/asset_module_base.dart';
 import 'package:painel_windowns/models/bssid_mapping.dart';
 import 'package:painel_windowns/models/unit.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
+import 'package:painel_windowns/domain/entities/module_entity.dart';
 
 /// Modelo completo para Impressoras
 class Printer extends ManagedAsset {
@@ -235,5 +236,45 @@ class Printer extends ManagedAsset {
   bool get hasLowToner {
     if (tonerLevels == null) return false;
     return tonerLevels!.values.any((level) => level is int && level < 20);
+  }
+
+  /// Converte Printer model para ModuleEntity (domain layer)
+  ModuleEntity toEntity() {
+    return ModuleEntity(
+      id: id ?? '',
+      assetTag: serialNumber,
+      serialNumber: serialNumber,
+      model: model,
+      manufacturer: manufacturer,
+      type: assetType,
+      status: status,
+      location: location,
+      sector: sector,
+      floor: floor,
+      unit: unit,
+      ipAddress: ipAddress,
+      macAddress: macAddress,
+      isOnline: status.toLowerCase() == 'online',
+    );
+  }
+
+  /// Cria Printer model a partir de ModuleEntity
+  factory Printer.fromEntity(ModuleEntity entity) {
+    return Printer(
+      id: entity.id,
+      assetName: entity.assetTag ?? 'N/A',
+      serialNumber: entity.serialNumber ?? 'N/A',
+      status: entity.status ?? 'offline',
+      lastSeen: DateTime.now(),
+      location: entity.location,
+      unit: entity.unit,
+      sector: entity.sector,
+      floor: entity.floor,
+      hostname: entity.assetTag ?? 'N/A',
+      model: entity.model ?? 'N/A',
+      manufacturer: entity.manufacturer ?? 'N/A',
+      connectionType: 'network',
+      printerStatus: 'unknown',
+    );
   }
 }
