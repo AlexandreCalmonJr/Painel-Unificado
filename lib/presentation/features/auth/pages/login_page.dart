@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/presentation/bloc/auth/auth_bloc.dart';
+import 'package:painel_windowns/presentation/bloc/auth/auth_event.dart';
 import 'package:painel_windowns/screen/home_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
@@ -87,6 +90,16 @@ class _LoginScreenState extends State<LoginScreen>
     }
 
     setState(() => _isLoading = true);
+
+    // Usar AuthBloc para login
+    context.read<AuthBloc>().add(
+      LoginRequested(
+        username: _usernameController.text,
+        password: _passwordController.text,
+      ),
+    );
+
+    // Manter compatibilidade com AuthService por enquanto
     try {
       final result = await widget.authService.login(
         _usernameController.text,
