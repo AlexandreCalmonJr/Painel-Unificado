@@ -17,6 +17,7 @@ class GetDevicesUseCase implements UseCase<List<DeviceEntity>, NoParams> {
 
   @override
   Future<Either<Failure, List<DeviceEntity>>> call(NoParams params) async {
-    return await repository.getDevices();
+    // TODO: Get token from auth service
+    return await repository.getDevices('');
   }
 }

@@ -26,6 +26,7 @@ class GetDeviceByIdUseCase
 
   @override
   Future<Either<Failure, DeviceEntity>> call(GetDeviceByIdParams params) async {
-    return await repository.getDeviceById(params.deviceId);
+    // TODO: Get token from auth service
+    return await repository.getDeviceById('', params.deviceId);
   }
 }

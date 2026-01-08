@@ -9,31 +9,23 @@ import 'package:painel_windowns/domain/usecases/usecase.dart';
 class SendCommandParams extends Equatable {
   final String deviceId;
   final String command;
-  final Map<String, dynamic>? parameters;
 
-  const SendCommandParams({
-    required this.deviceId,
-    required this.command,
-    this.parameters,
-  });
+  const SendCommandParams({required this.deviceId, required this.command});
 
   @override
-  List<Object?> get props => [deviceId, command, parameters];
+  List<Object?> get props => [deviceId, command];
 }
 
 /// Use case for sending a command to a device.
 @lazySingleton
-class SendCommandUseCase implements UseCase<bool, SendCommandParams> {
+class SendCommandUseCase implements UseCase<Unit, SendCommandParams> {
   final IDeviceRepository repository;
 
   SendCommandUseCase(this.repository);
 
   @override
-  Future<Either<Failure, bool>> call(SendCommandParams params) async {
-    return await repository.sendCommand(
-      params.deviceId,
-      params.command,
-      params.parameters,
-    );
+  Future<Either<Failure, Unit>> call(SendCommandParams params) async {
+    // TODO: Get token from auth service
+    return await repository.sendCommand('', params.deviceId, params.command);
   }
 }

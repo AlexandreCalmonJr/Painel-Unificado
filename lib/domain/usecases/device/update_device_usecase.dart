@@ -8,24 +8,24 @@ import 'package:painel_windowns/domain/usecases/usecase.dart';
 
 /// Parameters for updating a device.
 class UpdateDeviceParams extends Equatable {
-  final String deviceId;
-  final Map<String, dynamic> updates;
+  final DeviceEntity device;
 
-  const UpdateDeviceParams({required this.deviceId, required this.updates});
+  const UpdateDeviceParams({required this.device});
 
   @override
-  List<Object?> get props => [deviceId, updates];
+  List<Object?> get props => [device];
 }
 
 /// Use case for updating a device.
 @lazySingleton
-class UpdateDeviceUseCase implements UseCase<DeviceEntity, UpdateDeviceParams> {
+class UpdateDeviceUseCase implements UseCase<Unit, UpdateDeviceParams> {
   final IDeviceRepository repository;
 
   UpdateDeviceUseCase(this.repository);
 
   @override
-  Future<Either<Failure, DeviceEntity>> call(UpdateDeviceParams params) async {
-    return await repository.updateDevice(params.deviceId, params.updates);
+  Future<Either<Failure, Unit>> call(UpdateDeviceParams params) async {
+    // TODO: Get token from auth service
+    return await repository.updateDevice('', params.device);
   }
 }
