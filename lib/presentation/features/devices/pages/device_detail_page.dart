@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:painel_windowns/devices/utils/helpers.dart';
-import 'package:painel_windowns/models/device.dart';
+import 'package:painel_windowns/data/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
 import 'package:painel_windowns/widgets/common/app_card.dart';

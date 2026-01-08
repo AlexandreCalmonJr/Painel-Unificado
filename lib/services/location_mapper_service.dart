@@ -1,5 +1,5 @@
-import 'package:painel_windowns/models/bssid_mapping.dart';
-import 'package:painel_windowns/models/unit.dart';
+﻿import 'package:painel_windowns/data/models/bssid_mapping.dart';
+import 'package:painel_windowns/data/models/unit.dart';
 
 /// Classe para armazenar dados de localização mapeados
 class LocationData {

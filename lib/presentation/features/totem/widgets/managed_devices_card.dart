@@ -1,8 +1,8 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:painel_windowns/models/totem.dart';
+import 'package:painel_windowns/data/models/totem.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/totem/totem_detail_screen.dart';
 import 'package:painel_windowns/utils/status_formatter.dart';

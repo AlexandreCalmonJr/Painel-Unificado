@@ -1,8 +1,8 @@
-// File: lib/services/report_generator.dart
+﻿// File: lib/services/report_generator.dart
 import 'dart:typed_data'; // Necessário para Uint8List
 
 import 'package:excel/excel.dart'; // Necessário para Excel
-import 'package:painel_windowns/models/asset_module_base.dart'; // Import presumido
+import 'package:painel_windowns/data/models/asset_module_base.dart'; // Import presumido
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw; // Necessário para PDF
 

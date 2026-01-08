@@ -1,11 +1,11 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:elegant_notification/elegant_notification.dart';
 // ignore: depend_on_referenced_packages
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/devices/widgets/stat_card.dart';
-import 'package:painel_windowns/models/totem.dart';
+import 'package:painel_windowns/data/models/totem.dart';
 import 'package:painel_windowns/screen/login_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/totem_service.dart';

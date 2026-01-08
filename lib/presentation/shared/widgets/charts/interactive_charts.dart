@@ -1,7 +1,7 @@
-// File: lib/widgets/interactive_charts.dart
+﻿// File: lib/widgets/interactive_charts.dart
 import 'package:fl_chart/fl_chart.dart'; // Necessário para PieChart, BarChart, etc.
 import 'package:flutter/material.dart'; // Necessário para Widgets, Colors, etc.
-import 'package:painel_windowns/models/asset_module_base.dart'; // Import presumido
+import 'package:painel_windowns/data/models/asset_module_base.dart'; // Import presumido
 
 class AssetStatusChart extends StatelessWidget {
   final List<ManagedAsset> assets;

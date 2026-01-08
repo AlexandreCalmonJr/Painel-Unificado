@@ -1,4 +1,4 @@
-// Ficheiro: lib/services/totem_service.dart
+﻿// Ficheiro: lib/services/totem_service.dart
 // Descrição: Serviço dedicado para gerenciar as operações CRUD da API de Totens.
 // Consome as rotas de /api/monitoring/... (definidas em totemRoutes.js)
 
@@ -7,10 +7,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:painel_windowns/models/bssid_mapping.dart';
+import 'package:painel_windowns/data/models/bssid_mapping.dart';
 // Importe o modelo Totem
-import 'package:painel_windowns/models/totem.dart';
-import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/data/models/totem.dart';
+import 'package:painel_windowns/data/models/unit.dart';
 // Importe seu serviço de configuração de servidor
 import 'package:painel_windowns/services/server_config_service.dart'; 
 

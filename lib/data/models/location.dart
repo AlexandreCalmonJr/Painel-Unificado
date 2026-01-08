@@ -1,5 +1,5 @@
-// File: lib/models/location.dart
-import 'package:painel_windowns/models/unit.dart';
+﻿// File: lib/models/location.dart
+import 'package:painel_windowns/data/models/unit.dart';
 
 class Location {
   final String name;

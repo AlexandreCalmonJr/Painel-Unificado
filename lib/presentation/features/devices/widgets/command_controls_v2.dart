@@ -1,8 +1,8 @@
-// File: lib/devices/widgets/command_controls_v2.dart
+﻿// File: lib/devices/widgets/command_controls_v2.dart
 // VERSÃO MIGRADA USANDO BaseCommandMenu
 
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/models/device.dart';
+import 'package:painel_windowns/data/models/device.dart';
 import 'package:painel_windowns/services/device_service.dart';
 import 'package:painel_windowns/widgets/common/base_command_menu.dart';
 import 'package:painel_windowns/widgets/dialogs/base_dialog.dart';

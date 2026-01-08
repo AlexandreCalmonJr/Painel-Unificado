@@ -1,7 +1,7 @@
-// File: lib/services/location_service.dart
+﻿// File: lib/services/location_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:painel_windowns/models/location.dart';
+import 'package:painel_windowns/data/models/location.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
 class LocationService {

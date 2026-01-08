@@ -1,9 +1,9 @@
-// File: lib/models/totem.dart
+﻿// File: lib/models/totem.dart
 // CORRIGIDO: Agora herda de ManagedAsset para compatibilidade total
 
-import 'package:painel_windowns/models/asset_module_base.dart';
-import 'package:painel_windowns/models/bssid_mapping.dart';
-import 'package:painel_windowns/models/unit.dart';
+import 'package:painel_windowns/data/models/asset_module_base.dart';
+import 'package:painel_windowns/data/models/bssid_mapping.dart';
+import 'package:painel_windowns/data/models/unit.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/domain/entities/totem_entity.dart';
 

@@ -1,10 +1,10 @@
-// File: lib/widgets/audit_log_viewer.dart
+﻿// File: lib/widgets/audit_log_viewer.dart
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:painel_windowns/models/audit_log.dart'; // Presumido
+import 'package:painel_windowns/data/models/audit_log.dart'; // Presumido
 import 'package:painel_windowns/services/auth_service.dart'; // Presumido
 import 'package:painel_windowns/services/server_config_service.dart'; // Presumido
 

@@ -1,9 +1,9 @@
-// Unified devices_tab.dart
+﻿// Unified devices_tab.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/devices/widgets/managed_devices_card.dart';
-import 'package:painel_windowns/models/device.dart';
+import 'package:painel_windowns/data/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class DevicesTab extends StatefulWidget {

@@ -1,5 +1,5 @@
-import 'package:painel_windowns/devices/utils/helpers.dart';
-import 'package:painel_windowns/models/unit.dart';
+﻿import 'package:painel_windowns/devices/utils/helpers.dart';
+import 'package:painel_windowns/data/models/unit.dart';
 import 'package:painel_windowns/domain/entities/device_entity.dart';
 
 // ADICIONADO: Enum para os tipos de status

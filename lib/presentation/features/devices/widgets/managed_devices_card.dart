@@ -1,4 +1,4 @@
-// File: lib/devices/widgets/managed_devices_card.dart
+﻿// File: lib/devices/widgets/managed_devices_card.dart
 // MIGRADO PARA USAR BaseDataTable MANTENDO NOMES ORIGINAIS DAS COLUNAS
 
 import 'dart:convert';
@@ -12,7 +12,7 @@ import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/devices/device_detail_screen.dart';
 import 'package:painel_windowns/devices/utils/helpers.dart';
 import 'package:painel_windowns/devices/widgets/command_controls_v2.dart';
-import 'package:painel_windowns/models/device.dart';
+import 'package:painel_windowns/data/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
 import 'package:painel_windowns/widgets/common/app_card.dart';
