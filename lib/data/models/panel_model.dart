@@ -1,5 +1,5 @@
 ﻿// File: lib/models/painel.dart (VERSÃO CORRIGIDA)
-import 'package:painel_windowns/data/models/asset_module_base.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';

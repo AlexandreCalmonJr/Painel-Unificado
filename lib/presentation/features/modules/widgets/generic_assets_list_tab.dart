@@ -1,6 +1,6 @@
 ﻿// File: lib/tabs/generic_assets_list_tab.dart (CORRIGIDO)
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/data/models/asset_module_base.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart';
 import 'package:painel_windowns/services/auth_service.dart'; // ✅ IMPORT ADICIONADO
 

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/devices/widgets/hub_menu_item.dart';
-import 'package:painel_windowns/data/models/asset_module_base.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/modules/generic_dashboard_screen.dart';
 import 'package:painel_windowns/screen/profile_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';

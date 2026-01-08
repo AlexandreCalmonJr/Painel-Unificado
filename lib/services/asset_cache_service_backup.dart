@@ -1,6 +1,6 @@
 ﻿// File: lib/services/asset_cache_service.dart
 
-import 'package:painel_windowns/data/models/asset_module_base.dart'; // ✅ IMPORT ADICIONADO
+import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // ✅ IMPORT ADICIONADO
 
 class AssetCacheService {
   static final AssetCacheService _instance = AssetCacheService._internal();

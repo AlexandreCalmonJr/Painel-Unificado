@@ -1,6 +1,6 @@
 ﻿// File: lib/models/module.dart
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/data/models/asset_module_base.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 
 /// Modelo simplificado de módulo para uso na UI administrativa
 class Module {

@@ -7,7 +7,7 @@ import 'dart:io'; // Para File
 import 'package:file_saver/file_saver.dart'; // Para FileSaver
 import 'package:flutter/foundation.dart'; // Para kIsWeb
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/data/models/asset_module_base.dart'; // Import presumido
+import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // Import presumido
 import 'package:path_provider/path_provider.dart'; // Para getApplicationDocumentsDirectory
 
 class AssetComparisonScreen extends StatefulWidget {

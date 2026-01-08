@@ -1,6 +1,6 @@
 ﻿// File: lib/modules/widgets/send_command_dialog.dart
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/data/models/asset_module_base.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/command_service.dart';
 

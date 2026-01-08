@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 // Imports dos Modelos e Serviços
-import 'package:painel_windowns/data/models/asset_module_base.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 // Imports dos Modelos Específicos (Ajuste os caminhos)
 import 'package:painel_windowns/data/models/unit.dart';

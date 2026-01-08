@@ -4,7 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
-import 'package:painel_windowns/data/models/asset_module_base.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/modules/asset_detail_screen.dart';
 import 'package:painel_windowns/modules/widgets/asset_command_controls_v2.dart';
 import 'package:painel_windowns/services/auth_service.dart';

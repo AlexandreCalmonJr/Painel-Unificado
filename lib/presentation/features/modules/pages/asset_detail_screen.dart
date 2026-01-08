@@ -1,7 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:painel_windowns/devices/utils/helpers.dart';
-import 'package:painel_windowns/data/models/asset_module_base.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/desktop.dart';
 import 'package:painel_windowns/data/models/notebook.dart';
 import 'package:painel_windowns/data/models/painel.dart';
