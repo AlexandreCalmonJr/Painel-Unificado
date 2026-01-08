@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/core/utils/device_helpers.dart';
 import 'package:painel_windowns/data/models/device_model.dart';
 import 'package:painel_windowns/devices/device_detail_screen.dart';
@@ -8,6 +10,9 @@ import 'package:painel_windowns/devices/widgets/tabs/dashboard_tab.dart';
 import 'package:painel_windowns/devices/widgets/tabs/devices_tab.dart';
 import 'package:painel_windowns/devices/widgets/tabs/maintenance_tab.dart';
 import 'package:painel_windowns/devices/widgets/tabs/reports_tab.dart';
+import 'package:painel_windowns/presentation/bloc/device/device_bloc.dart';
+import 'package:painel_windowns/presentation/bloc/device/device_event.dart';
+import 'package:painel_windowns/presentation/bloc/device/device_state.dart';
 import 'package:painel_windowns/presentation/shared/layouts/base_dashboard_layout.dart';
 import 'package:painel_windowns/presentation/shared/widgets/app_bar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
@@ -156,138 +161,208 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: CustomAppBar(
-        title: 'Dispositivos Móveis',
-        authService: widget.authService,
-        showBackButton: false,
-        showMenuButton: true,
-        onMenuPressed: () {
-          setState(() => _isSidebarVisible = !_isSidebarVisible);
+    return BlocProvider(
+      create: (_) => getIt<DeviceBloc>()..add(const LoadDevices()),
+      child: BlocListener<DeviceBloc, DeviceState>(
+        listener: (context, state) {
+          // Atualizar lista local quando BLoC carregar devices
+          if (state is DeviceLoaded) {
+            setState(() {
+              _devices =
+                  state.devices.map((entity) {
+                    // Converter DeviceEntity para Device (model)
+                    return Device(
+                      id: entity.id,
+                      deviceName: entity.deviceName ?? 'Unknown',
+                      serialNumber: entity.serialNumber ?? 'N/A',
+                      model: entity.model ?? 'N/A',
+                      manufacturer: entity.manufacturer ?? 'N/A',
+                      status: entity.status ?? 'offline',
+                      lastSeen: entity.lastSeen ?? DateTime.now().toString(),
+                      location: entity.location,
+                      unit: entity.unit,
+                      sector: entity.sector,
+                      floor: entity.floor,
+                      ipAddress: entity.ipAddress,
+                      macAddress: entity.macAddress,
+                      battery: entity.batteryLevel,
+                    );
+                  }).toList();
+              _isLoading = false;
+              _errorMessage = null;
+            });
+          }
+          if (state is DeviceError) {
+            setState(() {
+              _errorMessage = state.message;
+              _isLoading = false;
+            });
+          }
+          if (state is DeviceLoading) {
+            setState(() {
+              _isLoading = true;
+              _errorMessage = null;
+            });
+          }
         },
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Colors.blue,
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: Colors.blue,
-          tabs: const [
-            Tab(icon: Icon(Icons.dashboard), text: 'Dashboard'),
-            Tab(icon: Icon(Icons.devices), text: 'Dispositivos'),
-            Tab(icon: Icon(Icons.build), text: 'Manutenção'),
-            Tab(icon: Icon(Icons.assessment), text: 'Relatórios'),
-          ],
-        ),
-      ),
-      body: Row(
-        children: [
-          if (_isSidebarVisible) _buildSidebar(),
-          Expanded(
-            child:
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _errorMessage != null
-                    ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Colors.red[300],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _errorMessage!,
-                            style: TextStyle(color: Colors.red[700]),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () => _loadDevices(isInitialLoad: true),
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Tentar Novamente'),
-                          ),
-                        ],
-                      ),
-                    )
-                    : TabBarView(
-                      controller: _tabController,
-                      children: [
-                        // Dashboard Tab
-                        BaseDashboardLayout(
-                          title: 'Dashboard',
-                          stats: _buildStats(),
-                          mainContent: DashboardTab(
-                            authService: widget.authService,
-                            devices: _devices,
-                            onDeviceTap: (device) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => DeviceDetailScreen(
-                                        device: device,
-                                        authService: widget.authService,
-                                      ),
-                                ),
-                              );
-                            },
-                          ),
-                          onRefresh: _loadDevices,
-                        ),
-
-                        // Devices Tab
-                        BaseDashboardLayout(
-                          title: 'Dispositivos',
-                          stats: _buildStats(),
-                          mainContent: DevicesTab(
-                            authService: widget.authService,
-                            devices: _devices,
-                            onDeviceTap: (device) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => DeviceDetailScreen(
-                                        device: device,
-                                        authService: widget.authService,
-                                      ),
-                                ),
-                              );
-                            },
-                            onRefresh: _loadDevices,
-                          ),
-                          onRefresh: _loadDevices,
-                          showStats: false, // Stats já mostrados na tab
-                        ),
-
-                        // Maintenance Tab
-                        BaseDashboardLayout(
-                          title: 'Manutenção',
-                          stats: [],
-                          mainContent: MaintenanceTab(
-                            authService: widget.authService,
-                            devices: _devices,
-                          ),
-                          onRefresh: _loadDevices,
-                          showStats: false,
-                        ),
-
-                        // Reports Tab
-                        BaseDashboardLayout(
-                          title: 'Relatórios',
-                          stats: [],
-                          mainContent: ReportsTab(
-                            authService: widget.authService,
-                            devices: _devices,
-                          ),
-                          onRefresh: _loadDevices,
-                          showStats: false,
-                        ),
-                      ],
-                    ),
+        child: Scaffold(
+          backgroundColor: Colors.grey[50],
+          appBar: CustomAppBar(
+            title: 'Dispositivos Móveis',
+            authService: widget.authService,
+            showBackButton: false,
+            showMenuButton: true,
+            onMenuPressed: () {
+              setState(() => _isSidebarVisible = !_isSidebarVisible);
+            },
+            bottom: TabBar(
+              controller: _tabController,
+              labelColor: Colors.blue,
+              unselectedLabelColor: Colors.grey,
+              indicatorColor: Colors.blue,
+              tabs: const [
+                Tab(icon: Icon(Icons.dashboard), text: 'Dashboard'),
+                Tab(icon: Icon(Icons.devices), text: 'Dispositivos'),
+                Tab(icon: Icon(Icons.build), text: 'Manutenção'),
+                Tab(icon: Icon(Icons.assessment), text: 'Relatórios'),
+              ],
+            ),
           ),
-        ],
+          body: Row(
+            children: [
+              if (_isSidebarVisible) _buildSidebar(),
+              Expanded(
+                child:
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _errorMessage != null
+                        ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 64,
+                                color: Colors.red[300],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _errorMessage!,
+                                style: TextStyle(color: Colors.red[700]),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  context.read<DeviceBloc>().add(
+                                    const LoadDevices(),
+                                  );
+                                },
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Tentar Novamente'),
+                              ),
+                            ],
+                          ),
+                        )
+                        : TabBarView(
+                          controller: _tabController,
+                          children: [
+                            // Dashboard Tab
+                            BaseDashboardLayout(
+                              title: 'Dashboard',
+                              stats: _buildStats(),
+                              mainContent: DashboardTab(
+                                authService: widget.authService,
+                                devices: _devices,
+                                onDeviceTap: (device) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => DeviceDetailScreen(
+                                            device: device,
+                                            authService: widget.authService,
+                                          ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              onRefresh: () async {
+                                context.read<DeviceBloc>().add(
+                                  const RefreshDevices(),
+                                );
+                              },
+                            ),
+
+                            // Devices Tab
+                            BaseDashboardLayout(
+                              title: 'Dispositivos',
+                              stats: _buildStats(),
+                              mainContent: DevicesTab(
+                                authService: widget.authService,
+                                devices: _devices,
+                                onDeviceTap: (device) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => DeviceDetailScreen(
+                                            device: device,
+                                            authService: widget.authService,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                onRefresh: () async {
+                                  context.read<DeviceBloc>().add(
+                                    const RefreshDevices(),
+                                  );
+                                },
+                              ),
+                              onRefresh: () async {
+                                context.read<DeviceBloc>().add(
+                                  const RefreshDevices(),
+                                );
+                              },
+                              showStats: false, // Stats já mostrados na tab
+                            ),
+
+                            // Maintenance Tab
+                            BaseDashboardLayout(
+                              title: 'Manutenção',
+                              stats: [],
+                              mainContent: MaintenanceTab(
+                                authService: widget.authService,
+                                devices: _devices,
+                              ),
+                              onRefresh: () async {
+                                context.read<DeviceBloc>().add(
+                                  const RefreshDevices(),
+                                );
+                              },
+                              showStats: false,
+                            ),
+
+                            // Reports Tab
+                            BaseDashboardLayout(
+                              title: 'Relatórios',
+                              stats: [],
+                              mainContent: ReportsTab(
+                                authService: widget.authService,
+                                devices: _devices,
+                              ),
+                              onRefresh: () async {
+                                context.read<DeviceBloc>().add(
+                                  const RefreshDevices(),
+                                );
+                              },
+                              showStats: false,
+                            ),
+                          ],
+                        ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
