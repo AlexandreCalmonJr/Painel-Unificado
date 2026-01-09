@@ -1,12 +1,12 @@
 // File: lib/screen/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/config/theme_config.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/core/config/theme_models.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
-import 'package:painel_windowns/widgets/profile_avatar_widget.dart';
-import 'package:painel_windowns/widgets/theme_selector_widget.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
+import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
   final AuthService authService;

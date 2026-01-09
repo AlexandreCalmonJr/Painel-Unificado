@@ -9,6 +9,7 @@ import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart
 import 'package:painel_windowns/presentation/features/totem/widgets/totems_list_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
+import 'package:painel_windowns/presentation/features/totem/widgets/managed_devices_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class TotemDashboardScreen extends StatefulWidget {
@@ -261,7 +262,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            username,
+                            username.toString(),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -269,7 +270,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                             ),
                           ),
                           Text(
-                            role.toUpperCase(),
+                            role.toString().toUpperCase(),
                             style: TextStyle(
                               fontSize: 10,
                               color: Colors.grey[600],
@@ -335,7 +336,9 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                     backgroundColor:
                         role == 'admin' ? Colors.red[600] : Colors.blue[600],
                     child: Text(
-                      username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                      username.toString().isNotEmpty
+                          ? username.toString()[0].toUpperCase()
+                          : 'U',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

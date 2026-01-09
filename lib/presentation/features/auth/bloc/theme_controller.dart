@@ -3,7 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/config/theme_config.dart';
+import 'package:painel_windowns/core/config/theme_models.dart';
+import 'package:painel_windowns/core/utils/theme_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeController extends GetxController {

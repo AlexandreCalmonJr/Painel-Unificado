@@ -1,8 +1,8 @@
 // File: lib/widgets/dialogs/user_dialog.dart
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 
 class UserDialog {
   /// Mostra dialog para criar novo usuário
@@ -237,14 +237,15 @@ class UserDialog {
                           'permissions': selectedPermissions,
                         });
 
-                        if (result['success']) {
+                        if (result['success'] == true) {
                           Navigator.pop(context);
                           onSuccess();
                           _showSnackbar(context, 'Usuário criado com sucesso!');
                         } else {
                           _showSnackbar(
                             context,
-                            result['message'] ?? 'Erro ao criar usuário',
+                            result['message']?.toString() ??
+                                'Erro ao criar usuário',
                             isError: true,
                           );
                         }
@@ -280,14 +281,19 @@ class UserDialog {
     final isDark = themeController.isDarkMode;
     final palette = themeController.currentPalette;
 
-    final usernameController = TextEditingController(text: user['username']);
-    final emailController = TextEditingController(text: user['email']);
-    final sectorController = TextEditingController(text: user['sector']);
-
-    String selectedRole = user['role'];
-    List<String> selectedPermissions = List<String>.from(
-      user['permissions'] ?? [],
+    final usernameController = TextEditingController(
+      text: user['username']?.toString() ?? '',
     );
+    final emailController = TextEditingController(
+      text: user['email']?.toString() ?? '',
+    );
+    final sectorController = TextEditingController(
+      text: user['sector']?.toString() ?? '',
+    );
+
+    String selectedRole = user['role']?.toString() ?? 'user';
+    List<String> selectedPermissions =
+        (user['permissions'] as List?)?.map((e) => e.toString()).toList() ?? [];
 
     showDialog(
       context: context,
@@ -437,7 +443,7 @@ class UserDialog {
                               'permissions': selectedPermissions,
                             });
 
-                        if (result['success']) {
+                        if (result['success'] == true) {
                           Navigator.pop(context);
                           onSuccess();
                           _showSnackbar(
@@ -447,7 +453,8 @@ class UserDialog {
                         } else {
                           _showSnackbar(
                             context,
-                            result['message'] ?? 'Erro ao atualizar usuário',
+                            result['message']?.toString() ??
+                                'Erro ao atualizar usuário',
                             isError: true,
                           );
                         }
@@ -539,13 +546,14 @@ class UserDialog {
                 onPressed: () async {
                   final result = await authService.deleteUser(user['_id']);
                   Navigator.pop(context);
-                  if (result['success']) {
+                  if (result['success'] == true) {
                     onSuccess();
                     _showSnackbar(context, 'Usuário excluído com sucesso!');
                   } else {
                     _showSnackbar(
                       context,
-                      result['message'] ?? 'Erro ao excluir usuário',
+                      result['message']?.toString() ??
+                          'Erro ao excluir usuário',
                       isError: true,
                     );
                   }

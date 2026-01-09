@@ -1,6 +1,6 @@
 // File: lib/widgets/profile_avatar_widget.dart
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 
 /// Widget de avatar do usuário com iniciais
 class ProfileAvatarWidget extends StatelessWidget {

@@ -1,7 +1,6 @@
 // File: lib/widgets/advanced_search_bar.dart
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/widgets/asset_search_filter.dart';
-
+import 'package:painel_windowns/presentation/shared/widgets/inputs/asset_search_filter.dart';
 
 class AdvancedSearchBar extends StatefulWidget {
   final Function(AssetSearchFilter) onSearch;
@@ -72,9 +71,12 @@ class _AdvancedSearchBarState extends State<AdvancedSearchBar> {
                       labelText: 'Status',
                       border: OutlineInputBorder(),
                     ),
-                    items: ['Todos', 'Online', 'Offline', 'Manutenção']
-                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                        .toList(),
+                    items:
+                        ['Todos', 'Online', 'Offline', 'Manutenção']
+                            .map(
+                              (s) => DropdownMenuItem(value: s, child: Text(s)),
+                            )
+                            .toList(),
                     onChanged: (value) {
                       setState(() => _selectedStatus = value);
                       _applyFilters();
@@ -90,9 +92,12 @@ class _AdvancedSearchBarState extends State<AdvancedSearchBar> {
                       border: OutlineInputBorder(),
                     ),
                     // ✅ CÓDIGO COMPLETADO
-                    items: _getAvailableUnits()
-                        .map((u) => DropdownMenuItem(value: u, child: Text(u)))
-                        .toList(),
+                    items:
+                        _getAvailableUnits()
+                            .map(
+                              (u) => DropdownMenuItem(value: u, child: Text(u)),
+                            )
+                            .toList(),
                     onChanged: (value) {
                       setState(() => _selectedUnit = value);
                       _applyFilters();
@@ -108,9 +113,12 @@ class _AdvancedSearchBarState extends State<AdvancedSearchBar> {
                       labelText: 'Setor',
                       border: OutlineInputBorder(),
                     ),
-                    items: _getAvailableSectors()
-                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                        .toList(),
+                    items:
+                        _getAvailableSectors()
+                            .map(
+                              (s) => DropdownMenuItem(value: s, child: Text(s)),
+                            )
+                            .toList(),
                     onChanged: (value) {
                       setState(() => _selectedSector = value);
                       _applyFilters();
