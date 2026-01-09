@@ -84,13 +84,14 @@ class Printer extends ManagedAsset {
     List<BssidMapping>? bssidMappings,
   ]) {
     // ✅ PRIORIZA DADOS DO SERVIDOR
-    String? unit = json['unit'];
-    String? sector = json['sector'];
-    String? floor = json['floor'];
-    String? location = json['location'];
+    String? unit = json['unit'] as String?;
+    String? sector = json['sector'] as String?;
+    String? floor = json['floor'] as String?;
+    String? location = json['location'] as String?;
 
     // IP efetivo: impressora de rede ou host (USB)
-    final effectiveIp = json['ip_address'] ?? json['host_computer_ip'] ?? '';
+    final effectiveIp =
+        (json['ip_address'] ?? json['host_computer_ip'] ?? '') as String;
 
     // 🔥 SÓ MAPEIA SE AUSENTE OU INVÁLIDO
     final bool shouldMap =
@@ -105,7 +106,7 @@ class Printer extends ManagedAsset {
         units: units,
         bssidMappings: bssidMappings ?? [],
         ip: effectiveIp,
-        macAddress: json['mac_address'] ?? '',
+        macAddress: (json['mac_address'] ?? '') as String,
         originalLocation: location ?? 'N/D',
       );
 
@@ -118,63 +119,65 @@ class Printer extends ManagedAsset {
     }
 
     return Printer(
-      id: json['_id'] ?? json['id'],
-      assetName: json['asset_name'] ?? json['hostname'],
-      serialNumber: json['serial_number'],
-      status: json['status'] ?? 'offline',
-      lastSeen: DateTime.parse(json['last_seen']),
+      id: (json['_id'] ?? json['id']) as String,
+      assetName: (json['asset_name'] ?? json['hostname']) as String,
+      serialNumber: json['serial_number'] as String,
+      status: (json['status'] ?? 'offline') as String,
+      lastSeen: DateTime.parse(json['last_seen'] as String),
       location: location,
-      assignedTo: json['assigned_to'],
+      assignedTo: json['assigned_to'] as String?,
       customData:
           json['custom_data'] != null
-              ? Map<String, dynamic>.from(json['custom_data'])
+              ? Map<String, dynamic>.from(json['custom_data'] as Map)
               : {},
 
       unit: unit,
       sector: sector,
       floor: floor,
 
-      hostname: json['hostname'] ?? 'N/A',
-      model: json['model'] ?? 'N/A',
-      manufacturer: json['manufacturer'] ?? 'N/A',
-      ipAddress: json['ip_address'],
-      macAddress: json['mac_address'],
-      connectionType: json['connection_type'] ?? 'network',
-      usbPort: json['usb_port'],
-      printerStatus: json['printer_status'] ?? 'unknown',
-      errorMessage: json['error_message'],
-      totalPageCount: json['total_page_count'],
-      colorPageCount: json['color_page_count'],
-      blackWhitePageCount: json['black_white_page_count'],
+      hostname: (json['hostname'] ?? 'N/A') as String,
+      model: (json['model'] ?? 'N/A') as String,
+      manufacturer: (json['manufacturer'] ?? 'N/A') as String,
+      ipAddress: json['ip_address'] as String?,
+      macAddress: json['mac_address'] as String?,
+      connectionType: (json['connection_type'] ?? 'network') as String,
+      usbPort: json['usb_port'] as String?,
+      printerStatus: (json['printer_status'] ?? 'unknown') as String,
+      errorMessage: json['error_message'] as String?,
+      totalPageCount: json['total_page_count'] as int?,
+      colorPageCount: json['color_page_count'] as int?,
+      blackWhitePageCount: json['black_white_page_count'] as int?,
       tonerLevels:
           json['toner_levels'] != null
-              ? Map<String, dynamic>.from(json['toner_levels'])
+              ? Map<String, dynamic>.from(json['toner_levels'] as Map)
               : null,
-      paperLevel: json['paper_level'],
-      isDuplex: json['is_duplex'],
-      isColor: json['is_color'],
+      paperLevel: json['paper_level'] as int?,
+      isDuplex: json['is_duplex'] as bool?,
+      isColor: json['is_color'] as bool?,
       supportedPaperSizes:
           json['supported_paper_sizes'] != null
-              ? List<String>.from(json['supported_paper_sizes'])
+              ? List<String>.from(json['supported_paper_sizes'] as List)
               : null,
-      hostComputerName: json['host_computer_name'],
-      hostComputerIp: json['host_computer_ip'],
-      firmwareVersion: json['firmware_version'],
-      driverVersion: json['driver_version'],
+      hostComputerName: json['host_computer_name'] as String?,
+      hostComputerIp: json['host_computer_ip'] as String?,
+      firmwareVersion: json['firmware_version'] as String?,
+      driverVersion: json['driver_version'] as String?,
       lastMaintenanceDate:
           json['last_maintenance_date'] != null
-              ? DateTime.parse(json['last_maintenance_date'])
+              ? DateTime.parse(json['last_maintenance_date'] as String)
               : null,
       maintenanceInfo:
           json['maintenance_info'] != null
-              ? Map<String, dynamic>.from(json['maintenance_info'])
+              ? Map<String, dynamic>.from(json['maintenance_info'] as Map)
               : null,
-      maintenanceStatus: json['maintenance_status'] ?? false,
-      maintenanceTicket: json['maintenance_ticket'],
-      maintenanceReason: json['maintenance_reason'],
+      maintenanceStatus: (json['maintenance_status'] ?? false) as bool,
+      maintenanceTicket: json['maintenance_ticket'] as String?,
+      maintenanceReason: json['maintenance_reason'] as String?,
       maintenanceHistory:
           json['maintenance_history'] != null
-              ? List<Map<String, dynamic>>.from(json['maintenance_history'])
+              ? List<Map<String, dynamic>>.from(
+                json['maintenance_history'] as List,
+              )
               : null,
     );
   }
@@ -241,7 +244,7 @@ class Printer extends ManagedAsset {
   /// Converte Printer model para ModuleEntity (domain layer)
   ModuleEntity toEntity() {
     return ModuleEntity(
-      id: id ?? '',
+      id: id,
       assetTag: serialNumber,
       serialNumber: serialNumber,
       model: model,

@@ -71,10 +71,10 @@ class Panel extends ManagedAsset {
     List<BssidMapping>? bssidMappings,
   ]) {
     // ✅ PRIORIZA DADOS DO SERVIDOR
-    String? unit = json['unit'];
-    String? sector = json['sector'];
-    String? floor = json['floor'];
-    String? location = json['location'];
+    String? unit = json['unit'] as String?;
+    String? sector = json['sector'] as String?;
+    String? floor = json['floor'] as String?;
+    String? location = json['location'] as String?;
 
     // 🔥 SÓ MAPEIA SE AUSENTE OU INVÁLIDO
     final bool shouldMap =
@@ -91,8 +91,8 @@ class Panel extends ManagedAsset {
       final locationData = LocationMapperService.mapLocation(
         units: units,
         bssidMappings: bssidMappings ?? [],
-        ip: json['ip_address'] ?? 'N/A',
-        macAddress: json['mac_address'] ?? 'N/A',
+        ip: (json['ip_address'] ?? 'N/A') as String,
+        macAddress: (json['mac_address'] ?? 'N/A') as String,
         originalLocation: location ?? 'N/D',
       );
 
@@ -108,13 +108,13 @@ class Panel extends ManagedAsset {
     }
 
     return Panel(
-      id: json['_id'] ?? json['id'],
-      assetName: json['asset_name'] ?? json['hostname'],
-      serialNumber: json['serial_number'],
-      status: json['status'] ?? 'offline',
-      lastSeen: DateTime.parse(json['last_seen']),
+      id: (json['_id'] ?? json['id']) as String,
+      assetName: (json['asset_name'] ?? json['hostname']) as String,
+      serialNumber: json['serial_number'] as String,
+      status: (json['status'] ?? 'offline') as String,
+      lastSeen: DateTime.parse(json['last_seen'] as String),
       location: location,
-      assignedTo: json['assigned_to'],
+      assignedTo: json['assigned_to'] as String?,
       customData:
           json['custom_data'] != null
               ? Map<String, dynamic>.from(json['custom_data'])
@@ -124,37 +124,34 @@ class Panel extends ManagedAsset {
       sector: sector,
       floor: floor,
 
-      hostname: json['hostname'] ?? 'N/A',
-      model: json['model'] ?? 'N/A',
-      manufacturer: json['manufacturer'] ?? 'N/A',
-      screenSize: json['screen_size'] ?? 'N/A',
-      resolution: json['resolution'] ?? 'N/A',
-      ipAddress: json['ip_address'] ?? 'N/A',
-      macAddress: json['mac_address'] ?? 'N/A',
-      firmwareVersion: json['firmware_version'] ?? 'N/A',
-      isOnline: json['is_online'] ?? false,
-      currentContent: json['current_content'],
+      hostname: (json['hostname'] ?? 'N/A') as String,
+      model: (json['model'] ?? 'N/A') as String,
+      manufacturer: (json['manufacturer'] ?? 'N/A') as String,
+      screenSize: (json['screen_size'] ?? 'N/A') as String,
+      resolution: (json['resolution'] ?? 'N/A') as String,
+      ipAddress: (json['ip_address'] ?? 'N/A') as String,
+      macAddress: (json['mac_address'] ?? 'N/A') as String,
+      firmwareVersion: (json['firmware_version'] ?? 'N/A') as String,
+      isOnline: (json['is_online'] ?? false) as bool,
+      currentContent: json['current_content'] as String?,
       contentLastUpdated:
           json['content_last_updated'] != null
-              ? DateTime.parse(json['content_last_updated'])
+              ? DateTime.parse(json['content_last_updated'] as String)
               : null,
       displaySettings:
           json['display_settings'] != null
-              ? Map<String, dynamic>.from(json['display_settings'])
+              ? Map<String, dynamic>.from(json['display_settings'] as Map)
               : null,
-      brightness: json['brightness'],
-      volume: json['volume'],
-      hdmiInput: json['hdmi_input'],
+      brightness: json['brightness'] as int?,
+      volume: json['volume'] as int?,
+      hdmiInput: json['hdmi_input'] as String?,
       connectedDevices:
           json['connected_devices'] != null
-              ? List<String>.from(json['connected_devices'])
+              ? List<String>.from(json['connected_devices'] as List)
               : null,
 
       // ✅ NOVO: Campos de manutenção
-      maintenanceStatus:
-          json['maintenance_status'] is bool
-              ? json['maintenance_status']
-              : false,
+      maintenanceStatus: (json['maintenance_status'] ?? false) as bool,
       maintenanceTicket: json['maintenance_ticket']?.toString(),
       maintenanceReason: json['maintenance_reason']?.toString(),
       maintenanceHistory:

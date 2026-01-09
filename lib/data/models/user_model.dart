@@ -25,15 +25,19 @@ class User {
   /// Converte JSON para User model
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['_id'] ?? json['id'],
-      username: json['username'],
-      email: json['email'],
-      role: json['role'],
-      isActive: json['isActive'] ?? json['is_active'] ?? true,
+      id: (json['_id'] ?? json['id']) as String?,
+      username: json['username'] as String?,
+      email: json['email'] as String?,
+      role: json['role'] as String?,
+      isActive: (json['isActive'] ?? json['is_active'] ?? true) as bool,
       createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+          json['createdAt'] != null
+              ? DateTime.parse(json['createdAt'] as String)
+              : null,
       updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+          json['updatedAt'] != null
+              ? DateTime.parse(json['updatedAt'] as String)
+              : null,
     );
   }
 
@@ -56,11 +60,10 @@ class User {
     return UserEntity(
       id: id ?? '',
       username: username ?? '',
-      email: email,
+      email: email ?? '',
       role: role ?? 'user',
       isActive: isActive ?? true,
       createdAt: createdAt,
-      updatedAt: updatedAt,
     );
   }
 
@@ -73,7 +76,6 @@ class User {
       role: entity.role,
       isActive: entity.isActive,
       createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
     );
   }
 

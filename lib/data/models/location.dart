@@ -43,7 +43,7 @@ class Location {
     }
     // Fallback para campo único 'ip_range'
     else if (json['ip_range'] != null || json['ipRange'] != null) {
-      final ipRange = json['ip_range'] ?? json['ipRange'];
+      final ipRange = (json['ip_range'] ?? json['ipRange']) as String;
       ranges.add(IpRange(start: ipRange, end: ipRange));
     }
 
@@ -57,15 +57,15 @@ class Location {
     }
 
     return Location(
-      name: json['name'] ?? json['unit_name'] ?? '',
+      name: (json['name'] ?? json['unit_name'] ?? '') as String,
       ipRanges: ranges,
       bssids: bssidList,
-      description: json['description'],
-      deviceCount: json['device_count'] ?? json['deviceCount'] ?? 0,
-      isOnline: json['is_online'] ?? json['isOnline'] ?? false,
+      description: json['description'] as String?,
+      deviceCount: (json['device_count'] ?? json['deviceCount'] ?? 0) as int,
+      isOnline: (json['is_online'] ?? json['isOnline'] ?? false) as bool,
       lastSeen:
           json['last_seen'] != null
-              ? DateTime.tryParse(json['last_seen'])
+              ? DateTime.tryParse(json['last_seen'] as String)
               : null,
     );
   }

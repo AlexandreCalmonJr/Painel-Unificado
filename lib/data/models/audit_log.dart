@@ -9,7 +9,7 @@ class AuditLog {
   final String userId;
   final String username;
   final DateTime timestamp;
-  
+
   AuditLog({
     required this.id,
     required this.assetId,
@@ -22,20 +22,19 @@ class AuditLog {
     required this.username,
     required this.timestamp,
   });
-  
+
   factory AuditLog.fromJson(Map<String, dynamic> json) {
     return AuditLog(
-      id: json['_id'],
-      assetId: json['asset_id'],
-      assetName: json['asset_name'],
-      action: json['action'],
-      field: json['field'],
-      oldValue: json['old_value'],
-      newValue: json['new_value'],
-      userId: json['user_id'],
-      username: json['username'],
-      timestamp: DateTime.parse(json['timestamp']),
+      id: json['_id'] as String,
+      assetId: json['asset_id'] as String,
+      assetName: json['asset_name'] as String,
+      action: json['action'] as String,
+      field: json['field'] as String?,
+      oldValue: json['old_value'] as String?,
+      newValue: json['new_value'] as String?,
+      userId: json['user_id'] as String,
+      username: json['username'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
     );
   }
 }
-

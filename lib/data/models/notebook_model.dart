@@ -87,16 +87,16 @@ class Notebook extends ManagedAsset {
     List<Unit> units, [
     List<BssidMapping>? bssidMappings,
   ]) {
-    String? unit = json['unit'];
-    String? sector = json['sector'];
-    String? floor = json['floor'];
-    String? location = json['location'];
+    String? unit = json['unit'] as String?;
+    String? sector = json['sector'] as String?;
+    String? floor = json['floor'] as String?;
+    String? location = json['location'] as String?;
 
-    final serialNumber = json['serial_number'] ?? 'N/A';
+    final serialNumber = (json['serial_number'] ?? 'N/A') as String;
 
     // ✅ CORRIGIDO: Priorizar mac_address_radio (BSSID) para mapeamento
-    final macAddressRadio = json['mac_address_radio'] ?? 'N/A';
-    final macAddress = json['mac_address'] ?? 'N/A';
+    final macAddressRadio = (json['mac_address_radio'] ?? 'N/A') as String;
+    final macAddress = (json['mac_address'] ?? 'N/A') as String;
 
     logger.debug(
       'Notebook $serialNumber - BSSID: $macAddressRadio, MAC: $macAddress, IP: ${json['ip_address']}, Unit: $unit, Sector: $sector, Floor: $floor',
@@ -117,7 +117,7 @@ class Notebook extends ManagedAsset {
       final locationData = LocationMapperService.mapLocation(
         units: units,
         bssidMappings: bssidMappings ?? [],
-        ip: json['ip_address'] ?? 'N/A',
+        ip: (json['ip_address'] ?? 'N/A') as String,
         macAddress: macAddressRadio, // ✅ Usar BSSID para mapeamento
         originalLocation: location ?? 'N/D',
       );
@@ -139,13 +139,13 @@ class Notebook extends ManagedAsset {
     }
 
     return Notebook(
-      id: json['_id'] ?? json['id'],
-      assetName: json['asset_name'] ?? json['hostname'],
-      serialNumber: json['serial_number'],
-      status: json['status'] ?? 'offline',
-      lastSeen: DateTime.parse(json['last_seen']),
+      id: (json['_id'] ?? json['id']) as String,
+      assetName: (json['asset_name'] ?? json['hostname']) as String,
+      serialNumber: json['serial_number'] as String,
+      status: (json['status'] ?? 'offline') as String,
+      lastSeen: DateTime.parse(json['last_seen'] as String),
       location: location,
-      assignedTo: json['assigned_to'],
+      assignedTo: json['assigned_to'] as String?,
       customData:
           json['custom_data'] != null
               ? Map<String, dynamic>.from(json['custom_data'])
@@ -154,49 +154,51 @@ class Notebook extends ManagedAsset {
       // ✅ CAMPOS CORRIGIDOS
       updatedAt:
           json['updated_at'] != null
-              ? DateTime.parse(json['updated_at'])
-              : DateTime.parse(json['last_seen']),
-      currentUser: json['current_user'],
-      uptime: json['uptime'],
+              ? DateTime.parse(json['updated_at'] as String)
+              : DateTime.parse(json['last_seen'] as String),
+      currentUser: json['current_user'] as String?,
+      uptime: json['uptime'] as String?,
 
       unit: unit,
       sector: sector,
       floor: floor,
 
-      hostname: json['hostname'] ?? 'N/A',
-      model: json['model'] ?? 'N/A',
-      manufacturer: json['manufacturer'] ?? 'N/A',
-      processor: json['processor'] ?? 'N/A',
-      ram: json['ram'] ?? 'N/A',
-      storage: json['storage'] ?? 'N/A',
-      storageType: json['storage_type'] ?? 'N/A', // ✅ NOVO
-      operatingSystem: json['operating_system'] ?? 'N/A',
-      osVersion: json['os_version'] ?? 'N/A',
-      ipAddress: json['ip_address'] ?? 'N/A',
+      hostname: (json['hostname'] ?? 'N/A') as String,
+      model: (json['model'] ?? 'N/A') as String,
+      manufacturer: (json['manufacturer'] ?? 'N/A') as String,
+      processor: (json['processor'] ?? 'N/A') as String,
+      ram: (json['ram'] ?? 'N/A') as String,
+      storage: (json['storage'] ?? 'N/A') as String,
+      storageType: (json['storage_type'] ?? 'N/A') as String, // ✅ NOVO
+      operatingSystem: (json['operating_system'] ?? 'N/A') as String,
+      osVersion: (json['os_version'] ?? 'N/A') as String,
+      ipAddress: (json['ip_address'] ?? 'N/A') as String,
       macAddress: macAddress == 'N/A' ? 'N/A' : macAddress,
       macAddressRadio:
           macAddressRadio == 'N/A' ? null : macAddressRadio, // ✅ NOVO
-      wifiSsid: json['wifi_ssid'], // ✅ NOVO
-      connectionType: json['connection_type'] ?? 'Desconhecido', // ✅ NOVO
+      wifiSsid: json['wifi_ssid'] as String?, // ✅ NOVO
+      connectionType:
+          (json['connection_type'] ?? 'Desconhecido') as String, // ✅ NOVO
       biometricReaderStatus:
-          json['biometric_reader'] ?? json['biometric_reader_status'] ?? 'N/A',
+          (json['biometric_reader'] ?? json['biometric_reader_status'] ?? 'N/A')
+              as String,
       installedSoftware:
           json['installed_software'] != null
-              ? List<String>.from(json['installed_software'])
+              ? List<String>.from(json['installed_software'] as List)
               : [],
-      antivirusStatus: json['antivirus_status'] ?? false,
-      antivirusVersion: json['antivirus_version'],
+      antivirusStatus: (json['antivirus_status'] ?? false) as bool,
+      antivirusVersion: json['antivirus_version'] as String?,
       lastUpdateCheck:
           json['last_update_check'] != null
-              ? DateTime.parse(json['last_update_check'])
+              ? DateTime.parse(json['last_update_check'] as String)
               : null,
       hardwareInfo:
           json['hardware_info'] != null
-              ? Map<String, dynamic>.from(json['hardware_info'])
+              ? Map<String, dynamic>.from(json['hardware_info'] as Map)
               : null,
-      isEncrypted: json['is_encrypted'] ?? false,
-      batteryLevel: json['battery_level'],
-      batteryHealth: json['battery_health'],
+      isEncrypted: (json['is_encrypted'] ?? false) as bool,
+      batteryLevel: json['battery_level'] as int?,
+      batteryHealth: json['battery_health'] as String?,
     );
   }
 

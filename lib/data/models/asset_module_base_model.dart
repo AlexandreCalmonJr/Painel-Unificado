@@ -1,4 +1,5 @@
 // File: lib/models/asset_module_base.dart
+import 'package:flutter/material.dart';
 
 /// Enum para os tipos de módulos disponíveis
 enum AssetModuleType {
@@ -22,20 +23,35 @@ enum AssetModuleType {
 class TableColumnConfig {
   final String dataKey; // A chave no JSON/Map (ex: "assetName", "serialNumber", "hostname")
   final String label;   // O texto do cabeçalho (ex: "Nome do Ativo", "Serial", "Hostname")
+  final bool isVisible;
+  final bool isSortable;
+  final double? width;
 
-  TableColumnConfig({required this.dataKey, required this.label});
+  TableColumnConfig({
+    required this.dataKey,
+    required this.label,
+    this.isVisible = true,
+    this.isSortable = true,
+    this.width,
+  });
 
   factory TableColumnConfig.fromJson(Map<String, dynamic> json) {
     return TableColumnConfig(
-      dataKey: json['dataKey'],
-      label: json['label'],
+      dataKey: json['dataKey'] as String,
+      label: json['label'] as String,
+      isVisible: (json['isVisible'] ?? true) as bool,
+      isSortable: (json['isSortable'] ?? true) as bool,
+      width: (json['width'] as num?)?.toDouble(),
     );
   }
 
-  Map<String, String> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'dataKey': dataKey,
       'label': label,
+      'isVisible': isVisible,
+      'isSortable': isSortable,
+      'width': width,
     };
   }
 }
@@ -77,20 +93,20 @@ abstract class AssetModuleConfig {
     
     // Decodifica a lista de colunas
     final List<TableColumnConfig> columns = (json['table_columns'] as List? ?? [])
-        .map((colJson) => TableColumnConfig.fromJson(Map<String, dynamic>.from(colJson)))
+        .map((colJson) => TableColumnConfig.fromJson(Map<String, dynamic>.from(colJson as Map)))
         .toList();
 
     return _ConcreteAssetModuleConfig(
-      id: json['_id'] ?? json['id'],
-      name: json['name'],
-      description: json['description'] ?? '',
+      id: (json['_id'] ?? json['id']) as String,
+      name: json['name'] as String,
+      description: (json['description'] ?? '') as String,
       type: type,
-      isActive: json['is_active'] ?? true,
-      isCustom: json['is_custom'] ?? false,
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
-      customFields: Map<String, dynamic>.from(json['custom_fields'] ?? {}),
-      settings: Map<String, dynamic>.from(json['settings'] ?? {}),
+      isActive: (json['is_active'] ?? true) as bool,
+      isCustom: (json['is_custom'] ?? false) as bool,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      customFields: Map<String, dynamic>.from(json['custom_fields'] as Map? ?? {}),
+      settings: Map<String, dynamic>.from(json['settings'] as Map? ?? {}),
       tableColumns: columns, // <-- CAMPO ADICIONADO
     );
   }
@@ -178,6 +194,29 @@ abstract class ManagedAsset {
   get currentUser => null;
 
   Map<String, dynamic> toJson();
+
+  // Helper para formatar status
+  Color get statusColor {
+    switch (status.toLowerCase()) {
+      case 'online':
+        return Colors.green;
+      case 'offline':
+        return Colors.red;
+      case 'maintenance':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  // Helper para tempo desde última visto
+  String get lastSeenText {
+    final diff = DateTime.now().difference(lastSeen);
+    if (diff.inMinutes < 1) return 'Agora mesmo';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m atrás';
+    if (diff.inHours < 24) return '${diff.inHours}h atrás';
+    return '${diff.inDays}d atrás';
+  }
 }
 
 /// Permissões de módulo
@@ -202,14 +241,14 @@ class ModulePermission {
 
   factory ModulePermission.fromJson(Map<String, dynamic> json) {
     return ModulePermission(
-      moduleId: json['module_id'],
-      canView: json['can_view'] ?? true,
-      canCreate: json['can_create'] ?? false,
-      canEdit: json['can_edit'] ?? false,
-      canDelete: json['can_delete'] ?? false,
-      canExport: json['can_export'] ?? false,
+      moduleId: json['module_id'] as String,
+      canView: (json['can_view'] ?? true) as bool,
+      canCreate: (json['can_create'] ?? false) as bool,
+      canEdit: (json['can_edit'] ?? false) as bool,
+      canDelete: (json['can_delete'] ?? false) as bool,
+      canExport: (json['can_export'] ?? false) as bool,
       customPermissions: json['custom_permissions'] != null
-          ? List<String>.from(json['custom_permissions'])
+          ? List<String>.from(json['custom_permissions'] as List)
           : [],
     );
   }

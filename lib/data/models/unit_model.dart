@@ -31,12 +31,17 @@ class Unit {
     var rangesList = <IpRange>[];
     if (json['ip_ranges'] != null && json['ip_ranges'] is List) {
       rangesList =
-          (json['ip_ranges'] as List).map((i) => IpRange.fromJson(i)).toList();
+          (json['ip_ranges'] as List)
+              .map((i) => IpRange.fromJson(Map<String, dynamic>.from(i as Map)))
+              .toList();
     }
     // Fallback para o formato antigo, se o servidor ainda não foi atualizado
     else if (json['ip_range_start'] != null) {
       rangesList.add(
-        IpRange(start: json['ip_range_start'], end: json['ip_range_end']),
+        IpRange(
+          start: json['ip_range_start'] as String,
+          end: json['ip_range_end'] as String,
+        ),
       );
     }
 

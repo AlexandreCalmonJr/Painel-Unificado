@@ -61,30 +61,32 @@ class Totem extends ManagedAsset {
     List<BssidMapping> bssidMappings,
   ) {
     DateTime parsedDate =
-        DateTime.tryParse(json['lastSeen'] ?? '') ?? DateTime.now();
+        DateTime.tryParse((json['lastSeen'] ?? '') as String) ?? DateTime.now();
 
     // ⚡ MAPEAMENTO DE LOCALIZAÇÃO
     // ✅ CORRIGIDO: Aceitar tanto 'unit' (novo) quanto 'unitRoutes' (legado)
     final originalLocation =
-        json['unit'] ?? json['unitRoutes'] ?? 'Desconhecida';
+        (json['unit'] ?? json['unitRoutes'] ?? 'Desconhecida') as String;
 
     // ✅ CORRIGIDO: Aceitar tanto 'macAddress' quanto 'mac_address'
-    final macAddress = json['macAddress'] ?? json['mac_address'] ?? 'N/A';
+    final macAddress =
+        (json['macAddress'] ?? json['mac_address'] ?? 'N/A') as String;
     final macAddressRadio =
-        json['macAddressRadio'] ?? json['mac_address_radio'] ?? 'N/A';
+        (json['macAddressRadio'] ?? json['mac_address_radio'] ?? 'N/A')
+            as String;
 
     final locationData = LocationMapperService.mapLocation(
       units: units,
       bssidMappings: bssidMappings,
-      ip: json['ip'] ?? 'N/A',
+      ip: (json['ip'] ?? 'N/A') as String,
       macAddress: macAddress,
       originalLocation: originalLocation,
     );
 
     return Totem(
-      id: json['_id'] ?? '',
-      serialNumber: json['serialNumber'] ?? 'N/A',
-      status: json['status'] ?? 'Offline',
+      id: (json['_id'] ?? '') as String,
+      serialNumber: (json['serialNumber'] ?? 'N/A') as String,
+      status: (json['status'] ?? 'Offline') as String,
       lastSeen: parsedDate.toLocal(),
       location: locationData.locationName,
       assignedTo: null, // Totems geralmente não têm assignedTo
@@ -92,21 +94,23 @@ class Totem extends ManagedAsset {
       unit: locationData.unitName,
       sector: locationData.sector,
       floor: locationData.floor,
-      hostname: json['hostname'] ?? 'N/A',
-      model: json['model'] ?? 'N/A',
-      serviceTag: json['serviceTag'] ?? 'N/A',
-      ip: json['ip'] ?? 'N/A',
+      hostname: (json['hostname'] ?? 'N/A') as String,
+      model: (json['model'] ?? 'N/A') as String,
+      serviceTag: (json['serviceTag'] ?? 'N/A') as String,
+      ip: (json['ip'] ?? 'N/A') as String,
       macAddress: macAddress,
       macAddressRadio: macAddressRadio,
-      installedPrograms: List<String>.from(json['installedPrograms'] ?? []),
-      printerStatus: json['printerStatus'] ?? 'N/A',
-      biometricReaderStatus: json['biometricReaderStatus'] ?? 'N/A',
-      totemType: json['totemType'] ?? 'N/A',
-      ram: json['ram'] ?? 'N/A',
-      hdType: json['hdType'] ?? 'N/A',
-      hdStorage: json['hdStorage'] ?? 'N/A',
-      zebraStatus: json['zebraStatus'] ?? 'Não detectado',
-      bematechStatus: json['bematechStatus'] ?? 'Não detectado',
+      installedPrograms: List<String>.from(
+        (json['installedPrograms'] ?? []) as List,
+      ),
+      printerStatus: (json['printerStatus'] ?? 'N/A') as String,
+      biometricReaderStatus: (json['biometricReaderStatus'] ?? 'N/A') as String,
+      totemType: (json['totemType'] ?? 'N/A') as String,
+      ram: (json['ram'] ?? 'N/A') as String,
+      hdType: (json['hdType'] ?? 'N/A') as String,
+      hdStorage: (json['hdStorage'] ?? 'N/A') as String,
+      zebraStatus: (json['zebraStatus'] ?? 'Não detectado') as String,
+      bematechStatus: (json['bematechStatus'] ?? 'Não detectado') as String,
     );
   }
 
