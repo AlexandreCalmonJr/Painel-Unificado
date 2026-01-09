@@ -175,14 +175,14 @@ class UserDialog {
                                     color: AppColors.info.withOpacity(0.3),
                                   ),
                                 ),
-                                child: Row(
+                                child: const Row(
                                   children: [
                                     Icon(
                                       Icons.info_outline,
                                       color: AppColors.info,
                                       size: 20,
                                     ),
-                                    const SizedBox(width: 12),
+                                    SizedBox(width: 12),
                                     Expanded(
                                       child: Text(
                                         'Administradores têm acesso a todos os módulos',

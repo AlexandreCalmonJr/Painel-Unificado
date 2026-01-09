@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 
 /// Dados para um card de estatística
 class StatCardData {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color? color;
-  final String? subtitle;
-  final VoidCallback? onTap;
 
   const StatCardData({
     required this.title,
@@ -17,6 +11,12 @@ class StatCardData {
     this.subtitle,
     this.onTap,
   });
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color? color;
+  final String? subtitle;
+  final VoidCallback? onTap;
 }
 
 /// Layout base reutilizável para todos os dashboards
@@ -24,13 +24,6 @@ class StatCardData {
 /// Este widget elimina a duplicação de código entre os diferentes dashboards
 /// (devices, totems, modules, admin) fornecendo uma estrutura comum.
 class BaseDashboardLayout extends StatelessWidget {
-  final String title;
-  final List<StatCardData> stats;
-  final Widget mainContent;
-  final List<Widget>? actions;
-  final Future<void> Function()? onRefresh;
-  final Widget? floatingActionButton;
-  final bool showStats;
 
   const BaseDashboardLayout({
     super.key,
@@ -42,6 +35,13 @@ class BaseDashboardLayout extends StatelessWidget {
     this.floatingActionButton,
     this.showStats = true,
   });
+  final String title;
+  final List<StatCardData> stats;
+  final Widget mainContent;
+  final List<Widget>? actions;
+  final Future<void> Function()? onRefresh;
+  final Widget? floatingActionButton;
+  final bool showStats;
 
   @override
   Widget build(BuildContext context) {

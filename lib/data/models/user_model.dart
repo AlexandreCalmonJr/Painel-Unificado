@@ -2,14 +2,6 @@ import 'package:painel_windowns/domain/entities/user_entity.dart';
 
 /// Model de usuário para a camada de dados
 class User {
-  final String? id;
-  final String? username;
-  final String? email;
-  final String? password; // Usado apenas para criação
-  final String? role;
-  final bool? isActive;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
 
   User({
     this.id,
@@ -41,6 +33,26 @@ class User {
     );
   }
 
+  /// Cria User model a partir de UserEntity
+  factory User.fromEntity(UserEntity entity) {
+    return User(
+      id: entity.id,
+      username: entity.username,
+      email: entity.email,
+      role: entity.role,
+      isActive: entity.isActive,
+      createdAt: entity.createdAt,
+    );
+  }
+  final String? id;
+  final String? username;
+  final String? email;
+  final String? password; // Usado apenas para criação
+  final String? role;
+  final bool? isActive;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
   /// Converte User model para JSON
   Map<String, dynamic> toJson() {
     return {
@@ -64,18 +76,6 @@ class User {
       role: role ?? 'user',
       isActive: isActive ?? true,
       createdAt: createdAt,
-    );
-  }
-
-  /// Cria User model a partir de UserEntity
-  factory User.fromEntity(UserEntity entity) {
-    return User(
-      id: entity.id,
-      username: entity.username,
-      email: entity.email,
-      role: entity.role,
-      isActive: entity.isActive,
-      createdAt: entity.createdAt,
     );
   }
 

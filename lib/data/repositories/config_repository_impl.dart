@@ -6,16 +6,16 @@ import 'package:painel_windowns/domain/repositories/i_config_repository.dart';
 
 /// Implementação do repositório de configurações
 class ConfigRepositoryImpl implements IConfigRepository {
-  final ConfigLocalDataSource localDataSource;
 
   ConfigRepositoryImpl({required this.localDataSource});
+  final ConfigLocalDataSource localDataSource;
 
   @override
   Future<Either<Failure, String>> getServerUrl() async {
     try {
       final url = await localDataSource.getServerUrl();
       if (url == null || url.isEmpty) {
-        return Left(CacheFailure(message: 'Server URL not configured'));
+        return const Left(CacheFailure(message: 'Server URL not configured'));
       }
       return Right(url);
     } on CacheException catch (e) {
@@ -42,7 +42,7 @@ class ConfigRepositoryImpl implements IConfigRepository {
     try {
       final apiKey = await localDataSource.getApiKey();
       if (apiKey == null || apiKey.isEmpty) {
-        return Left(CacheFailure(message: 'API key not configured'));
+        return const Left(CacheFailure(message: 'API key not configured'));
       }
       return Right(apiKey);
     } on CacheException catch (e) {

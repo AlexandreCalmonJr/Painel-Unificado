@@ -11,12 +11,12 @@ import 'package:painel_windowns/presentation/bloc/device/device_state.dart';
 /// refreshing the device list, and loading individual devices.
 @injectable
 class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
-  final GetDevicesUseCase getDevicesUseCase;
 
   DeviceBloc({required this.getDevicesUseCase}) : super(const DeviceInitial()) {
     on<LoadDevices>(_onLoadDevices);
     on<RefreshDevices>(_onRefreshDevices);
   }
+  final GetDevicesUseCase getDevicesUseCase;
 
   /// Handles the LoadDevices event.
   Future<void> _onLoadDevices(

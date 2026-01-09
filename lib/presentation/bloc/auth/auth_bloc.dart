@@ -12,8 +12,6 @@ import 'package:painel_windowns/presentation/bloc/auth/auth_state.dart';
 /// logout, and checking authentication status.
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final LoginUseCase loginUseCase;
-  final LogoutUseCase logoutUseCase;
 
   AuthBloc({required this.loginUseCase, required this.logoutUseCase})
     : super(const AuthInitial()) {
@@ -21,6 +19,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginRequested>(_onLoginRequested);
     on<LogoutRequested>(_onLogoutRequested);
   }
+  final LoginUseCase loginUseCase;
+  final LogoutUseCase logoutUseCase;
 
   /// Handles the CheckAuthStatus event.
   Future<void> _onCheckAuthStatus(

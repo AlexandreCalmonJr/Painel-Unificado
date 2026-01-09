@@ -218,14 +218,6 @@ class BaseDialog {
 
 /// Configuração de campo de formulário
 class FormFieldConfig {
-  final String key;
-  final String label;
-  final String? hint;
-  final String? initialValue;
-  final String? Function(String?)? validator;
-  final TextInputType? keyboardType;
-  final bool obscureText;
-  final int? maxLines;
 
   FormFieldConfig({
     required this.key,
@@ -237,4 +229,12 @@ class FormFieldConfig {
     this.obscureText = false,
     this.maxLines,
   });
+  final String key;
+  final String label;
+  final String? hint;
+  final String? initialValue;
+  final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+  final int? maxLines;
 }

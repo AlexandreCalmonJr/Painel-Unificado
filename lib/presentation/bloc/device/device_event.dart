@@ -20,9 +20,9 @@ class RefreshDevices extends DeviceEvent {
 
 /// Event to load a specific device by ID.
 class LoadDeviceById extends DeviceEvent {
-  final String deviceId;
 
   const LoadDeviceById(this.deviceId);
+  final String deviceId;
 
   @override
   List<Object?> get props => [deviceId];

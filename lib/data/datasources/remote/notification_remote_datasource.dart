@@ -11,13 +11,13 @@ abstract class NotificationRemoteDataSource {
 }
 
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   NotificationRemoteDataSourceImpl({
     required this.client,
     required this.baseUrl,
   });
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<List<Map<String, dynamic>>> getNotifications(String token) async {
@@ -62,7 +62,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Notification not found');
+        throw const NotFoundException(message: 'Notification not found');
       } else {
         throw ServerException(
           message:
@@ -72,8 +72,9 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -117,7 +118,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Notification not found');
+        throw const NotFoundException(message: 'Notification not found');
       } else {
         throw ServerException(
           message: 'Failed to delete notification: ${response.statusCode}',
@@ -126,8 +127,9 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }

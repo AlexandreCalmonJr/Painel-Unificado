@@ -13,8 +13,8 @@ import 'package:painel_windowns/presentation/features/totem/widgets/managed_devi
 import 'package:painel_windowns/services/auth_service.dart';
 
 class TotemDashboardScreen extends StatefulWidget {
-  final AuthService authService;
   const TotemDashboardScreen({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -152,7 +152,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         subtitle: 'Listar Dispositivos',
         index: 1,
       ),
-      SidebarMenuItem(
+      const SidebarMenuItem(
         icon: Icons.arrow_back,
         title: 'Voltar',
         subtitle: 'Menu Principal',
@@ -221,7 +221,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
               tooltip: 'Esconder/Mostrar Menu',
             ),
             const SizedBox(width: 12),
-            Icon(Icons.desktop_windows, color: Colors.blue, size: 28),
+            const Icon(Icons.desktop_windows, color: Colors.blue, size: 28),
             const SizedBox(width: 12),
             Text(
               'Monitoramento de Totens',

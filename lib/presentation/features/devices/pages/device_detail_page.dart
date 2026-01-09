@@ -6,14 +6,14 @@ import 'package:painel_windowns/services/device_service.dart';
 import 'package:painel_windowns/widgets/common/app_card.dart';
 
 class DeviceDetailScreen extends StatefulWidget {
-  final Device device;
-  final AuthService authService;
 
   const DeviceDetailScreen({
     super.key,
     required this.device,
     required this.authService,
   });
+  final Device device;
+  final AuthService authService;
 
   @override
   State<DeviceDetailScreen> createState() => _DeviceDetailScreenState();
@@ -42,7 +42,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
         return [];
       }
 
-      String? serialNumber = widget.device.serialNumber;
+      final String? serialNumber = widget.device.serialNumber;
 
       if (serialNumber == null || serialNumber.isEmpty) {
         return [];
@@ -487,7 +487,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
                   final entry = history[index];
                   final sector = entry['sector']?.toString() ?? 'N/A';
                   final floor = entry['floor']?.toString() ?? 'N/A';
-                  final location = "$sector - $floor";
+                  final location = '$sector - $floor';
                   final timestamp = entry['timestamp']?.toString() ?? '';
 
                   return _buildTimelineTile(
@@ -546,11 +546,11 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
                   final ticket =
                       entry['ticket'] != null
                           ? " • Chamado: ${entry['ticket']}"
-                          : "";
+                          : '';
                   final reason =
                       entry['reason'] != null
                           ? "\nMotivo: ${entry['reason']}"
-                          : "";
+                          : '';
 
                   String displayStatus;
                   Color displayColor;

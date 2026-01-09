@@ -5,9 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// Serviço para armazenamento seguro de dados sensíveis
 /// Usa flutter_secure_storage para criptografar dados localmente
 class SecureStorageService {
-  static final SecureStorageService _instance = SecureStorageService._internal();
   factory SecureStorageService() => _instance;
   SecureStorageService._internal();
+  static final SecureStorageService _instance = SecureStorageService._internal();
 
   static SecureStorageService get instance => _instance;
 
@@ -30,7 +30,7 @@ class SecureStorageService {
 
   /// Recupera o token de autenticação
   Future<String?> getToken() async {
-    return await _storage.read(key: 'auth_token');
+    return _storage.read(key: 'auth_token');
   }
 
   /// Remove o token de autenticação
@@ -76,7 +76,7 @@ class SecureStorageService {
 
   /// Recupera uma configuração genérica
   Future<String?> getConfig(String key) async {
-    return await _storage.read(key: 'config_$key');
+    return _storage.read(key: 'config_$key');
   }
 
   /// Remove uma configuração genérica
@@ -99,6 +99,6 @@ class SecureStorageService {
 
   /// Lista todas as chaves armazenadas (útil para debug)
   Future<Map<String, String>> getAllData() async {
-    return await _storage.readAll();
+    return _storage.readAll();
   }
 }

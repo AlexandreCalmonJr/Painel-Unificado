@@ -12,8 +12,8 @@ import 'package:painel_windowns/services/location_service.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
 
 class AdminLocationsTab extends StatefulWidget {
-  final AuthService authService;
   const AdminLocationsTab({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   State<AdminLocationsTab> createState() => _AdminLocationsTabState();
@@ -70,7 +70,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
 
       // Conta BSSIDs por unidade
       final counts = <String, int>{};
-      for (var bssid in bssids) {
+      for (final bssid in bssids) {
         final unitName = bssid.unitName as String;
         counts[unitName] = (counts[unitName] ?? 0) + 1;
       }

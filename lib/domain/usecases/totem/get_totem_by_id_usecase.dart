@@ -8,9 +8,9 @@ import 'package:painel_windowns/domain/usecases/usecase.dart';
 
 /// Parameters for getting a totem by ID.
 class GetTotemByIdParams extends Equatable {
-  final String totemId;
 
   const GetTotemByIdParams({required this.totemId});
+  final String totemId;
 
   @override
   List<Object?> get props => [totemId];
@@ -19,13 +19,13 @@ class GetTotemByIdParams extends Equatable {
 /// Use case for retrieving a specific totem by ID.
 @lazySingleton
 class GetTotemByIdUseCase implements UseCase<TotemEntity, GetTotemByIdParams> {
-  final ITotemRepository repository;
 
   GetTotemByIdUseCase(this.repository);
+  final ITotemRepository repository;
 
   @override
   Future<Either<Failure, TotemEntity>> call(GetTotemByIdParams params) async {
     // TODO: Get token from auth service
-    return await repository.getTotemById('', params.totemId);
+    return repository.getTotemById('', params.totemId);
   }
 }

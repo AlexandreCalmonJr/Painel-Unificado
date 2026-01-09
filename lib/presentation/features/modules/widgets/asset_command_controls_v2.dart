@@ -11,11 +11,6 @@ import 'package:painel_windowns/widgets/common/base_command_menu.dart';
 import 'package:painel_windowns/widgets/dialogs/base_dialog.dart';
 
 class AssetCommandControlsV2 extends StatelessWidget {
-  final ManagedAsset asset;
-  final String assetType;
-  final String token;
-  final AuthService authService; // ✅ Adicionado
-  final VoidCallback? onCommandExecuted;
 
   const AssetCommandControlsV2({
     super.key,
@@ -25,6 +20,11 @@ class AssetCommandControlsV2 extends StatelessWidget {
     required this.authService, // ✅ Adicionado
     this.onCommandExecuted,
   });
+  final ManagedAsset asset;
+  final String assetType;
+  final String token;
+  final AuthService authService; // ✅ Adicionado
+  final VoidCallback? onCommandExecuted;
 
   @override
   Widget build(BuildContext context) {

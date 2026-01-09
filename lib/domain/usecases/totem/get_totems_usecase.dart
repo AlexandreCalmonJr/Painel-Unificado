@@ -12,19 +12,19 @@ import 'package:painel_windowns/services/token_service.dart';
 /// and returns them as a list of [TotemEntity].
 @lazySingleton
 class GetTotemsUseCase implements UseCase<List<TotemEntity>, NoParams> {
-  final ITotemRepository repository;
-  final TokenService tokenService;
 
   GetTotemsUseCase(this.repository, this.tokenService);
+  final ITotemRepository repository;
+  final TokenService tokenService;
 
   @override
   Future<Either<Failure, List<TotemEntity>>> call(NoParams params) async {
     final token = tokenService.getToken();
 
     if (token == null) {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     }
 
-    return await repository.getTotems(token);
+    return repository.getTotems(token);
   }
 }

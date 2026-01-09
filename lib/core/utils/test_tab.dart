@@ -15,9 +15,9 @@ typedef ShowAlertCallback =
 
 /// Um widget que representa a aba de testes para os pop-ups de alerta.
 class TestTab extends StatelessWidget {
-  final ShowAlertCallback onTestAlert;
 
   TestTab({super.key, required this.onTestAlert});
+  final ShowAlertCallback onTestAlert;
 
   // --- DADOS SIMULADOS (MOCK DATA) ---
   // Estes objetos simulam dispositivos em diferentes estados para os testes.

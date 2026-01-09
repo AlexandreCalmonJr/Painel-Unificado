@@ -24,10 +24,10 @@ abstract class ReportRemoteDataSource {
 }
 
 class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   ReportRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<Map<String, dynamic>> generateDeviceReport(
@@ -190,7 +190,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Report not found');
+        throw const NotFoundException(message: 'Report not found');
       } else {
         throw ServerException(
           message: 'Failed to download report: ${response.statusCode}',
@@ -199,8 +199,9 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }

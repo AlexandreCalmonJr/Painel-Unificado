@@ -5,10 +5,6 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/command_service.dart';
 
 class SendCommandDialog extends StatefulWidget {
-  final ManagedAsset asset;
-  final String moduleId;
-  final AuthService authService;
-  final VoidCallback onCommandSent;
 
   const SendCommandDialog({
     super.key,
@@ -17,6 +13,10 @@ class SendCommandDialog extends StatefulWidget {
     required this.authService,
     required this.onCommandSent,
   });
+  final ManagedAsset asset;
+  final String moduleId;
+  final AuthService authService;
+  final VoidCallback onCommandSent;
 
   @override
   State<SendCommandDialog> createState() => _SendCommandDialogState();
@@ -75,12 +75,12 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
       // Monta o payload de acordo com o tipo selecionado
       if (_selectedCommandType == 'map_lpt2') {
         if (_param1Controller.text.isEmpty) {
-          throw Exception("Caminho da impressora obrigatório");
+          throw Exception('Caminho da impressora obrigatório');
         }
         params = {'path': _param1Controller.text.trim()};
       } else if (_selectedCommandType == 'download_file') {
         if (_param1Controller.text.isEmpty || _param2Controller.text.isEmpty) {
-          throw Exception("URL e Destino obrigatórios");
+          throw Exception('URL e Destino obrigatórios');
         }
         params = {
           'url': _param1Controller.text.trim(),
@@ -88,7 +88,7 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
         };
       } else if (_selectedCommandType == 'auto_start_app') {
         if (_param1Controller.text.isEmpty || _param2Controller.text.isEmpty) {
-          throw Exception("Nome e Caminho obrigatórios");
+          throw Exception('Nome e Caminho obrigatórios');
         }
         params = {
           'name': _param1Controller.text.trim(),
@@ -96,7 +96,7 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
         };
       } else if (_selectedCommandType == 'cmd_custom') {
         if (_param1Controller.text.isEmpty) {
-          throw Exception("Comando obrigatório");
+          throw Exception('Comando obrigatório');
         }
         customCmd = _param1Controller.text.trim();
       }
@@ -190,7 +190,7 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
   // Constrói o formulário dinâmico baseado no comando
   Widget _buildInputForm() {
     String title = 'Configurar Comando';
-    List<Widget> inputs = [];
+    final List<Widget> inputs = [];
     String? iconName;
 
     // Lógica de UI para cada tipo de comando

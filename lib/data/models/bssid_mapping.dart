@@ -1,9 +1,5 @@
 // File: lib/models/bssid_mapping.dart
-class BssidMapping {
-  final String macAddressRadio;
-  final String sector;
-  final String floor;
-  final String unitName; // CAMPO ADICIONADO
+class BssidMapping { // CAMPO ADICIONADO
 
   BssidMapping({
     required this.macAddressRadio,
@@ -21,6 +17,10 @@ class BssidMapping {
       unitName: (json['unitName'] ?? '') as String, // NOVO CAMPO
     );
   }
+  final String macAddressRadio;
+  final String sector;
+  final String floor;
+  final String unitName;
 
   /// Converte BssidMapping para JSON
   Map<String, dynamic> toJson() {

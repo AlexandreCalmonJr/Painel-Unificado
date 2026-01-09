@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:painel_windowns/presentation/shared/widgets/inputs/asset_search_filter.dart';
 
 class AdvancedSearchBar extends StatefulWidget {
-  final Function(AssetSearchFilter) onSearch;
 
   const AdvancedSearchBar({super.key, required this.onSearch});
+  final Function(AssetSearchFilter) onSearch;
 
   @override
   State<AdvancedSearchBar> createState() => _AdvancedSearchBarState();

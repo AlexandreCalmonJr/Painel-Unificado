@@ -5,11 +5,6 @@ import 'package:rxdart/rxdart.dart';
 
 /// Campo de pesquisa com debounce para melhor performance
 class SearchField extends StatefulWidget {
-  final Function(String) onSearch;
-  final String hintText;
-  final Duration debounceDuration;
-  final IconData? prefixIcon;
-  final IconData? suffixIcon;
 
   const SearchField({
     super.key,
@@ -19,6 +14,11 @@ class SearchField extends StatefulWidget {
     this.prefixIcon = Icons.search,
     this.suffixIcon,
   });
+  final Function(String) onSearch;
+  final String hintText;
+  final Duration debounceDuration;
+  final IconData? prefixIcon;
+  final IconData? suffixIcon;
 
   @override
   State<SearchField> createState() => _SearchFieldState();
@@ -80,9 +80,6 @@ class _SearchFieldState extends State<SearchField> {
 
 /// Campo de pesquisa compacto para uso em AppBar
 class CompactSearchField extends StatefulWidget {
-  final Function(String) onSearch;
-  final String hintText;
-  final Duration debounceDuration;
 
   const CompactSearchField({
     super.key,
@@ -90,6 +87,9 @@ class CompactSearchField extends StatefulWidget {
     this.hintText = 'Pesquisar...',
     this.debounceDuration = const Duration(milliseconds: 500),
   });
+  final Function(String) onSearch;
+  final String hintText;
+  final Duration debounceDuration;
 
   @override
   State<CompactSearchField> createState() => _CompactSearchFieldState();

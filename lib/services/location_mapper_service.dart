@@ -3,10 +3,6 @@ import 'package:painel_windowns/data/models/unit_model.dart';
 
 /// Classe para armazenar dados de localização mapeados
 class LocationData {
-  final String unitName;
-  final String sector;
-  final String floor;
-  final String locationName;
 
   LocationData({
     required this.unitName,
@@ -14,6 +10,10 @@ class LocationData {
     required this.floor,
     required this.locationName,
   });
+  final String unitName;
+  final String sector;
+  final String floor;
+  final String locationName;
 }
 
 class LocationMapperService {
@@ -83,7 +83,7 @@ class LocationMapperService {
     String? floor,
     String? fallback,
   }) {
-    List<String> parts = [];
+    final List<String> parts = [];
 
     if (unitName != null && unitName.isNotEmpty) {
       parts.add(unitName);

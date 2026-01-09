@@ -10,14 +10,6 @@ import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widge
 
 /// AppBar reutilizável para todas as telas
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final AuthService authService;
-  final bool showBackButton;
-  final bool showProfileButton;
-  final bool showThemeButton;
-  final bool showMenuButton;
-  final VoidCallback? onMenuPressed;
-  final List<Widget>? actions;
 
   const CustomAppBar({
     super.key,
@@ -30,6 +22,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onMenuPressed,
     this.actions,
   });
+  final String title;
+  final AuthService authService;
+  final bool showBackButton;
+  final bool showProfileButton;
+  final bool showThemeButton;
+  final bool showMenuButton;
+  final VoidCallback? onMenuPressed;
+  final List<Widget>? actions;
 
   @override
   Size get preferredSize => const Size.fromHeight(70);
@@ -164,7 +164,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
               if (authService.isAdmin)
-                Text(
+                const Text(
                   'ADMIN',
                   style: TextStyle(
                     color: AppColors.danger,

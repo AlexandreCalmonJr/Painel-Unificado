@@ -4,10 +4,6 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
 class GenericPermissionsTab extends StatefulWidget {
-  final String moduleId;
-  final String moduleName;
-  final AuthService authService;
-  final ModuleManagementService moduleService;
 
   const GenericPermissionsTab({
     super.key,
@@ -16,6 +12,10 @@ class GenericPermissionsTab extends StatefulWidget {
     required this.authService,
     required this.moduleService,
   });
+  final String moduleId;
+  final String moduleName;
+  final AuthService authService;
+  final ModuleManagementService moduleService;
 
   @override
   State<GenericPermissionsTab> createState() => _GenericPermissionsTabState();

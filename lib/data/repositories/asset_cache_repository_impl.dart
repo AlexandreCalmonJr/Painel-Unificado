@@ -6,9 +6,9 @@ import 'package:painel_windowns/domain/repositories/i_asset_cache_repository.dar
 
 /// Implementação do repositório de cache de assets
 class AssetCacheRepositoryImpl implements IAssetCacheRepository {
-  final AssetCacheDataSource localDataSource;
 
   AssetCacheRepositoryImpl({required this.localDataSource});
+  final AssetCacheDataSource localDataSource;
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> getCachedAsset(
@@ -17,7 +17,7 @@ class AssetCacheRepositoryImpl implements IAssetCacheRepository {
     try {
       final asset = await localDataSource.getCachedAsset(assetId);
       if (asset == null) {
-        return Left(CacheFailure(message: 'Asset not found in cache'));
+        return const Left(CacheFailure(message: 'Asset not found in cache'));
       }
       return Right(asset);
     } on CacheException catch (e) {

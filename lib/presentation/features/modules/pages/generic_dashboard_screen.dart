@@ -17,14 +17,14 @@ import 'package:painel_windowns/services/module_management_service.dart';
 import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
 
 class GenericDashboardScreen extends StatefulWidget {
-  final AuthService authService;
-  final AssetModuleConfig moduleConfig;
 
   const GenericDashboardScreen({
     super.key,
     required this.authService,
     required this.moduleConfig,
   });
+  final AuthService authService;
+  final AssetModuleConfig moduleConfig;
 
   @override
   State<GenericDashboardScreen> createState() => _GenericDashboardScreenState();

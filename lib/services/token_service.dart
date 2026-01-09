@@ -8,9 +8,9 @@ import 'package:painel_windowns/services/auth_service.dart';
 /// for token retrieval without exposing the entire AuthService to use cases.
 @lazySingleton
 class TokenService {
-  final AuthService _authService;
 
   TokenService(this._authService);
+  final AuthService _authService;
 
   /// Retrieves the current authentication token.
   ///

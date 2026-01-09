@@ -1,20 +1,20 @@
+import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:painel_windowns/core/network/network_info.dart';
+import 'package:painel_windowns/data/datasources/local/auth_local_datasource.dart';
 import 'package:painel_windowns/data/datasources/local/device_local_datasource.dart';
+import 'package:painel_windowns/data/datasources/local/totem_local_datasource.dart';
+import 'package:painel_windowns/data/datasources/remote/auth_remote_datasource.dart';
 import 'package:painel_windowns/data/datasources/remote/device_remote_datasource.dart';
 import 'package:painel_windowns/data/datasources/remote/totem_remote_datasource.dart';
+import 'package:painel_windowns/data/repositories/auth_repository_impl.dart';
 import 'package:painel_windowns/data/repositories/device_repository_impl.dart';
 import 'package:painel_windowns/data/repositories/totem_repository_impl.dart';
+import 'package:painel_windowns/domain/repositories/i_auth_repository.dart';
 import 'package:painel_windowns/domain/repositories/i_device_repository.dart';
 import 'package:painel_windowns/domain/repositories/i_totem_repository.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/status_service.dart';
-import 'package:painel_windowns/data/datasources/local/totem_local_datasource.dart';
-import 'package:painel_windowns/domain/repositories/i_auth_repository.dart';
-import 'package:painel_windowns/data/repositories/auth_repository_impl.dart';
-import 'package:painel_windowns/data/datasources/remote/auth_remote_datasource.dart';
-import 'package:painel_windowns/data/datasources/local/auth_local_datasource.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Injectable module for registering dependencies that cannot use

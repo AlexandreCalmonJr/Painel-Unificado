@@ -11,10 +11,6 @@ import 'package:painel_windowns/services/status_service.dart';
 
 /// Implementação do repositório de totems
 class TotemRepositoryImpl implements ITotemRepository {
-  final TotemRemoteDataSource remoteDataSource;
-  final TotemLocalDataSource localDataSource;
-  final NetworkInfo networkInfo;
-  final StatusService statusService;
 
   TotemRepositoryImpl({
     required this.remoteDataSource,
@@ -22,6 +18,10 @@ class TotemRepositoryImpl implements ITotemRepository {
     required this.networkInfo,
     required this.statusService,
   });
+  final TotemRemoteDataSource remoteDataSource;
+  final TotemLocalDataSource localDataSource;
+  final NetworkInfo networkInfo;
+  final StatusService statusService;
 
   @override
   Future<Either<Failure, List<TotemEntity>>> getTotems(String token) async {
@@ -51,7 +51,7 @@ class TotemRepositoryImpl implements ITotemRepository {
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } on UnauthorizedException {
-        return Left(UnauthorizedFailure());
+        return const Left(UnauthorizedFailure());
       } catch (e) {
         return Left(ServerFailure(message: 'Unexpected error: $e'));
       }
@@ -81,14 +81,14 @@ class TotemRepositoryImpl implements ITotemRepository {
       } on NotFoundException catch (e) {
         return Left(NotFoundFailure(message: e.message));
       } on UnauthorizedException {
-        return Left(UnauthorizedFailure());
+        return const Left(UnauthorizedFailure());
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } catch (e) {
         return Left(ServerFailure(message: 'Unexpected error: $e'));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
 
@@ -99,7 +99,7 @@ class TotemRepositoryImpl implements ITotemRepository {
     String command,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -108,7 +108,7 @@ class TotemRepositoryImpl implements ITotemRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -122,7 +122,7 @@ class TotemRepositoryImpl implements ITotemRepository {
     TotemEntity totem,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -136,7 +136,7 @@ class TotemRepositoryImpl implements ITotemRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

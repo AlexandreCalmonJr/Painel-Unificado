@@ -8,9 +8,9 @@ import 'package:painel_windowns/domain/usecases/usecase.dart';
 
 /// Parameters for updating a totem.
 class UpdateTotemParams extends Equatable {
-  final TotemEntity totem;
 
   const UpdateTotemParams({required this.totem});
+  final TotemEntity totem;
 
   @override
   List<Object?> get props => [totem];
@@ -19,13 +19,13 @@ class UpdateTotemParams extends Equatable {
 /// Use case for updating a totem.
 @lazySingleton
 class UpdateTotemUseCase implements UseCase<Unit, UpdateTotemParams> {
-  final ITotemRepository repository;
 
   UpdateTotemUseCase(this.repository);
+  final ITotemRepository repository;
 
   @override
   Future<Either<Failure, Unit>> call(UpdateTotemParams params) async {
     // TODO: Get token from auth service
-    return await repository.updateTotem('', params.totem);
+    return repository.updateTotem('', params.totem);
   }
 }

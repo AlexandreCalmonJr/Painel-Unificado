@@ -6,8 +6,8 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
 
 class AdminApkManagerTab extends StatefulWidget {
-  final AuthService authService;
   const AdminApkManagerTab({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   State<AdminApkManagerTab> createState() => _AdminApkManagerTabState();

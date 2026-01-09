@@ -5,9 +5,9 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
 class AssetCommandService {
-  final AuthService authService;
 
   AssetCommandService({required this.authService});
+  final AuthService authService;
 
   String get _baseUrl {
     final config = ServerConfigService.instance.loadConfig();

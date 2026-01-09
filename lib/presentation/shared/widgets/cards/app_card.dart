@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AppCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-  final EdgeInsetsGeometry? margin;
-  final Color? backgroundColor;
-  final double elevation;
-  final double borderRadius;
-  final Border? border;
 
   const AppCard({
     super.key,
@@ -19,6 +12,13 @@ class AppCard extends StatelessWidget {
     this.borderRadius = 12,
     this.border,
   });
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final Color? backgroundColor;
+  final double elevation;
+  final double borderRadius;
+  final Border? border;
 
   @override
   Widget build(BuildContext context) {

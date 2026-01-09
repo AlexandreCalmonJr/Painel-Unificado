@@ -4,14 +4,6 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 
 /// Modelo simplificado de módulo para uso na UI administrativa
 class Module {
-  final String id;
-  final String name;
-  final String description;
-  final AssetModuleType type;
-  final bool isActive;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-  final List<Map<String, dynamic>> tableColumns;
 
   Module({
     required this.id,
@@ -37,6 +29,14 @@ class Module {
       tableColumns: config.tableColumns.map((c) => c.toJson()).toList(),
     );
   }
+  final String id;
+  final String name;
+  final String description;
+  final AssetModuleType type;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final List<Map<String, dynamic>> tableColumns;
 
   /// Converte para JSON para envio ao servidor
   Map<String, dynamic> toJson() {

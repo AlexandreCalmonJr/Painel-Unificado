@@ -140,11 +140,6 @@ class ErrorHandler {
 
 /// Widget de diálogo de confirmação
 class ConfirmDialog extends StatelessWidget {
-  final String title;
-  final String message;
-  final String confirmText;
-  final String cancelText;
-  final VoidCallback onConfirm;
 
   const ConfirmDialog({
     super.key,
@@ -154,6 +149,11 @@ class ConfirmDialog extends StatelessWidget {
     this.cancelText = 'Cancelar',
     required this.onConfirm,
   });
+  final String title;
+  final String message;
+  final String confirmText;
+  final String cancelText;
+  final VoidCallback onConfirm;
 
   @override
   Widget build(BuildContext context) {

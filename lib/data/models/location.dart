@@ -2,13 +2,6 @@
 import 'package:painel_windowns/data/models/unit_model.dart';
 
 class Location {
-  final String name;
-  final List<IpRange> ipRanges;
-  final List<String> bssids; // Lista de BSSIDs (MAC addresses de WiFi)
-  final String? description;
-  final int deviceCount;
-  final bool isOnline;
-  final DateTime? lastSeen;
 
   Location({
     required this.name,
@@ -69,6 +62,13 @@ class Location {
               : null,
     );
   }
+  final String name;
+  final List<IpRange> ipRanges;
+  final List<String> bssids; // Lista de BSSIDs (MAC addresses de WiFi)
+  final String? description;
+  final int deviceCount;
+  final bool isOnline;
+  final DateTime? lastSeen;
 
   Map<String, dynamic> toJson() {
     return {

@@ -6,10 +6,6 @@ import 'package:painel_windowns/data/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class DashboardTab extends StatefulWidget {
-  final List<Device> devices;
-  final String? errorMessage;
-  final Map<String, dynamic>? currentUser;
-  final AuthService authService;
 
   const DashboardTab({
     required this.authService,
@@ -18,6 +14,10 @@ class DashboardTab extends StatefulWidget {
     this.errorMessage,
     this.currentUser,
   });
+  final List<Device> devices;
+  final String? errorMessage;
+  final Map<String, dynamic>? currentUser;
+  final AuthService authService;
 
   @override
   State<DashboardTab> createState() => _DashboardTabState();

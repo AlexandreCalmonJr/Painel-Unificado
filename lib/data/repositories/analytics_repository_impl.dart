@@ -7,27 +7,27 @@ import 'package:painel_windowns/domain/repositories/i_analytics_repository.dart'
 
 /// Implementação do repositório de analytics
 class AnalyticsRepositoryImpl implements IAnalyticsRepository {
-  final AnalyticsRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   AnalyticsRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final AnalyticsRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> getDashboardMetrics(
     String token,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
       final metrics = await remoteDataSource.getDashboardMetrics(token);
       return Right(metrics);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -41,7 +41,7 @@ class AnalyticsRepositoryImpl implements IAnalyticsRepository {
     String deviceId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -50,7 +50,7 @@ class AnalyticsRepositoryImpl implements IAnalyticsRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -65,7 +65,7 @@ class AnalyticsRepositoryImpl implements IAnalyticsRepository {
     DateTime? endDate,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -76,7 +76,7 @@ class AnalyticsRepositoryImpl implements IAnalyticsRepository {
       );
       return Right(statistics);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -89,14 +89,14 @@ class AnalyticsRepositoryImpl implements IAnalyticsRepository {
     String token,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
       final health = await remoteDataSource.getSystemHealth(token);
       return Right(health);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

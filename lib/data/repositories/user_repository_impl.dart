@@ -9,18 +9,18 @@ import 'package:painel_windowns/data/models/user_model.dart';
 
 /// Implementação do repositório de usuários
 class UserRepositoryImpl implements IUserRepository {
-  final UserRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   UserRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final UserRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   Future<Either<Failure, List<UserEntity>>> getUsers(String token) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -43,7 +43,7 @@ class UserRepositoryImpl implements IUserRepository {
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } catch (e) {
       return Left(ServerFailure(message: 'Unexpected error: $e'));
     }
@@ -55,7 +55,7 @@ class UserRepositoryImpl implements IUserRepository {
     String userId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -72,7 +72,7 @@ class UserRepositoryImpl implements IUserRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -87,7 +87,7 @@ class UserRepositoryImpl implements IUserRepository {
     String password,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -111,7 +111,7 @@ class UserRepositoryImpl implements IUserRepository {
 
       return Right(entity);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -125,7 +125,7 @@ class UserRepositoryImpl implements IUserRepository {
     UserEntity user,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -142,7 +142,7 @@ class UserRepositoryImpl implements IUserRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -153,7 +153,7 @@ class UserRepositoryImpl implements IUserRepository {
   @override
   Future<Either<Failure, Unit>> deleteUser(String token, String userId) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -162,7 +162,7 @@ class UserRepositoryImpl implements IUserRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -177,7 +177,7 @@ class UserRepositoryImpl implements IUserRepository {
     String newPassword,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -186,7 +186,7 @@ class UserRepositoryImpl implements IUserRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

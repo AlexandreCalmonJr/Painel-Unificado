@@ -11,12 +11,12 @@ abstract class TotemLocalDataSource {
 }
 
 class TotemLocalDataSourceImpl implements TotemLocalDataSource {
+
+  TotemLocalDataSourceImpl({required this.sharedPreferences});
   final SharedPreferences sharedPreferences;
   static const String CACHED_TOTEMS = 'CACHED_TOTEMS';
   static const String CACHE_TIMESTAMP = 'TOTEMS_CACHE_TIMESTAMP';
   static const int CACHE_DURATION_MINUTES = 15;
-
-  TotemLocalDataSourceImpl({required this.sharedPreferences});
 
   @override
   Future<List<Totem>> getCachedTotems() async {

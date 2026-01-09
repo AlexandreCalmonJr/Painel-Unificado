@@ -21,9 +21,9 @@ class TotemLoading extends TotemState {
 
 /// State when totems have been successfully loaded.
 class TotemLoaded extends TotemState {
-  final List<TotemEntity> totems;
 
   const TotemLoaded(this.totems);
+  final List<TotemEntity> totems;
 
   @override
   List<Object?> get props => [totems];
@@ -31,9 +31,9 @@ class TotemLoaded extends TotemState {
 
 /// State when an error occurs while loading totems.
 class TotemError extends TotemState {
-  final String message;
 
   const TotemError(this.message);
+  final String message;
 
   @override
   List<Object?> get props => [message];

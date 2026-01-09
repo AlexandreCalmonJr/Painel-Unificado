@@ -2,22 +2,6 @@ import 'package:equatable/equatable.dart';
 
 /// Entity de módulo/ativo no domain layer
 class ModuleEntity extends Equatable {
-  final String id;
-  final String? assetTag;
-  final String? serialNumber;
-  final String? model;
-  final String? manufacturer;
-  final String? type; // Desktop, Notebook, Printer, Panel
-  final String? status;
-  final String? location;
-  final String? sector;
-  final String? floor;
-  final String? unit;
-  final String? ipAddress;
-  final String? macAddress;
-  final DateTime? lastSeen;
-  final bool? isOnline;
-  final Map<String, dynamic>? specifications;
 
   const ModuleEntity({
     required this.id,
@@ -37,6 +21,22 @@ class ModuleEntity extends Equatable {
     this.isOnline,
     this.specifications,
   });
+  final String id;
+  final String? assetTag;
+  final String? serialNumber;
+  final String? model;
+  final String? manufacturer;
+  final String? type; // Desktop, Notebook, Printer, Panel
+  final String? status;
+  final String? location;
+  final String? sector;
+  final String? floor;
+  final String? unit;
+  final String? ipAddress;
+  final String? macAddress;
+  final DateTime? lastSeen;
+  final bool? isOnline;
+  final Map<String, dynamic>? specifications;
 
   @override
   List<Object?> get props => [

@@ -232,8 +232,9 @@ class AuthService {
     String currentPassword,
     String newPassword,
   ) async {
-    if (!isLoggedIn)
+    if (!isLoggedIn) {
       return {'success': false, 'message': 'Utilizador não autenticado'};
+    }
     final config = ServerConfigService.instance.loadConfig();
     try {
       final response = await http

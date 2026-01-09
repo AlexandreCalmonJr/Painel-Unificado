@@ -9,33 +9,6 @@ import 'package:painel_windowns/domain/entities/module_entity.dart';
 
 /// Modelo completo para Impressoras
 class Printer extends ManagedAsset {
-  final String hostname;
-  final String model;
-  final String manufacturer;
-  final String? ipAddress;
-  final String? macAddress;
-  final String connectionType;
-  final String? usbPort;
-  final String printerStatus;
-  final String? errorMessage;
-  final int? totalPageCount;
-  final int? colorPageCount;
-  final int? blackWhitePageCount;
-  final Map<String, dynamic>? tonerLevels;
-  final int? paperLevel;
-  final bool? isDuplex;
-  final bool? isColor;
-  final List<String>? supportedPaperSizes;
-  final String? hostComputerName;
-  final String? hostComputerIp;
-  final String? firmwareVersion;
-  final String? driverVersion;
-  final DateTime? lastMaintenanceDate;
-  final Map<String, dynamic>? maintenanceInfo;
-  final bool maintenanceStatus;
-  final String? maintenanceTicket;
-  final String? maintenanceReason;
-  final List<Map<String, dynamic>>? maintenanceHistory;
 
   Printer({
     required super.id,
@@ -182,6 +155,53 @@ class Printer extends ManagedAsset {
     );
   }
 
+  /// Cria Printer model a partir de ModuleEntity
+  factory Printer.fromEntity(ModuleEntity entity) {
+    return Printer(
+      id: entity.id,
+      assetName: entity.assetTag ?? 'N/A',
+      serialNumber: entity.serialNumber ?? 'N/A',
+      status: entity.status ?? 'offline',
+      lastSeen: DateTime.now(),
+      location: entity.location,
+      unit: entity.unit,
+      sector: entity.sector,
+      floor: entity.floor,
+      hostname: entity.assetTag ?? 'N/A',
+      model: entity.model ?? 'N/A',
+      manufacturer: entity.manufacturer ?? 'N/A',
+      connectionType: 'network',
+      printerStatus: 'unknown',
+    );
+  }
+  final String hostname;
+  final String model;
+  final String manufacturer;
+  final String? ipAddress;
+  final String? macAddress;
+  final String connectionType;
+  final String? usbPort;
+  final String printerStatus;
+  final String? errorMessage;
+  final int? totalPageCount;
+  final int? colorPageCount;
+  final int? blackWhitePageCount;
+  final Map<String, dynamic>? tonerLevels;
+  final int? paperLevel;
+  final bool? isDuplex;
+  final bool? isColor;
+  final List<String>? supportedPaperSizes;
+  final String? hostComputerName;
+  final String? hostComputerIp;
+  final String? firmwareVersion;
+  final String? driverVersion;
+  final DateTime? lastMaintenanceDate;
+  final Map<String, dynamic>? maintenanceInfo;
+  final bool maintenanceStatus;
+  final String? maintenanceTicket;
+  final String? maintenanceReason;
+  final List<Map<String, dynamic>>? maintenanceHistory;
+
   @override
   Map<String, dynamic> toJson() {
     return {
@@ -258,26 +278,6 @@ class Printer extends ManagedAsset {
       ipAddress: ipAddress,
       macAddress: macAddress,
       isOnline: status.toLowerCase() == 'online',
-    );
-  }
-
-  /// Cria Printer model a partir de ModuleEntity
-  factory Printer.fromEntity(ModuleEntity entity) {
-    return Printer(
-      id: entity.id,
-      assetName: entity.assetTag ?? 'N/A',
-      serialNumber: entity.serialNumber ?? 'N/A',
-      status: entity.status ?? 'offline',
-      lastSeen: DateTime.now(),
-      location: entity.location,
-      unit: entity.unit,
-      sector: entity.sector,
-      floor: entity.floor,
-      hostname: entity.assetTag ?? 'N/A',
-      model: entity.model ?? 'N/A',
-      manufacturer: entity.manufacturer ?? 'N/A',
-      connectionType: 'network',
-      printerStatus: 'unknown',
     );
   }
 }

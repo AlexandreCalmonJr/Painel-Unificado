@@ -4,15 +4,7 @@ import 'package:painel_windowns/devices/widgets/stat_card.dart'; // Import do St
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart';
 
-class GenericDashboardTab extends StatelessWidget {
-  final List<ManagedAsset> allAssets;
-  final VoidCallback onRefresh;
-  final IconData Function() getModuleIcon;
-  final String moduleType;
-  final List<TableColumnConfig> columns; // <-- CAMPO ADICIONADO
-  final dynamic authService;
-  
-  final dynamic moduleConfig; // <-- ADICIONADO
+class GenericDashboardTab extends StatelessWidget { // <-- ADICIONADO
 
   const GenericDashboardTab({
     super.key,
@@ -24,14 +16,22 @@ class GenericDashboardTab extends StatelessWidget {
     required this.authService,
     required this.moduleConfig,// <-- ADICIONADO
   });
+  final List<ManagedAsset> allAssets;
+  final VoidCallback onRefresh;
+  final IconData Function() getModuleIcon;
+  final String moduleType;
+  final List<TableColumnConfig> columns; // <-- CAMPO ADICIONADO
+  final dynamic authService;
+  
+  final dynamic moduleConfig;
 
   @override
   Widget build(BuildContext context) {
-    int onlineCount =
+    final int onlineCount =
         allAssets.where((a) => a.status.toLowerCase() == 'online').length;
-    int offlineCount =
+    final int offlineCount =
         allAssets.where((a) => a.status.toLowerCase() == 'offline').length;
-    int maintenanceCount =
+    final int maintenanceCount =
         allAssets.where((a) => a.status.toLowerCase() == 'maintenance').length;
 
     return RefreshIndicator(

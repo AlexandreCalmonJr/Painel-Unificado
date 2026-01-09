@@ -12,10 +12,10 @@ abstract class TotemRemoteDataSource {
 }
 
 class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   TotemRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<List<Totem>> getTotems(String token) async {
@@ -65,7 +65,7 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
           [],
         );
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Totem not found');
+        throw const NotFoundException(message: 'Totem not found');
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
@@ -76,8 +76,9 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -99,7 +100,7 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Totem not found');
+        throw const NotFoundException(message: 'Totem not found');
       } else {
         throw ServerException(
           message: 'Failed to send command: ${response.statusCode}',
@@ -108,8 +109,9 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -135,7 +137,7 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Totem not found');
+        throw const NotFoundException(message: 'Totem not found');
       } else {
         throw ServerException(
           message: 'Failed to update totem: ${response.statusCode}',
@@ -144,8 +146,9 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }

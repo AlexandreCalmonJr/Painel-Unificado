@@ -7,13 +7,13 @@ import 'package:painel_windowns/domain/repositories/i_logger_repository.dart';
 
 /// Implementação do repositório de logs
 class LoggerRepositoryImpl implements ILoggerRepository {
-  final LoggerRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   LoggerRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final LoggerRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   Future<Either<Failure, Unit>> sendLog(
@@ -30,7 +30,7 @@ class LoggerRepositoryImpl implements ILoggerRepository {
       await remoteDataSource.sendLog(token, logData);
       return const Right(unit);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -48,7 +48,7 @@ class LoggerRepositoryImpl implements ILoggerRepository {
     DateTime? endDate,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -60,7 +60,7 @@ class LoggerRepositoryImpl implements ILoggerRepository {
       );
       return Right(logs);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -71,14 +71,14 @@ class LoggerRepositoryImpl implements ILoggerRepository {
   @override
   Future<Either<Failure, Unit>> clearLogs(String token) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
       await remoteDataSource.clearLogs(token);
       return const Right(unit);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

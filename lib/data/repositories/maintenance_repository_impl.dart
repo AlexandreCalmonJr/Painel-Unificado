@@ -7,13 +7,13 @@ import 'package:painel_windowns/domain/repositories/i_maintenance_repository.dar
 
 /// Implementação do repositório de manutenção
 class MaintenanceRepositoryImpl implements IMaintenanceRepository {
-  final MaintenanceRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   MaintenanceRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final MaintenanceRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   Future<Either<Failure, List<Map<String, dynamic>>>> getMaintenanceRecords(
@@ -21,7 +21,7 @@ class MaintenanceRepositoryImpl implements IMaintenanceRepository {
     String assetId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -33,7 +33,7 @@ class MaintenanceRepositoryImpl implements IMaintenanceRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -47,7 +47,7 @@ class MaintenanceRepositoryImpl implements IMaintenanceRepository {
     Map<String, dynamic> record,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -57,7 +57,7 @@ class MaintenanceRepositoryImpl implements IMaintenanceRepository {
       );
       return Right(result);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -72,7 +72,7 @@ class MaintenanceRepositoryImpl implements IMaintenanceRepository {
     Map<String, dynamic> record,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -81,7 +81,7 @@ class MaintenanceRepositoryImpl implements IMaintenanceRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -94,14 +94,14 @@ class MaintenanceRepositoryImpl implements IMaintenanceRepository {
     String token,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
       final scheduled = await remoteDataSource.getScheduledMaintenance(token);
       return Right(scheduled);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

@@ -18,10 +18,10 @@ abstract class ModuleRemoteDataSource {
 }
 
 class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   ModuleRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<List<Map<String, dynamic>>> getModulesByType(
@@ -70,7 +70,7 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
       if (response.statusCode == 200) {
         return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Module not found');
+        throw const NotFoundException(message: 'Module not found');
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
@@ -81,8 +81,9 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -108,7 +109,7 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Module not found');
+        throw const NotFoundException(message: 'Module not found');
       } else {
         throw ServerException(
           message: 'Failed to send command: ${response.statusCode}',
@@ -117,8 +118,9 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -144,7 +146,7 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Module not found');
+        throw const NotFoundException(message: 'Module not found');
       } else {
         throw ServerException(
           message: 'Failed to update module: ${response.statusCode}',
@@ -153,8 +155,9 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }

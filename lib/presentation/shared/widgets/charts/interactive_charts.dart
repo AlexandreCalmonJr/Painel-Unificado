@@ -4,9 +4,9 @@ import 'package:flutter/material.dart'; // Necessário para Widgets, Colors, etc
 import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // Import presumido
 
 class AssetStatusChart extends StatelessWidget {
-  final List<ManagedAsset> assets;
 
   const AssetStatusChart({super.key, required this.assets});
+  final List<ManagedAsset> assets;
 
   @override
   Widget build(BuildContext context) {
@@ -14,12 +14,12 @@ class AssetStatusChart extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text('Status dos Ativos',
+            const Text('Status dos Ativos',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SizedBox(
               height: 300,
               child: PieChart(
@@ -65,9 +65,9 @@ class AssetStatusChart extends StatelessWidget {
 }
 
 class LocationHeatmap extends StatelessWidget {
-  final List<ManagedAsset> assets;
 
   const LocationHeatmap({super.key, required this.assets});
+  final List<ManagedAsset> assets;
 
   @override
   Widget build(BuildContext context) {
@@ -75,12 +75,12 @@ class LocationHeatmap extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text('Distribuição por Localização',
+            const Text('Distribuição por Localização',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SizedBox(
               height: 300,
               child: BarChart(
@@ -105,14 +105,14 @@ class LocationHeatmap extends StatelessWidget {
                         getTitlesWidget: (value, meta) {
                           final location =
                               locationData.keys.elementAt(value.toInt());
-                          return Text(location, style: TextStyle(fontSize: 10));
+                          return Text(location, style: const TextStyle(fontSize: 10));
                         },
                       ),
                     ),
                     // Oculta os títulos da esquerda, topo e direita
-                    leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
                 ),
               ),

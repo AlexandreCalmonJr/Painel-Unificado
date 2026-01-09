@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 
 /// Widget de chip de status reutilizável
 class StatusChip extends StatelessWidget {
-  final String status;
-  final Color? color;
-  final IconData? icon;
-  final bool showIcon;
 
   const StatusChip({
     super.key,
@@ -51,6 +47,10 @@ class StatusChip extends StatelessWidget {
 
     return StatusChip(status: status, color: color, icon: icon);
   }
+  final String status;
+  final Color? color;
+  final IconData? icon;
+  final bool showIcon;
 
   @override
   Widget build(BuildContext context) {

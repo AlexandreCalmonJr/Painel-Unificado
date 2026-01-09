@@ -9,38 +9,6 @@ import 'package:painel_windowns/services/logger_service.dart';
 import 'package:painel_windowns/domain/entities/module_entity.dart';
 
 class Notebook extends ManagedAsset {
-  final String hostname;
-  final String model;
-  final String manufacturer;
-  final String processor;
-  final String ram;
-  final String storage;
-  final String storageType; // ✅ NOVO: Tipo de armazenamento (SSD/HDD)
-  final String operatingSystem;
-  final String osVersion;
-  final String ipAddress;
-  final String macAddress;
-  final String? macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento
-  final String? wifiSsid; // ✅ NOVO: Nome da rede WiFi
-  final String connectionType; // ✅ NOVO: WiFi/Ethernet
-  final List<String> installedSoftware;
-  final bool antivirusStatus;
-  final String? antivirusVersion;
-  final DateTime? lastUpdateCheck;
-  final Map<String, dynamic>? hardwareInfo;
-  final bool isEncrypted;
-  final String biometricReaderStatus;
-
-  // ✅ Battery fields
-  final int? batteryLevel; // Battery percentage (0-100)
-  final String? batteryHealth; // Battery health status
-
-  // ✅ CAMPOS CORRIGIDOS
-  @override
-  final String? currentUser;
-  @override
-  final String? uptime;
-  final DateTime? updatedAt;
 
   Notebook({
     required super.id,
@@ -202,6 +170,66 @@ class Notebook extends ManagedAsset {
     );
   }
 
+  /// Cria Notebook model a partir de ModuleEntity
+  factory Notebook.fromEntity(ModuleEntity entity) {
+    return Notebook(
+      id: entity.id,
+      assetName: entity.assetTag ?? 'N/A',
+      serialNumber: entity.serialNumber ?? 'N/A',
+      status: entity.status ?? 'offline',
+      lastSeen: DateTime.now(),
+      location: entity.location,
+      unit: entity.unit,
+      sector: entity.sector,
+      floor: entity.floor,
+      hostname: entity.assetTag ?? 'N/A',
+      model: entity.model ?? 'N/A',
+      manufacturer: entity.manufacturer ?? 'N/A',
+      processor: 'N/A',
+      ram: 'N/A',
+      storage: 'N/A',
+      storageType: 'N/A',
+      operatingSystem: 'N/A',
+      osVersion: 'N/A',
+      ipAddress: entity.ipAddress ?? 'N/A',
+      macAddress: entity.macAddress ?? 'N/A',
+      connectionType: 'Desconhecido',
+      biometricReaderStatus: 'N/A',
+    );
+  }
+  final String hostname;
+  final String model;
+  final String manufacturer;
+  final String processor;
+  final String ram;
+  final String storage;
+  final String storageType; // ✅ NOVO: Tipo de armazenamento (SSD/HDD)
+  final String operatingSystem;
+  final String osVersion;
+  final String ipAddress;
+  final String macAddress;
+  final String? macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento
+  final String? wifiSsid; // ✅ NOVO: Nome da rede WiFi
+  final String connectionType; // ✅ NOVO: WiFi/Ethernet
+  final List<String> installedSoftware;
+  final bool antivirusStatus;
+  final String? antivirusVersion;
+  final DateTime? lastUpdateCheck;
+  final Map<String, dynamic>? hardwareInfo;
+  final bool isEncrypted;
+  final String biometricReaderStatus;
+
+  // ✅ Battery fields
+  final int? batteryLevel; // Battery percentage (0-100)
+  final String? batteryHealth; // Battery health status
+
+  // ✅ CAMPOS CORRIGIDOS
+  @override
+  final String? currentUser;
+  @override
+  final String? uptime;
+  final DateTime? updatedAt;
+
   @override
   Map<String, dynamic> toJson() {
     return {
@@ -269,34 +297,6 @@ class Notebook extends ManagedAsset {
       ipAddress: ipAddress,
       macAddress: macAddress,
       isOnline: status.toLowerCase() == 'online',
-    );
-  }
-
-  /// Cria Notebook model a partir de ModuleEntity
-  factory Notebook.fromEntity(ModuleEntity entity) {
-    return Notebook(
-      id: entity.id,
-      assetName: entity.assetTag ?? 'N/A',
-      serialNumber: entity.serialNumber ?? 'N/A',
-      status: entity.status ?? 'offline',
-      lastSeen: DateTime.now(),
-      location: entity.location,
-      unit: entity.unit,
-      sector: entity.sector,
-      floor: entity.floor,
-      hostname: entity.assetTag ?? 'N/A',
-      model: entity.model ?? 'N/A',
-      manufacturer: entity.manufacturer ?? 'N/A',
-      processor: 'N/A',
-      ram: 'N/A',
-      storage: 'N/A',
-      storageType: 'N/A',
-      operatingSystem: 'N/A',
-      osVersion: 'N/A',
-      ipAddress: entity.ipAddress ?? 'N/A',
-      macAddress: entity.macAddress ?? 'N/A',
-      connectionType: 'Desconhecido',
-      biometricReaderStatus: 'N/A',
     );
   }
 }

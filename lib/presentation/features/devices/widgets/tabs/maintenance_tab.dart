@@ -5,11 +5,6 @@ import 'package:painel_windowns/services/auth_service.dart';
 
 
 class MaintenanceTab extends StatelessWidget {
-  final List<Device> devices;
-  final String token;
-  final VoidCallback onDeviceUpdate;
-  final Map<String, dynamic>? currentUser;
-  final AuthService authService;
 
   const MaintenanceTab({
     super.key,
@@ -19,6 +14,11 @@ class MaintenanceTab extends StatelessWidget {
     required this.currentUser,
     required this.authService,
   });
+  final List<Device> devices;
+  final String token;
+  final VoidCallback onDeviceUpdate;
+  final Map<String, dynamic>? currentUser;
+  final AuthService authService;
 
   @override
   Widget build(BuildContext context) {

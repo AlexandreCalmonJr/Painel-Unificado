@@ -1,9 +1,10 @@
 // File: test/services/auth_service_test.dart
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 // Gera mocks automaticamente com build_runner
 @GenerateMocks([http.Client])

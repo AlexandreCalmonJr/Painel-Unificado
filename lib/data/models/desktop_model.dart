@@ -8,44 +8,7 @@ import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/services/logger_service.dart';
 import 'package:painel_windowns/domain/entities/module_entity.dart';
 
-class Desktop extends ManagedAsset {
-  final String hostname;
-  final String model;
-  final String manufacturer;
-  @override
-  final String? currentUser;
-  @override
-  final String? uptime;
-  final DateTime? updatedAt;
-
-  final String processor;
-  final String ram;
-  final String storage;
-  final String storageType;
-
-  final String operatingSystem;
-  final String osVersion;
-
-  final String ipAddress;
-  final String macAddress;
-  final String? macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento
-  final String? wifiSsid; // ✅ NOVO: Nome da rede WiFi
-  final String connectionType; // ✅ NOVO: WiFi/Ethernet
-
-  final String? biometricReader;
-  final String? connectedPrinter;
-
-  final List<String> installedSoftware;
-  final List<String> installedPrograms;
-  final String? javaVersion;
-  final String? browserVersion;
-
-  final bool antivirusStatus;
-  final String? antivirusVersion;
-  final DateTime? lastUpdateCheck;
-
-  final Map<String, dynamic>? hardwareInfo;
-  final bool isEncrypted; // ✅ NOVO: Status de criptografia
+class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
 
   Desktop({
     required super.id,
@@ -210,6 +173,70 @@ class Desktop extends ManagedAsset {
     );
   }
 
+  /// Cria Desktop model a partir de ModuleEntity
+  factory Desktop.fromEntity(ModuleEntity entity) {
+    return Desktop(
+      id: entity.id,
+      assetName: entity.assetTag ?? 'N/A',
+      serialNumber: entity.serialNumber ?? 'N/A',
+      status: entity.status ?? 'offline',
+      lastSeen: DateTime.now(),
+      location: entity.location,
+      unit: entity.unit,
+      sector: entity.sector,
+      floor: entity.floor,
+      hostname: entity.assetTag ?? 'N/A',
+      model: entity.model ?? 'N/A',
+      manufacturer: entity.manufacturer ?? 'N/A',
+      processor: 'N/A',
+      ram: 'N/A',
+      storage: 'N/A',
+      storageType: 'N/A',
+      operatingSystem: 'N/A',
+      osVersion: 'N/A',
+      ipAddress: entity.ipAddress ?? 'N/A',
+      macAddress: entity.macAddress ?? 'N/A',
+      connectionType: 'Desconhecido',
+    );
+  }
+  final String hostname;
+  final String model;
+  final String manufacturer;
+  @override
+  final String? currentUser;
+  @override
+  final String? uptime;
+  final DateTime? updatedAt;
+
+  final String processor;
+  final String ram;
+  final String storage;
+  final String storageType;
+
+  final String operatingSystem;
+  final String osVersion;
+
+  final String ipAddress;
+  final String macAddress;
+  final String? macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento
+  final String? wifiSsid; // ✅ NOVO: Nome da rede WiFi
+  final String connectionType; // ✅ NOVO: WiFi/Ethernet
+
+  final String? biometricReader;
+  final String? connectedPrinter;
+
+  final List<String> installedSoftware;
+  final List<String> installedPrograms;
+  final String? javaVersion;
+  final String? browserVersion;
+
+  final bool antivirusStatus;
+  final String? antivirusVersion;
+  final DateTime? lastUpdateCheck;
+
+  final Map<String, dynamic>? hardwareInfo;
+  final bool isEncrypted;
+
   @override
   Map<String, dynamic> toJson() {
     return {
@@ -285,33 +312,6 @@ class Desktop extends ManagedAsset {
       ipAddress: ipAddress,
       macAddress: macAddress,
       isOnline: status.toLowerCase() == 'online',
-    );
-  }
-
-  /// Cria Desktop model a partir de ModuleEntity
-  factory Desktop.fromEntity(ModuleEntity entity) {
-    return Desktop(
-      id: entity.id,
-      assetName: entity.assetTag ?? 'N/A',
-      serialNumber: entity.serialNumber ?? 'N/A',
-      status: entity.status ?? 'offline',
-      lastSeen: DateTime.now(),
-      location: entity.location,
-      unit: entity.unit,
-      sector: entity.sector,
-      floor: entity.floor,
-      hostname: entity.assetTag ?? 'N/A',
-      model: entity.model ?? 'N/A',
-      manufacturer: entity.manufacturer ?? 'N/A',
-      processor: 'N/A',
-      ram: 'N/A',
-      storage: 'N/A',
-      storageType: 'N/A',
-      operatingSystem: 'N/A',
-      osVersion: 'N/A',
-      ipAddress: entity.ipAddress ?? 'N/A',
-      macAddress: entity.macAddress ?? 'N/A',
-      connectionType: 'Desconhecido',
     );
   }
 }

@@ -7,17 +7,6 @@ import 'package:painel_windowns/data/models/device.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class DevicesTab extends StatefulWidget {
-  final List<Device> devices;
-  final String token;
-  final VoidCallback onDeviceUpdate;
-  final bool isReadOnly;
-  final Map<String, dynamic>? currentUser;
-  final AuthService authService;
-
-  final int currentPage;
-  final int totalPages;
-  final Function(int) onPageChange;
-  final Function(String) onSearch;
 
   const DevicesTab({
     required this.authService,
@@ -32,6 +21,17 @@ class DevicesTab extends StatefulWidget {
     required this.onPageChange,
     required this.onSearch,
   });
+  final List<Device> devices;
+  final String token;
+  final VoidCallback onDeviceUpdate;
+  final bool isReadOnly;
+  final Map<String, dynamic>? currentUser;
+  final AuthService authService;
+
+  final int currentPage;
+  final int totalPages;
+  final Function(int) onPageChange;
+  final Function(String) onSearch;
 
   @override
   State<DevicesTab> createState() => _DevicesTabState();

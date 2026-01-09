@@ -15,10 +15,10 @@ class CheckAuthStatus extends AuthEvent {
 
 /// Event to login a user.
 class LoginRequested extends AuthEvent {
-  final String username;
-  final String password;
 
   const LoginRequested({required this.username, required this.password});
+  final String username;
+  final String password;
 
   @override
   List<Object?> get props => [username, password];

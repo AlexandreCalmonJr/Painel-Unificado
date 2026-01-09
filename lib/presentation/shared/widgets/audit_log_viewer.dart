@@ -9,14 +9,14 @@ import 'package:painel_windowns/services/auth_service.dart'; // Presumido
 import 'package:painel_windowns/services/server_config_service.dart'; // Presumido
 
 class AuditLogViewer extends StatelessWidget {
-  final String assetId;
-  final AuthService authService;
 
   const AuditLogViewer({
     super.key, // ✅ Adicionado Key
     required this.assetId,
     required this.authService,
   });
+  final String assetId;
+  final AuthService authService;
 
   @override
   Widget build(BuildContext context) {

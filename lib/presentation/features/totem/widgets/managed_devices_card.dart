@@ -10,10 +10,6 @@ import 'package:path_provider/path_provider.dart';
 
 /// Widget que exibe uma lista de totens em um cartão com uma tabela
 class ManagedTotemsCard extends StatelessWidget {
-  final String title;
-  final List<Totem> totems;
-  final AuthService authService;
-  final VoidCallback? onTotemUpdate;
 
   const ManagedTotemsCard({
     required this.authService,
@@ -22,6 +18,10 @@ class ManagedTotemsCard extends StatelessWidget {
     required this.totems,
     this.onTotemUpdate,
   });
+  final String title;
+  final List<Totem> totems;
+  final AuthService authService;
+  final VoidCallback? onTotemUpdate;
 
   /// Gera e baixa um arquivo CSV com os dados dos totens
   Future<void> _downloadTotemsCsv(
@@ -88,7 +88,7 @@ class ManagedTotemsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Ordena os totens por hostname
-    List<Totem> sortedTotems = List.from(totems);
+    final List<Totem> sortedTotems = List.from(totems);
     sortedTotems.sort(
       (a, b) =>
           (a.hostname).toLowerCase().compareTo((b.hostname).toLowerCase()),

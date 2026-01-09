@@ -7,9 +7,9 @@ import 'package:painel_windowns/services/logger_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
 class CommandService {
-  final AuthService _authService;
 
   CommandService(this._authService);
+  final AuthService _authService;
 
   String get _baseUrl {
     final config = ServerConfigService.instance.loadConfig();

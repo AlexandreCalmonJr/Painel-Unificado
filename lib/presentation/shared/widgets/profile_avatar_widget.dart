@@ -4,11 +4,6 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 
 /// Widget de avatar do usuário com iniciais
 class ProfileAvatarWidget extends StatelessWidget {
-  final String username;
-  final double size;
-  final bool isOnline;
-  final String? imageUrl;
-  final VoidCallback? onTap;
 
   const ProfileAvatarWidget({
     super.key,
@@ -18,6 +13,11 @@ class ProfileAvatarWidget extends StatelessWidget {
     this.imageUrl,
     this.onTap,
   });
+  final String username;
+  final double size;
+  final bool isOnline;
+  final String? imageUrl;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +36,11 @@ class ProfileAvatarWidget extends StatelessWidget {
                 color: AppColors.border.withOpacity(0.3),
                 width: 2,
               ),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: AppColors.shadow,
                   blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  offset: Offset(0, 2),
                 ),
               ],
             ),
@@ -124,9 +124,6 @@ class ProfileAvatarWidget extends StatelessWidget {
 
 /// Widget de avatar compacto para usar em listas
 class CompactAvatarWidget extends StatelessWidget {
-  final String username;
-  final bool isOnline;
-  final String? imageUrl;
 
   const CompactAvatarWidget({
     super.key,
@@ -134,6 +131,9 @@ class CompactAvatarWidget extends StatelessWidget {
     this.isOnline = false,
     this.imageUrl,
   });
+  final String username;
+  final bool isOnline;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {

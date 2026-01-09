@@ -21,13 +21,13 @@ abstract class MaintenanceRemoteDataSource {
 }
 
 class MaintenanceRemoteDataSourceImpl implements MaintenanceRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   MaintenanceRemoteDataSourceImpl({
     required this.client,
     required this.baseUrl,
   });
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<List<Map<String, dynamic>>> getMaintenanceRecords(
@@ -51,7 +51,7 @@ class MaintenanceRemoteDataSourceImpl implements MaintenanceRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Asset not found');
+        throw const NotFoundException(message: 'Asset not found');
       } else {
         throw ServerException(
           message: 'Failed to get maintenance records: ${response.statusCode}',
@@ -60,8 +60,9 @@ class MaintenanceRemoteDataSourceImpl implements MaintenanceRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -118,7 +119,7 @@ class MaintenanceRemoteDataSourceImpl implements MaintenanceRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Maintenance record not found');
+        throw const NotFoundException(message: 'Maintenance record not found');
       } else {
         throw ServerException(
           message:
@@ -128,8 +129,9 @@ class MaintenanceRemoteDataSourceImpl implements MaintenanceRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }

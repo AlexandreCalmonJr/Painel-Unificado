@@ -11,39 +11,7 @@ enum DeviceStatusType {
   unmonitored,
 }
 
-class Device {
-  final String? id;
-  final String? deviceId;
-  final String? deviceName;
-  final String? deviceModel;
-  final num? battery;
-  final String? ipAddress;
-  final String? network;
-  final String? serialNumber;
-  final String? imei;
-  final String? macAddress;
-  final String?
-  macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento de localização
-  final String? lastSeen;
-  final String? lastSync;
-  final String? sector;
-  final String? floor;
-  final String? location;
-  final bool? maintenanceStatus;
-  final String? maintenanceTicket;
-  final String? maintenanceReason;
-  final List<Map<String, dynamic>>? maintenanceHistory;
-  final String? unit;
-  final String? provisioningStatus;
-  final String? provisioningToken;
-  final String? enrollmentDate;
-  final String? configurationProfile;
-  final String? ownerOrganization;
-  final String? complianceStatus;
-  final List<Map<String, dynamic>>? installedApps;
-  final Map<String, dynamic>? securityPolicies;
-  final String status;
-  final bool? isOnline; // ✅ NOVO: Status em tempo real
+class Device { // ✅ NOVO: Status em tempo real
 
   Device({
     this.id,
@@ -78,23 +46,6 @@ class Device {
     required this.status,
     this.isOnline, // ✅ NOVO
   });
-
-  // ADICIONADO: Getter para centralizar a lógica de status
-  DeviceStatusType get displayStatus {
-    if (maintenanceStatus ?? false) {
-      return maintenanceReason == 'collected_by_it'
-          ? DeviceStatusType.collectedByIT
-          : DeviceStatusType.maintenance;
-    }
-    switch (status) {
-      case 'online':
-        return DeviceStatusType.online;
-      case 'Sem Monitorar':
-        return DeviceStatusType.unmonitored;
-      default:
-        return DeviceStatusType.offline;
-    }
-  }
 
   factory Device.fromJson(Map<String, dynamic> json, List<Unit> units) {
     return Device(
@@ -156,28 +107,6 @@ class Device {
     ); // ✅ NOVO: Status em tempo real
   }
 
-  /// Converte Model para Entity (Domain Layer)
-  DeviceEntity toEntity() {
-    return DeviceEntity(
-      id: id ?? deviceId ?? '',
-      deviceName: deviceName,
-      serialNumber: serialNumber,
-      imei: imei,
-      phoneNumber: null, // Não disponível no model atual
-      model: deviceModel,
-      manufacturer: null, // Não disponível no model atual
-      osVersion: null, // Não disponível no model atual
-      lastSeen: lastSeen,
-      battery: battery?.toInt(),
-      status: status,
-      location: location,
-      sector: sector,
-      floor: floor,
-      unit: unit,
-      isOnline: isOnline,
-    );
-  }
-
   /// Cria Model a partir de Entity
   factory Device.fromEntity(DeviceEntity entity) {
     return Device(
@@ -212,6 +141,77 @@ class Device {
       complianceStatus: null,
       installedApps: null,
       securityPolicies: null,
+    );
+  }
+  final String? id;
+  final String? deviceId;
+  final String? deviceName;
+  final String? deviceModel;
+  final num? battery;
+  final String? ipAddress;
+  final String? network;
+  final String? serialNumber;
+  final String? imei;
+  final String? macAddress;
+  final String?
+  macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento de localização
+  final String? lastSeen;
+  final String? lastSync;
+  final String? sector;
+  final String? floor;
+  final String? location;
+  final bool? maintenanceStatus;
+  final String? maintenanceTicket;
+  final String? maintenanceReason;
+  final List<Map<String, dynamic>>? maintenanceHistory;
+  final String? unit;
+  final String? provisioningStatus;
+  final String? provisioningToken;
+  final String? enrollmentDate;
+  final String? configurationProfile;
+  final String? ownerOrganization;
+  final String? complianceStatus;
+  final List<Map<String, dynamic>>? installedApps;
+  final Map<String, dynamic>? securityPolicies;
+  final String status;
+  final bool? isOnline;
+
+  // ADICIONADO: Getter para centralizar a lógica de status
+  DeviceStatusType get displayStatus {
+    if (maintenanceStatus ?? false) {
+      return maintenanceReason == 'collected_by_it'
+          ? DeviceStatusType.collectedByIT
+          : DeviceStatusType.maintenance;
+    }
+    switch (status) {
+      case 'online':
+        return DeviceStatusType.online;
+      case 'Sem Monitorar':
+        return DeviceStatusType.unmonitored;
+      default:
+        return DeviceStatusType.offline;
+    }
+  }
+
+  /// Converte Model para Entity (Domain Layer)
+  DeviceEntity toEntity() {
+    return DeviceEntity(
+      id: id ?? deviceId ?? '',
+      deviceName: deviceName,
+      serialNumber: serialNumber,
+      imei: imei,
+      phoneNumber: null, // Não disponível no model atual
+      model: deviceModel,
+      manufacturer: null, // Não disponível no model atual
+      osVersion: null, // Não disponível no model atual
+      lastSeen: lastSeen,
+      battery: battery?.toInt(),
+      status: status,
+      location: location,
+      sector: sector,
+      floor: floor,
+      unit: unit,
+      isOnline: isOnline,
     );
   }
 

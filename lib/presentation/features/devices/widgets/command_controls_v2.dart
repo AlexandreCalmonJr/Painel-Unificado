@@ -9,9 +9,6 @@ import 'package:painel_windowns/widgets/dialogs/base_dialog.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
 
 class CommandControlsV2 extends StatelessWidget {
-  final Device device;
-  final String token;
-  final VoidCallback? onCommandExecuted;
 
   const CommandControlsV2({
     super.key,
@@ -19,6 +16,9 @@ class CommandControlsV2 extends StatelessWidget {
     required this.token,
     this.onCommandExecuted,
   });
+  final Device device;
+  final String token;
+  final VoidCallback? onCommandExecuted;
 
   @override
   Widget build(BuildContext context) {

@@ -12,14 +12,6 @@ import 'package:painel_windowns/utils/app_constants.dart';
 import 'package:painel_windowns/widgets/common/index.dart';
 
 class GenericManagedAssetsCard extends StatelessWidget {
-  final String title;
-  final List<ManagedAsset> assets;
-  final List<TableColumnConfig> columns;
-  final AssetModuleConfig moduleConfig;
-  final bool showActions;
-  final AuthService authService;
-  final VoidCallback onAssetChanged;
-  final bool expand;
 
   const GenericManagedAssetsCard({
     super.key,
@@ -32,6 +24,14 @@ class GenericManagedAssetsCard extends StatelessWidget {
     this.showActions = false,
     this.expand = false,
   });
+  final String title;
+  final List<ManagedAsset> assets;
+  final List<TableColumnConfig> columns;
+  final AssetModuleConfig moduleConfig;
+  final bool showActions;
+  final AuthService authService;
+  final VoidCallback onAssetChanged;
+  final bool expand;
 
   @override
   Widget build(BuildContext context) {

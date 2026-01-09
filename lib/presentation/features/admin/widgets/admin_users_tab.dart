@@ -12,8 +12,8 @@ import 'package:painel_windowns/widgets/dialogs/user_dialog.dart';
 import 'package:painel_windowns/widgets/profile_avatar_widget.dart';
 
 class AdminUsersTab extends StatefulWidget {
-  final AuthService authService;
   const AdminUsersTab({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   _AdminUsersTabState createState() => _AdminUsersTabState();

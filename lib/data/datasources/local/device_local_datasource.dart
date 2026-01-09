@@ -21,13 +21,13 @@ abstract class DeviceLocalDataSource {
 }
 
 class DeviceLocalDataSourceImpl implements DeviceLocalDataSource {
+
+  DeviceLocalDataSourceImpl({required this.sharedPreferences});
   final SharedPreferences sharedPreferences;
 
   static const String CACHED_DEVICES = 'CACHED_DEVICES';
   static const String CACHE_TIMESTAMP = 'DEVICES_CACHE_TIMESTAMP';
   static const int CACHE_DURATION_MINUTES = 15;
-
-  DeviceLocalDataSourceImpl({required this.sharedPreferences});
 
   @override
   Future<List<Device>> getCachedDevices() async {
@@ -112,7 +112,7 @@ class DeviceLocalDataSourceImpl implements DeviceLocalDataSource {
       return devices.firstWhere(
         (device) => device.id == deviceId || device.deviceId == deviceId,
         orElse:
-            () => throw NotFoundException(message: 'Device not found in cache'),
+            () => throw const NotFoundException(message: 'Device not found in cache'),
       );
     } catch (e) {
       if (e is NotFoundException) {

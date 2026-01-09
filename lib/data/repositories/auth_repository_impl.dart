@@ -8,13 +8,13 @@ import 'package:painel_windowns/domain/repositories/i_auth_repository.dart';
 
 /// Implementação do repositório de autenticação
 class AuthRepositoryImpl implements IAuthRepository {
-  final AuthRemoteDataSource remoteDataSource;
-  final AuthLocalDataSource localDataSource;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
   });
+  final AuthRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
 
   @override
   Future<Either<Failure, UserEntity>> login(
@@ -86,7 +86,7 @@ class AuthRepositoryImpl implements IAuthRepository {
     try {
       final token = await localDataSource.getAuthToken();
       if (token == null) {
-        return Left(UnauthorizedFailure(message: 'No token found'));
+        return const Left(UnauthorizedFailure(message: 'No token found'));
       }
 
       final userData = await remoteDataSource.getCurrentUser(token);
@@ -116,7 +116,7 @@ class AuthRepositoryImpl implements IAuthRepository {
     String newPassword,
   ) async {
     // TODO: Implementar quando houver endpoint
-    return Left(ServerFailure(message: 'Not implemented'));
+    return const Left(ServerFailure(message: 'Not implemented'));
   }
 
   @override
@@ -126,7 +126,7 @@ class AuthRepositoryImpl implements IAuthRepository {
       if (token != null) {
         return Right(token);
       } else {
-        return Left(CacheFailure(message: 'No token found'));
+        return const Left(CacheFailure(message: 'No token found'));
       }
     } on CacheException catch (e) {
       return Left(CacheFailure(message: e.message));

@@ -21,9 +21,9 @@ import 'package:painel_windowns/services/auth_service.dart';
 /// Versão simplificada usando BaseDashboardLayout e separação de responsabilidades.
 /// Reduzido de 843 linhas para ~350 linhas.
 class DevicesDashboardPage extends StatefulWidget {
-  final AuthService authService;
 
   const DevicesDashboardPage({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   State<DevicesDashboardPage> createState() => _DevicesDashboardPageState();
@@ -246,7 +246,7 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                               // Maintenance Tab
                               BaseDashboardLayout(
                                 title: 'Manutenção',
-                                stats: [],
+                                stats: const [],
                                 mainContent: MaintenanceTab(
                                   authService: widget.authService,
                                   devices: devices,
@@ -262,7 +262,7 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                               // Reports Tab
                               BaseDashboardLayout(
                                 title: 'Relatórios',
-                                stats: [],
+                                stats: const [],
                                 mainContent: ReportsTab(
                                   authService: widget.authService,
                                   devices: devices,

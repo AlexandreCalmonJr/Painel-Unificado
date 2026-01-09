@@ -23,12 +23,12 @@ abstract class AuthLocalDataSource {
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
+
+  AuthLocalDataSourceImpl({required this.sharedPreferences});
   final SharedPreferences sharedPreferences;
 
   static const String AUTH_TOKEN_KEY = 'AUTH_TOKEN';
   static const String USER_DATA_KEY = 'USER_DATA';
-
-  AuthLocalDataSourceImpl({required this.sharedPreferences});
 
   @override
   Future<void> saveAuthToken(String token) async {

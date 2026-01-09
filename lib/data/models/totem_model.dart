@@ -9,22 +9,6 @@ import 'package:painel_windowns/domain/entities/totem_entity.dart';
 
 /// Modelo Totem que herda de ManagedAsset
 class Totem extends ManagedAsset {
-  // Campos específicos de Totem
-  final String hostname;
-  final String model;
-  final String serviceTag;
-  final String ip;
-  final String macAddress;
-  final String macAddressRadio;
-  final List<String> installedPrograms;
-  final String printerStatus;
-  final String biometricReaderStatus;
-  final String totemType;
-  final String ram;
-  final String hdType;
-  final String hdStorage;
-  final String zebraStatus;
-  final String bematechStatus;
 
   Totem({
     required super.id,
@@ -114,6 +98,51 @@ class Totem extends ManagedAsset {
     );
   }
 
+  /// Cria Totem model a partir de TotemEntity
+  factory Totem.fromEntity(TotemEntity entity) {
+    return Totem(
+      id: entity.id,
+      serialNumber: entity.serialNumber ?? 'N/A',
+      status: entity.status ?? 'Offline',
+      lastSeen: entity.lastSeen ?? DateTime.now(),
+      location: entity.location,
+      unit: entity.unit,
+      sector: entity.sector,
+      floor: entity.floor,
+      hostname: entity.name ?? 'N/A',
+      model: entity.model ?? 'N/A',
+      serviceTag: 'N/A',
+      ip: entity.ipAddress ?? 'N/A',
+      macAddress: entity.macAddress ?? 'N/A',
+      macAddressRadio: 'N/A',
+      installedPrograms: [],
+      printerStatus: 'N/A',
+      biometricReaderStatus: 'N/A',
+      totemType: 'N/A',
+      ram: 'N/A',
+      hdType: 'N/A',
+      hdStorage: 'N/A',
+      zebraStatus: 'Não detectado',
+      bematechStatus: 'Não detectado',
+    );
+  }
+  // Campos específicos de Totem
+  final String hostname;
+  final String model;
+  final String serviceTag;
+  final String ip;
+  final String macAddress;
+  final String macAddressRadio;
+  final List<String> installedPrograms;
+  final String printerStatus;
+  final String biometricReaderStatus;
+  final String totemType;
+  final String ram;
+  final String hdType;
+  final String hdStorage;
+  final String zebraStatus;
+  final String bematechStatus;
+
   @override
   Map<String, dynamic> toJson() {
     return {
@@ -155,7 +184,7 @@ class Totem extends ManagedAsset {
   // ✅ Getters mantidos para compatibilidade
   String get mozillaVersion {
     final regex = RegExp(r'Mozilla Firefox ([\d\.]+)');
-    for (var program in installedPrograms) {
+    for (final program in installedPrograms) {
       final match = regex.firstMatch(program);
       if (match != null) return match.group(1) ?? 'N/A';
     }
@@ -167,8 +196,8 @@ class Totem extends ManagedAsset {
       RegExp(r'Java.*? ([\d\._]+)'),
       RegExp(r'OpenJDK.*? ([\d\._]+)'),
     ];
-    for (var program in installedPrograms) {
-      for (var pattern in patterns) {
+    for (final program in installedPrograms) {
+      for (final pattern in patterns) {
         final match = pattern.firstMatch(program);
         if (match != null) return match.group(1) ?? 'N/A';
       }
@@ -191,35 +220,6 @@ class Totem extends ManagedAsset {
       ipAddress: ip,
       macAddress: macAddress,
       lastSeen: lastSeen,
-    );
-  }
-
-  /// Cria Totem model a partir de TotemEntity
-  factory Totem.fromEntity(TotemEntity entity) {
-    return Totem(
-      id: entity.id,
-      serialNumber: entity.serialNumber ?? 'N/A',
-      status: entity.status ?? 'Offline',
-      lastSeen: entity.lastSeen ?? DateTime.now(),
-      location: entity.location,
-      unit: entity.unit,
-      sector: entity.sector,
-      floor: entity.floor,
-      hostname: entity.name ?? 'N/A',
-      model: entity.model ?? 'N/A',
-      serviceTag: 'N/A',
-      ip: entity.ipAddress ?? 'N/A',
-      macAddress: entity.macAddress ?? 'N/A',
-      macAddressRadio: 'N/A',
-      installedPrograms: [],
-      printerStatus: 'N/A',
-      biometricReaderStatus: 'N/A',
-      totemType: 'N/A',
-      ram: 'N/A',
-      hdType: 'N/A',
-      hdStorage: 'N/A',
-      zebraStatus: 'Não detectado',
-      bematechStatus: 'Não detectado',
     );
   }
 

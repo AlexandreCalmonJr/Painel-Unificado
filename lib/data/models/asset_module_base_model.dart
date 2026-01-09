@@ -21,11 +21,6 @@ enum AssetModuleType {
 
 /// Classe para configurar uma coluna da tabela dinâmica
 class TableColumnConfig {
-  final String dataKey; // A chave no JSON/Map (ex: "assetName", "serialNumber", "hostname")
-  final String label;   // O texto do cabeçalho (ex: "Nome do Ativo", "Serial", "Hostname")
-  final bool isVisible;
-  final bool isSortable;
-  final double? width;
 
   TableColumnConfig({
     required this.dataKey,
@@ -44,6 +39,11 @@ class TableColumnConfig {
       width: (json['width'] as num?)?.toDouble(),
     );
   }
+  final String dataKey; // A chave no JSON/Map (ex: "assetName", "serialNumber", "hostname")
+  final String label;   // O texto do cabeçalho (ex: "Nome do Ativo", "Serial", "Hostname")
+  final bool isVisible;
+  final bool isSortable;
+  final double? width;
 
   Map<String, dynamic> toJson() {
     return {
@@ -57,18 +57,7 @@ class TableColumnConfig {
 }
 
 /// Classe base para todos os módulos de ativos
-abstract class AssetModuleConfig {
-  final String id;
-  final String name;
-  final String description;
-  final AssetModuleType type;
-  final bool isActive;
-  final bool isCustom;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-  final Map<String, dynamic> customFields;
-  final Map<String, dynamic> settings;
-  final List<TableColumnConfig> tableColumns; // <-- CAMPO ADICIONADO
+abstract class AssetModuleConfig { // <-- CAMPO ADICIONADO
 
   AssetModuleConfig({
     required this.id,
@@ -110,6 +99,17 @@ abstract class AssetModuleConfig {
       tableColumns: columns, // <-- CAMPO ADICIONADO
     );
   }
+  final String id;
+  final String name;
+  final String description;
+  final AssetModuleType type;
+  final bool isActive;
+  final bool isCustom;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final Map<String, dynamic> customFields;
+  final Map<String, dynamic> settings;
+  final List<TableColumnConfig> tableColumns;
 
   Map<String, dynamic> toJson() {
     return {
@@ -137,10 +137,7 @@ class _ConcreteAssetModuleConfig extends AssetModuleConfig {
     required super.isActive,
     required super.isCustom,
     required super.createdAt,
-    super.updatedAt,
-    required super.customFields,
-    required super.settings,
-    required super.tableColumns, // <-- CAMPO ADICIONADO
+    required super.customFields, required super.settings, required super.tableColumns, // <-- CAMPO ADICIONADO, super.updatedAt,
   });
 }
 
@@ -159,20 +156,7 @@ enum CustomFieldType {
 }
 
 /// Modelo base para ativos gerenciados por módulos
-abstract class ManagedAsset {
-  final String id;
-  final String assetName;
-  final String assetType;
-  final String serialNumber;
-  final String status;
-  final DateTime lastSeen;
-  final Map<String, dynamic> customData;
-  final String? location; // O nome original da localização (ex: "SALA TI")
-  final String? assignedTo;
-  
-  final String? unit;   // Nome da Unidade (ex: "HOSPITAL GERAL")
-  final String? sector; // Setor (ex: "TI")
-  final String? floor;  // Andar (ex: "3º ANDAR")
+abstract class ManagedAsset {  // Andar (ex: "3º ANDAR")
 
   ManagedAsset({
     required this.id,
@@ -188,10 +172,23 @@ abstract class ManagedAsset {
     this.sector,
     this.floor,
   });
+  final String id;
+  final String assetName;
+  final String assetType;
+  final String serialNumber;
+  final String status;
+  final DateTime lastSeen;
+  final Map<String, dynamic> customData;
+  final String? location; // O nome original da localização (ex: "SALA TI")
+  final String? assignedTo;
+  
+  final String? unit;   // Nome da Unidade (ex: "HOSPITAL GERAL")
+  final String? sector; // Setor (ex: "TI")
+  final String? floor;
 
-  get uptime => null;
+  Null get uptime => null;
 
-  get currentUser => null;
+  Null get currentUser => null;
 
   Map<String, dynamic> toJson();
 
@@ -221,13 +218,6 @@ abstract class ManagedAsset {
 
 /// Permissões de módulo
 class ModulePermission {
-  final String moduleId;
-  final bool canView;
-  final bool canCreate;
-  final bool canEdit;
-  final bool canDelete;
-  final bool canExport;
-  final List<String> customPermissions;
 
   ModulePermission({
     required this.moduleId,
@@ -252,6 +242,13 @@ class ModulePermission {
           : [],
     );
   }
+  final String moduleId;
+  final bool canView;
+  final bool canCreate;
+  final bool canEdit;
+  final bool canDelete;
+  final bool canExport;
+  final List<String> customPermissions;
 
   Map<String, dynamic> toJson() {
     return {

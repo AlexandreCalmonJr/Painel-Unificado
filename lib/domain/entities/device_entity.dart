@@ -5,22 +5,6 @@ import 'package:equatable/equatable.dart';
 /// Representa um dispositivo móvel puro, sem dependências de frameworks.
 /// Imutável e contém apenas regras de negócio.
 class DeviceEntity extends Equatable {
-  final String id;
-  final String? deviceName;
-  final String? serialNumber;
-  final String? imei;
-  final String? phoneNumber;
-  final String? model;
-  final String? manufacturer;
-  final String? osVersion;
-  final String? lastSeen;
-  final int? battery;
-  final String? status;
-  final String? location;
-  final String? sector;
-  final String? floor;
-  final String? unit;
-  final bool? isOnline;
 
   const DeviceEntity({
     required this.id,
@@ -40,6 +24,22 @@ class DeviceEntity extends Equatable {
     this.unit,
     this.isOnline,
   });
+  final String id;
+  final String? deviceName;
+  final String? serialNumber;
+  final String? imei;
+  final String? phoneNumber;
+  final String? model;
+  final String? manufacturer;
+  final String? osVersion;
+  final String? lastSeen;
+  final int? battery;
+  final String? status;
+  final String? location;
+  final String? sector;
+  final String? floor;
+  final String? unit;
+  final bool? isOnline;
 
   @override
   List<Object?> get props => [

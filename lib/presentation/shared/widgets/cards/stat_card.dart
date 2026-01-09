@@ -6,17 +6,6 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 
 /// Widget reutilizável para cards de estatística com animações e efeitos modernos
 class StatCard extends StatefulWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color? color;
-  final VoidCallback? onTap;
-  final String? subtitle;
-  final Widget? trailing;
-  final bool isCompact;
-  final double? trend; // Porcentagem de mudança (ex: 5.2 = +5.2%)
-  final bool showGradient;
-  final bool enableAnimation;
 
   const StatCard({
     super.key,
@@ -32,6 +21,17 @@ class StatCard extends StatefulWidget {
     this.showGradient = false,
     this.enableAnimation = true,
   });
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color? color;
+  final VoidCallback? onTap;
+  final String? subtitle;
+  final Widget? trailing;
+  final bool isCompact;
+  final double? trend; // Porcentagem de mudança (ex: 5.2 = +5.2%)
+  final bool showGradient;
+  final bool enableAnimation;
 
   @override
   State<StatCard> createState() => _StatCardState();

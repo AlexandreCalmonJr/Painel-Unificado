@@ -18,10 +18,10 @@ abstract class CommandRemoteDataSource {
 }
 
 class CommandRemoteDataSourceImpl implements CommandRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   CommandRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<void> sendCommand(
@@ -49,7 +49,7 @@ class CommandRemoteDataSourceImpl implements CommandRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Device not found');
+        throw const NotFoundException(message: 'Device not found');
       } else {
         throw ServerException(
           message: 'Failed to send command: ${response.statusCode}',
@@ -58,8 +58,9 @@ class CommandRemoteDataSourceImpl implements CommandRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -84,7 +85,7 @@ class CommandRemoteDataSourceImpl implements CommandRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Device not found');
+        throw const NotFoundException(message: 'Device not found');
       } else {
         throw ServerException(
           message: 'Failed to get command history: ${response.statusCode}',
@@ -93,8 +94,9 @@ class CommandRemoteDataSourceImpl implements CommandRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -118,7 +120,7 @@ class CommandRemoteDataSourceImpl implements CommandRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Command not found');
+        throw const NotFoundException(message: 'Command not found');
       } else {
         throw ServerException(
           message: 'Failed to get command status: ${response.statusCode}',
@@ -127,8 +129,9 @@ class CommandRemoteDataSourceImpl implements CommandRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }

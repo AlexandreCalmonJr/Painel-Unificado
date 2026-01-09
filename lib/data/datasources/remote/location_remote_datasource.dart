@@ -19,10 +19,10 @@ abstract class LocationRemoteDataSource {
 }
 
 class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   LocationRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<List<Map<String, dynamic>>> getLocations(String token) async {
@@ -68,7 +68,7 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
       if (response.statusCode == 200) {
         return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Location not found');
+        throw const NotFoundException(message: 'Location not found');
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
@@ -79,8 +79,9 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -136,7 +137,7 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Location not found');
+        throw const NotFoundException(message: 'Location not found');
       } else {
         throw ServerException(
           message: 'Failed to update location: ${response.statusCode}',
@@ -145,8 +146,9 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -164,7 +166,7 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Location not found');
+        throw const NotFoundException(message: 'Location not found');
       } else {
         throw ServerException(
           message: 'Failed to delete location: ${response.statusCode}',
@@ -173,8 +175,9 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }

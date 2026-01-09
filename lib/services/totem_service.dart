@@ -56,12 +56,14 @@ class TotemService {
           }
         }
       } on TimeoutException {
-        if (attempts == kMaxRetries)
+        if (attempts == kMaxRetries) {
           throw Exception('$errorMessage: Tempo limite esgotado.');
+        }
         await Future.delayed(kRetryDelay);
       } on SocketException {
-        if (attempts == kMaxRetries)
+        if (attempts == kMaxRetries) {
           throw Exception('$errorMessage: Falha na conexão com o servidor.');
+        }
         await Future.delayed(kRetryDelay);
       } catch (e) {
         // Captura erros (incluindo os throw Exception de cima)

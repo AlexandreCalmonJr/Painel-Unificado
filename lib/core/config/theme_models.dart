@@ -5,8 +5,6 @@ enum AppThemeMode { light, dark, auto }
 enum AppColorScheme { blue, green, purple, orange }
 
 class ThemeConfig {
-  final AppThemeMode mode;
-  final AppColorScheme colorScheme;
 
   const ThemeConfig({
     this.mode = AppThemeMode.auto,
@@ -25,6 +23,8 @@ class ThemeConfig {
       ),
     );
   }
+  final AppThemeMode mode;
+  final AppColorScheme colorScheme;
 
   Map<String, dynamic> toJson() {
     return {'mode': mode.toString(), 'colorScheme': colorScheme.toString()};

@@ -8,28 +8,6 @@ import 'package:painel_windowns/domain/entities/module_entity.dart';
 
 /// Modelo completo para Painéis/TVs/Monitores
 class Panel extends ManagedAsset {
-  final String hostname;
-  final String model;
-  final String manufacturer;
-  final String screenSize;
-  final String resolution;
-  final String ipAddress;
-  final String macAddress;
-  final String firmwareVersion;
-  final bool isOnline;
-  final String? currentContent;
-  final DateTime? contentLastUpdated;
-  final Map<String, dynamic>? displaySettings;
-  final int? brightness;
-  final int? volume;
-  final String? hdmiInput;
-  final List<String>? connectedDevices;
-
-  // ✅ NOVO: Campos de manutenção
-  final bool maintenanceStatus;
-  final String? maintenanceTicket;
-  final String? maintenanceReason;
-  final List<Map<String, dynamic>>? maintenanceHistory;
 
   Panel({
     required super.id,
@@ -160,6 +138,52 @@ class Panel extends ManagedAsset {
     );
   }
 
+  /// Cria Panel model a partir de ModuleEntity
+  factory Panel.fromEntity(ModuleEntity entity) {
+    return Panel(
+      id: entity.id,
+      assetName: entity.assetTag ?? 'N/A',
+      serialNumber: entity.serialNumber ?? 'N/A',
+      status: entity.status ?? 'offline',
+      lastSeen: DateTime.now(),
+      location: entity.location,
+      unit: entity.unit,
+      sector: entity.sector,
+      floor: entity.floor,
+      hostname: entity.assetTag ?? 'N/A',
+      model: entity.model ?? 'N/A',
+      manufacturer: entity.manufacturer ?? 'N/A',
+      screenSize: 'N/A',
+      resolution: 'N/A',
+      ipAddress: entity.ipAddress ?? 'N/A',
+      macAddress: entity.macAddress ?? 'N/A',
+      firmwareVersion: 'N/A',
+      isOnline: entity.isOnline ?? false,
+    );
+  }
+  final String hostname;
+  final String model;
+  final String manufacturer;
+  final String screenSize;
+  final String resolution;
+  final String ipAddress;
+  final String macAddress;
+  final String firmwareVersion;
+  final bool isOnline;
+  final String? currentContent;
+  final DateTime? contentLastUpdated;
+  final Map<String, dynamic>? displaySettings;
+  final int? brightness;
+  final int? volume;
+  final String? hdmiInput;
+  final List<String>? connectedDevices;
+
+  // ✅ NOVO: Campos de manutenção
+  final bool maintenanceStatus;
+  final String? maintenanceTicket;
+  final String? maintenanceReason;
+  final List<Map<String, dynamic>>? maintenanceHistory;
+
   @override
   Map<String, dynamic> toJson() {
     return {
@@ -221,30 +245,6 @@ class Panel extends ManagedAsset {
       ipAddress: ipAddress,
       macAddress: macAddress,
       isOnline: isOnline,
-    );
-  }
-
-  /// Cria Panel model a partir de ModuleEntity
-  factory Panel.fromEntity(ModuleEntity entity) {
-    return Panel(
-      id: entity.id,
-      assetName: entity.assetTag ?? 'N/A',
-      serialNumber: entity.serialNumber ?? 'N/A',
-      status: entity.status ?? 'offline',
-      lastSeen: DateTime.now(),
-      location: entity.location,
-      unit: entity.unit,
-      sector: entity.sector,
-      floor: entity.floor,
-      hostname: entity.assetTag ?? 'N/A',
-      model: entity.model ?? 'N/A',
-      manufacturer: entity.manufacturer ?? 'N/A',
-      screenSize: 'N/A',
-      resolution: 'N/A',
-      ipAddress: entity.ipAddress ?? 'N/A',
-      macAddress: entity.macAddress ?? 'N/A',
-      firmwareVersion: 'N/A',
-      isOnline: entity.isOnline ?? false,
     );
   }
 }

@@ -3,9 +3,9 @@
 import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // ✅ IMPORT ADICIONADO
 
 class AssetCacheService {
-  static final AssetCacheService _instance = AssetCacheService._internal();
   factory AssetCacheService() => _instance;
   AssetCacheService._internal();
+  static final AssetCacheService _instance = AssetCacheService._internal();
 
   final Map<String, List<ManagedAsset>> _cache = {};
   final Map<String, DateTime> _cacheTimestamps = {};

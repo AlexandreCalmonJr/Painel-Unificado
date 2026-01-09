@@ -8,9 +8,6 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:synchronized/synchronized.dart';
 
 class ReportsTab extends StatefulWidget {
-  final List<Device> devices;
-  final AuthService authService;
-  final Map<String, dynamic>? currentUser;
 
   const ReportsTab({
     super.key,
@@ -18,6 +15,9 @@ class ReportsTab extends StatefulWidget {
     required this.authService,
     required this.currentUser,
   });
+  final List<Device> devices;
+  final AuthService authService;
+  final Map<String, dynamic>? currentUser;
 
   @override
   State<ReportsTab> createState() => _ReportsTabState();
@@ -207,7 +207,7 @@ void _filterDevicesForCurrentUser() {
 
   Map<String, int> _calculateDeviceStats() {
     return _statsCache[_selectedTimeRange] ??= {
-      for (var status in _statusOrder) status: _devicesForReport.where((d) => _getDeviceStatus(d) == status).length,
+      for (final status in _statusOrder) status: _devicesForReport.where((d) => _getDeviceStatus(d) == status).length,
     };
   }
 
@@ -414,9 +414,8 @@ void _filterDevicesForCurrentUser() {
   Widget _buildReportCard({
     required String title,
     required Widget child,
-    IconData? icon,
+    required ThemeData theme, IconData? icon,
     List<Widget>? actions,
-    required ThemeData theme,
   }) =>
       Card(
         elevation: 8,
@@ -498,7 +497,7 @@ void _filterDevicesForCurrentUser() {
         final count = statusCounts[status] ?? 0;
         final isTouched = index == _touchedPieIndex;
         return PieChartSectionData(
-          color: _statusColors[status]!,
+          color: _statusColors[status],
           value: count.toDouble(),
           title: count > 0 ? count.toString() : '',
           radius: isTouched ? 80.0 : 70.0,
@@ -606,9 +605,8 @@ void _filterDevicesForCurrentUser() {
     required Color color,
     required String title,
     required String subtitle,
-    double? progress,
+    required ThemeData theme, double? progress,
     bool showAlert = false,
-    required ThemeData theme,
   }) =>
       Container(
         padding: const EdgeInsets.all(16),

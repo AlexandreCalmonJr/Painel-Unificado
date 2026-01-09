@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:painel_windowns/admin/tabs/admin_locations_tab.dart';
 import 'package:painel_windowns/controllers/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/location_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
+import 'package:painel_windowns/services/location_service.dart';
 
 @GenerateMocks([AuthService, LocationService, DeviceService])
 import 'admin_locations_tab_test.mocks.dart';

@@ -8,10 +8,10 @@ import 'package:painel_windowns/domain/usecases/usecase.dart';
 
 /// Parameters for the login use case.
 class LoginParams extends Equatable {
-  final String username;
-  final String password;
 
   const LoginParams({required this.username, required this.password});
+  final String username;
+  final String password;
 
   @override
   List<Object?> get props => [username, password];
@@ -23,12 +23,12 @@ class LoginParams extends Equatable {
 /// and returning a [UserEntity] on success.
 @lazySingleton
 class LoginUseCase implements UseCase<UserEntity, LoginParams> {
-  final IAuthRepository repository;
 
   LoginUseCase(this.repository);
+  final IAuthRepository repository;
 
   @override
   Future<Either<Failure, UserEntity>> call(LoginParams params) async {
-    return await repository.login(params.username, params.password);
+    return repository.login(params.username, params.password);
   }
 }

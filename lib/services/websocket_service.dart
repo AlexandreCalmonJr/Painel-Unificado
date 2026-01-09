@@ -7,6 +7,8 @@ import 'package:logger/logger.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketService {
+
+  WebSocketService(this._logger);
   final Logger _logger;
   WebSocketChannel? _channel;
   final _controller = StreamController<Map<String, dynamic>>.broadcast();
@@ -15,8 +17,6 @@ class WebSocketService {
   bool _isDisposed = false;
   String? _serverUrl;
   bool _isConnected = false;
-
-  WebSocketService(this._logger);
 
   Stream<Map<String, dynamic>> get stream => _controller.stream;
 
@@ -97,7 +97,7 @@ class WebSocketService {
 
   void _startHeartbeat() {
     _heartbeatTimer?.cancel();
-    _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (_isConnected) {
         try {
           _channel?.sink.add(json.encode({'type': 'heartbeat'}));
@@ -115,7 +115,7 @@ class WebSocketService {
     if (_reconnectTimer?.isActive ?? false) return;
 
     _logger.i('🔄 Tentando reconectar em 5 segundos...');
-    _reconnectTimer = Timer(Duration(seconds: 5), () {
+    _reconnectTimer = Timer(const Duration(seconds: 5), () {
       if (_serverUrl != null) {
         connect(_serverUrl!);
       }
@@ -131,7 +131,7 @@ class WebSocketService {
           json.encode({'type': 'shutdown', 'hostname': hostname}),
         );
         // Aguarda um pouco para garantir o envio
-        await Future<void>.delayed(Duration(milliseconds: 500));
+        await Future<void>.delayed(const Duration(milliseconds: 500));
         await _channel?.sink.close();
       } catch (e) {
         _logger.e('Erro ao enviar shutdown: $e');

@@ -21,9 +21,9 @@ class DeviceLoading extends DeviceState {
 
 /// State when devices have been successfully loaded.
 class DeviceLoaded extends DeviceState {
-  final List<DeviceEntity> devices;
 
   const DeviceLoaded(this.devices);
+  final List<DeviceEntity> devices;
 
   @override
   List<Object?> get props => [devices];
@@ -31,9 +31,9 @@ class DeviceLoaded extends DeviceState {
 
 /// State when an error occurs while loading devices.
 class DeviceError extends DeviceState {
-  final String message;
 
   const DeviceError(this.message);
+  final String message;
 
   @override
   List<Object?> get props => [message];

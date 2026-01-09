@@ -3,11 +3,6 @@ import 'package:flutter/material.dart';
 
 /// Definição de uma coluna para tabelas de assets
 class AssetColumnDefinition {
-  final String key;
-  final String label;
-  final double? width;
-  final bool sortable;
-  final Widget Function(Map<String, dynamic> asset)? customBuilder;
 
   const AssetColumnDefinition({
     required this.key,
@@ -16,6 +11,11 @@ class AssetColumnDefinition {
     this.sortable = true,
     this.customBuilder,
   });
+  final String key;
+  final String label;
+  final double? width;
+  final bool sortable;
+  final Widget Function(Map<String, dynamic> asset)? customBuilder;
 }
 
 /// Configurações de colunas padrão para cada tipo de asset

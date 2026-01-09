@@ -12,12 +12,12 @@ abstract class AssetCacheDataSource {
 }
 
 class AssetCacheDataSourceImpl implements AssetCacheDataSource {
+
+  AssetCacheDataSourceImpl({required this.sharedPreferences});
   final SharedPreferences sharedPreferences;
   static const String ASSET_PREFIX = 'ASSET_CACHE_';
   static const String ASSET_TIMESTAMP_PREFIX = 'ASSET_TS_';
   static const int CACHE_DURATION_MINUTES = 30;
-
-  AssetCacheDataSourceImpl({required this.sharedPreferences});
 
   @override
   Future<Map<String, dynamic>?> getCachedAsset(String assetId) async {

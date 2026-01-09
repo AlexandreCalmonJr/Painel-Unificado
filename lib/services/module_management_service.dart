@@ -15,9 +15,9 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
 class ModuleManagementService {
-  final AuthService authService;
 
   ModuleManagementService({required this.authService});
+  final AuthService authService;
 
   String? get _token => authService.currentToken;
   Map<String, String> get _headers => {
@@ -64,12 +64,14 @@ class ModuleManagementService {
           }
         }
       } on TimeoutException {
-        if (attempts == 3)
+        if (attempts == 3) {
           throw Exception('$errorMessage: Tempo esgotado (30s)');
+        }
         await Future.delayed(const Duration(seconds: 2));
       } on SocketException {
-        if (attempts == 3)
+        if (attempts == 3) {
           throw Exception('$errorMessage: Sem conexão com servidor');
+        }
         await Future.delayed(const Duration(seconds: 2));
       } catch (e) {
         if (e is Exception) rethrow;
@@ -83,7 +85,7 @@ class ModuleManagementService {
   // ✅ NOVO: Método para buscar unidades e BSSIDs (necessário para parse)
   // ===================================================================
   Future<List<Unit>> fetchUnits() async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     final response = await _performHttpRequest(
       request:
@@ -101,7 +103,7 @@ class ModuleManagementService {
   }
 
   Future<List<BssidMapping>> fetchBssidMappings() async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     final response = await _performHttpRequest(
       request:
@@ -167,7 +169,7 @@ class ModuleManagementService {
     required List<Unit> units,
     required List<BssidMapping> bssidMappings,
   }) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     // ✅ LOGS DE DEBUG
     print('📦 Carregando ativos do módulo: $moduleType');
@@ -225,7 +227,7 @@ class ModuleManagementService {
   // MANTIDO: Lista módulos
   // ===================================================================
   Future<List<AssetModuleConfig>> listModules() async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     final response = await _performHttpRequest(
       request:
@@ -247,11 +249,10 @@ class ModuleManagementService {
     required String name,
     required String description,
     required AssetModuleType type,
-    Map<String, dynamic> customFields = const {},
+    required List<Map<String, String>> tableColumns, Map<String, dynamic> customFields = const {},
     Map<String, dynamic> settings = const {},
-    required List<Map<String, String>> tableColumns,
   }) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     final moduleData = {
       'name': name,
@@ -282,15 +283,14 @@ class ModuleManagementService {
   // ===================================================================
   Future<AssetModuleConfig> updateModule({
     required String moduleId,
-    String? name,
+    required AssetModuleType type, String? name,
     String? description,
     bool? isActive,
     Map<String, dynamic>? customFields,
     Map<String, dynamic>? settings,
     List<Map<String, String>>? tableColumns,
-    required AssetModuleType type,
   }) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     final updateData = <String, dynamic>{};
     if (name != null) updateData['name'] = name;
@@ -318,7 +318,7 @@ class ModuleManagementService {
   // MANTIDO: Deleta módulo
   // ===================================================================
   Future<bool> deleteModule(String moduleId) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     try {
       await _performHttpRequest(
@@ -345,7 +345,7 @@ class ModuleManagementService {
     required bool maintenanceMode, // <-- Nome do parâmetro do Flutter
     String? reason,
   }) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     // ✅ CORREÇÃO 1: Mapeamento dos nomes de campos
     final body = {
@@ -376,7 +376,7 @@ class ModuleManagementService {
   // PERMISSÕES
   // ===================================================================
   Future<List<String>> getModulePermissions(String moduleId) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     final response = await _performHttpRequest(
       request:
@@ -398,7 +398,7 @@ class ModuleManagementService {
     String moduleId,
     List<String> userIds,
   ) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     await _performHttpRequest(
       request:
@@ -418,7 +418,7 @@ class ModuleManagementService {
     required String moduleId,
     required Map<String, dynamic> assetData,
   }) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     final response = await _performHttpRequest(
       request:
@@ -439,7 +439,7 @@ class ModuleManagementService {
     required String assetId,
     required Map<String, dynamic> updateData,
   }) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     final response = await _performHttpRequest(
       request:
@@ -459,7 +459,7 @@ class ModuleManagementService {
     required String moduleId,
     required String assetId,
   }) async {
-    if (_token == null) throw Exception("Não autenticado");
+    if (_token == null) throw Exception('Não autenticado');
 
     try {
       await _performHttpRequest(
@@ -481,7 +481,7 @@ class ModuleManagementService {
     String token,
     String assetId,
   ) async {
-    if (token.isEmpty) throw Exception("Não autenticado");
+    if (token.isEmpty) throw Exception('Não autenticado');
 
     final response = await _performHttpRequest(
       request:

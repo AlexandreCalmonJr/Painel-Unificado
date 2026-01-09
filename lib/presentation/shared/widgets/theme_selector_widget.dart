@@ -8,9 +8,9 @@ import 'package:painel_windowns/core/utils/theme_utils.dart';
 
 /// Widget para seleção de tema e esquema de cores
 class ThemeSelectorWidget extends StatelessWidget {
-  final bool showInDialog;
 
   const ThemeSelectorWidget({super.key, this.showInDialog = false});
+  final bool showInDialog;
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +174,6 @@ class ThemeSelectorWidget extends StatelessWidget {
 
 /// Card para seleção de modo de tema
 class _ThemeModeCard extends StatelessWidget {
-  final AppThemeMode mode;
-  final bool isSelected;
-  final bool isDark;
-  final VoidCallback onTap;
 
   const _ThemeModeCard({
     required this.mode,
@@ -185,6 +181,10 @@ class _ThemeModeCard extends StatelessWidget {
     required this.isDark,
     required this.onTap,
   });
+  final AppThemeMode mode;
+  final bool isSelected;
+  final bool isDark;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -249,10 +249,6 @@ class _ThemeModeCard extends StatelessWidget {
 
 /// Card para seleção de esquema de cores
 class _ColorSchemeCard extends StatelessWidget {
-  final AppColorScheme scheme;
-  final bool isSelected;
-  final bool isDark;
-  final VoidCallback onTap;
 
   const _ColorSchemeCard({
     required this.scheme,
@@ -260,6 +256,10 @@ class _ColorSchemeCard extends StatelessWidget {
     required this.isDark,
     required this.onTap,
   });
+  final AppColorScheme scheme;
+  final bool isSelected;
+  final bool isDark;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

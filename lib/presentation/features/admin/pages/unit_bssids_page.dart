@@ -5,14 +5,14 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
 
 class UnitBssidsPage extends StatefulWidget {
-  final Unit unit;
-  final AuthService authService;
 
   const UnitBssidsPage({
     super.key,
     required this.unit,
     required this.authService,
   });
+  final Unit unit;
+  final AuthService authService;
 
   @override
   State<UnitBssidsPage> createState() => _UnitBssidsPageState();
@@ -192,11 +192,11 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.warning, color: Colors.red),
-            const SizedBox(width: 8),
-            const Text('Confirmar Exclusão'),
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Confirmar Exclusão'),
           ],
         ),
         content: Text('Excluir mapeamento para "${mapping.macAddressRadio}"?'),
@@ -228,14 +228,14 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
   /// Constrói a lista de BSSIDs
   Widget _buildBssidList() {
     if (bssidMappings.isEmpty) {
-      return Center(
+      return const Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Card(
             child: ListTile(
-              leading: const Icon(Icons.location_off, color: Colors.grey),
-              title: const Text('Nenhum BSSID cadastrado'),
-              subtitle: const Text(
+              leading: Icon(Icons.location_off, color: Colors.grey),
+              title: Text('Nenhum BSSID cadastrado'),
+              subtitle: Text(
                   'Adicione um mapeamento no botão (+) para esta unidade.'),
             ),
           ),

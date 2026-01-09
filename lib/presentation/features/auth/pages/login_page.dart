@@ -11,8 +11,8 @@ import 'package:painel_windowns/services/websocket_service.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 
 class LoginScreen extends StatefulWidget {
-  final AuthService authService;
   const LoginScreen({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   _LoginScreenState createState() => _LoginScreenState();

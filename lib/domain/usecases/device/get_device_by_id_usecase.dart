@@ -8,9 +8,9 @@ import 'package:painel_windowns/domain/usecases/usecase.dart';
 
 /// Parameters for getting a device by ID.
 class GetDeviceByIdParams extends Equatable {
-  final String deviceId;
 
   const GetDeviceByIdParams({required this.deviceId});
+  final String deviceId;
 
   @override
   List<Object?> get props => [deviceId];
@@ -20,13 +20,13 @@ class GetDeviceByIdParams extends Equatable {
 @lazySingleton
 class GetDeviceByIdUseCase
     implements UseCase<DeviceEntity, GetDeviceByIdParams> {
-  final IDeviceRepository repository;
 
   GetDeviceByIdUseCase(this.repository);
+  final IDeviceRepository repository;
 
   @override
   Future<Either<Failure, DeviceEntity>> call(GetDeviceByIdParams params) async {
     // TODO: Get token from auth service
-    return await repository.getDeviceById('', params.deviceId);
+    return repository.getDeviceById('', params.deviceId);
   }
 }

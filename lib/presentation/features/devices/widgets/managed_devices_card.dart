@@ -20,14 +20,6 @@ import 'package:painel_windowns/widgets/common/index.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ManagedDevicesCard extends StatelessWidget {
-  final String title;
-  final List<Device> devices;
-  final bool showActions;
-  final String? token;
-  final VoidCallback? onDeviceUpdate;
-  final Map<String, dynamic>? currentUser;
-  final AuthService authService;
-  final bool expand;
 
   const ManagedDevicesCard({
     required this.authService,
@@ -40,6 +32,14 @@ class ManagedDevicesCard extends StatelessWidget {
     this.currentUser,
     this.expand = false,
   });
+  final String title;
+  final List<Device> devices;
+  final bool showActions;
+  final String? token;
+  final VoidCallback? onDeviceUpdate;
+  final Map<String, dynamic>? currentUser;
+  final AuthService authService;
+  final bool expand;
 
   Future<void> _downloadDevicesCsv(
     BuildContext context,
@@ -148,7 +148,7 @@ class ManagedDevicesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Device> filteredDevices = List.from(devices);
+    final List<Device> filteredDevices = List.from(devices);
 
     filteredDevices.sort((a, b) {
       int getPriority(Device device) {

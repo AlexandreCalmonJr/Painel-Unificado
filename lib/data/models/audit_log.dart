@@ -1,14 +1,4 @@
 class AuditLog {
-  final String id;
-  final String assetId;
-  final String assetName;
-  final String action; // 'created', 'updated', 'deleted', 'status_changed'
-  final String? field;
-  final String? oldValue;
-  final String? newValue;
-  final String userId;
-  final String username;
-  final DateTime timestamp;
 
   AuditLog({
     required this.id,
@@ -37,4 +27,14 @@ class AuditLog {
       timestamp: DateTime.parse(json['timestamp'] as String),
     );
   }
+  final String id;
+  final String assetId;
+  final String assetName;
+  final String action; // 'created', 'updated', 'deleted', 'status_changed'
+  final String? field;
+  final String? oldValue;
+  final String? newValue;
+  final String userId;
+  final String username;
+  final DateTime timestamp;
 }

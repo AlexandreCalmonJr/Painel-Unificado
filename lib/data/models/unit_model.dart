@@ -1,8 +1,6 @@
 // Um novo helper class para a faixa de IP
 
 class IpRange {
-  final String start;
-  final String end;
 
   IpRange({required this.start, required this.end});
 
@@ -12,6 +10,8 @@ class IpRange {
       end: json['end'] as String? ?? '0.0.0.0',
     );
   }
+  final String start;
+  final String end;
 
   Map<String, dynamic> toJson() {
     return {'start': start, 'end': end};
@@ -20,9 +20,6 @@ class IpRange {
 
 /// Representa uma Unidade com UMA OU MAIS faixas de IP.
 class Unit {
-  final String? id;
-  final String name;
-  final List<IpRange> ipRanges;
 
   Unit({this.id, required this.name, required this.ipRanges});
 
@@ -51,6 +48,9 @@ class Unit {
       ipRanges: rangesList,
     );
   }
+  final String? id;
+  final String name;
+  final List<IpRange> ipRanges;
 
   Map<String, dynamic> toJson() {
     return {

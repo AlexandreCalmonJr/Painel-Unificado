@@ -5,22 +5,6 @@ import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart
 import 'package:painel_windowns/services/auth_service.dart'; // ✅ IMPORT ADICIONADO
 
 class GenericAssetsListTab extends StatelessWidget {
-  final List<ManagedAsset> displayedAssets;
-  final bool isLoading;
-  final int currentPage;
-  final int totalPages;
-  final Function(int) onPageChange;
-  final Function(String) onSearch;
-  final VoidCallback onRefresh;
-  // ❌ REMOVIDO: onAssetUpdate
-  // ❌ REMOVIDO: onAssetDelete
-  final List<TableColumnConfig> columns;
-  final AuthService authService;
-  final AssetModuleConfig moduleConfig;
-
-  // ✅ CAMPOS ADICIONADOS PARA SELEÇÃO MÚLTIPLA
-  final List<ManagedAsset> selectedAssets;
-  final Function(List<ManagedAsset>) onSelectionChanged;
 
   const GenericAssetsListTab({
     super.key,
@@ -40,6 +24,22 @@ class GenericAssetsListTab extends StatelessWidget {
     required this.selectedAssets,
     required this.onSelectionChanged,
   });
+  final List<ManagedAsset> displayedAssets;
+  final bool isLoading;
+  final int currentPage;
+  final int totalPages;
+  final Function(int) onPageChange;
+  final Function(String) onSearch;
+  final VoidCallback onRefresh;
+  // ❌ REMOVIDO: onAssetUpdate
+  // ❌ REMOVIDO: onAssetDelete
+  final List<TableColumnConfig> columns;
+  final AuthService authService;
+  final AssetModuleConfig moduleConfig;
+
+  // ✅ CAMPOS ADICIONADOS PARA SELEÇÃO MÚLTIPLA
+  final List<ManagedAsset> selectedAssets;
+  final Function(List<ManagedAsset>) onSelectionChanged;
 
   @override
   Widget build(BuildContext context) {

@@ -8,13 +8,13 @@ import 'package:painel_windowns/domain/repositories/i_module_repository.dart';
 
 /// Implementação do repositório de módulos/ativos
 class ModuleRepositoryImpl implements IModuleRepository {
-  final ModuleRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   ModuleRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final ModuleRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   Future<Either<Failure, List<ModuleEntity>>> getModulesByType(
@@ -22,7 +22,7 @@ class ModuleRepositoryImpl implements IModuleRepository {
     String type,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -53,7 +53,7 @@ class ModuleRepositoryImpl implements IModuleRepository {
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } catch (e) {
       return Left(ServerFailure(message: 'Unexpected error: $e'));
     }
@@ -65,7 +65,7 @@ class ModuleRepositoryImpl implements IModuleRepository {
     String moduleId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -91,7 +91,7 @@ class ModuleRepositoryImpl implements IModuleRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -106,7 +106,7 @@ class ModuleRepositoryImpl implements IModuleRepository {
     String command,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -115,7 +115,7 @@ class ModuleRepositoryImpl implements IModuleRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -129,7 +129,7 @@ class ModuleRepositoryImpl implements IModuleRepository {
     ModuleEntity module,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -147,7 +147,7 @@ class ModuleRepositoryImpl implements IModuleRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

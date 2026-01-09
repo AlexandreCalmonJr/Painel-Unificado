@@ -15,10 +15,10 @@ abstract class LoggerRemoteDataSource {
 }
 
 class LoggerRemoteDataSourceImpl implements LoggerRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   LoggerRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<void> sendLog(String token, Map<String, dynamic> logData) async {

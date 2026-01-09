@@ -5,14 +5,14 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/widgets/common/app_card.dart';
 
 class TotemDetailScreen extends StatelessWidget {
-  final Totem totem;
-  final AuthService authService;
 
   const TotemDetailScreen({
     super.key,
     required this.totem,
     required this.authService,
   });
+  final Totem totem;
+  final AuthService authService;
 
   Map<String, dynamic> _getTotemStatus() {
     String status;

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 /// Widget de loading indicator reutilizável
 class LoadingIndicator extends StatelessWidget {
-  final String? message;
-  final double size;
 
   const LoadingIndicator({super.key, this.message, this.size = 40});
+  final String? message;
+  final double size;
 
   @override
   Widget build(BuildContext context) {

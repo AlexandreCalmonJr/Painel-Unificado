@@ -10,12 +10,12 @@ import 'package:painel_windowns/domain/usecases/usecase.dart';
 /// authentication tokens and session data.
 @lazySingleton
 class LogoutUseCase implements UseCase<Unit, NoParams> {
-  final IAuthRepository repository;
 
   LogoutUseCase(this.repository);
+  final IAuthRepository repository;
 
   @override
   Future<Either<Failure, Unit>> call(NoParams params) async {
-    return await repository.logout();
+    return repository.logout();
   }
 }

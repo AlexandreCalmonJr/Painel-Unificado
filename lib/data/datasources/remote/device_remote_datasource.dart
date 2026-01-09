@@ -21,10 +21,10 @@ abstract class DeviceRemoteDataSource {
 }
 
 class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   DeviceRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<List<Device>> getDevices(String token) async {
@@ -73,7 +73,7 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
         final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
         return Device.fromJson(jsonData, []);
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Device not found');
+        throw const NotFoundException(message: 'Device not found');
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
@@ -112,7 +112,7 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Device not found');
+        throw const NotFoundException(message: 'Device not found');
       } else {
         throw ServerException(
           message: 'Failed to send command: ${response.statusCode}',
@@ -152,7 +152,7 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Device not found');
+        throw const NotFoundException(message: 'Device not found');
       } else {
         throw ServerException(
           message: 'Failed to update device: ${response.statusCode}',

@@ -12,19 +12,19 @@ import 'package:painel_windowns/services/token_service.dart';
 /// and returns them as a list of [DeviceEntity].
 @lazySingleton
 class GetDevicesUseCase implements UseCase<List<DeviceEntity>, NoParams> {
-  final IDeviceRepository repository;
-  final TokenService tokenService;
 
   GetDevicesUseCase(this.repository, this.tokenService);
+  final IDeviceRepository repository;
+  final TokenService tokenService;
 
   @override
   Future<Either<Failure, List<DeviceEntity>>> call(NoParams params) async {
     final token = tokenService.getToken();
 
     if (token == null) {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     }
 
-    return await repository.getDevices(token);
+    return repository.getDevices(token);
   }
 }

@@ -1,10 +1,6 @@
 import 'dart:convert';
 
 class IpMapping {
-  final String id;
-  final String location;
-  final String ipStart;
-  final String ipEnd;
 
   IpMapping({
     required this.id,
@@ -21,6 +17,10 @@ class IpMapping {
       ipEnd: (json['ipEnd'] ?? 'N/A') as String,
     );
   }
+  final String id;
+  final String location;
+  final String ipStart;
+  final String ipEnd;
 }
 
 List<IpMapping> ipMappingFromJson(String str) => List<IpMapping>.from(

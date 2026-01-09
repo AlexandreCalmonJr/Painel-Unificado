@@ -5,14 +5,6 @@ import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
 
 /// Widget que exibe a aba de listagem de totens
 class TotemsListTab extends StatefulWidget {
-  final List<Totem> totems;
-  final bool isLoading;
-  final int currentPage;
-  final int totalPages;
-  final Function(int) onPageChange;
-  final Function(String) onSearch;
-  final VoidCallback onRefresh;
-  final AuthService authService;
 
   const TotemsListTab({
     super.key,
@@ -25,6 +17,14 @@ class TotemsListTab extends StatefulWidget {
     required this.onRefresh,
     required this.authService,
   });
+  final List<Totem> totems;
+  final bool isLoading;
+  final int currentPage;
+  final int totalPages;
+  final Function(int) onPageChange;
+  final Function(String) onSearch;
+  final VoidCallback onRefresh;
+  final AuthService authService;
 
   @override
   State<TotemsListTab> createState() => _TotemsListTabState();

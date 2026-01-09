@@ -20,9 +20,9 @@ class RefreshTotems extends TotemEvent {
 
 /// Event to load a specific totem by ID.
 class LoadTotemById extends TotemEvent {
-  final String totemId;
 
   const LoadTotemById(this.totemId);
+  final String totemId;
 
   @override
   List<Object?> get props => [totemId];

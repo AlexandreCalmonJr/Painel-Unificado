@@ -58,30 +58,30 @@ class ReportGenerator {
       children: [
         pw.TableRow(children: [
           pw.Padding(
-              padding: pw.EdgeInsets.all(8),
+              padding: const pw.EdgeInsets.all(8),
               child: pw.Text('Total de Ativos',
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
-          pw.Padding(padding: pw.EdgeInsets.all(8), child: pw.Text('$total')),
+          pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('$total')),
         ]),
         pw.TableRow(children: [
-          pw.Padding(padding: pw.EdgeInsets.all(8), child: pw.Text('Online')),
+          pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Online')),
           pw.Padding(
-              padding: pw.EdgeInsets.all(8),
+              padding: const pw.EdgeInsets.all(8),
               child: pw.Text(
                   '$online (${(online / total * 100).toStringAsFixed(1)}%)')),
         ]),
         pw.TableRow(children: [
-          pw.Padding(padding: pw.EdgeInsets.all(8), child: pw.Text('Offline')),
+          pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Offline')),
           pw.Padding(
-              padding: pw.EdgeInsets.all(8),
+              padding: const pw.EdgeInsets.all(8),
               child: pw.Text(
                   '$offline (${(offline / total * 100).toStringAsFixed(1)}%)')),
         ]),
         pw.TableRow(children: [
           pw.Padding(
-              padding: pw.EdgeInsets.all(8), child: pw.Text('Em Manutenção')),
+              padding: const pw.EdgeInsets.all(8), child: pw.Text('Em Manutenção')),
           pw.Padding(
-              padding: pw.EdgeInsets.all(8),
+              padding: const pw.EdgeInsets.all(8),
               child: pw.Text(
                   '$maintenance (${(maintenance / total * 100).toStringAsFixed(1)}%)')),
         ]),
@@ -134,7 +134,7 @@ class ReportGenerator {
       ),
       child: pw.Text(
         'Placeholder para Gráfico de Status (Online, Offline, Manutenção)',
-        style: pw.TextStyle(color: PdfColors.grey600),
+        style: const pw.TextStyle(color: PdfColors.grey600),
       ),
     );
   }

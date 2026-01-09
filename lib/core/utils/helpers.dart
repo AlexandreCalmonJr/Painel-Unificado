@@ -94,9 +94,9 @@ Color getStatusColor(String status) {
 
 /// Formata bytes para formato legível (KB, MB, GB)
 String formatBytes(int bytes, {int decimals = 2}) {
-  if (bytes <= 0) return "0 B";
-  const suffixes = ["B", "KB", "MB", "GB", "TB"];
-  var i = (bytes.bitLength - 1) ~/ 10;
+  if (bytes <= 0) return '0 B';
+  const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  final i = (bytes.bitLength - 1) ~/ 10;
   return '${(bytes / (1 << (i * 10))).toStringAsFixed(decimals)} ${suffixes[i]}';
 }
 

@@ -162,7 +162,7 @@ void main() {
     testWidgets('should navigate back when Voltar is clicked', (tester) async {
       await tester.pumpWidget(
         GetMaterialApp(
-          home: Scaffold(body: Center(child: Text('Home'))),
+          home: const Scaffold(body: Center(child: Text('Home'))),
           routes: {
             '/admin':
                 (context) => AdminDashboardScreen(authService: mockAuthService),

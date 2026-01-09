@@ -7,13 +7,13 @@ import 'package:painel_windowns/domain/repositories/i_report_repository.dart';
 
 /// Implementação do repositório de relatórios
 class ReportRepositoryImpl implements IReportRepository {
-  final ReportRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   ReportRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final ReportRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> generateDeviceReport(
@@ -22,7 +22,7 @@ class ReportRepositoryImpl implements IReportRepository {
     DateTime? endDate,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -33,7 +33,7 @@ class ReportRepositoryImpl implements IReportRepository {
       );
       return Right(report);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -48,7 +48,7 @@ class ReportRepositoryImpl implements IReportRepository {
     DateTime? endDate,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -59,7 +59,7 @@ class ReportRepositoryImpl implements IReportRepository {
       );
       return Right(report);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -74,7 +74,7 @@ class ReportRepositoryImpl implements IReportRepository {
     DateTime? endDate,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -85,7 +85,7 @@ class ReportRepositoryImpl implements IReportRepository {
       );
       return Right(report);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -98,14 +98,14 @@ class ReportRepositoryImpl implements IReportRepository {
     String token,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
       final reports = await remoteDataSource.getAvailableReports(token);
       return Right(reports);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -119,7 +119,7 @@ class ReportRepositoryImpl implements IReportRepository {
     String reportId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -128,7 +128,7 @@ class ReportRepositoryImpl implements IReportRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

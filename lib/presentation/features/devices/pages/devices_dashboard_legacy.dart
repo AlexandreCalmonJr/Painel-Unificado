@@ -19,8 +19,8 @@ import 'package:painel_windowns/services/device_service.dart';
 import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
 
 class MDMDashboard extends StatefulWidget {
-  final AuthService authService;
   const MDMDashboard({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   _MDMDashboardState createState() => _MDMDashboardState();
@@ -196,7 +196,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
 
   void _checkForAlerts(List<Device> oldDevices, List<Device> newDevices) {
     if (oldDevices.isEmpty) return;
-    final oldDevicesMap = {for (var d in oldDevices) d.serialNumber: d};
+    final oldDevicesMap = {for (final d in oldDevices) d.serialNumber: d};
     for (final newDevice in newDevices) {
       final oldDevice = oldDevicesMap[newDevice.serialNumber ?? ''];
       if (oldDevice == null) continue;
@@ -284,7 +284,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
       toastDuration: const Duration(seconds: 8),
       position: Alignment.topCenter,
       action: const Text(
-        "VER DETALHES",
+        'VER DETALHES',
         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
       ),
       onActionPressed: () {
@@ -578,7 +578,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
     final currentUser = widget.authService.currentUser;
     final role = currentUser?['role'] ?? 'user';
     final isAdmin = role == 'admin';
-    onDataRefresh() => _loadDevices(isInitialLoad: true);
+    Future<void> onDataRefresh() => _loadDevices(isInitialLoad: true);
     final token = widget.authService.currentToken ?? '';
 
     if (!isAdmin && [2, 3, 4, 5, 6, 8, 9, 10].contains(selectedIndex)) {
@@ -586,7 +586,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
         if (mounted) {
           setState(() => selectedIndex = 0);
           _showSnackbar(
-            "Acesso negado. Você não tem permissão.",
+            'Acesso negado. Você não tem permissão.',
             isError: true,
           );
         }

@@ -14,8 +14,8 @@ import 'package:painel_windowns/widgets/profile_avatar_widget.dart';
 import 'package:painel_windowns/widgets/theme_selector_widget.dart';
 
 class HomeScreen extends StatefulWidget {
-  final AuthService authService;
   const HomeScreen({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -457,7 +457,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildModulesGrid() {
-    List<Widget> moduleCards = [];
+    final List<Widget> moduleCards = [];
 
     // Adiciona módulos fixos baseados em permissões
     if (_hasPermission('mobile')) {

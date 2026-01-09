@@ -6,9 +6,9 @@ import 'package:painel_windowns/screen/login_screen.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
-  final AuthService authService;
 
   const SplashScreen({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   _SplashScreenState createState() => _SplashScreenState();

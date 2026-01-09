@@ -5,12 +5,6 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 
 /// Model for sidebar menu items
 class SidebarMenuItem {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final int index;
-  final bool isAdminOnly;
-  final bool showDividerBefore;
 
   const SidebarMenuItem({
     required this.icon,
@@ -20,17 +14,16 @@ class SidebarMenuItem {
     this.isAdminOnly = false,
     this.showDividerBefore = false,
   });
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final int index;
+  final bool isAdminOnly;
+  final bool showDividerBefore;
 }
 
 /// Reusable sidebar widget for all dashboard screens
 class CustomSidebar extends StatelessWidget {
-  final String title;
-  final IconData titleIcon;
-  final List<SidebarMenuItem> menuItems;
-  final int selectedIndex;
-  final Function(int) onItemTap;
-  final String? footerText;
-  final bool isAdmin;
 
   const CustomSidebar({
     super.key,
@@ -42,6 +35,13 @@ class CustomSidebar extends StatelessWidget {
     this.footerText,
     this.isAdmin = false,
   });
+  final String title;
+  final IconData titleIcon;
+  final List<SidebarMenuItem> menuItems;
+  final int selectedIndex;
+  final Function(int) onItemTap;
+  final String? footerText;
+  final bool isAdmin;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +166,7 @@ class CustomSidebar extends StatelessWidget {
     required Color textPrimary,
     required Color textSecondary,
   }) {
-    final activeColor = AppColors.primary;
+    const activeColor = AppColors.primary;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),

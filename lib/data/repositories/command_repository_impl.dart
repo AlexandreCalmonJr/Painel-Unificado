@@ -7,13 +7,13 @@ import 'package:painel_windowns/domain/repositories/i_command_repository.dart';
 
 /// Implementação do repositório de comandos
 class CommandRepositoryImpl implements ICommandRepository {
-  final CommandRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   CommandRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final CommandRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   Future<Either<Failure, Unit>> sendCommand(
@@ -23,7 +23,7 @@ class CommandRepositoryImpl implements ICommandRepository {
     Map<String, dynamic>? params,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -37,7 +37,7 @@ class CommandRepositoryImpl implements ICommandRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -51,7 +51,7 @@ class CommandRepositoryImpl implements ICommandRepository {
     String deviceId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -60,7 +60,7 @@ class CommandRepositoryImpl implements ICommandRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -74,7 +74,7 @@ class CommandRepositoryImpl implements ICommandRepository {
     String commandId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -83,7 +83,7 @@ class CommandRepositoryImpl implements ICommandRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

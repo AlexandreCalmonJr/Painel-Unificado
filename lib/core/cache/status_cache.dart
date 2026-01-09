@@ -3,6 +3,13 @@
 /// Mantém histórico de mudanças de status para implementar debounce
 /// e detectar oscilação excessiva.
 class StatusCache {
+
+  const StatusCache({
+    required this.status,
+    required this.timestamp,
+    this.changeCount = 0,
+    this.lastChangeTimestamp,
+  });
   /// Status atual em cache
   final String status;
 
@@ -14,13 +21,6 @@ class StatusCache {
 
   /// Timestamp da última mudança de status
   final DateTime? lastChangeTimestamp;
-
-  const StatusCache({
-    required this.status,
-    required this.timestamp,
-    this.changeCount = 0,
-    this.lastChangeTimestamp,
-  });
 
   /// Verifica se o status deve ser atualizado
   ///

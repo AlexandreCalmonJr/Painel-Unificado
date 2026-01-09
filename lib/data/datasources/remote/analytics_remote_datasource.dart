@@ -15,10 +15,10 @@ abstract class AnalyticsRemoteDataSource {
 }
 
 class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   AnalyticsRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<Map<String, dynamic>> getDashboardMetrics(String token) async {
@@ -65,7 +65,7 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Device not found');
+        throw const NotFoundException(message: 'Device not found');
       } else {
         throw ServerException(
           message: 'Failed to get device metrics: ${response.statusCode}',
@@ -74,8 +74,9 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -91,8 +92,9 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
 
       if (startDate != null || endDate != null) {
         final queryParams = <String, String>{};
-        if (startDate != null)
+        if (startDate != null) {
           queryParams['start'] = startDate.toIso8601String();
+        }
         if (endDate != null) queryParams['end'] = endDate.toIso8601String();
         uri = uri.replace(queryParameters: queryParams);
       }

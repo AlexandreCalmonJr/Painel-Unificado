@@ -11,12 +11,12 @@ import 'package:painel_windowns/presentation/bloc/totem/totem_state.dart';
 /// refreshing the totem list, and loading individual totems.
 @injectable
 class TotemBloc extends Bloc<TotemEvent, TotemState> {
-  final GetTotemsUseCase getTotemsUseCase;
 
   TotemBloc({required this.getTotemsUseCase}) : super(const TotemInitial()) {
     on<LoadTotems>(_onLoadTotems);
     on<RefreshTotems>(_onRefreshTotems);
   }
+  final GetTotemsUseCase getTotemsUseCase;
 
   /// Handles the LoadTotems event.
   Future<void> _onLoadTotems(LoadTotems event, Emitter<TotemState> emit) async {

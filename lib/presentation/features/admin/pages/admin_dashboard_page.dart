@@ -13,8 +13,8 @@ import 'package:painel_windowns/widgets/app_bar_widget.dart';
 import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
-  final AuthService authService;
   const AdminDashboardScreen({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   _AdminDashboardScreenState createState() => _AdminDashboardScreenState();

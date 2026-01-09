@@ -7,13 +7,13 @@ import 'package:painel_windowns/domain/repositories/i_backup_repository.dart';
 
 /// Implementação do repositório de backup
 class BackupRepositoryImpl implements IBackupRepository {
-  final BackupRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   BackupRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final BackupRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> createBackup(
@@ -21,7 +21,7 @@ class BackupRepositoryImpl implements IBackupRepository {
     String? description,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -31,7 +31,7 @@ class BackupRepositoryImpl implements IBackupRepository {
       );
       return Right(backup);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -44,14 +44,14 @@ class BackupRepositoryImpl implements IBackupRepository {
     String token,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
       final backups = await remoteDataSource.getBackupList(token);
       return Right(backups);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -65,7 +65,7 @@ class BackupRepositoryImpl implements IBackupRepository {
     String backupId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -74,7 +74,7 @@ class BackupRepositoryImpl implements IBackupRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -88,7 +88,7 @@ class BackupRepositoryImpl implements IBackupRepository {
     String backupId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -97,7 +97,7 @@ class BackupRepositoryImpl implements IBackupRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -111,7 +111,7 @@ class BackupRepositoryImpl implements IBackupRepository {
     String backupId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -120,7 +120,7 @@ class BackupRepositoryImpl implements IBackupRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

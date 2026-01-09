@@ -14,13 +14,13 @@ abstract class ConfigLocalDataSource {
 }
 
 class ConfigLocalDataSourceImpl implements ConfigLocalDataSource {
+
+  ConfigLocalDataSourceImpl({required this.sharedPreferences});
   final SharedPreferences sharedPreferences;
 
   static const String SERVER_URL_KEY = 'SERVER_URL';
   static const String API_KEY = 'API_KEY';
   static const String SETTINGS_PREFIX = 'SETTING_';
-
-  ConfigLocalDataSourceImpl({required this.sharedPreferences});
 
   @override
   Future<String?> getServerUrl() async {

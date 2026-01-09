@@ -3,9 +3,9 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:painel_windowns/models/asset_module_base.dart';
-import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/asset_command_service.dart';
 import 'package:painel_windowns/services/asset_maintenance_service.dart';
+import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 

@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
 class MenuItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final int index;
-  final int selectedIndex;
-  final Function(int) onTap;
 
   const MenuItem({
     super.key,
@@ -15,6 +10,11 @@ class MenuItem extends StatelessWidget {
     required this.selectedIndex,
     required this.onTap, required String subtitle,
   });
+  final IconData icon;
+  final String title;
+  final int index;
+  final int selectedIndex;
+  final Function(int) onTap;
 
   @override
   Widget build(BuildContext context) {

@@ -6,15 +6,6 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
 class GenericMaintenanceTab extends StatelessWidget {
-  final List<ManagedAsset> allAssets;
-  final AssetModuleConfig moduleConfig;
-  final ModuleManagementService moduleService;
-  final VoidCallback onRefresh;
-  final Function(String, {bool isError}) showSnackbar;
-  // ❌ REMOVIDO: onEditAsset
-  // ❌ REMOVIDO: onDeleteAsset
-  final List<TableColumnConfig> columns;
-  final AuthService authService;
 
   const GenericMaintenanceTab({
     super.key,
@@ -28,6 +19,15 @@ class GenericMaintenanceTab extends StatelessWidget {
     required this.columns,
     required this.authService,
   });
+  final List<ManagedAsset> allAssets;
+  final AssetModuleConfig moduleConfig;
+  final ModuleManagementService moduleService;
+  final VoidCallback onRefresh;
+  final Function(String, {bool isError}) showSnackbar;
+  // ❌ REMOVIDO: onEditAsset
+  // ❌ REMOVIDO: onDeleteAsset
+  final List<TableColumnConfig> columns;
+  final AuthService authService;
 
   // Esta função _updateMaintenanceStatus está obsoleta, pois
   // o 'asset_command_controls.dart' agora faz isso.

@@ -14,10 +14,6 @@ import 'package:painel_windowns/services/status_service.dart';
 /// Orquestra data sources remote e local seguindo Clean Architecture.
 /// Usa Either<Failure, Success> para tratamento de erros funcional.
 class DeviceRepositoryImpl implements IDeviceRepository {
-  final DeviceRemoteDataSource remoteDataSource;
-  final DeviceLocalDataSource localDataSource;
-  final NetworkInfo networkInfo;
-  final StatusService statusService;
 
   DeviceRepositoryImpl({
     required this.remoteDataSource,
@@ -25,6 +21,10 @@ class DeviceRepositoryImpl implements IDeviceRepository {
     required this.networkInfo,
     required this.statusService,
   });
+  final DeviceRemoteDataSource remoteDataSource;
+  final DeviceLocalDataSource localDataSource;
+  final NetworkInfo networkInfo;
+  final StatusService statusService;
 
   @override
   Future<Either<Failure, List<DeviceEntity>>> getDevices(String token) async {
@@ -57,7 +57,7 @@ class DeviceRepositoryImpl implements IDeviceRepository {
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } on UnauthorizedException {
-        return Left(UnauthorizedFailure());
+        return const Left(UnauthorizedFailure());
       } catch (e) {
         return Left(ServerFailure(message: 'Unexpected error: $e'));
       }
@@ -88,7 +88,7 @@ class DeviceRepositoryImpl implements IDeviceRepository {
       } on NotFoundException catch (e) {
         return Left(NotFoundFailure(message: e.message));
       } on UnauthorizedException {
-        return Left(UnauthorizedFailure());
+        return const Left(UnauthorizedFailure());
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } catch (e) {
@@ -101,7 +101,7 @@ class DeviceRepositoryImpl implements IDeviceRepository {
         if (device != null) {
           return Right(device.toEntity());
         } else {
-          return Left(NotFoundFailure(message: 'Device not found in cache'));
+          return const Left(NotFoundFailure(message: 'Device not found in cache'));
         }
       } on CacheException catch (e) {
         return Left(CacheFailure(message: e.message));
@@ -119,7 +119,7 @@ class DeviceRepositoryImpl implements IDeviceRepository {
   ) async {
     // Comando requer internet
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -128,7 +128,7 @@ class DeviceRepositoryImpl implements IDeviceRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -143,7 +143,7 @@ class DeviceRepositoryImpl implements IDeviceRepository {
   ) async {
     // Update requer internet
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -159,7 +159,7 @@ class DeviceRepositoryImpl implements IDeviceRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

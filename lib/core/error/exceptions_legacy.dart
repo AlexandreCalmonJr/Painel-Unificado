@@ -4,11 +4,11 @@ library;
 
 
 abstract class AppException implements Exception {
+
+  AppException(this.message, [this.code, this.originalError]);
   final String message;
   final String? code;
   final dynamic originalError;
-
-  AppException(this.message, [this.code, this.originalError]);
 
   @override
   String toString() => message;
@@ -46,13 +46,13 @@ class ValidationException extends AppException {
 
 /// Exceção para erros do servidor (HTTP 5xx)
 class ServerException extends AppException {
-  final int? statusCode;
 
   ServerException(
     String message, [
     this.statusCode,
     dynamic originalError,
   ]) : super(message, 'SERVER_ERROR', originalError);
+  final int? statusCode;
 }
 
 /// Exceção para timeout de requisições

@@ -5,9 +5,9 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
 class AssetMaintenanceService {
-  final AuthService authService;
 
   AssetMaintenanceService({required this.authService});
+  final AuthService authService;
 
   String get _baseUrl {
     final config = ServerConfigService.instance.loadConfig();

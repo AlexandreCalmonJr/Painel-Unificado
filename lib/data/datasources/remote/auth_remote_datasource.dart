@@ -15,10 +15,10 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   AuthRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<Map<String, dynamic>> login(String username, String password) async {
@@ -32,7 +32,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200) {
         return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException(message: 'Invalid credentials');
+        throw const UnauthorizedException(message: 'Invalid credentials');
       } else {
         throw ServerException(message: 'Login failed: ${response.statusCode}');
       }

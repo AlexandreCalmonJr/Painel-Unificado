@@ -8,20 +8,20 @@ import 'package:painel_windowns/domain/repositories/i_location_repository.dart';
 
 /// Implementação do repositório de localizações
 class LocationRepositoryImpl implements ILocationRepository {
-  final LocationRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   LocationRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final LocationRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   Future<Either<Failure, List<LocationEntity>>> getLocations(
     String token,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -46,7 +46,7 @@ class LocationRepositoryImpl implements ILocationRepository {
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } catch (e) {
       return Left(ServerFailure(message: 'Unexpected error: $e'));
     }
@@ -58,7 +58,7 @@ class LocationRepositoryImpl implements ILocationRepository {
     String locationId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -78,7 +78,7 @@ class LocationRepositoryImpl implements ILocationRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -92,7 +92,7 @@ class LocationRepositoryImpl implements ILocationRepository {
     LocationEntity location,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -120,7 +120,7 @@ class LocationRepositoryImpl implements ILocationRepository {
 
       return Right(entity);
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -134,7 +134,7 @@ class LocationRepositoryImpl implements ILocationRepository {
     LocationEntity location,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -153,7 +153,7 @@ class LocationRepositoryImpl implements ILocationRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
@@ -167,7 +167,7 @@ class LocationRepositoryImpl implements ILocationRepository {
     String locationId,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -176,7 +176,7 @@ class LocationRepositoryImpl implements ILocationRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(message: e.message));
     } on UnauthorizedException {
-      return Left(UnauthorizedFailure());
+      return const Left(UnauthorizedFailure());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {

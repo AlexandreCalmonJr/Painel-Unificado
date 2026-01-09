@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 /// Centralized logging service to replace print() statements
 /// Provides structured logging with different levels and optional persistence
 class LoggerService {
-  static final LoggerService _instance = LoggerService._internal();
   factory LoggerService() => _instance;
   LoggerService._internal();
+  static final LoggerService _instance = LoggerService._internal();
 
   static LoggerService get instance => _instance;
 

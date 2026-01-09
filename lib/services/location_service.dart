@@ -192,7 +192,7 @@ class LocationService {
         final Map<String, int> deviceCountByUnit = {};
         final Map<String, bool> onlineStatusByUnit = {};
 
-        for (var device in devicesList) {
+        for (final device in devicesList) {
           final String? unitName = (device['unit_name'] as String?) ?? (device['unitName'] as String?);
           final bool isOnline =
               (device['is_online'] as bool?) ?? (device['isOnline'] as bool?) ?? false;

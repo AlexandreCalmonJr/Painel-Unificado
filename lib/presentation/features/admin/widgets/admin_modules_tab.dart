@@ -9,8 +9,8 @@ import 'package:painel_windowns/services/module_management_service.dart';
 import 'package:painel_windowns/utils/app_constants.dart';
 
 class AdminModulesTab extends StatefulWidget {
-  final AuthService authService;
   const AdminModulesTab({super.key, required this.authService});
+  final AuthService authService;
 
   @override
   State<AdminModulesTab> createState() => _AdminModulesTabState();

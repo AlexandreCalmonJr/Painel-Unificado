@@ -13,9 +13,6 @@ import 'package:painel_windowns/services/asset_maintenance_service.dart';
 import 'package:painel_windowns/widgets/common/app_card.dart';
 
 class AssetDetailScreen extends StatefulWidget {
-  final ManagedAsset asset;
-  final AuthService authService;
-  final AssetModuleConfig moduleConfig;
 
   const AssetDetailScreen({
     super.key,
@@ -23,6 +20,9 @@ class AssetDetailScreen extends StatefulWidget {
     required this.authService,
     required this.moduleConfig,
   });
+  final ManagedAsset asset;
+  final AuthService authService;
+  final AssetModuleConfig moduleConfig;
 
   @override
   State<AssetDetailScreen> createState() => _AssetDetailScreenState();
@@ -784,7 +784,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       builder:
           (context) => AlertDialog(
             title: const Text('Confirmar Comando'),
-            content: Text('Deseja executar este comando no dispositivo?'),
+            content: const Text('Deseja executar este comando no dispositivo?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),

@@ -4,10 +4,6 @@ import 'package:painel_windowns/data/models/totem.dart';
 import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
 
 class TotemDashboardTab extends StatelessWidget {
-  final List<Totem> totems;
-  final VoidCallback onRefresh;
-  final dynamic authService;
-  final dynamic currentUser;
 
   const TotemDashboardTab({
     super.key,
@@ -16,14 +12,18 @@ class TotemDashboardTab extends StatelessWidget {
     required this.authService,
     required this.currentUser,
   });
+  final List<Totem> totems;
+  final VoidCallback onRefresh;
+  final dynamic authService;
+  final dynamic currentUser;
 
   @override
   Widget build(BuildContext context) {
-    int onlineCount =
+    final int onlineCount =
         totems.where((d) => d.status.toLowerCase() == 'online').length;
-    int offlineCount =
+    final int offlineCount =
         totems.where((d) => d.status.toLowerCase() == 'offline').length;
-    int errorCount =
+    final int errorCount =
         totems.where((d) => d.status.toLowerCase() == 'com erro').length;
 
     return RefreshIndicator(

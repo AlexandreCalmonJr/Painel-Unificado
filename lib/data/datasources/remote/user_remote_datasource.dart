@@ -14,10 +14,10 @@ abstract class UserRemoteDataSource {
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   UserRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<List<User>> getUsers(String token) async {
@@ -65,7 +65,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
           json.decode(response.body) as Map<String, dynamic>,
         );
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'User not found');
+        throw const NotFoundException(message: 'User not found');
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
@@ -76,8 +76,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -139,7 +140,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'User not found');
+        throw const NotFoundException(message: 'User not found');
       } else {
         throw ServerException(
           message: 'Failed to update user: ${response.statusCode}',
@@ -148,8 +149,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -167,7 +169,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'User not found');
+        throw const NotFoundException(message: 'User not found');
       } else {
         throw ServerException(
           message: 'Failed to delete user: ${response.statusCode}',
@@ -176,8 +178,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -203,7 +206,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'User not found');
+        throw const NotFoundException(message: 'User not found');
       } else {
         throw ServerException(
           message: 'Failed to change password: ${response.statusCode}',
@@ -212,8 +215,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }

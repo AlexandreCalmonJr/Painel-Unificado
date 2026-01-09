@@ -3,11 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Um serviço para gerenciar o armazenamento local da configuração do servidor (IP e porta).
 /// Utiliza o padrão Singleton para garantir uma única instância em toda a aplicação.
 class ServerConfigService {
-  static const _ipKey = 'server_ip';
-  static const _portKey = 'server_port';
 
   // Padrão Singleton
   ServerConfigService._privateConstructor();
+  static const _ipKey = 'server_ip';
+  static const _portKey = 'server_port';
   static final ServerConfigService instance = ServerConfigService._privateConstructor();
 
   late SharedPreferences _prefs;

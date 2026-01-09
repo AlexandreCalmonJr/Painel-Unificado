@@ -11,14 +11,14 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // Im
 import 'package:path_provider/path_provider.dart'; // Para getApplicationDocumentsDirectory
 
 class AssetComparisonScreen extends StatefulWidget {
-  final List<ManagedAsset> selectedAssets;
-  final AssetModuleConfig moduleConfig;
 
   const AssetComparisonScreen({
     super.key, // ✅ Adicionado Key ao construtor
     required this.selectedAssets,
     required this.moduleConfig,
   });
+  final List<ManagedAsset> selectedAssets;
+  final AssetModuleConfig moduleConfig;
 
   @override
   State<AssetComparisonScreen> createState() => _AssetComparisonScreenState();

@@ -15,10 +15,10 @@ abstract class BackupRemoteDataSource {
 }
 
 class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
 
   BackupRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  final http.Client client;
+  final String baseUrl;
 
   @override
   Future<Map<String, dynamic>> createBackup(
@@ -98,7 +98,7 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Backup not found');
+        throw const NotFoundException(message: 'Backup not found');
       } else {
         throw ServerException(
           message: 'Failed to restore backup: ${response.statusCode}',
@@ -107,8 +107,9 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -126,7 +127,7 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Backup not found');
+        throw const NotFoundException(message: 'Backup not found');
       } else {
         throw ServerException(
           message: 'Failed to delete backup: ${response.statusCode}',
@@ -135,8 +136,9 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }
@@ -154,7 +156,7 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
-        throw NotFoundException(message: 'Backup not found');
+        throw const NotFoundException(message: 'Backup not found');
       } else {
         throw ServerException(
           message: 'Failed to download backup: ${response.statusCode}',
@@ -163,8 +165,9 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
     } catch (e) {
       if (e is ServerException ||
           e is UnauthorizedException ||
-          e is NotFoundException)
+          e is NotFoundException) {
         rethrow;
+      }
       throw ServerException(message: 'Network error: $e');
     }
   }

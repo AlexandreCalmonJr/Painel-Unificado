@@ -2,22 +2,6 @@ import 'package:equatable/equatable.dart';
 
 /// Entity de totem no domain layer
 class TotemEntity extends Equatable {
-  final String id;
-  final String? totemId;
-  final String? name;
-  final String? serialNumber;
-  final String? model;
-  final String? ipAddress;
-  final String? macAddress;
-  final String? location;
-  final String? sector;
-  final String? floor;
-  final String? unit;
-  final String? status;
-  final DateTime? lastSeen;
-  final bool? isOnline;
-  final String? softwareVersion;
-  final Map<String, dynamic>? configuration;
 
   const TotemEntity({
     required this.id,
@@ -37,6 +21,22 @@ class TotemEntity extends Equatable {
     this.softwareVersion,
     this.configuration,
   });
+  final String id;
+  final String? totemId;
+  final String? name;
+  final String? serialNumber;
+  final String? model;
+  final String? ipAddress;
+  final String? macAddress;
+  final String? location;
+  final String? sector;
+  final String? floor;
+  final String? unit;
+  final String? status;
+  final DateTime? lastSeen;
+  final bool? isOnline;
+  final String? softwareVersion;
+  final Map<String, dynamic>? configuration;
 
   @override
   List<Object?> get props => [
