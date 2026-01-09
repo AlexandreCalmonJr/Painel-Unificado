@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/di/injection.dart';
-import 'package:painel_windowns/core/utils/device_helpers.dart';
+import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/device_model.dart';
 import 'package:painel_windowns/devices/device_detail_screen.dart';
 import 'package:painel_windowns/devices/widgets/tabs/dashboard_tab.dart';

@@ -1,16 +1,17 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:painel_windowns/devices/utils/helpers.dart';
-import 'package:painel_windowns/data/models/device.dart';
+import 'package:painel_windowns/core/utils/helpers.dart';
+import 'package:painel_windowns/data/models/device_model.dart';
 
 // Define um tipo para a função de callback que dispara o alerta.
 // Isso torna o código mais limpo e fácil de entender.
-typedef ShowAlertCallback = void Function({
-  required String title,
-  required Widget description,
-  required IconData icon,
-  required Color color,
-  required Device device,
-});
+typedef ShowAlertCallback =
+    void Function({
+      required String title,
+      required Widget description,
+      required IconData icon,
+      required Color color,
+      required Device device,
+    });
 
 /// Um widget que representa a aba de testes para os pop-ups de alerta.
 class TestTab extends StatelessWidget {
@@ -23,7 +24,8 @@ class TestTab extends StatelessWidget {
   final Device mockDeviceOffline = Device(
     deviceName: 'Portátil-RH-01',
     serialNumber: 'SN-TEST-OFFLINE',
-    lastSeen: DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
+    lastSeen:
+        DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
     sector: 'Recursos Humanos',
     floor: '5º Andar',
     status: 'offline',
@@ -38,12 +40,12 @@ class TestTab extends StatelessWidget {
     floor: '2º Andar',
     status: 'online',
   );
-  
+
   final Device mockDeviceLocationChange = Device(
     deviceName: 'Scanner-Logistica-05',
     serialNumber: 'SN-TEST-LOCATION',
     sector: 'Almoxarifado', // Nova localização
-    floor: 'Térreo',        // Nova localização
+    floor: 'Térreo', // Nova localização
     lastSeen: DateTime.now().toIso8601String(),
     status: 'online',
   );
@@ -94,7 +96,9 @@ class TestTab extends StatelessWidget {
               onPressed: () {
                 onTestAlert(
                   title: 'Bateria Baixa: ${mockDeviceLowBattery.deviceName}',
-                  description: Text('O nível da bateria atingiu ${mockDeviceLowBattery.battery?.toInt() ?? 0}%.'),
+                  description: Text(
+                    'O nível da bateria atingiu ${mockDeviceLowBattery.battery?.toInt() ?? 0}%.',
+                  ),
                   icon: Icons.battery_alert,
                   color: Colors.red,
                   device: mockDeviceLowBattery,
@@ -121,7 +125,13 @@ class TestTab extends StatelessWidget {
                     children: [
                       const Text('O dispositivo ficou Offline.'),
                       if (lastSeenTime != null)
-                        Text('Última vez visto: ${formatDateTime(lastSeenTime)}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                        Text(
+                          'Última vez visto: ${formatDateTime(lastSeenTime)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
                     ],
                   ),
                   icon: Icons.wifi_off,
@@ -143,12 +153,22 @@ class TestTab extends StatelessWidget {
               ),
               onPressed: () {
                 onTestAlert(
-                  title: 'Mudança de Localização: ${mockDeviceLocationChange.deviceName}',
+                  title:
+                      'Mudança de Localização: ${mockDeviceLocationChange.deviceName}',
                   description: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('De: Vendas / 2º Andar', style: TextStyle(fontSize: 12)),
-                      Text('Para: ${mockDeviceLocationChange.sector} / ${mockDeviceLocationChange.floor}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      const Text(
+                        'De: Vendas / 2º Andar',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      Text(
+                        'Para: ${mockDeviceLocationChange.sector} / ${mockDeviceLocationChange.floor}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                   icon: Icons.location_on,

@@ -1,6 +1,6 @@
 // File: lib/widgets/error_handler.dart
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/utils/exceptions.dart';
+import 'package:painel_windowns/core/error/exceptions.dart';
 
 /// Widget para tratamento global de erros
 class ErrorHandler {

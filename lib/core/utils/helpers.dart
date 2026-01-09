@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:painel_windowns/devices/utils/constants.dart';
+import 'package:painel_windowns/core/utils/constants.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 
 DateTime? parseLastSeen(dynamic lastSeen) {
@@ -10,7 +10,10 @@ DateTime? parseLastSeen(dynamic lastSeen) {
   return null;
 }
 
-bool isDeviceOnline(DateTime? seenTime, {Duration tolerance = kOnlineTolerance}) {
+bool isDeviceOnline(
+  DateTime? seenTime, {
+  Duration tolerance = kOnlineTolerance,
+}) {
   if (seenTime == null) return false;
   final now = DateTime.now();
   final difference = now.difference(seenTime).abs();
