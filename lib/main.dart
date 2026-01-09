@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
-import 'package:painel_windowns/admin/admin_dashboard_screen.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/presentation/features/admin/pages/admin_dashboard_page.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/core/di/injection.dart';
-import 'package:painel_windowns/devices/dashboard_screen.dart';
+import 'package:painel_windowns/presentation/features/devices/pages/devices_dashboard_page.dart';
 import 'package:painel_windowns/presentation/bloc/auth/auth_bloc.dart';
-import 'package:painel_windowns/screen/home_screen.dart';
-import 'package:painel_windowns/screen/login_screen.dart';
+import 'package:painel_windowns/presentation/features/home/pages/home_page.dart';
+import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 import 'package:painel_windowns/services/websocket_service.dart';
-import 'package:painel_windowns/totem/totem_dashboard_screen.dart';
-import 'package:painel_windowns/utils/app_theme.dart';
+import 'package:painel_windowns/presentation/features/totem/pages/totem_dashboard_screen.dart';
+import 'package:painel_windowns/presentation/shared/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,7 +93,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           '/login': (context) => LoginScreen(authService: widget.authService),
           // A rota '/dashboard' agora aponta para a sua tela original, que é o Módulo Mobile.
           '/dashboard':
-              (context) => MDMDashboard(authService: widget.authService),
+              (context) =>
+                  DevicesDashboardPage(authService: widget.authService),
           '/totem_dashboard':
               (context) =>
                   TotemDashboardScreen(authService: widget.authService),

@@ -46,14 +46,14 @@ class WebSocketService {
           }
 
           try {
-            final data = json.decode(message);
+            final data = json.decode(message as String) as Map<String, dynamic>;
             _controller.add(data);
             _handleNotification(data);
           } catch (e) {
             _logger.e('Erro ao processar mensagem WS: $e');
           }
         },
-        onError: (error) {
+        onError: (Object error) {
           _logger.e('❌ WebSocket error: $error');
           _isConnected = false;
           _scheduleReconnect();
@@ -131,7 +131,7 @@ class WebSocketService {
           json.encode({'type': 'shutdown', 'hostname': hostname}),
         );
         // Aguarda um pouco para garantir o envio
-        await Future.delayed(Duration(milliseconds: 500));
+        await Future<void>.delayed(Duration(milliseconds: 500));
         await _channel?.sink.close();
       } catch (e) {
         _logger.e('Erro ao enviar shutdown: $e');

@@ -41,7 +41,9 @@ class LocationService {
           throw Exception('Formato de resposta inesperado da API');
         }
 
-        return data.map((json) => Location.fromJson(json)).toList();
+        return data
+            .map((json) => Location.fromJson(json as Map<String, dynamic>))
+            .toList();
       } else {
         throw Exception(
           'Falha ao carregar localizações: ${response.statusCode}',
@@ -71,7 +73,9 @@ class LocationService {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return Location.fromJson(json.decode(response.body));
+        return Location.fromJson(
+          json.decode(response.body) as Map<String, dynamic>,
+        );
       } else {
         throw Exception('Falha ao criar localização: ${response.statusCode}');
       }
@@ -100,7 +104,9 @@ class LocationService {
       );
 
       if (response.statusCode == 200) {
-        return Location.fromJson(json.decode(response.body));
+        return Location.fromJson(
+          json.decode(response.body) as Map<String, dynamic>,
+        );
       } else {
         throw Exception(
           'Falha ao atualizar localização: ${response.statusCode}',
@@ -187,8 +193,9 @@ class LocationService {
         final Map<String, bool> onlineStatusByUnit = {};
 
         for (var device in devicesList) {
-          final unitName = device['unit_name'] ?? device['unitName'];
-          final isOnline = device['is_online'] ?? device['isOnline'] ?? false;
+          final String? unitName = (device['unit_name'] as String?) ?? (device['unitName'] as String?);
+          final bool isOnline =
+              (device['is_online'] as bool?) ?? (device['isOnline'] as bool?) ?? false;
 
           if (unitName != null) {
             deviceCountByUnit[unitName] =

@@ -48,7 +48,7 @@ class CommandService {
           )
           .timeout(const Duration(seconds: 30));
 
-      return json.decode(response.body);
+      return json.decode(response.body) as Map<String, dynamic>;
     } catch (e) {
       return {
         'success': false,
@@ -80,7 +80,7 @@ class CommandService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data['commands'] ?? []);
+        return List<Map<String, dynamic>>.from((data['commands'] as List? ?? []));
       }
       return [];
     } catch (e) {

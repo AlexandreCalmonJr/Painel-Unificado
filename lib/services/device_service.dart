@@ -4,8 +4,8 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
-import 'package:painel_windowns/data/models/device.dart';
-import 'package:painel_windowns/data/models/totem.dart';
+import 'package:painel_windowns/data/models/device_model.dart';
+import 'package:painel_windowns/data/models/totem_model.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
@@ -27,19 +27,28 @@ class DeviceService {
         } else {
           try {
             final errorData = jsonDecode(response.body);
-            throw Exception(errorData['error'] ?? 'Erro ${response.statusCode}: ${response.reasonPhrase}');
+            throw Exception(
+              errorData['error'] ??
+                  'Erro ${response.statusCode}: ${response.reasonPhrase}',
+            );
           } catch (_) {
-            throw Exception('Erro ${response.statusCode}: ${response.reasonPhrase}');
+            throw Exception(
+              'Erro ${response.statusCode}: ${response.reasonPhrase}',
+            );
           }
         }
       } on TimeoutException {
-        if (attempts == kMaxRetries) throw Exception('$errorMessage: Tempo limite esgotado.');
+        if (attempts == kMaxRetries)
+          throw Exception('$errorMessage: Tempo limite esgotado.');
         await Future.delayed(kRetryDelay);
       } on SocketException {
-        if (attempts == kMaxRetries) throw Exception('$errorMessage: Falha na conexão com o servidor.');
+        if (attempts == kMaxRetries)
+          throw Exception('$errorMessage: Falha na conexão com o servidor.');
         await Future.delayed(kRetryDelay);
       } catch (e) {
-        throw Exception('$errorMessage: ${e.toString().replaceFirst("Exception: ", "")}');
+        throw Exception(
+          '$errorMessage: ${e.toString().replaceFirst("Exception: ", "")}',
+        );
       }
     }
     throw Exception('$errorMessage após $kMaxRetries tentativas.');
@@ -51,25 +60,30 @@ class DeviceService {
     final serverPort = config['port'];
 
     final response = await _performHttpRequest(
-      request: () => http.get(
-        Uri.parse('http://$serverIp:$serverPort/api/devices'),
-        headers: {'Authorization': 'Bearer $token'},
-      ),
+      request:
+          () => http.get(
+            Uri.parse('http://$serverIp:$serverPort/api/devices'),
+            headers: {'Authorization': 'Bearer $token'},
+          ),
       errorMessage: 'Erro ao buscar dispositivos',
     );
 
     final data = jsonDecode(response.body);
 
     List<dynamic> devicesList;
-    
+
     // ✅ CORREÇÃO: Simplificado para corresponder à API (que sempre retorna um Map)
     if (data is Map<String, dynamic> && data.containsKey('devices')) {
       devicesList = data['devices'] as List;
     } else {
-      throw Exception('Resposta inválida do servidor: Esperado um mapa com a chave "devices".');
+      throw Exception(
+        'Resposta inválida do servidor: Esperado um mapa com a chave "devices".',
+      );
     }
-    
-    return devicesList.map((json) => Device.fromJson(json, units)).toList();
+
+    return devicesList
+        .map((json) => Device.fromJson(json as Map<String, dynamic>, units))
+        .toList();
   }
 
   Future<List<BssidMapping>> fetchBssidMappings(String token) async {
@@ -78,21 +92,27 @@ class DeviceService {
     final serverPort = config['port'];
 
     final response = await _performHttpRequest(
-      request: () => http.get(
-        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings'),
-        headers: {'Authorization': 'Bearer $token'},
-      ),
+      request:
+          () => http.get(
+            Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings'),
+            headers: {'Authorization': 'Bearer $token'},
+          ),
       errorMessage: 'Erro ao buscar mapeamentos de BSSID',
     );
     final data = jsonDecode(response.body);
     if (data is List) {
-      return data.map((json) => BssidMapping.fromJson(json)).toList();
+      return data
+          .map((json) => BssidMapping.fromJson(json as Map<String, dynamic>))
+          .toList();
     }
     throw Exception('Resposta inválida: Esperado uma lista de mapeamentos');
   }
 
   /// Busca apenas os BSSIDs que pertencem a uma unidade específica.
-  Future<List<BssidMapping>> fetchBssidsForUnit(String token, String unitName) async {
+  Future<List<BssidMapping>> fetchBssidsForUnit(
+    String token,
+    String unitName,
+  ) async {
     final config = ServerConfigService.instance.loadConfig();
     final serverIp = config['ip'];
     final serverPort = config['port'];
@@ -100,16 +120,21 @@ class DeviceService {
     final encodedUnitName = Uri.encodeComponent(unitName);
 
     final response = await _performHttpRequest(
-      request: () => http.get(
-        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/by-unit/$encodedUnitName'),
-        headers: {'Authorization': 'Bearer $token'},
-      ),
+      request:
+          () => http.get(
+            Uri.parse(
+              'http://$serverIp:$serverPort/api/bssid-mappings/by-unit/$encodedUnitName',
+            ),
+            headers: {'Authorization': 'Bearer $token'},
+          ),
       errorMessage: 'Erro ao buscar BSSIDs para a unidade $unitName',
     );
 
     final data = jsonDecode(response.body);
     if (data is List) {
-      return data.map((json) => BssidMapping.fromJson(json)).toList();
+      return data
+          .map((json) => BssidMapping.fromJson(json as Map<String, dynamic>))
+          .toList();
     } else {
       if (data is Map<String, dynamic> && data.containsKey('error')) {
         throw Exception(data['error']);
@@ -118,7 +143,12 @@ class DeviceService {
     }
   }
 
-  Future<String> sendCommand(String token, String serialNumber, String command, Map<String, dynamic> parameters) async {
+  Future<String> sendCommand(
+    String token,
+    String serialNumber,
+    String command,
+    Map<String, dynamic> parameters,
+  ) async {
     final config = ServerConfigService.instance.loadConfig();
     final serverIp = config['ip'];
     final serverPort = config['port'];
@@ -130,14 +160,20 @@ class DeviceService {
     };
 
     final response = await _performHttpRequest(
-      request: () => http.post(
-        Uri.parse('http://$serverIp:$serverPort/api/devices/executeCommand'),
-        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      ),
+      request:
+          () => http.post(
+            Uri.parse(
+              'http://$serverIp:$serverPort/api/devices/executeCommand',
+            ),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(body),
+          ),
       errorMessage: 'Erro ao enviar comando',
     );
-    
+
     final data = jsonDecode(response.body);
     return data['message']?.toString() ?? 'Comando executado com sucesso';
   }
@@ -148,10 +184,11 @@ class DeviceService {
     final serverPort = config['port'];
 
     final response = await _performHttpRequest(
-      request: () => http.delete(
-        Uri.parse('http://$serverIp:$serverPort/api/devices/$serialNumber'),
-        headers: {'Authorization': 'Bearer $token'},
-      ),
+      request:
+          () => http.delete(
+            Uri.parse('http://$serverIp:$serverPort/api/devices/$serialNumber'),
+            headers: {'Authorization': 'Bearer $token'},
+          ),
       errorMessage: 'Erro ao excluir dispositivo',
     );
     final data = jsonDecode(response.body);
@@ -163,11 +200,15 @@ class DeviceService {
     final serverIp = config['ip'];
     final serverPort = config['port'];
     await _performHttpRequest(
-      request: () => http.post(
-        Uri.parse('http://$serverIp:$serverPort/api/units'),
-        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        body: jsonEncode(unit.toJson()),
-      ),
+      request:
+          () => http.post(
+            Uri.parse('http://$serverIp:$serverPort/api/units'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(unit.toJson()),
+          ),
       errorMessage: 'Erro ao criar unidade',
     );
     return 'Unidade criada com sucesso';
@@ -178,11 +219,15 @@ class DeviceService {
     final serverIp = config['ip'];
     final serverPort = config['port'];
     await _performHttpRequest(
-      request: () => http.put(
-        Uri.parse('http://$serverIp:$serverPort/api/units/$unitName'),
-        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        body: jsonEncode(unit.toJson()),
-      ),
+      request:
+          () => http.put(
+            Uri.parse('http://$serverIp:$serverPort/api/units/$unitName'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(unit.toJson()),
+          ),
       errorMessage: 'Erro ao atualizar unidade',
     );
     return 'Unidade atualizada com sucesso';
@@ -193,10 +238,11 @@ class DeviceService {
     final serverIp = config['ip'];
     final serverPort = config['port'];
     final response = await _performHttpRequest(
-      request: () => http.delete(
-        Uri.parse('http://$serverIp:$serverPort/api/units/$unitName'),
-        headers: {'Authorization': 'Bearer $token'}
-      ),
+      request:
+          () => http.delete(
+            Uri.parse('http://$serverIp:$serverPort/api/units/$unitName'),
+            headers: {'Authorization': 'Bearer $token'},
+          ),
       errorMessage: 'Erro ao excluir unidade',
     );
     final data = jsonDecode(response.body);
@@ -208,40 +254,60 @@ class DeviceService {
     final serverIp = config['ip'];
     final serverPort = config['port'];
     await _performHttpRequest(
-      request: () => http.post(
-        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings'),
-        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        body: jsonEncode(mapping.toJson()),
-      ),
+      request:
+          () => http.post(
+            Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(mapping.toJson()),
+          ),
       errorMessage: 'Erro ao criar mapeamento',
     );
     return 'Mapeamento de BSSID criado com sucesso';
   }
 
-  Future<String> updateBssidMapping(String token, String macAddressRadio, BssidMapping mapping) async {
+  Future<String> updateBssidMapping(
+    String token,
+    String macAddressRadio,
+    BssidMapping mapping,
+  ) async {
     final config = ServerConfigService.instance.loadConfig();
     final serverIp = config['ip'];
     final serverPort = config['port'];
     await _performHttpRequest(
-      request: () => http.put(
-        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/$macAddressRadio'),
-        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
-        body: jsonEncode(mapping.toJson()),
-      ),
+      request:
+          () => http.put(
+            Uri.parse(
+              'http://$serverIp:$serverPort/api/bssid-mappings/$macAddressRadio',
+            ),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(mapping.toJson()),
+          ),
       errorMessage: 'Erro ao atualizar mapeamento',
     );
     return 'Mapeamento de BSSID atualizado com sucesso';
   }
 
-  Future<String> deleteBssidMapping(String token, String macAddressRadio) async {
+  Future<String> deleteBssidMapping(
+    String token,
+    String macAddressRadio,
+  ) async {
     final config = ServerConfigService.instance.loadConfig();
     final serverIp = config['ip'];
     final serverPort = config['port'];
     await _performHttpRequest(
-      request: () => http.delete(
-        Uri.parse('http://$serverIp:$serverPort/api/bssid-mappings/$macAddressRadio'),
-        headers: {'Authorization': 'Bearer $token'}
-      ),
+      request:
+          () => http.delete(
+            Uri.parse(
+              'http://$serverIp:$serverPort/api/bssid-mappings/$macAddressRadio',
+            ),
+            headers: {'Authorization': 'Bearer $token'},
+          ),
       errorMessage: 'Erro ao excluir mapeamento',
     );
     return 'Mapeamento de BSSID excluído com sucesso';
@@ -253,49 +319,61 @@ class DeviceService {
     final serverPort = config['port'];
 
     final response = await _performHttpRequest(
-      request: () => http.get(
-        Uri.parse('http://$serverIp:$serverPort/api/units'),
-        headers: {'Authorization': 'Bearer $token'},
-      ),
+      request:
+          () => http.get(
+            Uri.parse('http://$serverIp:$serverPort/api/units'),
+            headers: {'Authorization': 'Bearer $token'},
+          ),
       errorMessage: 'Erro ao buscar unidades',
     );
 
     final data = jsonDecode(response.body);
-    
+
     // ✅ CORREÇÃO: Lógica ajustada para ler a resposta da API corretamente
     if (data is Map<String, dynamic> &&
         data['success'] == true &&
         data['units'] is List) {
       return (data['units'] as List)
-          .map((json) => Unit.fromJson(json))
+          .map((json) => Unit.fromJson(json as Map<String, dynamic>))
           .toList();
     } else if (data is List) {
       // Mantendo por segurança caso alguma rota antiga ainda retorne lista pura
-      return data.map((json) => Unit.fromJson(json)).toList();
+      return data
+          .map((json) => Unit.fromJson(json as Map<String, dynamic>))
+          .toList();
     } else {
       throw Exception(
-          'Resposta inválida do servidor: Esperado "success: true" e uma lista de "units".');
+        'Resposta inválida do servidor: Esperado "success: true" e uma lista de "units".',
+      );
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchLocationHistory(String token, String serialNumber) async {
+  Future<List<Map<String, dynamic>>> fetchLocationHistory(
+    String token,
+    String serialNumber,
+  ) async {
     final config = ServerConfigService.instance.loadConfig();
     final serverIp = config['ip'];
     final serverPort = config['port'];
 
     final response = await _performHttpRequest(
-      request: () => http.get(
-        Uri.parse('http://$serverIp:$serverPort/api/devices/$serialNumber/location-history'),
-        headers: {'Authorization': 'Bearer $token'},
-      ),
+      request:
+          () => http.get(
+            Uri.parse(
+              'http://$serverIp:$serverPort/api/devices/$serialNumber/location-history',
+            ),
+            headers: {'Authorization': 'Bearer $token'},
+          ),
       errorMessage: 'Erro ao buscar histórico de localização',
     );
 
     final data = jsonDecode(response.body);
     if (data['success'] == true && data['history'] is List) {
-      return List<Map<String, dynamic>>.from(data['history']);
+      return List<Map<String, dynamic>>.from(data['history'] as List);
     } else {
-      throw Exception(data['message'] ?? 'Falha ao carregar histórico de localização');
+      throw Exception(
+        data['message'] ?? 'Falha ao carregar histórico de localização',
+      );
     }
   }
 
@@ -306,21 +384,42 @@ class DeviceService {
 
     // ⚡ PASSO 1: Carregar units e bssids (necessário para o mapeamento de localização no Totem.fromJson)
     final units = await fetchUnits(token); // Reutiliza o método existente
-    final bssidMappings = await fetchBssidMappings(token); // Reutiliza o método existente
+    final bssidMappings = await fetchBssidMappings(
+      token,
+    ); // Reutiliza o método existente
 
     final response = await _performHttpRequest(
-      request: () => http.get(
-        Uri.parse('http://$serverIp:$serverPort/api/monitoring/totems'),
-        headers: {'Authorization': 'Bearer $token'},
-      ),
+      request:
+          () => http.get(
+            Uri.parse('http://$serverIp:$serverPort/api/monitoring/totems'),
+            headers: {'Authorization': 'Bearer $token'},
+          ),
       errorMessage: 'Erro ao buscar totens',
     );
     final data = jsonDecode(response.body);
     if (data is List) {
-      return data.map((json) => Totem.fromJson(json, units, bssidMappings)).toList();
+      return data
+          .map(
+            (json) => Totem.fromJson(
+              json as Map<String, dynamic>,
+              units,
+              bssidMappings,
+            ),
+          )
+          .toList();
     } else if (data is Map<String, dynamic> && data.containsKey('totems')) {
-      return (data['totems'] as List).map((json) => Totem.fromJson(json, units, bssidMappings)).toList();
+      return (data['totems'] as List)
+          .map(
+            (json) => Totem.fromJson(
+              json as Map<String, dynamic>,
+              units,
+              bssidMappings,
+            ),
+          )
+          .toList();
     }
-    throw Exception('Resposta inválida do servidor: Esperado uma lista de totens.');
+    throw Exception(
+      'Resposta inválida do servidor: Esperado uma lista de totens.',
+    );
   }
 }

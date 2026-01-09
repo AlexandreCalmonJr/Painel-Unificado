@@ -19,7 +19,7 @@ class AuthService {
   bool get isLoggedIn => _token != null;
   bool get isAdmin => _user?['role'] == 'admin';
   List<String>? get permissions =>
-      List<String>.from(_user?['permissions'] ?? []);
+      List<String>.from((_user?['permissions'] as List?) ?? []);
 
   Future<void> initializeFromStorage() async {
     final prefs = await SharedPreferences.getInstance();
@@ -27,7 +27,7 @@ class AuthService {
     final userDataString = prefs.getString('user');
     if (userDataString != null) {
       try {
-        _user = jsonDecode(userDataString);
+        _user = jsonDecode(userDataString) as Map<String, dynamic>;
         // Tenta conectar o WebSocket se já estiver logado
         _connectWebSocket();
       } catch (e) {
@@ -65,8 +65,8 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        _token = data['token'];
-        _user = data['user'];
+        _token = data['token'] as String?;
+        _user = data['user'] as Map<String, dynamic>?;
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', _token!);

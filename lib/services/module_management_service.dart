@@ -6,10 +6,10 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
-import 'package:painel_windowns/data/models/desktop.dart';
-import 'package:painel_windowns/data/models/notebook.dart';
-import 'package:painel_windowns/data/models/painel.dart';
-import 'package:painel_windowns/data/models/printer.dart';
+import 'package:painel_windowns/data/models/desktop_model.dart';
+import 'package:painel_windowns/data/models/notebook_model.dart';
+import 'package:painel_windowns/data/models/panel_model.dart';
+import 'package:painel_windowns/data/models/printer_model.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
@@ -94,7 +94,7 @@ class ModuleManagementService {
     final data = jsonDecode(response.body);
     if (data is Map && data.containsKey('units')) {
       return (data['units'] as List)
-          .map((json) => Unit.fromJson(json))
+          .map((json) => Unit.fromJson(json as Map<String, dynamic>))
           .toList();
     }
     throw Exception('Resposta inválida: esperado lista de unidades');
@@ -114,7 +114,9 @@ class ModuleManagementService {
 
     final data = jsonDecode(response.body);
     if (data is List) {
-      return data.map((json) => BssidMapping.fromJson(json)).toList();
+      return data
+          .map((json) => BssidMapping.fromJson(json as Map<String, dynamic>))
+          .toList();
     }
     throw Exception('Resposta inválida: esperado lista de BSSIDs');
   }
@@ -232,8 +234,10 @@ class ModuleManagementService {
     );
 
     final data = json.decode(response.body);
-    final List<dynamic> modulesJson = data['modules'];
-    return modulesJson.map((json) => AssetModuleConfig.fromJson(json)).toList();
+    final List<dynamic> modulesJson = (data['modules'] as List);
+    return modulesJson
+        .map((json) => AssetModuleConfig.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   // ===================================================================
@@ -270,7 +274,7 @@ class ModuleManagementService {
     );
 
     final data = json.decode(response.body);
-    return AssetModuleConfig.fromJson(data['module']);
+    return AssetModuleConfig.fromJson(data['module'] as Map<String, dynamic>);
   }
 
   // ===================================================================
@@ -307,7 +311,7 @@ class ModuleManagementService {
     );
 
     final data = json.decode(response.body);
-    return AssetModuleConfig.fromJson(data['module']);
+    return AssetModuleConfig.fromJson(data['module'] as Map<String, dynamic>);
   }
 
   // ===================================================================
@@ -385,7 +389,7 @@ class ModuleManagementService {
 
     final data = jsonDecode(response.body);
     if (data['success'] == true && data['users'] is List) {
-      return List<String>.from(data['users']);
+      return List<String>.from(data['users'] as List);
     }
     throw Exception(data['message'] ?? 'Resposta inválida');
   }
@@ -494,7 +498,7 @@ class ModuleManagementService {
     final data = json.decode(response.body);
 
     if (data['success'] == true && data['history'] is List) {
-      return List<Map<String, dynamic>>.from(data['history']);
+      return List<Map<String, dynamic>>.from(data['history'] as List);
     }
 
     throw Exception(data['message'] ?? 'Falha ao carregar histórico');

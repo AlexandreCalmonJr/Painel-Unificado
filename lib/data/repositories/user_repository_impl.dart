@@ -5,6 +5,7 @@ import 'package:painel_windowns/core/network/network_info.dart';
 import 'package:painel_windowns/data/datasources/remote/user_remote_datasource.dart';
 import 'package:painel_windowns/domain/entities/user_entity.dart';
 import 'package:painel_windowns/domain/repositories/i_user_repository.dart';
+import 'package:painel_windowns/data/models/user_model.dart';
 
 /// Implementação do repositório de usuários
 class UserRepositoryImpl implements IUserRepository {
@@ -31,7 +32,7 @@ class UserRepositoryImpl implements IUserRepository {
                 (user) => UserEntity(
                   id: user.id ?? '',
                   username: user.username ?? '',
-                  email: user.email,
+                  email: user.email ?? '',
                   role: user.role ?? 'user',
                   isActive: user.isActive ?? true,
                 ),
@@ -62,7 +63,7 @@ class UserRepositoryImpl implements IUserRepository {
       final entity = UserEntity(
         id: user.id ?? '',
         username: user.username ?? '',
-        email: user.email,
+        email: user.email ?? '',
         role: user.role ?? 'user',
         isActive: user.isActive ?? true,
       );
@@ -103,7 +104,7 @@ class UserRepositoryImpl implements IUserRepository {
       final entity = UserEntity(
         id: result.id ?? '',
         username: result.username ?? '',
-        email: result.email,
+        email: result.email ?? '',
         role: result.role ?? 'user',
         isActive: result.isActive ?? true,
       );
