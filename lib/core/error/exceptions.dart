@@ -72,3 +72,21 @@ class PermissionException extends AppException {
   String toString() =>
       'PermissionException: $message${code != null ? ' (code: $code)' : ''}';
 }
+
+/// Exception for forbidden access errors (HTTP 403)
+class ForbiddenException extends AppException {
+  const ForbiddenException({required super.message, super.code});
+
+  @override
+  String toString() =>
+      'ForbiddenException: $message${code != null ? ' (code: $code)' : ''}';
+}
+
+/// Exception for unauthorized access errors (HTTP 401)
+class UnauthorizedException extends AppException {
+  const UnauthorizedException({required super.message, super.code});
+
+  @override
+  String toString() =>
+      'UnauthorizedException: $message${code != null ? ' (code: $code)' : ''}';
+}

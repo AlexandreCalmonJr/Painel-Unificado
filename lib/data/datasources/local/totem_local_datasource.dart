@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:painel_windowns/core/error/exceptions.dart';
 import 'package:painel_windowns/data/models/totem_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Data Source local para totems (cache)
 abstract class TotemLocalDataSource {
@@ -26,16 +26,18 @@ class TotemLocalDataSourceImpl implements TotemLocalDataSource {
         final cacheTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
         final difference = DateTime.now().difference(cacheTime).inMinutes;
         if (difference > CACHE_DURATION_MINUTES) {
-          throw CacheException(message: 'Cache expired');
+          throw const CacheException(message: 'Cache expired');
         }
       }
 
       final jsonString = sharedPreferences.getString(CACHED_TOTEMS);
       if (jsonString != null) {
-        final List<dynamic> jsonList = json.decode(jsonString);
-        return jsonList.map((json) => Totem.fromJson(json)).toList();
+        final jsonList = json.decode(jsonString) as List<dynamic>;
+        return jsonList
+            .map((json) => Totem.fromJson(json as Map<String, dynamic>, [], []))
+            .toList();
       } else {
-        throw CacheException(message: 'No cached totems found');
+        throw const CacheException(message: 'No cached totems found');
       }
     } catch (e) {
       if (e is CacheException) rethrow;
@@ -51,10 +53,9 @@ class TotemLocalDataSourceImpl implements TotemLocalDataSource {
               .map(
                 (totem) => {
                   '_id': totem.id,
-                  'name': totem.name,
                   'status': totem.status,
                   'location': totem.location,
-                  'last_seen': totem.lastSeen,
+                  'last_seen': totem.lastSeen.toIso8601String(),
                 },
               )
               .toList();

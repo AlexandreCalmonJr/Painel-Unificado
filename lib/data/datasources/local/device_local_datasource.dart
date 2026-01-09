@@ -40,16 +40,18 @@ class DeviceLocalDataSourceImpl implements DeviceLocalDataSource {
         final difference = now.difference(cacheTime).inMinutes;
 
         if (difference > CACHE_DURATION_MINUTES) {
-          throw CacheException(message: 'Cache expired');
+          throw const CacheException(message: 'Cache expired');
         }
       }
 
       final jsonString = sharedPreferences.getString(CACHED_DEVICES);
       if (jsonString != null) {
-        final List<dynamic> jsonList = json.decode(jsonString);
-        return jsonList.map((json) => Device.fromJson(json, [])).toList();
+        final jsonList = json.decode(jsonString) as List<dynamic>;
+        return jsonList
+            .map((json) => Device.fromJson(json as Map<String, dynamic>, []))
+            .toList();
       } else {
-        throw CacheException(message: 'No cached devices found');
+        throw const CacheException(message: 'No cached devices found');
       }
     } catch (e) {
       if (e is CacheException) {
