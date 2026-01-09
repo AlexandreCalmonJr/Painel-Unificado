@@ -55,9 +55,9 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to generate device report: ${response.statusCode}',
@@ -95,9 +95,9 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message:
@@ -136,9 +136,9 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to generate usage report: ${response.statusCode}',
@@ -163,9 +163,9 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data['reports'] ?? data);
+        return List<Map<String, dynamic>>.from((data['reports'] ?? data) as List);
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to get available reports: ${response.statusCode}',
@@ -188,7 +188,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       if (response.statusCode == 200) {
         return response.body;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Report not found');
       } else {

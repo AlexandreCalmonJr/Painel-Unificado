@@ -37,7 +37,7 @@ class LoggerRemoteDataSourceImpl implements LoggerRemoteDataSource {
           response.statusCode == 202) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to send log: ${response.statusCode}',
@@ -79,9 +79,9 @@ class LoggerRemoteDataSourceImpl implements LoggerRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data['logs'] ?? data);
+        return List<Map<String, dynamic>>.from((data['logs'] ?? data) as List);
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to get logs: ${response.statusCode}',
@@ -104,7 +104,7 @@ class LoggerRemoteDataSourceImpl implements LoggerRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to clear logs: ${response.statusCode}',

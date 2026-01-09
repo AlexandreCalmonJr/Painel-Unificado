@@ -30,10 +30,12 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<dynamic> jsonList = data['totems'] ?? data;
-        return jsonList.map((json) => Totem.fromJson(json)).toList();
+        final jsonList = (data['totems'] ?? data) as List<dynamic>;
+        return jsonList
+            .map((json) => Totem.fromJson(json as Map<String, dynamic>, [], []))
+            .toList();
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to load totems: ${response.statusCode}',
@@ -57,11 +59,15 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return Totem.fromJson(json.decode(response.body));
+        return Totem.fromJson(
+          json.decode(response.body) as Map<String, dynamic>,
+          [],
+          [],
+        );
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Totem not found');
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to load totem: ${response.statusCode}',
@@ -91,7 +97,7 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Totem not found');
       } else {
@@ -118,7 +124,7 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
           'Authorization': 'Bearer $token',
         },
         body: json.encode({
-          'name': totem.name,
+          'hostname': totem.hostname,
           'status': totem.status,
           'location': totem.location,
         }),
@@ -127,7 +133,7 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Totem not found');
       } else {

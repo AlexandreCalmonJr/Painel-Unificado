@@ -32,9 +32,9 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to get dashboard metrics: ${response.statusCode}',
@@ -61,9 +61,9 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Device not found');
       } else {
@@ -107,9 +107,9 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data['statistics'] ?? data);
+        return List<Map<String, dynamic>>.from((data['statistics'] ?? data) as List);
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to get usage statistics: ${response.statusCode}',
@@ -133,9 +133,9 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to get system health: ${response.statusCode}',

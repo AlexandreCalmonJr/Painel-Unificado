@@ -39,9 +39,9 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data['modules'] ?? data);
+        return List<Map<String, dynamic>>.from((data['modules'] ?? data) as List);
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to load modules: ${response.statusCode}',
@@ -68,11 +68,11 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Module not found');
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to load module: ${response.statusCode}',
@@ -106,7 +106,7 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Module not found');
       } else {
@@ -142,7 +142,7 @@ class ModuleRemoteDataSourceImpl implements ModuleRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Module not found');
       } else {

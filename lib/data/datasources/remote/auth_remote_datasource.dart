@@ -75,7 +75,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200) {
         return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to get user: ${response.statusCode}',

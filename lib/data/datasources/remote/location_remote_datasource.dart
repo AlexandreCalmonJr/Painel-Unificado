@@ -37,9 +37,9 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data['locations'] ?? data);
+        return List<Map<String, dynamic>>.from((data['locations'] ?? data) as List);
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to load locations: ${response.statusCode}',
@@ -66,11 +66,11 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Location not found');
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to load location: ${response.statusCode}',
@@ -101,9 +101,9 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to create location: ${response.statusCode}',
@@ -134,7 +134,7 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Location not found');
       } else {
@@ -162,7 +162,7 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Location not found');
       } else {

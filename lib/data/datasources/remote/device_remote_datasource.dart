@@ -38,11 +38,13 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> jsonList = json.decode(response.body);
+        final jsonList = json.decode(response.body) as List<dynamic>;
         // Nota: Device.fromJson precisa de units, por enquanto passamos lista vazia
-        return jsonList.map((json) => Device.fromJson(json, [])).toList();
+        return jsonList
+            .map((json) => Device.fromJson(json as Map<String, dynamic>, []))
+            .toList();
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to load devices: ${response.statusCode}',
@@ -68,12 +70,12 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        return Device.fromJson(json, []);
+        final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+        return Device.fromJson(jsonData, []);
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Device not found');
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to load device: ${response.statusCode}',
@@ -108,7 +110,7 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Device not found');
       } else {
@@ -148,7 +150,7 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Device not found');
       } else {

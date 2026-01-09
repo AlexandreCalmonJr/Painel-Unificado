@@ -41,9 +41,9 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to create backup: ${response.statusCode}',
@@ -68,9 +68,9 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data['backups'] ?? data);
+        return List<Map<String, dynamic>>.from((data['backups'] ?? data) as List);
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to get backup list: ${response.statusCode}',
@@ -96,7 +96,7 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Backup not found');
       } else {
@@ -124,7 +124,7 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Backup not found');
       } else {
@@ -152,7 +152,7 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
       if (response.statusCode == 200) {
         return response.body;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Backup not found');
       } else {

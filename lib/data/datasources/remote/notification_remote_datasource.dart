@@ -32,9 +32,9 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data['notifications'] ?? data);
+        return List<Map<String, dynamic>>.from((data['notifications'] ?? data) as List);
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to get notifications: ${response.statusCode}',
@@ -60,7 +60,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Notification not found');
       } else {
@@ -92,7 +92,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else {
         throw ServerException(
           message: 'Failed to mark all as read: ${response.statusCode}',
@@ -115,7 +115,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw UnauthorizedException();
+        throw const UnauthorizedException(message: 'Unauthorized access');
       } else if (response.statusCode == 404) {
         throw NotFoundException(message: 'Notification not found');
       } else {
