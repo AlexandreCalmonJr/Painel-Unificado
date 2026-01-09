@@ -4,6 +4,7 @@ import 'package:painel_windowns/core/error/failures.dart';
 import 'package:painel_windowns/domain/entities/device_entity.dart';
 import 'package:painel_windowns/domain/repositories/i_device_repository.dart';
 import 'package:painel_windowns/domain/usecases/usecase.dart';
+import 'package:painel_windowns/services/token_service.dart';
 
 /// Use case for retrieving all devices.
 ///
@@ -12,12 +13,18 @@ import 'package:painel_windowns/domain/usecases/usecase.dart';
 @lazySingleton
 class GetDevicesUseCase implements UseCase<List<DeviceEntity>, NoParams> {
   final IDeviceRepository repository;
+  final TokenService tokenService;
 
-  GetDevicesUseCase(this.repository);
+  GetDevicesUseCase(this.repository, this.tokenService);
 
   @override
   Future<Either<Failure, List<DeviceEntity>>> call(NoParams params) async {
-    // TODO: Get token from auth service
-    return await repository.getDevices('');
+    final token = tokenService.getToken();
+
+    if (token == null) {
+      return Left(UnauthorizedFailure());
+    }
+
+    return await repository.getDevices(token);
   }
 }

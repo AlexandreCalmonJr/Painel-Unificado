@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/di/injection.dart';
@@ -17,7 +15,6 @@ import 'package:painel_windowns/presentation/shared/layouts/base_dashboard_layou
 import 'package:painel_windowns/presentation/shared/widgets/app_bar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/device_service.dart';
 
 /// Dashboard refatorado de dispositivos móveis
 ///
@@ -41,15 +38,6 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
   // Sidebar
   bool _isSidebarVisible = true;
 
-  // Data
-  final DeviceService _deviceService = DeviceService();
-  List<Device> _devices = [];
-  bool _isLoading = false;
-  String? _errorMessage;
-
-  // Auto-refresh
-  Timer? _refreshTimer;
-
   @override
   void initState() {
     super.initState();
@@ -59,72 +47,27 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
         setState(() => _selectedTabIndex = _tabController.index);
       }
     });
-    _loadDevices(isInitialLoad: true);
-    _startAutoRefresh();
   }
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
     _tabController.dispose();
     super.dispose();
   }
 
-  void _startAutoRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      if (mounted) _loadDevices();
-    });
-  }
-
-  Future<void> _loadDevices({bool isInitialLoad = false}) async {
-    if (isInitialLoad) {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
-    }
-
-    final token = widget.authService.currentToken;
-    if (token == null) {
-      setState(() {
-        _errorMessage = 'Token não disponível';
-        _isLoading = false;
-      });
-      return;
-    }
-
-    try {
-      final devices = await _deviceService.fetchDevices(token);
-      if (mounted) {
-        setState(() {
-          _devices = devices;
-          _isLoading = false;
-          _errorMessage = null;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Erro ao carregar dispositivos: $e';
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  List<StatCardData> _buildStats() {
-    if (_devices.isEmpty) return [];
+  List<StatCardData> _buildStats(List<Device> devices) {
+    if (devices.isEmpty) return [];
 
     final online =
-        _devices.where((d) {
+        devices.where((d) {
           final lastSeen = parseLastSeen(d.lastSeen);
           return lastSeen != null && isDeviceOnline(lastSeen);
         }).length;
 
-    final offline = _devices.length - online;
+    final offline = devices.length - online;
 
     final lowBattery =
-        _devices.where((d) {
+        devices.where((d) {
           final battery = d.battery ?? 100;
           return battery < 20;
         }).length;
@@ -132,7 +75,7 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
     return [
       StatCardData(
         title: 'Total de Dispositivos',
-        value: _devices.length.toString(),
+        value: devices.length.toString(),
         icon: Icons.devices,
         color: Colors.blue,
       ),
@@ -141,14 +84,14 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
         value: online.toString(),
         icon: Icons.check_circle,
         color: Colors.green,
-        subtitle: '${((online / _devices.length) * 100).toStringAsFixed(1)}%',
+        subtitle: '${((online / devices.length) * 100).toStringAsFixed(1)}%',
       ),
       StatCardData(
         title: 'Offline',
         value: offline.toString(),
         icon: Icons.error_outline,
         color: Colors.red,
-        subtitle: '${((offline / _devices.length) * 100).toStringAsFixed(1)}%',
+        subtitle: '${((offline / devices.length) * 100).toStringAsFixed(1)}%',
       ),
       StatCardData(
         title: 'Bateria Baixa',
@@ -163,211 +106,186 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => getIt<DeviceBloc>()..add(const LoadDevices()),
-      child: BlocListener<DeviceBloc, DeviceState>(
-        listener: (context, state) {
-          // Atualizar lista local quando BLoC carregar devices
-          if (state is DeviceLoaded) {
-            setState(() {
-              _devices =
-                  state.devices.map((entity) {
-                    // Converter DeviceEntity para Device (model)
+      child: BlocBuilder<DeviceBloc, DeviceState>(
+        builder: (context, state) {
+          // Convert DeviceEntity list to Device list for UI
+          final devices =
+              state is DeviceLoaded
+                  ? state.devices.map((entity) {
                     return Device(
                       id: entity.id,
                       deviceName: entity.deviceName ?? 'Unknown',
                       serialNumber: entity.serialNumber ?? 'N/A',
-                      model: entity.model ?? 'N/A',
-                      manufacturer: entity.manufacturer ?? 'N/A',
                       status: entity.status ?? 'offline',
                       lastSeen: entity.lastSeen ?? DateTime.now().toString(),
                       location: entity.location,
                       unit: entity.unit,
                       sector: entity.sector,
                       floor: entity.floor,
-                      ipAddress: entity.ipAddress,
-                      macAddress: entity.macAddress,
                       battery: entity.batteryLevel,
                     );
-                  }).toList();
-              _isLoading = false;
-              _errorMessage = null;
-            });
-          }
-          if (state is DeviceError) {
-            setState(() {
-              _errorMessage = state.message;
-              _isLoading = false;
-            });
-          }
-          if (state is DeviceLoading) {
-            setState(() {
-              _isLoading = true;
-              _errorMessage = null;
-            });
-          }
-        },
-        child: Scaffold(
-          backgroundColor: Colors.grey[50],
-          appBar: CustomAppBar(
-            title: 'Dispositivos Móveis',
-            authService: widget.authService,
-            showBackButton: false,
-            showMenuButton: true,
-            onMenuPressed: () {
-              setState(() => _isSidebarVisible = !_isSidebarVisible);
-            },
-            bottom: TabBar(
-              controller: _tabController,
-              labelColor: Colors.blue,
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: Colors.blue,
+                  }).toList()
+                  : <Device>[];
+
+          return Scaffold(
+            backgroundColor: Colors.grey[50],
+            appBar: CustomAppBar(
+              title: 'Dispositivos Móveis',
+              authService: widget.authService,
+              showBackButton: false,
+              showMenuButton: true,
+              onMenuPressed: () {
+                setState(() => _isSidebarVisible = !_isSidebarVisible);
+              },
               tabs: const [
                 Tab(icon: Icon(Icons.dashboard), text: 'Dashboard'),
                 Tab(icon: Icon(Icons.devices), text: 'Dispositivos'),
                 Tab(icon: Icon(Icons.build), text: 'Manutenção'),
                 Tab(icon: Icon(Icons.assessment), text: 'Relatórios'),
               ],
+              tabController: _tabController,
             ),
-          ),
-          body: Row(
-            children: [
-              if (_isSidebarVisible) _buildSidebar(),
-              Expanded(
-                child:
-                    _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : _errorMessage != null
-                        ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                size: 64,
-                                color: Colors.red[300],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                _errorMessage!,
-                                style: TextStyle(color: Colors.red[700]),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  context.read<DeviceBloc>().add(
-                                    const LoadDevices(),
-                                  );
-                                },
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Tentar Novamente'),
-                              ),
-                            ],
-                          ),
-                        )
-                        : TabBarView(
-                          controller: _tabController,
-                          children: [
-                            // Dashboard Tab
-                            BaseDashboardLayout(
-                              title: 'Dashboard',
-                              stats: _buildStats(),
-                              mainContent: DashboardTab(
-                                authService: widget.authService,
-                                devices: _devices,
-                                onDeviceTap: (device) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => DeviceDetailScreen(
-                                            device: device,
-                                            authService: widget.authService,
-                                          ),
-                                    ),
-                                  );
-                                },
-                              ),
-                              onRefresh: () async {
-                                context.read<DeviceBloc>().add(
-                                  const RefreshDevices(),
-                                );
-                              },
+            body: Row(
+              children: [
+                if (_isSidebarVisible) _buildSidebar(devices),
+                Expanded(
+                  child:
+                      state is DeviceLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : state is DeviceError
+                          ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 64,
+                                  color: Colors.red[300],
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  state.message,
+                                  style: TextStyle(color: Colors.red[700]),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    context.read<DeviceBloc>().add(
+                                      const LoadDevices(),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text('Tentar Novamente'),
+                                ),
+                              ],
                             ),
-
-                            // Devices Tab
-                            BaseDashboardLayout(
-                              title: 'Dispositivos',
-                              stats: _buildStats(),
-                              mainContent: DevicesTab(
-                                authService: widget.authService,
-                                devices: _devices,
-                                onDeviceTap: (device) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => DeviceDetailScreen(
-                                            device: device,
-                                            authService: widget.authService,
-                                          ),
-                                    ),
-                                  );
-                                },
+                          )
+                          : TabBarView(
+                            controller: _tabController,
+                            children: [
+                              // Dashboard Tab
+                              BaseDashboardLayout(
+                                title: 'Dashboard',
+                                stats: _buildStats(devices),
+                                mainContent: DashboardTab(
+                                  authService: widget.authService,
+                                  devices: devices,
+                                  onDeviceTap: (Device device) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute<void>(
+                                        builder:
+                                            (context) => DeviceDetailScreen(
+                                              device: device,
+                                              authService: widget.authService,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                ),
                                 onRefresh: () async {
                                   context.read<DeviceBloc>().add(
                                     const RefreshDevices(),
                                   );
                                 },
                               ),
-                              onRefresh: () async {
-                                context.read<DeviceBloc>().add(
-                                  const RefreshDevices(),
-                                );
-                              },
-                              showStats: false, // Stats já mostrados na tab
-                            ),
 
-                            // Maintenance Tab
-                            BaseDashboardLayout(
-                              title: 'Manutenção',
-                              stats: [],
-                              mainContent: MaintenanceTab(
-                                authService: widget.authService,
-                                devices: _devices,
+                              // Devices Tab
+                              BaseDashboardLayout(
+                                title: 'Dispositivos',
+                                stats: _buildStats(devices),
+                                mainContent: DevicesTab(
+                                  authService: widget.authService,
+                                  devices: devices,
+                                  onDeviceTap: (Device device) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute<void>(
+                                        builder:
+                                            (context) => DeviceDetailScreen(
+                                              device: device,
+                                              authService: widget.authService,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  onRefresh: () async {
+                                    context.read<DeviceBloc>().add(
+                                      const RefreshDevices(),
+                                    );
+                                  },
+                                ),
+                                onRefresh: () async {
+                                  context.read<DeviceBloc>().add(
+                                    const RefreshDevices(),
+                                  );
+                                },
+                                showStats: false, // Stats já mostrados na tab
                               ),
-                              onRefresh: () async {
-                                context.read<DeviceBloc>().add(
-                                  const RefreshDevices(),
-                                );
-                              },
-                              showStats: false,
-                            ),
 
-                            // Reports Tab
-                            BaseDashboardLayout(
-                              title: 'Relatórios',
-                              stats: [],
-                              mainContent: ReportsTab(
-                                authService: widget.authService,
-                                devices: _devices,
+                              // Maintenance Tab
+                              BaseDashboardLayout(
+                                title: 'Manutenção',
+                                stats: [],
+                                mainContent: MaintenanceTab(
+                                  authService: widget.authService,
+                                  devices: devices,
+                                ),
+                                onRefresh: () async {
+                                  context.read<DeviceBloc>().add(
+                                    const RefreshDevices(),
+                                  );
+                                },
+                                showStats: false,
                               ),
-                              onRefresh: () async {
-                                context.read<DeviceBloc>().add(
-                                  const RefreshDevices(),
-                                );
-                              },
-                              showStats: false,
-                            ),
-                          ],
-                        ),
-              ),
-            ],
-          ),
-        ),
+
+                              // Reports Tab
+                              BaseDashboardLayout(
+                                title: 'Relatórios',
+                                stats: [],
+                                mainContent: ReportsTab(
+                                  authService: widget.authService,
+                                  devices: devices,
+                                ),
+                                onRefresh: () async {
+                                  context.read<DeviceBloc>().add(
+                                    const RefreshDevices(),
+                                  );
+                                },
+                                showStats: false,
+                              ),
+                            ],
+                          ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildSidebar() {
+  Widget _buildSidebar(List<Device> devices) {
     final menuItems = [
       const SidebarMenuItem(
         icon: Icons.dashboard,
@@ -414,7 +332,7 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
           _tabController.animateTo(index);
         }
       },
-      footerText: '${_devices.length} dispositivos',
+      footerText: '${devices.length} dispositivos',
     );
   }
 }

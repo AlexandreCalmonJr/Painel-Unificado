@@ -45,3 +45,11 @@ class NotFoundFailure extends Failure {
 class PermissionFailure extends Failure {
   const PermissionFailure({required super.message, super.code});
 }
+
+/// Failure for unauthorized access errors
+class UnauthorizedFailure extends Failure {
+  const UnauthorizedFailure({
+    super.message = 'Unauthorized access',
+    super.code = 401,
+  });
+}
