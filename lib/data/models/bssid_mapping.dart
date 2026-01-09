@@ -15,10 +15,10 @@ class BssidMapping {
   /// Cria BssidMapping a partir de JSON
   factory BssidMapping.fromJson(Map<String, dynamic> json) {
     return BssidMapping(
-      macAddressRadio: json['mac_address_radio'] ?? '',
-      sector: json['sector'] ?? '',
-      floor: json['floor'] ?? '',
-      unitName: json['unitName'] ?? '', // NOVO CAMPO
+      macAddressRadio: (json['mac_address_radio'] ?? '') as String,
+      sector: (json['sector'] ?? '') as String,
+      floor: (json['floor'] ?? '') as String,
+      unitName: (json['unitName'] ?? '') as String, // NOVO CAMPO
     );
   }
 

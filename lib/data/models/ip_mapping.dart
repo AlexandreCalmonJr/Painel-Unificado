@@ -15,13 +15,16 @@ class IpMapping {
 
   factory IpMapping.fromJson(Map<String, dynamic> json) {
     return IpMapping(
-      id: json['_id'] ?? '',
-      location: json['location'] ?? 'N/A',
-      ipStart: json['ipStart'] ?? 'N/A',
-      ipEnd: json['ipEnd'] ?? 'N/A',
+      id: (json['_id'] ?? '') as String,
+      location: (json['location'] ?? 'N/A') as String,
+      ipStart: (json['ipStart'] ?? 'N/A') as String,
+      ipEnd: (json['ipEnd'] ?? 'N/A') as String,
     );
   }
 }
 
-List<IpMapping> ipMappingFromJson(String str) =>
-    List<IpMapping>.from(json.decode(str).map((x) => IpMapping.fromJson(x)));
+List<IpMapping> ipMappingFromJson(String str) => List<IpMapping>.from(
+  (json.decode(str) as List).map(
+    (x) => IpMapping.fromJson(Map<String, dynamic>.from(x as Map)),
+  ),
+);

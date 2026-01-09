@@ -147,7 +147,7 @@ class Desktop extends ManagedAsset {
       assignedTo: json['assigned_to'] as String?,
       customData:
           json['custom_data'] != null
-              ? Map<String, dynamic>.from(json['custom_data'])
+              ? Map<String, dynamic>.from(json['custom_data'] as Map)
               : {},
 
       // ✅ CAMPOS CORRIGIDOS

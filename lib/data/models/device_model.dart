@@ -1,4 +1,4 @@
-﻿import 'package:painel_windowns/devices/utils/helpers.dart';
+﻿import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/domain/entities/device_entity.dart';
 
@@ -105,7 +105,7 @@ class Device {
               ? null
               : json['device_name']?.toString(),
       deviceModel: json['device_model']?.toString(),
-      battery: json['battery'] is num ? json['battery'] : null,
+      battery: json['battery'] is num ? json['battery'] as num : null,
       ipAddress:
           json['ip_address']?.toString() == 'N/A'
               ? null
@@ -129,10 +129,7 @@ class Device {
       sector: json['sector']?.toString(),
       floor: json['floor']?.toString(),
       location: json['location']?.toString(),
-      maintenanceStatus:
-          json['maintenance_status'] is bool
-              ? json['maintenance_status']
-              : false,
+      maintenanceStatus: (json['maintenance_status'] ?? false) as bool,
       maintenanceTicket: json["maintenance_ticket"]?.toString(),
       maintenanceReason: json["maintenance_reason"]?.toString(),
       maintenanceHistory:
@@ -154,8 +151,8 @@ class Device {
           json['security_policies'] is Map
               ? json['security_policies'] as Map<String, dynamic>
               : null,
-      status: json['status'] ?? 'offline',
-      isOnline: json['is_online'] is bool ? json['is_online'] : null,
+      status: (json['status'] ?? 'offline') as String,
+      isOnline: json['is_online'] is bool ? json['is_online'] as bool : null,
     ); // ✅ NOVO: Status em tempo real
   }
 

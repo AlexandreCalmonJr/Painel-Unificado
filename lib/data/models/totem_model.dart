@@ -101,7 +101,7 @@ class Totem extends ManagedAsset {
       macAddress: macAddress,
       macAddressRadio: macAddressRadio,
       installedPrograms: List<String>.from(
-        (json['installedPrograms'] ?? []) as List,
+        (json['installedPrograms'] ?? <dynamic>[]) as List,
       ),
       printerStatus: (json['printerStatus'] ?? 'N/A') as String,
       biometricReaderStatus: (json['biometricReaderStatus'] ?? 'N/A') as String,

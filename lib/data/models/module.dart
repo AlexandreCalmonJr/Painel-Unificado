@@ -11,7 +11,7 @@ class Module {
   final bool isActive;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  final List<Map<String, String>> tableColumns;
+  final List<Map<String, dynamic>> tableColumns;
 
   Module({
     required this.id,
@@ -83,7 +83,7 @@ class Module {
     bool? isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
-    List<Map<String, String>>? tableColumns,
+    List<Map<String, dynamic>>? tableColumns,
   }) {
     return Module(
       id: id ?? this.id,

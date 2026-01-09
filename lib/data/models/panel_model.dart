@@ -117,7 +117,7 @@ class Panel extends ManagedAsset {
       assignedTo: json['assigned_to'] as String?,
       customData:
           json['custom_data'] != null
-              ? Map<String, dynamic>.from(json['custom_data'])
+              ? Map<String, dynamic>.from(json['custom_data'] as Map)
               : {},
 
       unit: unit,
@@ -244,7 +244,7 @@ class Panel extends ManagedAsset {
       ipAddress: entity.ipAddress ?? 'N/A',
       macAddress: entity.macAddress ?? 'N/A',
       firmwareVersion: 'N/A',
-      isOnline: entity.isOnline,
+      isOnline: entity.isOnline ?? false,
     );
   }
 }
