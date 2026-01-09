@@ -4,19 +4,23 @@ import 'package:painel_windowns/core/error/failures.dart';
 import 'package:painel_windowns/core/network/network_info.dart';
 import 'package:painel_windowns/data/datasources/local/totem_local_datasource.dart';
 import 'package:painel_windowns/data/datasources/remote/totem_remote_datasource.dart';
+import 'package:painel_windowns/data/models/totem_model.dart';
 import 'package:painel_windowns/domain/entities/totem_entity.dart';
 import 'package:painel_windowns/domain/repositories/i_totem_repository.dart';
+import 'package:painel_windowns/services/status_service.dart';
 
 /// Implementação do repositório de totems
 class TotemRepositoryImpl implements ITotemRepository {
   final TotemRemoteDataSource remoteDataSource;
   final TotemLocalDataSource localDataSource;
   final NetworkInfo networkInfo;
+  final StatusService statusService;
 
   TotemRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.networkInfo,
+    required this.statusService,
   });
 
   @override
@@ -24,20 +28,24 @@ class TotemRepositoryImpl implements ITotemRepository {
     if (await networkInfo.isConnected) {
       try {
         final totems = await remoteDataSource.getTotems(token);
-        await localDataSource.cacheTotems(totems);
 
-        // TODO: Add toEntity() to Totem model
+        // Valida status usando StatusService
+        final validatedTotems =
+            totems.map((totem) {
+              final totemId = totem.id ?? '';
+              final validatedStatus = statusService.calculateStatus(
+                totemId,
+                totem.lastSeen.toIso8601String(),
+                totem.status,
+              );
+              return totem.copyWith(status: validatedStatus);
+            }).toList();
+
+        await localDataSource.cacheTotems(validatedTotems);
+
+        // Usar toEntity() do Totem model
         final entities =
-            totems
-                .map(
-                  (totem) => TotemEntity(
-                    id: totem.id ?? '',
-                    name: totem.name,
-                    status: totem.status,
-                    location: totem.location,
-                  ),
-                )
-                .toList();
+            validatedTotems.map((totem) => totem.toEntity()).toList();
 
         return Right(entities);
       } on ServerException catch (e) {
@@ -50,17 +58,8 @@ class TotemRepositoryImpl implements ITotemRepository {
     } else {
       try {
         final cachedTotems = await localDataSource.getCachedTotems();
-        final entities =
-            cachedTotems
-                .map(
-                  (totem) => TotemEntity(
-                    id: totem.id ?? '',
-                    name: totem.name,
-                    status: totem.status,
-                    location: totem.location,
-                  ),
-                )
-                .toList();
+        // Usar toEntity() do Totem model
+        final entities = cachedTotems.map((totem) => totem.toEntity()).toList();
         return Right(entities);
       } on CacheException catch (e) {
         return Left(CacheFailure(message: e.message));
@@ -78,14 +77,7 @@ class TotemRepositoryImpl implements ITotemRepository {
     if (await networkInfo.isConnected) {
       try {
         final totem = await remoteDataSource.getTotemById(token, totemId);
-        return Right(
-          TotemEntity(
-            id: totem.id ?? '',
-            name: totem.name,
-            status: totem.status,
-            location: totem.location,
-          ),
-        );
+        return Right(totem.toEntity());
       } on NotFoundException catch (e) {
         return Left(NotFoundFailure(message: e.message));
       } on UnauthorizedException {
@@ -134,13 +126,8 @@ class TotemRepositoryImpl implements ITotemRepository {
     }
 
     try {
-      // TODO: Add fromEntity() to Totem model
-      final totemModel = Totem(
-        id: totem.id,
-        name: totem.name,
-        status: totem.status ?? '',
-        location: totem.location,
-      );
+      // Usar fromEntity() do Totem model
+      final totemModel = Totem.fromEntity(totem);
 
       await remoteDataSource.updateTotem(token, totemModel);
       await localDataSource.clearCache();

@@ -6,6 +6,7 @@ import 'package:painel_windowns/data/datasources/local/device_local_datasource.d
 import 'package:painel_windowns/data/datasources/remote/device_remote_datasource.dart';
 import 'package:painel_windowns/domain/entities/device_entity.dart';
 import 'package:painel_windowns/domain/repositories/i_device_repository.dart';
+import 'package:painel_windowns/services/status_service.dart';
 
 /// Implementação do repositório de dispositivos
 ///
@@ -15,11 +16,13 @@ class DeviceRepositoryImpl implements IDeviceRepository {
   final DeviceRemoteDataSource remoteDataSource;
   final DeviceLocalDataSource localDataSource;
   final NetworkInfo networkInfo;
+  final StatusService statusService;
 
   DeviceRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.networkInfo,
+    required this.statusService,
   });
 
   @override
@@ -30,11 +33,24 @@ class DeviceRepositoryImpl implements IDeviceRepository {
         // Busca da API
         final devices = await remoteDataSource.getDevices(token);
 
+        // Valida status usando StatusService
+        final validatedDevices =
+            devices.map((device) {
+              final deviceId = device.id ?? device.deviceId ?? '';
+              final validatedStatus = statusService.calculateStatus(
+                deviceId,
+                device.lastSeen,
+                device.status,
+              );
+              return device.copyWith(status: validatedStatus);
+            }).toList();
+
         // Salva no cache
-        await localDataSource.cacheDevices(devices);
+        await localDataSource.cacheDevices(validatedDevices);
 
         // Converte para entities
-        final entities = devices.map((device) => device.toEntity()).toList();
+        final entities =
+            validatedDevices.map((device) => device.toEntity()).toList();
 
         return Right(entities);
       } on ServerException catch (e) {

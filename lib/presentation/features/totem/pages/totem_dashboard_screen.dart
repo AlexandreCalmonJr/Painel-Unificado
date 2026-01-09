@@ -1,17 +1,15 @@
-﻿import 'dart:async';
-
-import 'package:elegant_notification/elegant_notification.dart';
-// ignore: depend_on_referenced_packages
-import 'package:elegant_notification/resources/arrays.dart';
-import 'package:flutter/material.dart';
-import 'package:painel_windowns/devices/widgets/stat_card.dart';
-import 'package:painel_windowns/data/models/totem.dart';
-import 'package:painel_windowns/screen/login_screen.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:painel_windowns/core/di/injection.dart';
+import 'package:painel_windowns/data/models/totem_model.dart';
+import 'package:painel_windowns/presentation/bloc/totem/totem_bloc.dart';
+import 'package:painel_windowns/presentation/bloc/totem/totem_event.dart';
+import 'package:painel_windowns/presentation/bloc/totem/totem_state.dart';
+import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
+import 'package:painel_windowns/presentation/features/totem/widgets/totems_list_tab.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
+import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/totem_service.dart';
-import 'package:painel_windowns/totem/tabs/totems_list_tab.dart';
-import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
-import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
 
 class TotemDashboardScreen extends StatefulWidget {
   final AuthService authService;
@@ -25,86 +23,28 @@ class TotemDashboardScreen extends StatefulWidget {
 class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
   int selectedIndex = 0;
   bool _isSidebarVisible = true;
-  List<Totem> _previousTotems = [];
 
-  List<Totem> _allFetchedTotems = [];
-  List<Totem> _displayedTotems = [];
+  // Pagination and search state
   int _currentPage = 1;
   int _totalPages = 1;
   String _searchQuery = '';
   final int _itemsPerPage = 15;
 
-  bool isLoading = false;
-  String? errorMessage;
-
-  // 2. VARIÁVEIS DECLARADAS CORRETAMENTE
-  late TotemService _totemService;
-  Timer? _refreshTimer;
-
   @override
   void initState() {
     super.initState();
-    // 3. INICIALIZADO O SERVIÇO CORRETO
-    _totemService = TotemService();
-    _initializeData();
-  }
-
-  Future<void> _initializeData() async {
-    // Carrega os totens na inicialização
-    await _loadTotems(isInitialLoad: true);
-
-    // Inicia o timer para atualização automática
-    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
-      if (mounted) _loadTotems();
-    });
   }
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
     super.dispose();
-  }
-
-  Future<void> _loadTotems({bool isInitialLoad = false}) async {
-    setState(() => isLoading = true);
-
-    try {
-      final token = widget.authService.currentToken ?? '';
-
-      if (token.isEmpty) {
-        throw Exception('Token não encontrado');
-      }
-
-      final fetchedTotems = await _totemService.fetchTotems(token);
-
-      if (mounted) {
-        if (!isInitialLoad) {
-          _checkForAlerts(_previousTotems, fetchedTotems);
-        }
-        _previousTotems = fetchedTotems;
-        _allFetchedTotems = fetchedTotems;
-        _updateDisplayedTotems();
-        setState(() => isLoading = false);
-      }
-    } catch (e) {
-      debugPrint('❌ Erro ao carregar totems: $e');
-      if (mounted) {
-        setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _logout() async {
     await widget.authService.logout();
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
+        MaterialPageRoute<void>(
           builder: (context) => LoginScreen(authService: widget.authService),
         ),
         (Route<dynamic> route) => false,
@@ -112,12 +52,12 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     }
   }
 
-  void _updateDisplayedTotems() {
-    List<Totem> filteredList = List.from(_allFetchedTotems);
+  List<Totem> _updateDisplayedTotems(List<Totem> allTotems) {
+    List<Totem> filteredList = List.from(allTotems);
 
     if (_searchQuery.isNotEmpty) {
       filteredList =
-          _allFetchedTotems.where((totem) {
+          allTotems.where((totem) {
             final query = _searchQuery.toLowerCase();
             return (totem.hostname.toLowerCase().contains(query)) ||
                 (totem.serialNumber.toLowerCase().contains(query)) ||
@@ -137,115 +77,67 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
             ? filteredList.length
             : startIndex + _itemsPerPage;
 
-    setState(() {
-      _displayedTotems = filteredList.sublist(startIndex, endIndex);
-    });
-  }
-
-  void _changePage(int direction) {
-    final newPage = _currentPage + direction;
-    if (newPage > 0 && newPage <= _totalPages) {
-      setState(() {
-        _currentPage = newPage;
-        _updateDisplayedTotems();
-      });
-    }
-  }
-
-  void _performSearch(String query) {
-    setState(() {
-      _searchQuery = query;
-      _currentPage = 1;
-      _updateDisplayedTotems();
-    });
-  }
-
-  void _checkForAlerts(List<Totem> oldTotems, List<Totem> newTotems) {
-    if (oldTotems.isEmpty) return;
-    final oldTotemsMap = {for (var t in oldTotems) t.serialNumber: t};
-
-    for (final newTotem in newTotems) {
-      final oldTotem = oldTotemsMap[newTotem.serialNumber];
-      if (oldTotem == null) continue;
-
-      final oldStatus = oldTotem.status.toLowerCase();
-      final newStatus = newTotem.status.toLowerCase();
-
-      if (oldStatus != newStatus) {
-        _showRealTimeAlert(
-          title: 'Mudança de Status: ${newTotem.hostname}',
-          description: Text(
-            'O totem em "${newTotem.location}" ficou ${newStatus == 'online' ? 'Online' : (newStatus == 'offline' ? 'Offline' : newStatus)}.',
-          ),
-          icon:
-              newStatus == 'online'
-                  ? Icons.wifi
-                  : (newStatus == 'offline'
-                      ? Icons.wifi_off
-                      : Icons.warning_amber),
-          color:
-              newStatus == 'online'
-                  ? Colors.blueAccent
-                  : (newStatus == 'offline' ? Colors.redAccent : Colors.orange),
-        );
-      }
-    }
-  }
-
-  void _showRealTimeAlert({
-    required String title,
-    required Widget description,
-    required IconData icon,
-    required Color color,
-  }) {
-    if (!mounted) return;
-    ElegantNotification(
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      description: description,
-      icon: Icon(icon, color: color),
-      progressIndicatorColor: color,
-      animation: AnimationType.fromTop,
-      displayCloseButton: true,
-      toastDuration: const Duration(seconds: 8),
-      position: Alignment.topCenter,
-    ).show(context);
+    return filteredList.sublist(startIndex, endIndex);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.purple.shade50, Colors.blue.shade50],
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Row(
-          children: [
-            if (_isSidebarVisible) _buildSidebar(),
-            Expanded(
-              child: Column(
+    return BlocProvider(
+      create: (_) => getIt<TotemBloc>()..add(const LoadTotems()),
+      child: BlocBuilder<TotemBloc, TotemState>(
+        builder: (context, state) {
+          // Converter TotemEntity para Totem (model)
+          final allTotems =
+              state is TotemLoaded
+                  ? state.totems
+                      .map((entity) => Totem.fromEntity(entity))
+                      .toList()
+                  : <Totem>[];
+
+          // Aplicar paginação e busca
+          final displayedTotems = _updateDisplayedTotems(allTotems);
+
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.purple.shade50, Colors.blue.shade50],
+              ),
+            ),
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Row(
                 children: [
-                  _buildAppBar(),
+                  if (_isSidebarVisible) _buildSidebar(allTotems),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: _buildTabContent(),
+                    child: Column(
+                      children: [
+                        _buildAppBar(state, context),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: _buildTabContent(
+                              displayedTotems,
+                              allTotems,
+                              state,
+                              context,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildSidebar() {
+  Widget _buildSidebar(List<Totem> allTotems) {
     final menuItems = [
       const SidebarMenuItem(
         icon: Icons.dashboard,
@@ -281,11 +173,11 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         }
       },
       isAdmin: false,
-      footerText: 'Desenvolvido por Alexandre Calmon',
+      footerText: '${allTotems.length} totens',
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(TotemState state, BuildContext context) {
     final currentUser = widget.authService.currentUser;
     final username = currentUser?['username'] ?? 'Usuário';
     final role = currentUser?['role'] ?? 'user';
@@ -389,25 +281,26 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                   ),
                 ),
                 const SizedBox(width: 15),
-                if (isLoading)
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color:
+                        state is TotemLoading
+                            ? Colors.blue.withOpacity(0.1)
+                            : Colors.transparent,
+                    shape: BoxShape.circle,
                   ),
+                  child:
+                      state is TotemLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const SizedBox.shrink(),
+                ),
                 const SizedBox(width: 15),
 
-                // 6. BOTÃO DE ATUALIZAR MAPEAMENTO AJUSTADO
-                // Este botão agora simplesmente força uma recarga.
-                // A lógica de cache era do serviço antigo e não se aplica
-                // ao mapeamento de IP dos totens (que é feito no backend).
                 IconButton(
                   icon: Container(
                     padding: const EdgeInsets.all(8),
@@ -418,8 +311,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                     child: Icon(Icons.location_on, color: Colors.purple[700]),
                   ),
                   onPressed: () {
-                    // _monitoringService.invalidateMappingsCache(); // REMOVIDO
-                    _loadTotems(isInitialLoad: true);
+                    context.read<TotemBloc>().add(const LoadTotems());
                   },
                   tooltip: 'Forçar Atualização de Localizações (Recarregar)',
                 ),
@@ -432,7 +324,9 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                     ),
                     child: Icon(Icons.refresh, color: Colors.green[700]),
                   ),
-                  onPressed: () => _loadTotems(isInitialLoad: true),
+                  onPressed: () {
+                    context.read<TotemBloc>().add(const RefreshTotems());
+                  },
                   tooltip: 'Atualizar Agora',
                 ),
                 const SizedBox(width: 10),
@@ -511,42 +405,55 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     );
   }
 
-  Widget _buildTabContent() {
+  Widget _buildTabContent(
+    List<Totem> displayedTotems,
+    List<Totem> allTotems,
+    TotemState state,
+    BuildContext context,
+  ) {
     switch (selectedIndex) {
       case 0:
-        return _buildDashboardWithTable();
+        return _buildDashboardWithTable(allTotems);
       case 1:
         return TotemsListTab(
-          totems: _displayedTotems,
-          isLoading: isLoading,
+          totems: displayedTotems,
+          isLoading: state is TotemLoading,
           currentPage: _currentPage,
           totalPages: _totalPages,
-          onPageChange: _changePage,
-          onSearch: _performSearch,
-          onRefresh: () => _loadTotems(isInitialLoad: true),
+          onPageChange: (direction) {
+            setState(() {
+              final newPage = _currentPage + direction;
+              if (newPage > 0 && newPage <= _totalPages) {
+                _currentPage = newPage;
+              }
+            });
+          },
+          onSearch: (query) {
+            setState(() {
+              _searchQuery = query;
+              _currentPage = 1;
+            });
+          },
+          onRefresh: () => context.read<TotemBloc>().add(const RefreshTotems()),
           authService: widget.authService,
         );
       default:
-        return _buildDashboardWithTable();
+        return _buildDashboardWithTable(allTotems);
     }
   }
 
-  Widget _buildDashboardWithTable() {
-    int onlineCount =
-        _allFetchedTotems
-            .where((t) => t.status.toLowerCase() == 'online')
-            .length;
-    int offlineCount =
-        _allFetchedTotems
-            .where((t) => t.status.toLowerCase() == 'offline')
-            .length;
-    int errorCount =
-        _allFetchedTotems
-            .where((t) => t.status.toLowerCase() == 'com erro')
-            .length;
+  Widget _buildDashboardWithTable(List<Totem> allTotems) {
+    final onlineCount =
+        allTotems.where((t) => t.status.toLowerCase() == 'online').length;
+    final offlineCount =
+        allTotems.where((t) => t.status.toLowerCase() == 'offline').length;
+    final errorCount =
+        allTotems.where((t) => t.status.toLowerCase() == 'com erro').length;
 
     return RefreshIndicator(
-      onRefresh: () => _loadTotems(isInitialLoad: true),
+      onRefresh: () async {
+        context.read<TotemBloc>().add(const RefreshTotems());
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -564,7 +471,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
               Expanded(
                 child: StatCard(
                   title: 'Total de Totens',
-                  value: _allFetchedTotems.length.toString(),
+                  value: allTotems.length.toString(),
                   icon: Icons.desktop_windows,
                   color: Colors.blue,
                 ),
@@ -601,10 +508,11 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
           const SizedBox(height: 24),
           Expanded(
             child: ManagedTotemsCard(
-              title: 'Totens Gerenciados (${_allFetchedTotems.length})',
-              totems: _allFetchedTotems,
+              title: 'Totens Gerenciados (${allTotems.length})',
+              totems: allTotems,
               authService: widget.authService,
-              onTotemUpdate: () => _loadTotems(isInitialLoad: true),
+              onTotemUpdate:
+                  () => context.read<TotemBloc>().add(const RefreshTotems()),
             ),
           ),
         ],

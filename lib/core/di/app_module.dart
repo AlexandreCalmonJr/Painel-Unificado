@@ -8,6 +8,14 @@ import 'package:painel_windowns/data/repositories/totem_repository_impl.dart';
 import 'package:painel_windowns/domain/repositories/i_device_repository.dart';
 import 'package:painel_windowns/domain/repositories/i_totem_repository.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/status_service.dart';
+import 'package:painel_windowns/data/datasources/local/totem_local_datasource.dart';
+import 'package:painel_windowns/domain/repositories/i_auth_repository.dart';
+import 'package:painel_windowns/data/repositories/auth_repository_impl.dart';
+import 'package:painel_windowns/data/datasources/remote/auth_remote_datasource.dart';
+import 'package:painel_windowns/data/datasources/local/auth_local_datasource.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Injectable module for registering dependencies that cannot use
 /// constructor injection or need special initialization.
@@ -21,17 +29,67 @@ abstract class AppModule {
   @lazySingleton
   NetworkInfo get networkInfo => NetworkInfoImpl();
 
+  /// Provides http.Client
+  @lazySingleton
+  http.Client get httpClient => http.Client();
+
+  /// Provides SharedPreferences (async)
+  @preResolve
+  Future<SharedPreferences> get sharedPreferences =>
+      SharedPreferences.getInstance();
+
+  /// Provides StatusService
+  @lazySingleton
+  StatusService get statusService => StatusService();
+
   /// Provides DeviceRemoteDataSource
   @lazySingleton
-  DeviceRemoteDataSource get deviceRemoteDataSource => DeviceRemoteDataSource();
+  DeviceRemoteDataSource deviceRemoteDataSource(http.Client client) =>
+      DeviceRemoteDataSourceImpl(
+        client: client,
+        baseUrl: 'http://localhost:3000/api', // TODO: Move to config
+      );
 
   /// Provides DeviceLocalDataSource
   @lazySingleton
-  DeviceLocalDataSource get deviceLocalDataSource => DeviceLocalDataSource();
+  DeviceLocalDataSource deviceLocalDataSource(SharedPreferences prefs) =>
+      DeviceLocalDataSourceImpl(sharedPreferences: prefs);
 
   /// Provides TotemRemoteDataSource
   @lazySingleton
-  TotemRemoteDataSource get totemRemoteDataSource => TotemRemoteDataSource();
+  TotemRemoteDataSource totemRemoteDataSource(http.Client client) =>
+      TotemRemoteDataSourceImpl(
+        client: client,
+        baseUrl: 'http://localhost:3000/api', // TODO: Move to config
+      );
+
+  /// Provides TotemLocalDataSource
+  @lazySingleton
+  TotemLocalDataSource totemLocalDataSource(SharedPreferences prefs) =>
+      TotemLocalDataSourceImpl(sharedPreferences: prefs);
+
+  /// Provides AuthRemoteDataSource
+  @lazySingleton
+  AuthRemoteDataSource authRemoteDataSource(http.Client client) =>
+      AuthRemoteDataSourceImpl(
+        client: client,
+        baseUrl: 'http://localhost:3000/api', // TODO: Move to config
+      );
+
+  /// Provides AuthLocalDataSource
+  @lazySingleton
+  AuthLocalDataSource authLocalDataSource(SharedPreferences prefs) =>
+      AuthLocalDataSourceImpl(sharedPreferences: prefs);
+
+  /// Provides IAuthRepository implementation
+  @lazySingleton
+  IAuthRepository authRepository(
+    AuthRemoteDataSource remoteDataSource,
+    AuthLocalDataSource localDataSource,
+  ) => AuthRepositoryImpl(
+    remoteDataSource: remoteDataSource,
+    localDataSource: localDataSource,
+  );
 
   /// Provides IDeviceRepository implementation
   @lazySingleton
@@ -39,19 +97,25 @@ abstract class AppModule {
     DeviceRemoteDataSource remoteDataSource,
     DeviceLocalDataSource localDataSource,
     NetworkInfo networkInfo,
+    StatusService statusService,
   ) => DeviceRepositoryImpl(
     remoteDataSource: remoteDataSource,
     localDataSource: localDataSource,
     networkInfo: networkInfo,
+    statusService: statusService,
   );
 
   /// Provides ITotemRepository implementation
   @lazySingleton
   ITotemRepository totemRepository(
     TotemRemoteDataSource remoteDataSource,
+    TotemLocalDataSource localDataSource,
     NetworkInfo networkInfo,
+    StatusService statusService,
   ) => TotemRepositoryImpl(
     remoteDataSource: remoteDataSource,
+    localDataSource: localDataSource,
     networkInfo: networkInfo,
+    statusService: statusService,
   );
 }

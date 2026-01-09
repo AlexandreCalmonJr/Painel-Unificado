@@ -4,6 +4,7 @@ import 'package:painel_windowns/core/error/failures.dart';
 import 'package:painel_windowns/domain/entities/totem_entity.dart';
 import 'package:painel_windowns/domain/repositories/i_totem_repository.dart';
 import 'package:painel_windowns/domain/usecases/usecase.dart';
+import 'package:painel_windowns/services/token_service.dart';
 
 /// Use case for retrieving all totems.
 ///
@@ -12,12 +13,18 @@ import 'package:painel_windowns/domain/usecases/usecase.dart';
 @lazySingleton
 class GetTotemsUseCase implements UseCase<List<TotemEntity>, NoParams> {
   final ITotemRepository repository;
+  final TokenService tokenService;
 
-  GetTotemsUseCase(this.repository);
+  GetTotemsUseCase(this.repository, this.tokenService);
 
   @override
   Future<Either<Failure, List<TotemEntity>>> call(NoParams params) async {
-    // TODO: Get token from auth service
-    return await repository.getTotems('');
+    final token = tokenService.getToken();
+
+    if (token == null) {
+      return Left(UnauthorizedFailure());
+    }
+
+    return await repository.getTotems(token);
   }
 }

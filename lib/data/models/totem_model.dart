@@ -218,4 +218,62 @@ class Totem extends ManagedAsset {
       bematechStatus: 'Não detectado',
     );
   }
+
+  /// Cria uma cópia do Totem com campos atualizados
+  Totem copyWith({
+    String? id,
+    String? serialNumber,
+    String? status,
+    DateTime? lastSeen,
+    String? location,
+    String? assignedTo,
+    Map<String, dynamic>? customData,
+    String? unit,
+    String? sector,
+    String? floor,
+    String? hostname,
+    String? model,
+    String? serviceTag,
+    String? ip,
+    String? macAddress,
+    String? macAddressRadio,
+    List<String>? installedPrograms,
+    String? printerStatus,
+    String? biometricReaderStatus,
+    String? totemType,
+    String? ram,
+    String? hdType,
+    String? hdStorage,
+    String? zebraStatus,
+    String? bematechStatus,
+  }) {
+    return Totem(
+      id: id ?? this.id,
+      serialNumber: serialNumber ?? this.serialNumber,
+      status: status ?? this.status,
+      lastSeen: lastSeen ?? this.lastSeen,
+      location: location ?? this.location,
+      assignedTo: assignedTo ?? this.assignedTo,
+      customData: customData ?? this.customData,
+      unit: unit ?? this.unit,
+      sector: sector ?? this.sector,
+      floor: floor ?? this.floor,
+      hostname: hostname ?? this.hostname,
+      model: model ?? this.model,
+      serviceTag: serviceTag ?? this.serviceTag,
+      ip: ip ?? this.ip,
+      macAddress: macAddress ?? this.macAddress,
+      macAddressRadio: macAddressRadio ?? this.macAddressRadio,
+      installedPrograms: installedPrograms ?? this.installedPrograms,
+      printerStatus: printerStatus ?? this.printerStatus,
+      biometricReaderStatus:
+          biometricReaderStatus ?? this.biometricReaderStatus,
+      totemType: totemType ?? this.totemType,
+      ram: ram ?? this.ram,
+      hdType: hdType ?? this.hdType,
+      hdStorage: hdStorage ?? this.hdStorage,
+      zebraStatus: zebraStatus ?? this.zebraStatus,
+      bematechStatus: bematechStatus ?? this.bematechStatus,
+    );
+  }
 }
