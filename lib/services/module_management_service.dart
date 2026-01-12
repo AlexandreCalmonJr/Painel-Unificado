@@ -67,11 +67,13 @@ class ModuleManagementService {
         if (attempts == 3) {
           throw Exception('$errorMessage: Tempo esgotado (30s)');
         }
+        // ignore: inference_failure_on_instance_creation
         await Future.delayed(const Duration(seconds: 2));
       } on SocketException {
         if (attempts == 3) {
           throw Exception('$errorMessage: Sem conexão com servidor');
         }
+        // ignore: inference_failure_on_instance_creation
         await Future.delayed(const Duration(seconds: 2));
       } catch (e) {
         if (e is Exception) rethrow;

@@ -32,5 +32,6 @@ class ServerConfigService {
     return {'ip': ip, 'port': port};
   }
 
+  // ignore: strict_raw_type
   static Future getBaseUrl() async {}
 }

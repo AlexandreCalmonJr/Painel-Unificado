@@ -1,15 +1,12 @@
-﻿// ========================================
-// File: lib/models/desktop.dart (CORRIGIDO)
-// ========================================
+﻿// File: lib/models/desktop.dart
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
+import 'package:painel_windowns/domain/entities/module_entity.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/services/logger_service.dart';
-import 'package:painel_windowns/domain/entities/module_entity.dart';
 
-class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
-
+class Desktop extends ManagedAsset {
   Desktop({
     required super.id,
     required super.assetName,
@@ -22,6 +19,9 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
     super.unit,
     super.sector,
     super.floor,
+    super.updatedAt,
+    super.currentUser,
+    super.uptime,
     required this.hostname,
     required this.model,
     required this.manufacturer,
@@ -33,23 +33,19 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
     required this.osVersion,
     required this.ipAddress,
     required this.macAddress,
-    this.macAddressRadio, // ✅ NOVO
-    this.wifiSsid, // ✅ NOVO
-    required this.connectionType, // ✅ NOVO
-    this.biometricReader,
+    required this.connectionType,
+    this.macAddressRadio,
+    this.wifiSsid,
+    this.biometricReaderStatus,
     this.connectedPrinter,
     this.installedSoftware = const [],
-    this.installedPrograms = const [],
     this.javaVersion,
     this.browserVersion,
     this.antivirusStatus = false,
     this.antivirusVersion,
     this.lastUpdateCheck,
     this.hardwareInfo,
-    this.isEncrypted = false, // ✅ NOVO
-    this.currentUser,
-    this.uptime,
-    this.updatedAt,
+    this.isEncrypted = false,
   }) : super(assetType: 'desktop');
 
   factory Desktop.fromJson(
@@ -62,7 +58,7 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
     String? floor = json['floor'] as String?;
     String? location = json['location'] as String?;
 
-    // ✅ CORRIGIDO: Priorizar mac_address_radio (BSSID) para mapeamento
+    // Priorizar mac_address_radio (BSSID) para mapeamento
     final macAddressRadio = (json['mac_address_radio'] ?? 'N/A') as String;
 
     final bool shouldMap =
@@ -80,7 +76,7 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
         units: units,
         bssidMappings: bssidMappings ?? [],
         ip: (json['ip_address'] ?? 'N/A') as String,
-        macAddress: macAddressRadio, // ✅ Usar BSSID em vez de MAC
+        macAddress: macAddressRadio,
         originalLocation: location ?? 'N/D',
       );
 
@@ -113,7 +109,6 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
               ? Map<String, dynamic>.from(json['custom_data'] as Map)
               : {},
 
-      // ✅ CAMPOS CORRIGIDOS
       updatedAt:
           json['updated_at'] != null
               ? DateTime.parse(json['updated_at'] as String)
@@ -139,23 +134,19 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
 
       ipAddress: (json['ip_address'] ?? 'N/A') as String,
       macAddress: (json['mac_address'] ?? 'N/A') as String,
-      macAddressRadio:
-          macAddressRadio == 'N/A' ? null : macAddressRadio, // ✅ NOVO
-      wifiSsid: json['wifi_ssid'] as String?, // ✅ NOVO
-      connectionType:
-          (json['connection_type'] ?? 'Desconhecido') as String, // ✅ NOVO
+      macAddressRadio: macAddressRadio == 'N/A' ? null : macAddressRadio,
+      wifiSsid: json['wifi_ssid'] as String?,
+      connectionType: (json['connection_type'] ?? 'Desconhecido') as String,
 
-      biometricReader: json['biometric_reader'] as String?,
+      biometricReaderStatus: json['biometric_reader'] as String?,
       connectedPrinter: json['connected_printer'] as String?,
 
       installedSoftware:
           json['installed_software'] != null
               ? List<String>.from(json['installed_software'] as List)
-              : [],
-      installedPrograms:
-          json['installed_programs'] != null
-              ? List<String>.from(json['installed_programs'] as List)
-              : [],
+              : (json['installed_programs'] != null
+                  ? List<String>.from(json['installed_programs'] as List)
+                  : []),
       javaVersion: json['java_version'] as String?,
       browserVersion: json['browser_version'] as String?,
 
@@ -169,7 +160,7 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
           json['hardware_info'] != null
               ? Map<String, dynamic>.from(json['hardware_info'] as Map)
               : null,
-      isEncrypted: (json['is_encrypted'] ?? false) as bool, // ✅ NOVO
+      isEncrypted: (json['is_encrypted'] ?? false) as bool,
     );
   }
 
@@ -202,11 +193,6 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
   final String hostname;
   final String model;
   final String manufacturer;
-  @override
-  final String? currentUser;
-  @override
-  final String? uptime;
-  final DateTime? updatedAt;
 
   final String processor;
   final String ram;
@@ -218,15 +204,14 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
 
   final String ipAddress;
   final String macAddress;
-  final String? macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento
-  final String? wifiSsid; // ✅ NOVO: Nome da rede WiFi
-  final String connectionType; // ✅ NOVO: WiFi/Ethernet
+  final String? macAddressRadio;
+  final String? wifiSsid;
+  final String connectionType;
 
-  final String? biometricReader;
+  final String? biometricReaderStatus;
   final String? connectedPrinter;
 
   final List<String> installedSoftware;
-  final List<String> installedPrograms;
   final String? javaVersion;
   final String? browserVersion;
 
@@ -256,7 +241,6 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
               ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
               : (location ?? 'N/D'),
 
-      // ✅ CAMPOS ADICIONADOS
       'updated_at': updatedAt?.toIso8601String(),
       'current_user': currentUser,
       'uptime': uptime,
@@ -275,15 +259,14 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
 
       'ip_address': ipAddress,
       'mac_address': macAddress,
-      'mac_address_radio': macAddressRadio, // ✅ NOVO
-      'wifi_ssid': wifiSsid, // ✅ NOVO
-      'connection_type': connectionType, // ✅ NOVO
+      'mac_address_radio': macAddressRadio,
+      'wifi_ssid': wifiSsid,
+      'connection_type': connectionType,
 
-      'biometric_reader': biometricReader,
+      'biometric_reader': biometricReaderStatus,
       'connected_printer': connectedPrinter,
 
       'installed_software': installedSoftware,
-      'installed_programs': installedPrograms,
       'java_version': javaVersion,
       'browser_version': browserVersion,
 
@@ -291,14 +274,14 @@ class Desktop extends ManagedAsset { // ✅ NOVO: Status de criptografia
       'antivirus_version': antivirusVersion,
       'last_update_check': lastUpdateCheck?.toIso8601String(),
       'hardware_info': hardwareInfo,
-      'is_encrypted': isEncrypted, // ✅ NOVO
+      'is_encrypted': isEncrypted,
     };
   }
 
   /// Converte Desktop model para ModuleEntity (domain layer)
   ModuleEntity toEntity() {
     return ModuleEntity(
-      id: id ?? '',
+      id: id,
       assetTag: serialNumber,
       serialNumber: serialNumber,
       model: model,

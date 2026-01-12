@@ -1,15 +1,12 @@
-﻿// ========================================
-// File: lib/models/notebook.dart (CORRIGIDO)
-// ========================================
+﻿// File: lib/models/notebook.dart
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
+import 'package:painel_windowns/domain/entities/module_entity.dart';
 import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/services/logger_service.dart';
-import 'package:painel_windowns/domain/entities/module_entity.dart';
 
 class Notebook extends ManagedAsset {
-
   Notebook({
     required super.id,
     required super.assetName,
@@ -22,21 +19,24 @@ class Notebook extends ManagedAsset {
     super.unit,
     super.sector,
     super.floor,
+    super.updatedAt,
+    super.currentUser,
+    super.uptime,
     required this.hostname,
     required this.model,
     required this.manufacturer,
     required this.processor,
     required this.ram,
     required this.storage,
-    required this.storageType, // ✅ NOVO
+    required this.storageType,
     required this.operatingSystem,
     required this.osVersion,
     required this.ipAddress,
     required this.macAddress,
-    this.macAddressRadio, // ✅ NOVO
-    this.wifiSsid, // ✅ NOVO
-    required this.connectionType, // ✅ NOVO
+    required this.connectionType,
     required this.biometricReaderStatus,
+    this.macAddressRadio,
+    this.wifiSsid,
     this.installedSoftware = const [],
     this.antivirusStatus = false,
     this.antivirusVersion,
@@ -45,9 +45,6 @@ class Notebook extends ManagedAsset {
     this.isEncrypted = false,
     this.batteryLevel,
     this.batteryHealth,
-    this.currentUser,
-    this.uptime,
-    this.updatedAt,
   }) : super(assetType: 'notebook');
 
   factory Notebook.fromJson(
@@ -62,7 +59,7 @@ class Notebook extends ManagedAsset {
 
     final serialNumber = (json['serial_number'] ?? 'N/A') as String;
 
-    // ✅ CORRIGIDO: Priorizar mac_address_radio (BSSID) para mapeamento
+    // Priorizar mac_address_radio (BSSID) para mapeamento
     final macAddressRadio = (json['mac_address_radio'] ?? 'N/A') as String;
     final macAddress = (json['mac_address'] ?? 'N/A') as String;
 
@@ -86,7 +83,7 @@ class Notebook extends ManagedAsset {
         units: units,
         bssidMappings: bssidMappings ?? [],
         ip: (json['ip_address'] ?? 'N/A') as String,
-        macAddress: macAddressRadio, // ✅ Usar BSSID para mapeamento
+        macAddress: macAddressRadio,
         originalLocation: location ?? 'N/D',
       );
 
@@ -119,7 +116,6 @@ class Notebook extends ManagedAsset {
               ? Map<String, dynamic>.from(json['custom_data'] as Map)
               : {},
 
-      // ✅ CAMPOS CORRIGIDOS
       updatedAt:
           json['updated_at'] != null
               ? DateTime.parse(json['updated_at'] as String)
@@ -137,16 +133,14 @@ class Notebook extends ManagedAsset {
       processor: (json['processor'] ?? 'N/A') as String,
       ram: (json['ram'] ?? 'N/A') as String,
       storage: (json['storage'] ?? 'N/A') as String,
-      storageType: (json['storage_type'] ?? 'N/A') as String, // ✅ NOVO
+      storageType: (json['storage_type'] ?? 'N/A') as String,
       operatingSystem: (json['operating_system'] ?? 'N/A') as String,
       osVersion: (json['os_version'] ?? 'N/A') as String,
       ipAddress: (json['ip_address'] ?? 'N/A') as String,
       macAddress: macAddress == 'N/A' ? 'N/A' : macAddress,
-      macAddressRadio:
-          macAddressRadio == 'N/A' ? null : macAddressRadio, // ✅ NOVO
-      wifiSsid: json['wifi_ssid'] as String?, // ✅ NOVO
-      connectionType:
-          (json['connection_type'] ?? 'Desconhecido') as String, // ✅ NOVO
+      macAddressRadio: macAddressRadio == 'N/A' ? null : macAddressRadio,
+      wifiSsid: json['wifi_ssid'] as String?,
+      connectionType: (json['connection_type'] ?? 'Desconhecido') as String,
       biometricReaderStatus:
           (json['biometric_reader'] ?? json['biometric_reader_status'] ?? 'N/A')
               as String,
@@ -203,14 +197,14 @@ class Notebook extends ManagedAsset {
   final String processor;
   final String ram;
   final String storage;
-  final String storageType; // ✅ NOVO: Tipo de armazenamento (SSD/HDD)
+  final String storageType;
   final String operatingSystem;
   final String osVersion;
   final String ipAddress;
   final String macAddress;
-  final String? macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento
-  final String? wifiSsid; // ✅ NOVO: Nome da rede WiFi
-  final String connectionType; // ✅ NOVO: WiFi/Ethernet
+  final String? macAddressRadio;
+  final String? wifiSsid;
+  final String connectionType;
   final List<String> installedSoftware;
   final bool antivirusStatus;
   final String? antivirusVersion;
@@ -219,16 +213,9 @@ class Notebook extends ManagedAsset {
   final bool isEncrypted;
   final String biometricReaderStatus;
 
-  // ✅ Battery fields
-  final int? batteryLevel; // Battery percentage (0-100)
-  final String? batteryHealth; // Battery health status
-
-  // ✅ CAMPOS CORRIGIDOS
-  @override
-  final String? currentUser;
-  @override
-  final String? uptime;
-  final DateTime? updatedAt;
+  // Battery fields
+  final int? batteryLevel;
+  final String? batteryHealth;
 
   @override
   Map<String, dynamic> toJson() {
@@ -242,7 +229,6 @@ class Notebook extends ManagedAsset {
       'assigned_to': assignedTo,
       'custom_data': customData,
 
-      // ✅ CAMPOS ADICIONADOS
       'updated_at': updatedAt?.toIso8601String(),
       'current_user': currentUser,
       'uptime': uptime,
@@ -260,14 +246,14 @@ class Notebook extends ManagedAsset {
       'processor': processor,
       'ram': ram,
       'storage': storage,
-      'storage_type': storageType, // ✅ NOVO
+      'storage_type': storageType,
       'operating_system': operatingSystem,
       'os_version': osVersion,
       'ip_address': ipAddress,
       'mac_address': macAddress,
-      'mac_address_radio': macAddressRadio, // ✅ NOVO
-      'wifi_ssid': wifiSsid, // ✅ NOVO
-      'connection_type': connectionType, // ✅ NOVO
+      'mac_address_radio': macAddressRadio,
+      'wifi_ssid': wifiSsid,
+      'connection_type': connectionType,
       'biometric_reader_status': biometricReaderStatus,
       'installed_software': installedSoftware,
       'antivirus_status': antivirusStatus,
@@ -283,7 +269,7 @@ class Notebook extends ManagedAsset {
   /// Converte Notebook model para ModuleEntity (domain layer)
   ModuleEntity toEntity() {
     return ModuleEntity(
-      id: id ?? '',
+      id: id,
       assetTag: serialNumber,
       serialNumber: serialNumber,
       model: model,

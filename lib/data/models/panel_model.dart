@@ -231,7 +231,7 @@ class Panel extends ManagedAsset {
   /// Converte Panel model para ModuleEntity (domain layer)
   ModuleEntity toEntity() {
     return ModuleEntity(
-      id: id ?? '',
+      id: id,
       assetTag: serialNumber,
       serialNumber: serialNumber,
       model: model,

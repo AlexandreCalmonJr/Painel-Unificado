@@ -208,7 +208,7 @@ class Totem extends ManagedAsset {
   /// Converte Totem model para TotemEntity (domain layer)
   TotemEntity toEntity() {
     return TotemEntity(
-      id: id ?? '',
+      id: id,
       name: hostname,
       status: status,
       location: location,

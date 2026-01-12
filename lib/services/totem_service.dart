@@ -59,11 +59,13 @@ class TotemService {
         if (attempts == kMaxRetries) {
           throw Exception('$errorMessage: Tempo limite esgotado.');
         }
+        // ignore: inference_failure_on_instance_creation
         await Future.delayed(kRetryDelay);
       } on SocketException {
         if (attempts == kMaxRetries) {
           throw Exception('$errorMessage: Falha na conexão com o servidor.');
         }
+        // ignore: inference_failure_on_instance_creation
         await Future.delayed(kRetryDelay);
       } catch (e) {
         // Captura erros (incluindo os throw Exception de cima)

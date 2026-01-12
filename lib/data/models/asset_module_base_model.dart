@@ -21,7 +21,6 @@ enum AssetModuleType {
 
 /// Classe para configurar uma coluna da tabela dinâmica
 class TableColumnConfig {
-
   TableColumnConfig({
     required this.dataKey,
     required this.label,
@@ -39,8 +38,10 @@ class TableColumnConfig {
       width: (json['width'] as num?)?.toDouble(),
     );
   }
-  final String dataKey; // A chave no JSON/Map (ex: "assetName", "serialNumber", "hostname")
-  final String label;   // O texto do cabeçalho (ex: "Nome do Ativo", "Serial", "Hostname")
+  final String
+  dataKey; // A chave no JSON/Map (ex: "assetName", "serialNumber", "hostname")
+  final String
+  label; // O texto do cabeçalho (ex: "Nome do Ativo", "Serial", "Hostname")
   final bool isVisible;
   final bool isSortable;
   final double? width;
@@ -57,8 +58,7 @@ class TableColumnConfig {
 }
 
 /// Classe base para todos os módulos de ativos
-abstract class AssetModuleConfig { // <-- CAMPO ADICIONADO
-
+abstract class AssetModuleConfig {
   AssetModuleConfig({
     required this.id,
     required this.name,
@@ -70,7 +70,7 @@ abstract class AssetModuleConfig { // <-- CAMPO ADICIONADO
     this.updatedAt,
     this.customFields = const {},
     this.settings = const {},
-    this.tableColumns = const [], // <-- CAMPO ADICIONADO
+    this.tableColumns = const [],
   });
 
   factory AssetModuleConfig.fromJson(Map<String, dynamic> json) {
@@ -79,11 +79,16 @@ abstract class AssetModuleConfig { // <-- CAMPO ADICIONADO
       (e) => e.identifier == typeStr,
       orElse: () => AssetModuleType.custom,
     );
-    
+
     // Decodifica a lista de colunas
-    final List<TableColumnConfig> columns = (json['table_columns'] as List? ?? [])
-        .map((colJson) => TableColumnConfig.fromJson(Map<String, dynamic>.from(colJson as Map)))
-        .toList();
+    final List<TableColumnConfig> columns =
+        (json['table_columns'] as List? ?? [])
+            .map(
+              (colJson) => TableColumnConfig.fromJson(
+                Map<String, dynamic>.from(colJson as Map),
+              ),
+            )
+            .toList();
 
     return _ConcreteAssetModuleConfig(
       id: (json['_id'] ?? json['id']) as String,
@@ -93,10 +98,15 @@ abstract class AssetModuleConfig { // <-- CAMPO ADICIONADO
       isActive: (json['is_active'] ?? true) as bool,
       isCustom: (json['is_custom'] ?? false) as bool,
       createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
-      customFields: Map<String, dynamic>.from(json['custom_fields'] as Map? ?? {}),
+      updatedAt:
+          json['updated_at'] != null
+              ? DateTime.parse(json['updated_at'] as String)
+              : null,
+      customFields: Map<String, dynamic>.from(
+        json['custom_fields'] as Map? ?? {},
+      ),
       settings: Map<String, dynamic>.from(json['settings'] as Map? ?? {}),
-      tableColumns: columns, // <-- CAMPO ADICIONADO
+      tableColumns: columns,
     );
   }
   final String id;
@@ -122,7 +132,7 @@ abstract class AssetModuleConfig { // <-- CAMPO ADICIONADO
       'updated_at': updatedAt?.toIso8601String(),
       'custom_fields': customFields,
       'settings': settings,
-      'table_columns': tableColumns.map((col) => col.toJson()).toList(), 
+      'table_columns': tableColumns.map((col) => col.toJson()).toList(),
     };
   }
 }
@@ -137,7 +147,10 @@ class _ConcreteAssetModuleConfig extends AssetModuleConfig {
     required super.isActive,
     required super.isCustom,
     required super.createdAt,
-    required super.customFields, required super.settings, required super.tableColumns, // <-- CAMPO ADICIONADO, super.updatedAt,
+    super.updatedAt,
+    required super.customFields,
+    required super.settings,
+    required super.tableColumns,
   });
 }
 
@@ -156,8 +169,7 @@ enum CustomFieldType {
 }
 
 /// Modelo base para ativos gerenciados por módulos
-abstract class ManagedAsset {  // Andar (ex: "3º ANDAR")
-
+abstract class ManagedAsset {
   ManagedAsset({
     required this.id,
     required this.assetName,
@@ -171,6 +183,9 @@ abstract class ManagedAsset {  // Andar (ex: "3º ANDAR")
     this.unit,
     this.sector,
     this.floor,
+    this.updatedAt,
+    this.currentUser,
+    this.uptime,
   });
   final String id;
   final String assetName;
@@ -181,14 +196,13 @@ abstract class ManagedAsset {  // Andar (ex: "3º ANDAR")
   final Map<String, dynamic> customData;
   final String? location; // O nome original da localização (ex: "SALA TI")
   final String? assignedTo;
-  
-  final String? unit;   // Nome da Unidade (ex: "HOSPITAL GERAL")
+
+  final String? unit; // Nome da Unidade (ex: "HOSPITAL GERAL")
   final String? sector; // Setor (ex: "TI")
-  final String? floor;
-
-  Null get uptime => null;
-
-  Null get currentUser => null;
+  final String? floor; // Andar (ex: "3º ANDAR")
+  final DateTime? updatedAt;
+  final String? currentUser;
+  final String? uptime;
 
   Map<String, dynamic> toJson();
 
@@ -218,7 +232,6 @@ abstract class ManagedAsset {  // Andar (ex: "3º ANDAR")
 
 /// Permissões de módulo
 class ModulePermission {
-
   ModulePermission({
     required this.moduleId,
     this.canView = true,
@@ -237,9 +250,10 @@ class ModulePermission {
       canEdit: (json['can_edit'] ?? false) as bool,
       canDelete: (json['can_delete'] ?? false) as bool,
       canExport: (json['can_export'] ?? false) as bool,
-      customPermissions: json['custom_permissions'] != null
-          ? List<String>.from(json['custom_permissions'] as List)
-          : [],
+      customPermissions:
+          json['custom_permissions'] != null
+              ? List<String>.from(json['custom_permissions'] as List)
+              : [],
     );
   }
   final String moduleId;
@@ -272,7 +286,7 @@ class _GenericAsset extends ManagedAsset {
     required super.assetType,
     required super.serialNumber,
     required super.status,
-    required super.lastSeen,   // Adicionado
+    required super.lastSeen,
   });
 
   @override
@@ -290,9 +304,10 @@ class _GenericAsset extends ManagedAsset {
       'unit': unit,
       'sector': sector,
       'floor': floor,
-      'sector_floor': (sector != null || floor != null)
-          ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
-          : (location ?? 'N/D'),
+      'sector_floor':
+          (sector != null || floor != null)
+              ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
+              : (location ?? 'N/D'),
     };
   }
 }
