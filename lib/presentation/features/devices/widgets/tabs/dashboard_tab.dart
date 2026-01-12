@@ -1,6 +1,7 @@
 ﻿// Unified dashboard_tab.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/device_model.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/managed_devices_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 
 import 'package:painel_windowns/services/auth_service.dart';

@@ -1,5 +1,5 @@
 ﻿// File: lib/devices/widgets/managed_devices_card.dart
-// MIGRADO PARA USAR BaseDataTable MANTENDO NOMES ORIGINAIS DAS COLUNAS
+// Using standard Flutter DataTable
 
 import 'dart:convert';
 import 'dart:io';
@@ -12,7 +12,6 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/device_model.dart';
 
-import 'package:painel_windowns/devices/widgets/command_controls_v2.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/features/devices/pages/device_detail_page.dart';
 import 'package:painel_windowns/presentation/features/devices/widgets/command_controls_v2.dart';
@@ -23,7 +22,6 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ManagedDevicesCard extends StatelessWidget {
-
   const ManagedDevicesCard({
     required this.authService,
     super.key,
@@ -232,165 +230,164 @@ class ManagedDevicesCard extends StatelessWidget {
             const SizedBox(height: 24),
             // Content
             Expanded(
-              child: BaseDataTable<Device>(
-                expand: true,
-                items: filteredDevices,
-                columns: [
-                  DataTableColumn<Device>(
-                    label: 'Dispositivo',
-                    builder:
-                        (device) => InkWell(
-                          onTap:
-                              () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => DeviceDetailScreen(
-                                        device: device,
-                                        authService: authService,
-                                      ),
-                                ),
-                              ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.smartphone,
-                                  size: 20,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      device.deviceName ?? 'N/A',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    if (device.battery != null)
-                                      Text(
-                                        'Bateria: ${device.battery}%',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey[600],
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    headingRowColor: MaterialStateProperty.all(
+                      isDark ? Colors.grey[800] : Colors.grey[100],
+                    ),
+                    columns: const [
+                      DataColumn(label: Text('Dispositivo')),
+                      DataColumn(label: Text('Modelo')),
+                      DataColumn(label: Text('Serial')),
+                      DataColumn(label: Text('IMEI')),
+                      DataColumn(label: Text('Status')),
+                      DataColumn(label: Text('Última Sincronização')),
+                      DataColumn(label: Text('Unidade')),
+                      DataColumn(label: Text('Setor/Andar')),
+                      DataColumn(label: Text('Ações')),
+                    ],
+                    rows:
+                        filteredDevices.map((device) {
+                          String statusText;
+                          Color statusColor;
+                          switch (device.displayStatus) {
+                            case DeviceStatusType.collectedByIT:
+                              statusText = 'Recolhido';
+                              statusColor = Colors.purple;
+                              break;
+                            case DeviceStatusType.maintenance:
+                              statusText = 'Manutenção';
+                              statusColor = Colors.orange;
+                              break;
+                            case DeviceStatusType.online:
+                              statusText = 'Online';
+                              statusColor = Colors.green;
+                              break;
+                            case DeviceStatusType.unmonitored:
+                              statusText = 'Não Monitorado';
+                              statusColor = Colors.grey;
+                              break;
+                            default:
+                              statusText = 'Offline';
+                              statusColor = Colors.red;
+                              break;
+                          }
+
+                          return DataRow(
+                            cells: [
+                              DataCell(
+                                InkWell(
+                                  onTap:
+                                      () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => DeviceDetailScreen(
+                                                device: device,
+                                                authService: authService,
+                                              ),
                                         ),
                                       ),
-                                  ],
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.smartphone,
+                                          size: 20,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            device.deviceName ?? 'N/A',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          if (device.battery != null)
+                                            Text(
+                                              'Bateria: ${device.battery}%',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
+                              DataCell(Text(device.deviceModel ?? 'N/A')),
+                              DataCell(Text(device.serialNumber ?? 'N/A')),
+                              DataCell(Text(device.imei ?? 'N/A')),
+                              DataCell(
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: statusColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: statusColor.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    statusText,
+                                    style: TextStyle(
+                                      color: statusColor,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Text(
+                                  formatDateTime(
+                                    parseLastSeen(device.lastSeen),
+                                  ),
+                                ),
+                              ),
+                              DataCell(Text(device.unit ?? 'N/D')),
+                              DataCell(
+                                Text(
+                                  '${device.sector ?? "N/D"} / ${device.floor ?? "N/D"}',
+                                ),
+                              ),
+                              DataCell(
+                                showActions
+                                    ? CommandControlsV2(
+                                      device: device,
+                                      token: token!,
+                                      onCommandExecuted: onDeviceUpdate,
+                                    )
+                                    : const SizedBox.shrink(),
+                              ),
                             ],
-                          ),
-                        ),
+                          );
+                        }).toList(),
                   ),
-                  DataTableColumn<Device>(
-                    label: 'Modelo',
-                    value: (device) => device.deviceModel ?? 'N/A',
-                  ),
-                  DataTableColumn<Device>(
-                    label: 'Serial',
-                    value: (device) => device.serialNumber ?? 'N/A',
-                  ),
-                  DataTableColumn<Device>(
-                    label: 'IMEI',
-                    value: (device) => device.imei ?? 'N/A',
-                  ),
-                  DataTableColumn<Device>(
-                    label: 'Status',
-                    builder: (device) {
-                      String statusText;
-                      Color statusColor;
-                      switch (device.displayStatus) {
-                        case DeviceStatusType.collectedByIT:
-                          statusText = 'Recolhido';
-                          statusColor = Colors.purple;
-                          break;
-                        case DeviceStatusType.maintenance:
-                          statusText = 'Manutenção';
-                          statusColor = Colors.orange;
-                          break;
-                        case DeviceStatusType.online:
-                          statusText = 'Online';
-                          statusColor = Colors.green;
-                          break;
-                        case DeviceStatusType.unmonitored:
-                          statusText = 'Não Monitorado';
-                          statusColor = Colors.grey;
-                          break;
-                        default:
-                          statusText = 'Offline';
-                          statusColor = Colors.red;
-                          break;
-                      }
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: statusColor.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Text(
-                          statusText,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  DataTableColumn<Device>(
-                    label: 'Última Sincronização',
-                    value:
-                        (device) =>
-                            formatDateTime(parseLastSeen(device.lastSeen)),
-                  ),
-                  DataTableColumn<Device>(
-                    label: 'Unidade',
-                    value: (device) => device.unit ?? 'N/D',
-                  ),
-                  DataTableColumn<Device>(
-                    label: 'Setor/Andar',
-                    value:
-                        (device) =>
-                            '${device.sector ?? "N/D"} / ${device.floor ?? "N/D"}',
-                  ),
-                ],
-                actions:
-                    showActions
-                        ? [
-                          TableAction<Device>(
-                            icon: Icons.more_vert,
-                            label: 'Ações',
-                            onTap: (device) {},
-                          ),
-                        ]
-                        : null,
-                customRow:
-                    showActions
-                        ? (device) => CommandControlsV2(
-                          device: device,
-                          token: token!,
-                          onCommandExecuted: onDeviceUpdate,
-                        )
-                        : null,
-                showPagination: false,
+                ),
               ),
             ),
           ],

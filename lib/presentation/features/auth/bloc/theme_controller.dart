@@ -49,7 +49,7 @@ class ThemeController extends GetxController {
 
       if (configJson != null) {
         final config = ThemeConfig.fromJson(
-          json.decode(configJson),
+          json.decode(configJson) as Map<String, dynamic>,
         );
         _themeConfig.value = config;
       }

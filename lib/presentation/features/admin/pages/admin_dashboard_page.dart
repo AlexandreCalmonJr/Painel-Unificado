@@ -12,10 +12,11 @@ import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_si
 import 'package:painel_windowns/services/auth_service.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({super.key, required this.authService});
+  const AdminDashboardScreen({required this.authService, super.key});
   final AuthService authService;
 
   @override
+  // ignore: library_private_types_in_public_api
   _AdminDashboardScreenState createState() => _AdminDashboardScreenState();
 }
 
@@ -33,12 +34,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         decoration: BoxDecoration(
           gradient:
               isDark
-                  ? LinearGradient(
+                  ? const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [AppColors.background, AppColors.surface],
                   )
-                  : LinearGradient(
+                  : const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [

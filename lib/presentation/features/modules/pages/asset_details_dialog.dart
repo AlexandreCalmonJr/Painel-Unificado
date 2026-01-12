@@ -8,7 +8,6 @@ import 'package:painel_windowns/data/models/panel_model.dart';
 import 'package:painel_windowns/data/models/printer_model.dart';
 
 class AssetDetailsDialog extends StatelessWidget {
-
   const AssetDetailsDialog({super.key, required this.asset});
   final ManagedAsset asset;
 
@@ -193,10 +192,7 @@ class AssetDetailsDialog extends StatelessWidget {
           Container(
             width: 8,
             height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
           Text(
@@ -259,10 +255,7 @@ class AssetDetailsDialog extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    value,
-                    style: const TextStyle(fontSize: 14),
-                  ),
+                  child: Text(value, style: const TextStyle(fontSize: 14)),
                 ),
                 if (copyable)
                   IconButton(
@@ -283,52 +276,109 @@ class AssetDetailsDialog extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSection('Identificação', [
-          _buildDetailRow(context, 'Hostname', desktop.hostname, Icons.dns,
-              copyable: true),
           _buildDetailRow(
-              context, 'Modelo', desktop.model, Icons.laptop_chromebook),
+            context,
+            'Hostname',
+            desktop.hostname,
+            Icons.dns,
+            copyable: true,
+          ),
           _buildDetailRow(
-              context, 'Fabricante', desktop.manufacturer, Icons.business_center),
+            context,
+            'Modelo',
+            desktop.model,
+            Icons.laptop_chromebook,
+          ),
+          _buildDetailRow(
+            context,
+            'Fabricante',
+            desktop.manufacturer,
+            Icons.business_center,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Hardware', [
           _buildDetailRow(
-              context, 'Processador', desktop.processor, Icons.memory),
+            context,
+            'Processador',
+            desktop.processor,
+            Icons.memory,
+          ),
           _buildDetailRow(context, 'Memória RAM', desktop.ram, Icons.storage),
           _buildDetailRow(
-              context, 'Armazenamento', desktop.storage, Icons.sd_storage),
+            context,
+            'Armazenamento',
+            desktop.storage,
+            Icons.sd_storage,
+          ),
           _buildDetailRow(
-              context, 'Tipo de HD', desktop.storageType, Icons.data_usage),
+            context,
+            'Tipo de HD',
+            desktop.storageType,
+            Icons.data_usage,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Sistema Operacional', [
           _buildDetailRow(
-              context, 'SO', desktop.operatingSystem, Icons.computer),
+            context,
+            'SO',
+            desktop.operatingSystem,
+            Icons.computer,
+          ),
           _buildDetailRow(
-              context, 'Versão do SO', desktop.osVersion, Icons.info),
+            context,
+            'Versão do SO',
+            desktop.osVersion,
+            Icons.info,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Rede', [
           _buildDetailRow(
-              context, 'Endereço IP', desktop.ipAddress, Icons.network_check,
-              copyable: true),
+            context,
+            'Endereço IP',
+            desktop.ipAddress,
+            Icons.network_check,
+            copyable: true,
+          ),
           _buildDetailRow(
-              context, 'MAC Address', desktop.macAddress, Icons.router,
-              copyable: true),
+            context,
+            'MAC Address',
+            desktop.macAddress,
+            Icons.router,
+            copyable: true,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Periféricos', [
-          _buildDetailRow(context, 'Leitor Biométrico',
-              desktop.biometricReader ?? 'N/D', Icons.fingerprint),
-          _buildDetailRow(context, 'Impressora Conectada',
-              desktop.connectedPrinter ?? 'N/D', Icons.print),
+          _buildDetailRow(
+            context,
+            'Leitor Biométrico',
+            desktop.biometricReaderStatus ?? 'N/D',
+            Icons.fingerprint,
+          ),
+          _buildDetailRow(
+            context,
+            'Impressora Conectada',
+            desktop.connectedPrinter ?? 'N/D',
+            Icons.print,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Software', [
           _buildDetailRow(
-              context, 'Versão Java', desktop.javaVersion ?? 'N/D', Icons.code),
-          _buildDetailRow(context, 'Navegador',
-              desktop.browserVersion ?? 'N/D', Icons.public),
+            context,
+            'Versão Java',
+            desktop.javaVersion ?? 'N/D',
+            Icons.code,
+          ),
+          _buildDetailRow(
+            context,
+            'Navegador',
+            desktop.browserVersion ?? 'N/D',
+            Icons.public,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Segurança', [
@@ -339,8 +389,12 @@ class AssetDetailsDialog extends StatelessWidget {
             Icons.security,
           ),
           if (desktop.antivirusVersion != null)
-            _buildDetailRow(context, 'Versão Antivírus',
-                desktop.antivirusVersion!, Icons.verified_user),
+            _buildDetailRow(
+              context,
+              'Versão Antivírus',
+              desktop.antivirusVersion!,
+              Icons.verified_user,
+            ),
         ]),
       ],
     );
@@ -351,41 +405,68 @@ class AssetDetailsDialog extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSection('Identificação', [
-          _buildDetailRow(context, 'Hostname', notebook.hostname, Icons.dns,
-              copyable: true),
+          _buildDetailRow(
+            context,
+            'Hostname',
+            notebook.hostname,
+            Icons.dns,
+            copyable: true,
+          ),
           _buildDetailRow(context, 'Modelo', notebook.model, Icons.laptop),
           _buildDetailRow(
-              context, 'Fabricante', notebook.manufacturer, Icons.business_center),
+            context,
+            'Fabricante',
+            notebook.manufacturer,
+            Icons.business_center,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Hardware', [
           _buildDetailRow(
-              context, 'Processador', notebook.processor, Icons.memory),
+            context,
+            'Processador',
+            notebook.processor,
+            Icons.memory,
+          ),
           _buildDetailRow(context, 'Memória RAM', notebook.ram, Icons.storage),
           _buildDetailRow(
-              context, 'Armazenamento', notebook.storage, Icons.sd_storage),
+            context,
+            'Armazenamento',
+            notebook.storage,
+            Icons.sd_storage,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Bateria', [
           _buildDetailRow(
             context,
             'Nível',
-            notebook.batteryLevel != null
-                ? '${notebook.batteryLevel}%'
-                : 'N/D',
+            notebook.batteryLevel != null ? '${notebook.batteryLevel}%' : 'N/D',
             Icons.battery_charging_full,
           ),
           _buildDetailRow(
-              context, 'Saúde', notebook.batteryHealth ?? 'N/D', Icons.health_and_safety),
+            context,
+            'Saúde',
+            notebook.batteryHealth ?? 'N/D',
+            Icons.health_and_safety,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Rede', [
           _buildDetailRow(
-              context, 'Endereço IP', notebook.ipAddress, Icons.network_check,
-              copyable: true),
+            context,
+            'Endereço IP',
+            notebook.ipAddress,
+            Icons.network_check,
+            copyable: true,
+          ),
           _buildDetailRow(
-              context, 'MAC Address', notebook.macAddress, Icons.router,
-              copyable: true),
+            context,
+            'MAC Address',
+            notebook.macAddress,
+            Icons.router,
+            copyable: true,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Segurança', [
@@ -412,30 +493,63 @@ class AssetDetailsDialog extends StatelessWidget {
       children: [
         _buildSection('Display', [
           _buildDetailRow(
-              context, 'Tamanho da Tela', panel.screenSize, Icons.aspect_ratio),
+            context,
+            'Tamanho da Tela',
+            panel.screenSize,
+            Icons.aspect_ratio,
+          ),
           _buildDetailRow(
-              context, 'Resolução', panel.resolution, Icons.photo_size_select_large),
+            context,
+            'Resolução',
+            panel.resolution,
+            Icons.photo_size_select_large,
+          ),
           if (panel.brightness != null)
             _buildDetailRow(
-                context, 'Brilho', '${panel.brightness}%', Icons.brightness_6),
+              context,
+              'Brilho',
+              '${panel.brightness}%',
+              Icons.brightness_6,
+            ),
           if (panel.volume != null)
-            _buildDetailRow(context, 'Volume', '${panel.volume}%', Icons.volume_up),
+            _buildDetailRow(
+              context,
+              'Volume',
+              '${panel.volume}%',
+              Icons.volume_up,
+            ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Rede', [
           _buildDetailRow(
-              context, 'Endereço IP', panel.ipAddress, Icons.network_check,
-              copyable: true),
+            context,
+            'Endereço IP',
+            panel.ipAddress,
+            Icons.network_check,
+            copyable: true,
+          ),
           _buildDetailRow(
-              context, 'MAC Address', panel.macAddress, Icons.router,
-              copyable: true),
+            context,
+            'MAC Address',
+            panel.macAddress,
+            Icons.router,
+            copyable: true,
+          ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Sistema', [
           _buildDetailRow(
-              context, 'Firmware', panel.firmwareVersion, Icons.system_update),
+            context,
+            'Firmware',
+            panel.firmwareVersion,
+            Icons.system_update,
+          ),
           _buildDetailRow(
-              context, 'Entrada HDMI', panel.hdmiInput ?? 'N/D', Icons.hd),
+            context,
+            'Entrada HDMI',
+            panel.hdmiInput ?? 'N/D',
+            Icons.hd,
+          ),
         ]),
       ],
     );
@@ -446,24 +560,44 @@ class AssetDetailsDialog extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSection('Conectividade', [
-          _buildDetailRow(context, 'Tipo de Conexão', printer.connectionType,
-              Icons.settings_input_hdmi),
+          _buildDetailRow(
+            context,
+            'Tipo de Conexão',
+            printer.connectionType,
+            Icons.settings_input_hdmi,
+          ),
           if (printer.ipAddress != null)
             _buildDetailRow(
-                context, 'Endereço IP', printer.ipAddress!, Icons.network_check,
-                copyable: true),
+              context,
+              'Endereço IP',
+              printer.ipAddress!,
+              Icons.network_check,
+              copyable: true,
+            ),
           if (printer.hostComputerName != null)
-            _buildDetailRow(context, 'Computador Host',
-                printer.hostComputerName!, Icons.computer),
+            _buildDetailRow(
+              context,
+              'Computador Host',
+              printer.hostComputerName!,
+              Icons.computer,
+            ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Status', [
           _buildDetailRow(
-              context, 'Status', printer.printerStatus, Icons.print),
+            context,
+            'Status',
+            printer.printerStatus,
+            Icons.print,
+          ),
           if (printer.errorMessage != null)
             _buildDetailRow(
-                context, 'Erro', printer.errorMessage!, Icons.error,
-                copyable: true),
+              context,
+              'Erro',
+              printer.errorMessage!,
+              Icons.error,
+              copyable: true,
+            ),
         ]),
         const SizedBox(height: 20),
         _buildSection('Contadores', [

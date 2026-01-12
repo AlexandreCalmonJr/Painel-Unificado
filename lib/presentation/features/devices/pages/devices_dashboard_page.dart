@@ -16,13 +16,11 @@ import 'package:painel_windowns/presentation/shared/widgets/app_bar_widget.dart'
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
-
 /// Dashboard refatorado de dispositivos móveis
 ///
 /// Versão simplificada usando BaseDashboardLayout e separação de responsabilidades.
 /// Reduzido de 843 linhas para ~350 linhas.
 class DevicesDashboardPage extends StatefulWidget {
-
   const DevicesDashboardPage({super.key, required this.authService});
   final AuthService authService;
 
@@ -123,7 +121,7 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                       unit: entity.unit,
                       sector: entity.sector,
                       floor: entity.floor,
-                      battery: entity.batteryLevel,
+                      battery: entity.battery,
                     );
                   }).toList()
                   : <Device>[];
@@ -218,6 +216,18 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                                 mainContent: DevicesTab(
                                   authService: widget.authService,
                                   devices: devices,
+                                  token: widget.authService.currentToken ?? '',
+                                  onDeviceUpdate: () async {
+                                    context.read<DeviceBloc>().add(
+                                      const RefreshDevices(),
+                                    );
+                                  },
+                                  isReadOnly: false,
+                                  currentUser: widget.authService.currentUser,
+                                  currentPage: 1,
+                                  totalPages: 1,
+                                  onPageChange: (int page) {},
+                                  onSearch: (String query) {},
                                   onDeviceTap: (Device device) {
                                     Navigator.push(
                                       context,
@@ -234,7 +244,7 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                                     context.read<DeviceBloc>().add(
                                       const RefreshDevices(),
                                     );
-                                  }, token: '', onDeviceUpdate: () {  }, isReadOnly: null, currentUser: const {}, currentPage: null, totalPages: null, onPageChange: (int p1) {  }, onSearch: (String p1) {  },
+                                  },
                                 ),
                                 onRefresh: () async {
                                   context.read<DeviceBloc>().add(
@@ -250,7 +260,14 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                                 stats: const [],
                                 mainContent: MaintenanceTab(
                                   authService: widget.authService,
-                                  devices: devices, token: '', onDeviceUpdate: () {  }, currentUser: {},
+                                  devices: devices,
+                                  token: widget.authService.currentToken ?? '',
+                                  onDeviceUpdate: () async {
+                                    context.read<DeviceBloc>().add(
+                                      const RefreshDevices(),
+                                    );
+                                  },
+                                  currentUser: widget.authService.currentUser,
                                 ),
                                 onRefresh: () async {
                                   context.read<DeviceBloc>().add(
@@ -266,7 +283,8 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                                 stats: const [],
                                 mainContent: ReportsTab(
                                   authService: widget.authService,
-                                  devices: devices, currentUser: {},
+                                  devices: devices,
+                                  currentUser: widget.authService.currentUser,
                                 ),
                                 onRefresh: () async {
                                   context.read<DeviceBloc>().add(

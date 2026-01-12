@@ -7,14 +7,12 @@ import 'package:painel_windowns/data/models/notebook_model.dart';
 import 'package:painel_windowns/data/models/panel_model.dart';
 import 'package:painel_windowns/data/models/printer_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
-import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/module_management_service.dart';
 import 'package:painel_windowns/services/asset_command_service.dart';
 import 'package:painel_windowns/services/asset_maintenance_service.dart';
-
+import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/module_management_service.dart';
 
 class AssetDetailScreen extends StatefulWidget {
-
   const AssetDetailScreen({
     super.key,
     required this.asset,
@@ -560,7 +558,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     ),
     _buildDetailRow(
       'Leitor Biométrico',
-      desktop.biometricReader ?? 'N/D',
+      desktop.biometricReaderStatus ?? 'N/D',
       Icons.fingerprint,
     ),
     _buildDetailRow(

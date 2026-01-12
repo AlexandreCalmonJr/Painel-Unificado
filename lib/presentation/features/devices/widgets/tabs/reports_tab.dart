@@ -1,6 +1,7 @@
 ﻿import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/device_model.dart';
 import 'package:painel_windowns/presentation/features/devices/widgets/managed_devices_card.dart';
 
@@ -8,7 +9,6 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:synchronized/synchronized.dart';
 
 class ReportsTab extends StatefulWidget {
-
   const ReportsTab({
     super.key,
     required this.devices,
@@ -41,7 +41,12 @@ class _ReportsTabState extends State<ReportsTab> with TickerProviderStateMixin {
   late Animation<double> _chartAnimation;
   late Animation<double> _cardsAnimation;
 
-  static const List<String> _statusOrder = ['Online', 'Offline', 'Manutenção', 'Sem Monitorar'];
+  static const List<String> _statusOrder = [
+    'Online',
+    'Offline',
+    'Manutenção',
+    'Sem Monitorar',
+  ];
   static const Map<String, Color> _statusColors = {
     'Online': Color(0xFF4CAF50),
     'Offline': Color(0xFFF44336),
@@ -76,12 +81,12 @@ class _ReportsTabState extends State<ReportsTab> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _chartAnimation = CurvedAnimation(
       parent: _chartAnimationController,
       curve: Curves.easeInOutCubic,
     );
-    
+
     _cardsAnimation = CurvedAnimation(
       parent: _cardsAnimationController,
       curve: Curves.easeInOutQuart,
@@ -107,7 +112,8 @@ class _ReportsTabState extends State<ReportsTab> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(covariant ReportsTab oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.devices != oldWidget.devices || widget.currentUser != oldWidget.currentUser) {
+    if (widget.devices != oldWidget.devices ||
+        widget.currentUser != oldWidget.currentUser) {
       _filterDevicesForCurrentUser();
       _updateCache();
     }
@@ -116,47 +122,62 @@ class _ReportsTabState extends State<ReportsTab> with TickerProviderStateMixin {
   Future<void> _updateCache() async {
     await _lock.synchronized(() {
       final now = DateTime.now();
-      if (_lastCacheUpdate == null || now.difference(_lastCacheUpdate!) > const Duration(minutes: 1)) {
+      if (_lastCacheUpdate == null ||
+          now.difference(_lastCacheUpdate!) > const Duration(minutes: 1)) {
         _statsCache[_selectedTimeRange] = _calculateDeviceStats();
         _lastCacheUpdate = now;
       }
     });
   }
 
-void _filterDevicesForCurrentUser() {
-  final userRole = widget.currentUser?['role'];
-  final userSectorPrefixes = widget.currentUser?['sector'];
+  void _filterDevicesForCurrentUser() {
+    final userRole = widget.currentUser?['role'];
+    final userSectorPrefixes = widget.currentUser?['sector'];
 
-  debugPrint('=== DEBUG FILTRO - Role: $userRole, Sector: $userSectorPrefixes ===');
+    debugPrint(
+      '=== DEBUG FILTRO - Role: $userRole, Sector: $userSectorPrefixes ===',
+    );
 
-  if (userRole == 'user' && userSectorPrefixes != null && userSectorPrefixes.isNotEmpty) {
-    final prefixes = userSectorPrefixes.split(',')
-        .map((p) => p.trim().toLowerCase())
-        .where((p) => p.isNotEmpty)
-        .toList();
-    
-    debugPrint('Prefixos: $prefixes');
-    debugPrint('Total dispositivos recebidos: ${widget.devices.length}');
+    if (userRole == 'user' &&
+        userSectorPrefixes != null &&
+        (userSectorPrefixes as String).isNotEmpty) {
+      final prefixes =
+          userSectorPrefixes
+              .split(',')
+              .map((p) => p.trim().toLowerCase())
+              .where((p) => p.isNotEmpty)
+              .toList();
 
-    _devicesForReport = widget.devices.where((device) {
-      final deviceName = device.deviceName?.toLowerCase() ?? '';
-      final match = prefixes.any((prefix) => deviceName.contains(prefix)); // Mudança: contains em vez de startsWith
-      if (match) debugPrint('Match: ${device.deviceName} -> $prefixes');
-      return match;
-    }).toList();
-    
-    debugPrint('Após filtro: ${_devicesForReport.length} dispositivos');
-  } else {
-    _devicesForReport = widget.devices;
-    debugPrint('Admin: Todos os dispositivos (${_devicesForReport.length})');
+      debugPrint('Prefixos: $prefixes');
+      debugPrint('Total dispositivos recebidos: ${widget.devices.length}');
+
+      _devicesForReport =
+          widget.devices.where((device) {
+            final deviceName = device.deviceName?.toLowerCase() ?? '';
+            final match = prefixes.any(
+              (prefix) => deviceName.contains(prefix),
+            ); // Mudança: contains em vez de startsWith
+            if (match) debugPrint('Match: ${device.deviceName} -> $prefixes');
+            return match;
+          }).toList();
+
+      debugPrint('Após filtro: ${_devicesForReport.length} dispositivos');
+    } else {
+      _devicesForReport = widget.devices;
+      debugPrint('Admin: Todos os dispositivos (${_devicesForReport.length})');
+    }
+
+    _clearFilter();
+    if (mounted) setState(() {});
   }
 
-  _clearFilter();
-  if (mounted) setState(() {});
-}
-
-  void _onPieSectionTouched(FlTouchEvent event, PieTouchResponse? pieTouchResponse) {
-    final isValidTouch = event.isInterestedForInteractions && pieTouchResponse?.touchedSection != null;
+  void _onPieSectionTouched(
+    FlTouchEvent event,
+    PieTouchResponse? pieTouchResponse,
+  ) {
+    final isValidTouch =
+        event.isInterestedForInteractions &&
+        pieTouchResponse?.touchedSection != null;
     if (!isValidTouch) {
       _clearFilter();
       return;
@@ -184,36 +205,37 @@ void _filterDevicesForCurrentUser() {
   }
 
   void _updateFilteredDeviceList() {
-    _filteredDevices = _selectedStatusFilter == null
-        ? _devicesForReport
-        : _devicesForReport.where((device) => _getDeviceStatus(device) == _selectedStatusFilter).toList();
+    _filteredDevices =
+        _selectedStatusFilter == null
+            ? _devicesForReport
+            : _devicesForReport
+                .where(
+                  (device) => _getDeviceStatus(device) == _selectedStatusFilter,
+                )
+                .toList();
   }
 
   String _getDeviceStatus(Device device) {
     if (device.maintenanceStatus ?? false) return 'Manutenção';
-    if (!isDeviceOnline(parseLastSeen(device.lastSeen), parseLastSync(device.lastSync))) return 'Offline';
+    if (!isDeviceOnline(parseLastSeen(device.lastSeen))) return 'Offline';
     return 'Online';
-  }
-
-  bool isDeviceOnline(DateTime? lastSeen, DateTime? lastSync) {
-    final now = DateTime.now();
-    final latest = lastSync != null && lastSync.isAfter(lastSeen ?? DateTime(0)) ? lastSync : lastSeen;
-    return latest != null && now.difference(latest).inMinutes < 45;
-  }
-
-  DateTime? parseLastSync(String? lastSync) {
-    return lastSync != null ? DateTime.tryParse(lastSync) : null;
   }
 
   Map<String, int> _calculateDeviceStats() {
     return _statsCache[_selectedTimeRange] ??= {
-      for (final status in _statusOrder) status: _devicesForReport.where((d) => _getDeviceStatus(d) == status).length,
+      for (final status in _statusOrder)
+        status:
+            _devicesForReport
+                .where((d) => _getDeviceStatus(d) == status)
+                .length,
     };
   }
 
   Future<void> _refreshData() async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 1500)); // Simula carregamento
+    await Future.delayed(
+      const Duration(milliseconds: 1500),
+    ); // Simula carregamento
     setState(() {
       _clearFilter();
       _isLoading = false;
@@ -247,7 +269,13 @@ void _filterDevicesForCurrentUser() {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text('Total de Dispositivos: $total', style: TextStyle(fontWeight: FontWeight.w600, color: theme.textTheme.bodyMedium?.color)),
+                      Text(
+                        'Total de Dispositivos: $total',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: theme.textTheme.bodyMedium?.color,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -270,8 +298,9 @@ void _filterDevicesForCurrentUser() {
   }
 
   Widget _buildHeader(ThemeData theme) => AnimatedBuilder(
-        animation: _cardsAnimation,
-        builder: (context, child) => Transform.translate(
+    animation: _cardsAnimation,
+    builder:
+        (context, child) => Transform.translate(
           offset: Offset(0, 50 * (1 - _cardsAnimation.value)),
           child: Opacity(
             opacity: _cardsAnimation.value,
@@ -279,7 +308,10 @@ void _filterDevicesForCurrentUser() {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [theme.primaryColor.withOpacity(0.1), Colors.transparent],
+                  colors: [
+                    theme.primaryColor.withOpacity(0.1),
+                    Colors.transparent,
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -294,7 +326,11 @@ void _filterDevicesForCurrentUser() {
                       color: theme.primaryColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.analytics_outlined, size: 28, color: Colors.white),
+                    child: const Icon(
+                      Icons.analytics_outlined,
+                      size: 28,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -310,7 +346,10 @@ void _filterDevicesForCurrentUser() {
                         ),
                         Text(
                           'Monitoramento em tempo real da sua frota',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
                         ),
                       ],
                     ),
@@ -319,18 +358,22 @@ void _filterDevicesForCurrentUser() {
                     SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: theme.primaryColor),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: theme.primaryColor,
+                      ),
                     ),
                 ],
               ),
             ),
           ),
         ),
-      );
+  );
 
   Widget _buildTimeRangeSelector(ThemeData theme) => AnimatedBuilder(
-        animation: _cardsAnimation,
-        builder: (context, child) => Transform.translate(
+    animation: _cardsAnimation,
+    builder:
+        (context, child) => Transform.translate(
           offset: Offset(0, 30 * (1 - _cardsAnimation.value)),
           child: Opacity(
             opacity: _cardsAnimation.value,
@@ -352,18 +395,30 @@ void _filterDevicesForCurrentUser() {
                       }
                     },
                     child: Container(
-                      margin: EdgeInsets.only(right: index < _timeRanges.length - 1 ? 8 : 0),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: EdgeInsets.only(
+                        right: index < _timeRanges.length - 1 ? 8 : 0,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: isSelected ? theme.primaryColor : Colors.grey[200],
+                        color:
+                            isSelected ? theme.primaryColor : Colors.grey[200],
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: isSelected ? Colors.transparent : Colors.grey[300]!),
+                        border: Border.all(
+                          color:
+                              isSelected
+                                  ? Colors.transparent
+                                  : Colors.grey[300]!,
+                        ),
                       ),
                       child: Text(
                         range,
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.grey[700],
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                     ),
@@ -373,100 +428,185 @@ void _filterDevicesForCurrentUser() {
             ),
           ),
         ),
-      );
+  );
 
-  Widget _buildStatsOverview(Map<String, int> stats, int total, ThemeData theme) => AnimatedBuilder(
-        animation: _cardsAnimation,
-        builder: (context, child) => Transform.translate(
+  Widget _buildStatsOverview(
+    Map<String, int> stats,
+    int total,
+    ThemeData theme,
+  ) => AnimatedBuilder(
+    animation: _cardsAnimation,
+    builder:
+        (context, child) => Transform.translate(
           offset: Offset(0, 40 * (1 - _cardsAnimation.value)),
           child: Opacity(
             opacity: _cardsAnimation.value,
             child: Row(
               children: [
-                Expanded(child: _buildStatCard('Total', total.toString(), Icons.devices, Colors.blue, theme)),
+                Expanded(
+                  child: _buildStatCard(
+                    'Total',
+                    total.toString(),
+                    Icons.devices,
+                    Colors.blue,
+                    theme,
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard('Online', (stats['Online'] ?? 0).toString(), Icons.check_circle, _statusColors['Online']!, theme)),
+                Expanded(
+                  child: _buildStatCard(
+                    'Online',
+                    (stats['Online'] ?? 0).toString(),
+                    Icons.check_circle,
+                    _statusColors['Online']!,
+                    theme,
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard('Offline', (stats['Offline'] ?? 0).toString(), Icons.error, _statusColors['Offline']!, theme)),
+                Expanded(
+                  child: _buildStatCard(
+                    'Offline',
+                    (stats['Offline'] ?? 0).toString(),
+                    Icons.error,
+                    _statusColors['Offline']!,
+                    theme,
+                  ),
+                ),
               ],
             ),
           ),
         ),
-      );
+  );
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, ThemeData theme) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
         ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 8),
-            Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-            Text(title, style: TextStyle(fontSize: 12, color: theme.textTheme.bodySmall?.color)),
-          ],
+      ],
+    ),
+    child: Column(
+      children: [
+        Icon(icon, color: color, size: 24),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
         ),
-      );
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 12,
+            color: theme.textTheme.bodySmall?.color,
+          ),
+        ),
+      ],
+    ),
+  );
 
   Widget _buildReportCard({
     required String title,
     required Widget child,
-    required ThemeData theme, IconData? icon,
+    required ThemeData theme,
+    IconData? icon,
     List<Widget>? actions,
-  }) =>
-      Card(
-        elevation: 8,
-        shadowColor: Colors.black.withOpacity(0.08),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(colors: [Colors.white, Colors.grey[50]!], begin: Alignment.topLeft, end: Alignment.bottomRight),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  }) => Card(
+    elevation: 8,
+    shadowColor: Colors.black.withOpacity(0.08),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey[50]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    if (icon != null)
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: theme.primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(icon, color: theme.primaryColor, size: 20),
-                      ),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87))),
-                    if (actions != null) ...actions,
-                  ],
+                if (icon != null)
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: theme.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, color: theme.primaryColor, size: 20),
+                  ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 20),
-                child,
+                if (actions != null) ...actions,
               ],
             ),
-          ),
+            const SizedBox(height: 20),
+            child,
+          ],
         ),
-      );
+      ),
+    ),
+  );
 
-  Widget _buildOverallStatusPieChart(Map<String, int> stats, int total, ThemeData theme) => AnimatedBuilder(
-        animation: _chartAnimation,
-        builder: (context, child) => Transform.scale(
+  Widget _buildOverallStatusPieChart(
+    Map<String, int> stats,
+    int total,
+    ThemeData theme,
+  ) => AnimatedBuilder(
+    animation: _chartAnimation,
+    builder:
+        (context, child) => Transform.scale(
           scale: _chartAnimation.value,
           child: _buildReportCard(
             title: 'Status dos Dispositivos',
             icon: Icons.pie_chart_outline,
             actions: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-                child: Text('Toque para filtrar', style: TextStyle(color: Colors.green[700], fontSize: 12, fontWeight: FontWeight.w600)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Toque para filtrar',
+                  style: TextStyle(
+                    color: Colors.green[700],
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
             child: Column(
@@ -475,7 +615,9 @@ void _filterDevicesForCurrentUser() {
                   height: 240,
                   child: PieChart(
                     PieChartData(
-                      pieTouchData: PieTouchData(touchCallback: _onPieSectionTouched),
+                      pieTouchData: PieTouchData(
+                        touchCallback: _onPieSectionTouched,
+                      ),
                       sectionsSpace: 3,
                       centerSpaceRadius: 60,
                       sections: _buildPieChartSections(stats),
@@ -489,9 +631,12 @@ void _filterDevicesForCurrentUser() {
             theme: theme,
           ),
         ),
-      );
+  );
 
-  List<PieChartSectionData> _buildPieChartSections(Map<String, int> statusCounts) => _statusOrder.asMap().entries.map((entry) {
+  List<PieChartSectionData> _buildPieChartSections(
+    Map<String, int> statusCounts,
+  ) =>
+      _statusOrder.asMap().entries.map((entry) {
         final index = entry.key;
         final status = entry.value;
         final count = statusCounts[status] ?? 0;
@@ -501,102 +646,171 @@ void _filterDevicesForCurrentUser() {
           value: count.toDouble(),
           title: count > 0 ? count.toString() : '',
           radius: isTouched ? 80.0 : 70.0,
-          titleStyle: TextStyle(fontSize: isTouched ? 18 : 16, fontWeight: FontWeight.bold, color: Colors.white, shadows: const [Shadow(color: Colors.black26, blurRadius: 2)]),
+          titleStyle: TextStyle(
+            fontSize: isTouched ? 18 : 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            shadows: const [Shadow(color: Colors.black26, blurRadius: 2)],
+          ),
           badgeWidget: isTouched ? _buildBadge(status, count) : null,
           badgePositionPercentageOffset: 1.3,
-          gradient: LinearGradient(colors: [_statusColors[status]!, _statusGradientColors[status]!], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: [_statusColors[status]!, _statusGradientColors[status]!],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         );
       }).toList();
 
   Widget _buildBadge(String status, int count) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 8, offset: const Offset(0, 3))]),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(status, style: const TextStyle(color: Colors.black87, fontSize: 12, fontWeight: FontWeight.w600)),
-            Text(count.toString(), style: TextStyle(color: _statusColors[status], fontSize: 14, fontWeight: FontWeight.bold)),
-          ],
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.15),
+          blurRadius: 8,
+          offset: const Offset(0, 3),
         ),
-      );
+      ],
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          status,
+          style: const TextStyle(
+            color: Colors.black87,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          count.toString(),
+          style: TextStyle(
+            color: _statusColors[status],
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+  );
 
-  Widget _buildLegend(Map<String, int> statusCounts, int total, ThemeData theme) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12)),
-        child: Wrap(
-          spacing: 20,
-          runSpacing: 12,
-          alignment: WrapAlignment.center,
-          children: _statusOrder.map((status) {
+  Widget _buildLegend(
+    Map<String, int> statusCounts,
+    int total,
+    ThemeData theme,
+  ) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.grey[50],
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Wrap(
+      spacing: 20,
+      runSpacing: 12,
+      alignment: WrapAlignment.center,
+      children:
+          _statusOrder.map((status) {
             final count = statusCounts[status] ?? 0;
-            final percentage = total > 0 ? (count / total * 100).toStringAsFixed(1) : '0.0';
+            final percentage =
+                total > 0 ? (count / total * 100).toStringAsFixed(1) : '0.0';
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: _statusColors[status]!.withOpacity(0.3))),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _statusColors[status]!.withOpacity(0.3),
+                ),
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: 12, height: 12, decoration: BoxDecoration(color: _statusColors[status], shape: BoxShape.circle)),
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: _statusColors[status],
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                   const SizedBox(width: 8),
-                  Text('$status: $count ($percentage%)', style: TextStyle(fontWeight: FontWeight.w500, color: theme.textTheme.bodyMedium?.color)),
+                  Text(
+                    '$status: $count ($percentage%)',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: theme.textTheme.bodyMedium?.color,
+                    ),
+                  ),
                 ],
               ),
             );
           }).toList(),
-        ),
-      );
+    ),
+  );
 
-  Widget _buildInsightsCard(Map<String, int> stats, int total, ThemeData theme) {
+  Widget _buildInsightsCard(
+    Map<String, int> stats,
+    int total,
+    ThemeData theme,
+  ) {
     if (_devicesForReport.isEmpty) return const SizedBox.shrink();
     final onlineCount = stats['Online'] ?? 0;
     final offlineCount = stats['Offline'] ?? 0;
     final maintenanceCount = stats['Manutenção'] ?? 0;
-    final onlinePercent = total > 0 ? (onlineCount / total * 100).toStringAsFixed(0) : '0';
+    final onlinePercent =
+        total > 0 ? (onlineCount / total * 100).toStringAsFixed(0) : '0';
 
     return AnimatedBuilder(
       animation: _cardsAnimation,
-      builder: (context, child) => Transform.translate(
-        offset: Offset(0, 50 * (1 - _cardsAnimation.value)),
-        child: Opacity(
-          opacity: _cardsAnimation.value,
-          child: _buildReportCard(
-            title: 'Insights Inteligentes',
-            icon: Icons.psychology,
-            child: Column(
-              children: [
-                _buildInsightTile(
-                  icon: Icons.trending_up,
-                  color: _getHealthColor(int.parse(onlinePercent)),
-                  title: 'Status da Frota: ${_getHealthStatus(int.parse(onlinePercent))}',
-                  subtitle: '$onlinePercent% online - ${_getOnlineInsight(int.parse(onlinePercent))}',
-                  progress: int.parse(onlinePercent) / 100,
-                  theme: theme,
+      builder:
+          (context, child) => Transform.translate(
+            offset: Offset(0, 50 * (1 - _cardsAnimation.value)),
+            child: Opacity(
+              opacity: _cardsAnimation.value,
+              child: _buildReportCard(
+                title: 'Insights Inteligentes',
+                icon: Icons.psychology,
+                child: Column(
+                  children: [
+                    _buildInsightTile(
+                      icon: Icons.trending_up,
+                      color: _getHealthColor(int.parse(onlinePercent)),
+                      title:
+                          'Status da Frota: ${_getHealthStatus(int.parse(onlinePercent))}',
+                      subtitle:
+                          '$onlinePercent% online - ${_getOnlineInsight(int.parse(onlinePercent))}',
+                      progress: int.parse(onlinePercent) / 100,
+                      theme: theme,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildInsightTile(
+                      icon: _getOfflineIcon(offlineCount),
+                      color: _getOfflineWarningColor(offlineCount),
+                      title: _getOfflineTitle(offlineCount),
+                      subtitle: _getOfflineInsight(offlineCount),
+                      showAlert: offlineCount > 5,
+                      theme: theme,
+                    ),
+                    if (maintenanceCount > 0) ...[
+                      const SizedBox(height: 16),
+                      _buildInsightTile(
+                        icon: Icons.build_circle,
+                        color: Colors.orange,
+                        title: '$maintenanceCount em manutenção',
+                        subtitle: 'Indisponíveis para uso temporário.',
+                        theme: theme,
+                      ),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: 16),
-                _buildInsightTile(
-                  icon: _getOfflineIcon(offlineCount),
-                  color: _getOfflineWarningColor(offlineCount),
-                  title: _getOfflineTitle(offlineCount),
-                  subtitle: _getOfflineInsight(offlineCount),
-                  showAlert: offlineCount > 5,
-                  theme: theme,
-                ),
-                if (maintenanceCount > 0) ...[
-                  const SizedBox(height: 16),
-                  _buildInsightTile(
-                    icon: Icons.build_circle,
-                    color: Colors.orange,
-                    title: '$maintenanceCount em manutenção',
-                    subtitle: 'Indisponíveis para uso temporário.',
-                    theme: theme,
-                  ),
-                ],
-              ],
+                theme: theme,
+              ),
             ),
-            theme: theme,
           ),
-        ),
-      ),
     );
   }
 
@@ -605,80 +819,171 @@ void _filterDevicesForCurrentUser() {
     required Color color,
     required String title,
     required String subtitle,
-    required ThemeData theme, double? progress,
+    required ThemeData theme,
+    double? progress,
     bool showAlert = false,
-  }) =>
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: color.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.2))),
-        child: Row(
-          children: [
-            Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10)), child: Icon(icon, color: Colors.white, size: 24)),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+  }) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.05),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: color.withOpacity(0.2)),
+    ),
+    child: Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: Colors.white, size: 24),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: theme.textTheme.bodyLarge?.color))),
-                      if (showAlert)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
-                          child: const Text('ATENÇÃO', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                        ),
-                    ],
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: theme.textTheme.bodyLarge?.color,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: TextStyle(color: theme.textTheme.bodySmall?.color, fontSize: 12)),
-                  if (progress != null) ...[
-                    const SizedBox(height: 8),
-                    LinearProgressIndicator(value: progress, backgroundColor: Colors.grey[200], valueColor: AlwaysStoppedAnimation<Color>(color)),
-                  ],
+                  if (showAlert)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        'ATENÇÃO',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: theme.textTheme.bodySmall?.color,
+                  fontSize: 12,
+                ),
+              ),
+              if (progress != null) ...[
+                const SizedBox(height: 8),
+                LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.grey[200],
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                ),
+              ],
+            ],
+          ),
         ),
-      );
+      ],
+    ),
+  );
 
-  Widget _buildPerformanceMetrics(Map<String, int> stats, int total, ThemeData theme) {
+  Widget _buildPerformanceMetrics(
+    Map<String, int> stats,
+    int total,
+    ThemeData theme,
+  ) {
     final onlineCount = stats['Online'] ?? 0;
     final uptime = total > 0 ? (onlineCount / total * 100) : 0.0;
 
     return AnimatedBuilder(
       animation: _cardsAnimation,
-      builder: (context, child) => Transform.translate(
-        offset: Offset(0, 60 * (1 - _cardsAnimation.value)),
-        child: Opacity(
-          opacity: _cardsAnimation.value,
-          child: _buildReportCard(
-            title: 'Métricas de Performance',
-            icon: Icons.speed,
-            child: Column(
-              children: [
-                _buildMetricRow('Uptime da Frota', '${uptime.toStringAsFixed(1)}%', uptime / 100, Colors.green, theme),
-                const SizedBox(height: 16),
-                _buildMetricRow('Dispositivos Ativos', '$onlineCount de $total', total > 0 ? onlineCount / total : 0, Colors.blue, theme),
-                const SizedBox(height: 16),
-                _buildMetricRow('Taxa de Falha', '${(100 - uptime).toStringAsFixed(1)}%', total > 0 ? (total - onlineCount) / total : 0, Colors.red, theme),
-              ],
+      builder:
+          (context, child) => Transform.translate(
+            offset: Offset(0, 60 * (1 - _cardsAnimation.value)),
+            child: Opacity(
+              opacity: _cardsAnimation.value,
+              child: _buildReportCard(
+                title: 'Métricas de Performance',
+                icon: Icons.speed,
+                child: Column(
+                  children: [
+                    _buildMetricRow(
+                      'Uptime da Frota',
+                      '${uptime.toStringAsFixed(1)}%',
+                      uptime / 100,
+                      Colors.green,
+                      theme,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildMetricRow(
+                      'Dispositivos Ativos',
+                      '$onlineCount de $total',
+                      total > 0 ? onlineCount / total : 0,
+                      Colors.blue,
+                      theme,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildMetricRow(
+                      'Taxa de Falha',
+                      '${(100 - uptime).toStringAsFixed(1)}%',
+                      total > 0 ? (total - onlineCount) / total : 0,
+                      Colors.red,
+                      theme,
+                    ),
+                  ],
+                ),
+                theme: theme,
+              ),
             ),
-            theme: theme,
           ),
-        ),
-      ),
     );
   }
 
-  Widget _buildMetricRow(String label, String value, double progress, Color color, ThemeData theme) => Column(
+  Widget _buildMetricRow(
+    String label,
+    String value,
+    double progress,
+    Color color,
+    ThemeData theme,
+  ) => Column(
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(label, style: TextStyle(fontWeight: FontWeight.w600, color: theme.textTheme.bodyMedium?.color)), Text(value, style: TextStyle(color: color, fontWeight: FontWeight.bold))]),
-          const SizedBox(height: 8),
-          LinearProgressIndicator(value: progress, backgroundColor: Colors.grey[200], valueColor: AlwaysStoppedAnimation<Color>(color)),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: theme.textTheme.bodyMedium?.color,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+          ),
         ],
-      );
+      ),
+      const SizedBox(height: 8),
+      LinearProgressIndicator(
+        value: progress,
+        backgroundColor: Colors.grey[200],
+        valueColor: AlwaysStoppedAnimation<Color>(color),
+      ),
+    ],
+  );
 
   String _getHealthStatus(int percentage) {
     if (percentage >= 95) return 'Excelente';
@@ -729,18 +1034,19 @@ void _filterDevicesForCurrentUser() {
   }
 
   Widget _buildFilteredDevicesSection() => AnimatedSize(
-        duration: const Duration(milliseconds: 300),
-        child: SizedBox(
-          height: 400,
-          child: ManagedDevicesCard(
-            title: 'Dispositivos: ${_selectedStatusFilter ?? 'Todos'} (${_filteredDevices.length})',
-            devices: _filteredDevices,
-            authService: widget.authService,
-            showActions: true,
-            token: widget.authService.currentToken,
-            currentUser: widget.authService.currentUser,
-            onDeviceUpdate: () => setState(() => _updateFilteredDeviceList()),
-          ),
-        ),
-      );
+    duration: const Duration(milliseconds: 300),
+    child: SizedBox(
+      height: 400,
+      child: ManagedDevicesCard(
+        title:
+            'Dispositivos: ${_selectedStatusFilter ?? 'Todos'} (${_filteredDevices.length})',
+        devices: _filteredDevices,
+        authService: widget.authService,
+        showActions: true,
+        token: widget.authService.currentToken,
+        currentUser: widget.authService.currentUser,
+        onDeviceUpdate: () => setState(() => _updateFilteredDeviceList()),
+      ),
+    ),
+  );
 }

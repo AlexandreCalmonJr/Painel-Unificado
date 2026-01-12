@@ -1,15 +1,14 @@
 // File: lib/screen/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/core/config/theme_models.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/core/utils/theme_gradients.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widget.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
-
   const ProfileScreen({super.key, required this.authService});
   final AuthService authService;
 
@@ -128,7 +127,11 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 32),
 
           // Avatar e informações básicas
-          ProfileAvatarWidget(username: username, size: 100, isOnline: true),
+          ProfileAvatarWidget(
+            username: username as String,
+            size: 100,
+            isOnline: true,
+          ),
 
           const SizedBox(height: 16),
 
@@ -166,7 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  role.toUpperCase(),
+                  (role as String).toUpperCase(),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -234,11 +237,19 @@ class _ProfileScreenState extends State<ProfileScreen>
                 children: [
                   _buildInfoRow(
                     'Usuário',
-                    user?['username']  as String ?? 'N/A',
+                    user?['username'] as String ?? 'N/A',
                     Icons.person,
                   ),
-                  _buildInfoRow('Email', user?['email'] as String ?? 'N/A', Icons.email),
-                  _buildInfoRow('Função', user?['role'] as String ?? 'N/A', Icons.work),
+                  _buildInfoRow(
+                    'Email',
+                    user?['email'] as String ?? 'N/A',
+                    Icons.email,
+                  ),
+                  _buildInfoRow(
+                    'Função',
+                    user?['role'] as String ?? 'N/A',
+                    Icons.work,
+                  ),
                   _buildInfoRow(
                     'Criado em',
                     user?['created_at'] as String ?? 'N/A',

@@ -1,5 +1,5 @@
-﻿// File: lib/devices/widgets/command_controls_v2.dart
-// VERSÃO MIGRADA USANDO BaseCommandMenu
+﻿// File: lib/presentation/features/devices/widgets/command_controls_v2.dart
+// Command controls using PopupMenuButton
 
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
@@ -8,7 +8,6 @@ import 'package:painel_windowns/presentation/shared/widgets/dialogs/base_dialog.
 import 'package:painel_windowns/services/device_service.dart';
 
 class CommandControlsV2 extends StatelessWidget {
-
   const CommandControlsV2({
     super.key,
     required this.device,
@@ -21,53 +20,151 @@ class CommandControlsV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BaseCommandMenu<Device>(
-      item: device,
-      actions: [
-        CommandAction<Device>(
-          label: 'Bloquear Dispositivo',
-          icon: Icons.lock,
-          onTap: _lockDevice,
-          requiresConfirmation: true,
-          confirmTitle: 'Bloquear dispositivo?',
-          confirmMessage: 'O dispositivo ${device.deviceName} será bloqueado.',
-        ),
-        CommandAction<Device>(
-          label: 'Marcar Manutenção',
-          icon: Icons.build,
-          onTap: _setMaintenance,
-          isVisible: (device) => device.status != 'maintenance',
-        ),
-        CommandAction<Device>(
-          label: 'Retornar à Produção',
-          icon: Icons.check_circle,
-          onTap: _returnToProduction,
-          isVisible: (device) => device.status == 'maintenance',
-          color: AppColors.success,
-        ),
-        CommandAction<Device>(
-          label: 'Instalar Aplicativo',
-          icon: Icons.download,
-          onTap: _installApp,
-        ),
-        CommandAction<Device>(
-          label: 'Desinstalar Aplicativo',
-          icon: Icons.delete_outline,
-          onTap: _uninstallApp,
-        ),
-        CommandAction<Device>(
-          label: 'Deletar Dispositivo',
-          icon: Icons.delete_forever,
-          onTap: _deleteDevice,
-          requiresConfirmation: true,
-          confirmTitle: 'Deletar dispositivo?',
-          confirmMessage:
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert),
+      tooltip: 'Ações do dispositivo',
+      onSelected: (value) async {
+        switch (value) {
+          case 'lock':
+            final confirmed = await _showConfirmDialog(
+              context,
+              'Bloquear dispositivo?',
+              'O dispositivo ${device.deviceName} será bloqueado.',
+            );
+            if (confirmed) await _lockDevice(context, device);
+            break;
+          case 'maintenance':
+            await _setMaintenance(context, device);
+            break;
+          case 'production':
+            await _returnToProduction(context, device);
+            break;
+          case 'install':
+            await _installApp(context, device);
+            break;
+          case 'uninstall':
+            await _uninstallApp(context, device);
+            break;
+          case 'delete':
+            final confirmed = await _showConfirmDialog(
+              context,
+              'Deletar dispositivo?',
               'Esta ação não pode ser desfeita. O dispositivo ${device.deviceName} será removido permanentemente.',
-          isDestructive: true,
-          color: AppColors.danger,
-        ),
-      ],
+              isDestructive: true,
+            );
+            if (confirmed) await _deleteDevice(context, device);
+            break;
+        }
+      },
+      itemBuilder:
+          (context) => [
+            const PopupMenuItem(
+              value: 'lock',
+              child: Row(
+                children: [
+                  Icon(Icons.lock, size: 18),
+                  SizedBox(width: 12),
+                  Text('Bloquear Dispositivo'),
+                ],
+              ),
+            ),
+            if (device.status != 'maintenance')
+              const PopupMenuItem(
+                value: 'maintenance',
+                child: Row(
+                  children: [
+                    Icon(Icons.build, size: 18),
+                    SizedBox(width: 12),
+                    Text('Marcar Manutenção'),
+                  ],
+                ),
+              ),
+            if (device.status == 'maintenance')
+              PopupMenuItem(
+                value: 'production',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      size: 18,
+                      color: AppColors.success,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Retornar à Produção',
+                      style: TextStyle(color: AppColors.success),
+                    ),
+                  ],
+                ),
+              ),
+            const PopupMenuDivider(),
+            const PopupMenuItem(
+              value: 'install',
+              child: Row(
+                children: [
+                  Icon(Icons.download, size: 18),
+                  SizedBox(width: 12),
+                  Text('Instalar Aplicativo'),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'uninstall',
+              child: Row(
+                children: [
+                  Icon(Icons.delete_outline, size: 18),
+                  SizedBox(width: 12),
+                  Text('Desinstalar Aplicativo'),
+                ],
+              ),
+            ),
+            const PopupMenuDivider(),
+            PopupMenuItem(
+              value: 'delete',
+              child: Row(
+                children: [
+                  Icon(Icons.delete_forever, size: 18, color: AppColors.danger),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Deletar Dispositivo',
+                    style: TextStyle(color: AppColors.danger),
+                  ),
+                ],
+              ),
+            ),
+          ],
     );
+  }
+
+  Future<bool> _showConfirmDialog(
+    BuildContext context,
+    String title,
+    String message, {
+    bool isDestructive = false,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDestructive ? AppColors.danger : null,
+                  foregroundColor: isDestructive ? Colors.white : null,
+                ),
+                child: const Text('Confirmar'),
+              ),
+            ],
+          ),
+    );
+    return result ?? false;
   }
 
   Future<void> _lockDevice(BuildContext context, Device device) async {
@@ -117,14 +214,31 @@ class CommandControlsV2 extends StatelessWidget {
 
     if (packageName == null || packageName.isEmpty) return;
 
-    await _executeCommand(context, 'uninstall_app', {'packageName': packageName});
+    await _executeCommand(context, 'uninstall_app', {
+      'packageName': packageName,
+    });
   }
 
   Future<void> _deleteDevice(BuildContext context, Device device) async {
     final service = DeviceService();
-    // O serviço retorna uma String com a mensagem de sucesso ou lança exceção
-    await service.deleteDevice(token, device.serialNumber!);
-    onCommandExecuted?.call();
+    try {
+      await service.deleteDevice(token, device.serialNumber!);
+      onCommandExecuted?.call();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Dispositivo deletado com sucesso')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao deletar dispositivo: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _executeCommand(
@@ -133,13 +247,28 @@ class CommandControlsV2 extends StatelessWidget {
     Map<String, dynamic> parameters,
   ) async {
     final service = DeviceService();
-    // O serviço retorna uma String com a mensagem de sucesso ou lança exceção
-    await service.sendCommand(
-      token,
-      device.serialNumber!,
-      command,
-      parameters,
-    );
-    onCommandExecuted?.call();
+    try {
+      await service.sendCommand(
+        token,
+        device.serialNumber!,
+        command,
+        parameters,
+      );
+      onCommandExecuted?.call();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Comando executado com sucesso')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao executar comando: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

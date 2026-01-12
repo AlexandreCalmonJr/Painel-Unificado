@@ -514,7 +514,9 @@ class _MDMDashboardState extends State<MDMDashboard> {
                   backgroundColor:
                       role == 'admin' ? Colors.red[700] : Colors.blue[700],
                   child: Text(
-                    username.isNotEmpty ? username[0].toUpperCase() as String : 'U',
+                    username.isNotEmpty
+                        ? username[0].toUpperCase() as String
+                        : 'U',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -595,7 +597,8 @@ class _MDMDashboardState extends State<MDMDashboard> {
       return DashboardTab(
         devices: _allFetchedDevices,
         errorMessage: errorMessage,
-        authService: widget.authService, onDeviceTap: (Device device) {  },
+        authService: widget.authService,
+        onDeviceTap: (Device device) {},
       );
     }
 
@@ -605,7 +608,8 @@ class _MDMDashboardState extends State<MDMDashboard> {
           devices: _allFetchedDevices,
           errorMessage: errorMessage,
           currentUser: currentUser,
-          authService: widget.authService, onDeviceTap: (Device device) {  },
+          authService: widget.authService,
+          onDeviceTap: (Device device) {},
         );
       case 1:
         return DevicesTab(
@@ -618,7 +622,9 @@ class _MDMDashboardState extends State<MDMDashboard> {
           onPageChange: _changePage,
           onSearch: _performSearch,
           currentUser: widget.authService.currentUser,
-          authService: widget.authService, onRefresh: () {  }, onDeviceTap: (Device device) {  },
+          authService: widget.authService,
+          onDeviceTap: (Device device) {},
+          onRefresh: () async {},
         );
       case 5:
         return ReportsTab(
@@ -657,6 +663,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
           devices: _allFetchedDevices,
           errorMessage: errorMessage,
           authService: widget.authService,
+          onDeviceTap: (Device device) {},
         );
     }
   }

@@ -1,25 +1,27 @@
 // File: lib/widgets/app_bar_widget.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/profile_page.dart';
-import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widget.dart';
+import 'package:painel_windowns/services/auth_service.dart';
 
 /// AppBar reutilizável para todas as telas
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
-    super.key,
-    required this.title,
+    required this.title, // ignore: always_put_required_named_parameters_first
     required this.authService,
+    super.key,
     this.showBackButton = false,
     this.showProfileButton = true,
     this.showThemeButton = true,
     this.showMenuButton = false,
     this.onMenuPressed,
     this.actions,
+    this.tabs,
+    this.tabController,
   });
   final String title;
   final AuthService authService;
@@ -29,6 +31,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showMenuButton;
   final VoidCallback? onMenuPressed;
   final List<Widget>? actions;
+  final List<Tab>? tabs;
+  final TabController? tabController;
 
   @override
   Size get preferredSize => const Size.fromHeight(70);
@@ -245,6 +249,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           case 'profile':
             Navigator.push(
               context,
+              // ignore: inference_failure_on_instance_creation
               MaterialPageRoute(
                 builder: (context) => ProfileScreen(authService: authService),
               ),
@@ -297,7 +302,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onPressed: () async {
                   await authService.logout();
                   if (context.mounted) {
-                    Navigator.of(
+                    await Navigator.of(
                       context,
                     ).pushNamedAndRemoveUntil('/login', (route) => false);
                   }
