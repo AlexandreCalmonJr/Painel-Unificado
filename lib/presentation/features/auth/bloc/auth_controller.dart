@@ -19,7 +19,7 @@ class AuthController extends GetxController {
   bool get isAdmin => currentUser.value?['role'] == 'admin';
   String? get token => _authService.currentToken;
   List<String> get permissions =>
-      List<String>.from(currentUser.value?['permissions'] ?? []);
+      List<String>.from(currentUser.value?['permissions'] as List<String> ?? []);
 
   @override
   void onInit() {
@@ -47,21 +47,21 @@ class AuthController extends GetxController {
 
       final result = await _authService.login(username, password);
 
-      if (result['success']) {
+      if (result['success'] as bool) {
         currentUser.value = _authService.currentUser;
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] ?? 'Erro ao fazer login';
+        errorMessage.value = result['message'] as String ?? 'Erro ao fazer login';
         isLoading.value = false;
         return false;
       }
     } on AuthException catch (e) {
-      errorMessage.value = e.message;
+      errorMessage.value = e.message as String;
       isLoading.value = false;
       return false;
     } on NetworkException catch (e) {
-      errorMessage.value = e.message;
+      errorMessage.value = e.message as String;
       isLoading.value = false;
       return false;
     } catch (e) {
@@ -96,10 +96,10 @@ class AuthController extends GetxController {
 
       final result = await _authService.getUsers();
 
-      if (result['success']) {
-        users.value = List<Map<String, dynamic>>.from(result['users'] ?? []);
+      if (result['success'] as bool) {
+        users.value = List<Map<String, dynamic>>.from(result['users'] as List<dynamic> ?? []);
       } else {
-        errorMessage.value = result['message'] ?? 'Erro ao buscar usuários';
+        errorMessage.value = result['message'] as String ?? 'Erro ao buscar usuários';
       }
     } catch (e) {
       errorMessage.value = 'Erro ao buscar usuários: ${e.toString()}';
@@ -121,15 +121,15 @@ class AuthController extends GetxController {
 
       final result = await _authService.createUser(userData);
 
-      if (result['success']) {
+      if (result['success'] as bool) {
         // Adiciona o novo usuário à lista
         if (result['user'] != null) {
-          users.add(result['user']);
+          users.add(result['user'] as Map<String, dynamic>);
         }
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] ?? 'Erro ao criar usuário';
+        errorMessage.value = result['message'] as String ?? 'Erro ao criar usuário';
         isLoading.value = false;
         return false;
       }
@@ -153,7 +153,7 @@ class AuthController extends GetxController {
 
       final result = await _authService.updateUser(userId, userData);
 
-      if (result['success']) {
+      if (result['success'] as bool) {
         // Atualiza o usuário na lista
         final index = users.indexWhere((u) => u['_id'] == userId);
         if (index != -1) {
@@ -162,7 +162,7 @@ class AuthController extends GetxController {
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] ?? 'Erro ao atualizar usuário';
+        errorMessage.value = result['message'] as String ?? 'Erro ao atualizar usuário';
         isLoading.value = false;
         return false;
       }
@@ -186,13 +186,13 @@ class AuthController extends GetxController {
 
       final result = await _authService.deleteUser(userId);
 
-      if (result['success']) {
+      if (result['success'] as bool) {
         // Remove o usuário da lista
         users.removeWhere((u) => u['_id'] == userId);
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] ?? 'Erro ao deletar usuário';
+        errorMessage.value = result['message'] as String ?? 'Erro ao deletar usuário';
         isLoading.value = false;
         return false;
       }
@@ -211,11 +211,11 @@ class AuthController extends GetxController {
 
       final result = await _authService.changePassword(currentPassword, newPassword);
 
-      if (result['success']) {
+      if (result['success'] as bool) {
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] ?? 'Erro ao alterar senha';
+        errorMessage.value = result['message'] as String ?? 'Erro ao alterar senha';
         isLoading.value = false;
         return false;
       }

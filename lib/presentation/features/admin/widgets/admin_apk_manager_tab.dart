@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 
@@ -312,7 +313,7 @@ class _AdminApkManagerTabState extends State<AdminApkManagerTab> {
                   children: [
                     Expanded(
                       child: Text(
-                        apk['name'],
+                        apk['name'] as String,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -349,7 +350,7 @@ class _AdminApkManagerTabState extends State<AdminApkManagerTab> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  apk['package'],
+                  apk['package'] as String,
                   style: TextStyle(
                     fontSize: 12,
                     color:
@@ -369,7 +370,7 @@ class _AdminApkManagerTabState extends State<AdminApkManagerTab> {
                       'v${apk['version']} (${apk['versionCode']})',
                       isDark,
                     ),
-                    _buildInfoChip(Icons.storage, apk['size'], isDark),
+                    _buildInfoChip(Icons.storage, apk['size'] as String, isDark),
                     _buildInfoChip(
                       Icons.download,
                       '${apk['downloads']} downloads',
@@ -377,7 +378,7 @@ class _AdminApkManagerTabState extends State<AdminApkManagerTab> {
                     ),
                     _buildInfoChip(
                       Icons.calendar_today,
-                      apk['uploadDate'],
+                      apk['uploadDate'] as String,
                       isDark,
                     ),
                   ],

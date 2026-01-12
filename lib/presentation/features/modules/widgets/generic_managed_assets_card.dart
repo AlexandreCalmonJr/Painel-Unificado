@@ -10,10 +10,7 @@ import 'package:painel_windowns/presentation/features/modules/pages/asset_detail
 import 'package:painel_windowns/presentation/features/modules/widgets/asset_command_controls_v2.dart';
 import 'package:painel_windowns/presentation/shared/widgets/status/status_chip.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/presentation/shared/widgets/cards/base_card.dart';
-import 'package:painel_windowns/presentation/shared/widgets/data_table/base_data_table.dart';
-import 'package:painel_windowns/presentation/shared/widgets/texts/app_text_styles.dart';
-import 'package:painel_windowns/presentation/shared/widgets/theme_controller.dart';
+
 
 
 class GenericManagedAssetsCard extends StatelessWidget {

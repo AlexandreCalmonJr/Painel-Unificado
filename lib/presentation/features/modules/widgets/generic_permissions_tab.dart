@@ -42,8 +42,9 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
     try {
       // 1. Buscar todos os usuários
       final usersResponse = await widget.authService.getUsers();
-      if (!usersResponse['success']) {
-        throw Exception(usersResponse['message']);
+      // ignore: unnecessary_cast
+      if (!usersResponse['success'] as bool) {
+        throw Exception(usersResponse['message'] as String);
       }
       final allUsers = usersResponse['users'] as List<dynamic>;
 
@@ -211,10 +212,10 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
         final bool hasPermission = _permittedUserIds.contains(userId);
 
         return CheckboxListTile(
-          title: Text(user['username'] ?? 'Usuário Inválido'),
-          subtitle: Text('Setor: ${user['sector'] ?? 'N/D'}'),
+          title: Text(user['username'] as String ?? 'Usuário Inválido'),
+          subtitle: Text('Setor: ${user['sector'] as String ?? 'N/D'}'),
           value: hasPermission,
-          onChanged: (bool? value) {
+          onChanged: (bool? value) {  
             setState(() {
               if (value == true) {
                 _permittedUserIds.add(userId);

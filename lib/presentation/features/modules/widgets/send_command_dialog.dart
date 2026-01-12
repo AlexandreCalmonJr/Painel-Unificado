@@ -366,8 +366,8 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
   }
 
   Widget _buildCommandCard(String key, Map<String, dynamic> data) {
-    final color = _getColorFromName(data['color']);
-    final icon = _getIconFromName(data['icon']);
+    final color = _getColorFromName(data['color'] as String);
+    final icon = _getIconFromName(data['icon'] as String);
 
     return InkWell(
       onTap: () => _selectCommand(key, data),
@@ -392,7 +392,7 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
             ),
             const SizedBox(height: 8),
             Text(
-              data['label'],
+              data['label'] as String,
               style: TextStyle(
                 color: color.withOpacity(0.9),
                 fontSize: 12,

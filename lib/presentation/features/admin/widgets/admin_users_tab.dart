@@ -11,13 +11,12 @@ import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widge
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
-
 class AdminUsersTab extends StatefulWidget {
-  const AdminUsersTab({super.key, required this.authService});
+  const AdminUsersTab({required this.authService, super.key});
   final AuthService authService;
 
   @override
-  _AdminUsersTabState createState() => _AdminUsersTabState();
+  State<AdminUsersTab> createState() => _AdminUsersTabState();
 }
 
 class _AdminUsersTabState extends State<AdminUsersTab> {
@@ -391,7 +390,7 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 Row(
                   children: [
                     ProfileAvatarWidget(
-                      username: user['username'],
+                      username: user['username'] as String,
                       size: 50,
                       isOnline: isCurrentUser,
                     ),
@@ -401,7 +400,7 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            user['username'],
+                            user['username'] as String,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -449,13 +448,13 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                 // Informações
                 _buildInfoRow(
                   Icons.email,
-                  user['email'] ?? 'Sem email',
+                  (user['email'] as String?) ?? 'Sem email',
                   isDark,
                 ),
                 const SizedBox(height: 8),
                 _buildInfoRow(
                   Icons.business,
-                  user['sector'] ?? 'Sem setor',
+                  (user['sector'] as String?) ?? 'Sem setor',
                   isDark,
                 ),
 
@@ -750,7 +749,7 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
 extension AuthServiceExtension on AuthService {
   Future<Map<String, dynamic>> getUsers() async {
     if (!isLoggedIn || !isAdmin) {
-      return {'success': false, 'users': []};
+      return {'success': false, 'users': <Map<String, dynamic>>[]};
     }
     final config = ServerConfigService.instance.loadConfig();
     try {
@@ -766,10 +765,14 @@ extension AuthServiceExtension on AuthService {
         final data = jsonDecode(response.body);
         return {'success': true, 'users': data['users']};
       } else {
-        return {'success': false, 'users': []};
+        return {'success': false, 'users': <Map<String, dynamic>>[]};
       }
     } catch (e) {
-      return {'success': false, 'users': [], 'error': e.toString()};
+      return {
+        'success': false,
+        'users': <Map<String, dynamic>>[],
+        'error': e.toString(),
+      };
     }
   }
 }

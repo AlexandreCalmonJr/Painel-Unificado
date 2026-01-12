@@ -475,7 +475,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          username,
+                          username as String,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -514,7 +514,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
                   backgroundColor:
                       role == 'admin' ? Colors.red[700] : Colors.blue[700],
                   child: Text(
-                    username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                    username.isNotEmpty ? username[0].toUpperCase() as String : 'U',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -595,7 +595,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
       return DashboardTab(
         devices: _allFetchedDevices,
         errorMessage: errorMessage,
-        authService: widget.authService,
+        authService: widget.authService, onDeviceTap: (Device device) {  },
       );
     }
 
@@ -605,7 +605,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
           devices: _allFetchedDevices,
           errorMessage: errorMessage,
           currentUser: currentUser,
-          authService: widget.authService,
+          authService: widget.authService, onDeviceTap: (Device device) {  },
         );
       case 1:
         return DevicesTab(
@@ -618,7 +618,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
           onPageChange: _changePage,
           onSearch: _performSearch,
           currentUser: widget.authService.currentUser,
-          authService: widget.authService,
+          authService: widget.authService, onRefresh: () {  }, onDeviceTap: (Device device) {  },
         );
       case 5:
         return ReportsTab(
@@ -814,12 +814,12 @@ class _MDMDashboardState extends State<MDMDashboard> {
                                       newPasswordController.text,
                                     );
                                 setState(() => isLoading = false);
-                                if (result['success']) {
+                                if (result['success'] as bool) {
                                   Navigator.of(context).pop();
                                   _showSnackbar('Senha alterada com sucesso');
                                 } else {
                                   _showSnackbar(
-                                    result['message'],
+                                    result['message'] as String,
                                     isError: true,
                                   );
                                 }

@@ -385,7 +385,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
                       Icon(Icons.person, size: 16, color: Colors.blue[600]),
                       const SizedBox(width: 6),
                       Text(
-                        username,
+                        username as String,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen>
       );
 
       if (mounted) {
-        if (result['success']) {
+        if (result['success'] as bool) {
           // Animação de sucesso antes da navegação
           _showSuccessSnackbar('Login realizado com sucesso!');
           await Future.delayed(const Duration(milliseconds: 1000));
@@ -132,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           );
         } else {
-          _showErrorSnackbar(result['message']);
+          _showErrorSnackbar(result['message'] as String);
         }
       }
     } catch (e) {

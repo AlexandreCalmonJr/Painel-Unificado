@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 
-
 class AdminNotebooksExampleTab extends StatefulWidget {
   const AdminNotebooksExampleTab({super.key});
 
@@ -75,7 +74,7 @@ class _AdminNotebooksExampleTabState extends State<AdminNotebooksExampleTab> {
 
   void _handleView(Map<String, dynamic> asset) {
     // Implementar visualização de detalhes
-    showDialog(
+    showDialog<void>(
       context: context,
       builder:
           (context) => AlertDialog(
@@ -102,7 +101,7 @@ class _AdminNotebooksExampleTabState extends State<AdminNotebooksExampleTab> {
 
   void _handleDelete(Map<String, dynamic> asset) {
     // Implementar exclusão com confirmação
-    showDialog(
+    showDialog<void>(
       context: context,
       builder:
           (context) => AlertDialog(
@@ -207,7 +206,22 @@ class _AdminNotebooksExampleTabState extends State<AdminNotebooksExampleTab> {
 
           const SizedBox(height: 20),
 
-          // Tabela Dinâmica
+          // TODO: Implementar DynamicAssetTable
+          // Tabela Dinâmica comentada temporariamente
+          Expanded(
+            child: Center(
+              child: Text(
+                'DynamicAssetTable será implementado em breve',
+                style: TextStyle(
+                  color:
+                      isDark
+                          ? AppColors.textSecondary
+                          : AppColors.textSecondaryLight,
+                ),
+              ),
+            ),
+          ),
+          /* 
           Expanded(
             child: DynamicAssetTable(
               assetType: 'notebook',
@@ -228,6 +242,7 @@ class _AdminNotebooksExampleTabState extends State<AdminNotebooksExampleTab> {
               ],
             ),
           ),
+          */
         ],
       );
     });

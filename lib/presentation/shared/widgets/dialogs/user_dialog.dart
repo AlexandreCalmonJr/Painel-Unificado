@@ -1,8 +1,8 @@
 // File: lib/widgets/dialogs/user_dialog.dart
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/core/constants/app_constants.dart';
 
 class UserDialog {
   /// Mostra dialog para criar novo usuário
@@ -435,7 +435,7 @@ class UserDialog {
                         }
 
                         final result = await authService
-                            .updateUser(user['_id'], {
+                            .updateUser(user['_id'] as String, {
                               'username': usernameController.text,
                               'email': emailController.text,
                               'role': selectedRole,
@@ -544,7 +544,7 @@ class UserDialog {
               ),
               ElevatedButton.icon(
                 onPressed: () async {
-                  final result = await authService.deleteUser(user['_id']);
+                  final result = await authService.deleteUser(user['_id'] as String);
                   Navigator.pop(context);
                   if (result['success'] == true) {
                     onSuccess();

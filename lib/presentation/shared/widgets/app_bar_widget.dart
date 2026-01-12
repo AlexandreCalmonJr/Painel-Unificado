@@ -10,7 +10,6 @@ import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widge
 
 /// AppBar reutilizável para todas as telas
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-
   const CustomAppBar({
     super.key,
     required this.title,
@@ -137,7 +136,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     Map<String, Color> palette,
   ) {
     final user = authService.currentUser;
-    final username = user?['username'] ?? 'Usuário';
+    final String username = (user?['username'] as String?) ?? 'Usuário';
 
     return PopupMenuButton<String>(
       offset: const Offset(0, 50),

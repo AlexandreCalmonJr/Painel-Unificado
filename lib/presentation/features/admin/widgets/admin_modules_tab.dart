@@ -2,14 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/module.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/shared/widgets/dialogs/module_dialog.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
-
 class AdminModulesTab extends StatefulWidget {
-  const AdminModulesTab({super.key, required this.authService});
+  const AdminModulesTab({required this.authService, super.key});
   final AuthService authService;
 
   @override
@@ -56,27 +57,32 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
       builder:
           (context) => ModuleDialog(
             module: module,
-            onSave: (data) async {
+            onSave: (Map<String, dynamic> data) async {
               if (module == null) {
                 // Create - usa as colunas que vêm do dialog
+                final typeIdentifier = data['type'] as String;
+                final moduleType = AssetModuleType.values.firstWhere(
+                  (t) => t.identifier == typeIdentifier,
+                  orElse: () => AssetModuleType.custom,
+                );
                 await _moduleService.createModule(
-                  name: data['name'],
-                  description: data['description'],
-                  type: _getModuleTypeFromIdentifier(data['type']),
+                  name: data['name'] as String,
+                  description: data['description'] as String,
+                  type: moduleType,
                   tableColumns: List<Map<String, String>>.from(
-                    data['table_columns'] ?? [],
+                    data['table_columns'] as List? ?? [],
                   ),
                 );
               } else {
                 // Update
                 await _moduleService.updateModule(
                   moduleId: module.id,
-                  name: data['name'],
-                  description: data['description'],
-                  isActive: data['is_active'],
+                  name: data['name'] as String?,
+                  description: data['description'] as String?,
+                  isActive: data['is_active'] as bool?,
                   type: module.type,
                   tableColumns: List<Map<String, String>>.from(
-                    data['table_columns'] ?? [],
+                    data['table_columns'] as List? ?? [],
                   ),
                 );
               }
@@ -85,7 +91,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     );
 
     if (result == true) {
-      _loadModules();
+      await _loadModules();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -130,7 +136,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     if (confirm == true) {
       try {
         await _moduleService.deleteModule(module.id);
-        _loadModules();
+        await _loadModules();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

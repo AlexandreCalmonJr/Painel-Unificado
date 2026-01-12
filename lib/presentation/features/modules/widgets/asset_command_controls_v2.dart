@@ -111,7 +111,7 @@ class AssetCommandControlsV2 extends StatelessWidget {
       moduleId: assetType,
       assetId: asset.id,
       maintenanceMode: true,
-      reason: data['reason'] ?? '',
+      reason: data['reason'] as String ?? '',
     );
 
     onCommandExecuted?.call();

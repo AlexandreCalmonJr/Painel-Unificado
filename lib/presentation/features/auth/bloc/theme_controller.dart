@@ -48,7 +48,9 @@ class ThemeController extends GetxController {
       final configJson = prefs.getString(_prefsKey);
 
       if (configJson != null) {
-        final config = ThemeConfig.fromJson(json.decode(configJson));
+        final config = ThemeConfig.fromJson(
+          json.decode(configJson),
+        );
         _themeConfig.value = config;
       }
 

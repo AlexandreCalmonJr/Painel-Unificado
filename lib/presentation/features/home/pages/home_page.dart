@@ -218,14 +218,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           children: [
                             ProfileAvatarWidget(
                               username:
-                                  widget.authService.currentUser?['username'] ??
+                                  widget.authService.currentUser?['username'] as String??
                                   'User',
                               size: 32,
                               isOnline: true,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              widget.authService.currentUser?['username'] ??
+                              widget.authService.currentUser?['username'] as String ??
                                   'Usuário',
                               style: TextStyle(
                                 color:
@@ -385,7 +385,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                             Text(
                                               widget
                                                       .authService
-                                                      .currentUser?['username'] ??
+                                                      .currentUser?['username'] as String ??
                                                   'Usuário',
                                               style: TextStyle(
                                                 fontSize: 14,
