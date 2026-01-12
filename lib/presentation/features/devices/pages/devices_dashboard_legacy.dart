@@ -3,20 +3,21 @@
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/devices/device_detail_screen.dart';
-import 'package:painel_windowns/devices/utils/helpers.dart';
-import 'package:painel_windowns/devices/utils/test_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/dashboard_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/devices_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/maintenance_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/reports_tab.dart';
+import 'package:painel_windowns/core/utils/helpers.dart';
+import 'package:painel_windowns/core/utils/test_tab.dart';
+
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
-import 'package:painel_windowns/data/models/device.dart';
+import 'package:painel_windowns/data/models/device_model.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
-import 'package:painel_windowns/screen/login_screen.dart';
+import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
+import 'package:painel_windowns/presentation/features/devices/pages/device_detail_page.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/tabs/dashboard_tab.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/tabs/devices_tab.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/tabs/maintenance_tab.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/tabs/reports_tab.dart';
+import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
-import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
 
 class MDMDashboard extends StatefulWidget {
   const MDMDashboard({super.key, required this.authService});

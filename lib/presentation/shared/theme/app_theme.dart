@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 
 class AppTheme {
   static ThemeData get darkTheme {

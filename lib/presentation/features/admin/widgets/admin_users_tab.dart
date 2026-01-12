@@ -4,12 +4,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/shared/widgets/dialogs/user_dialog.dart';
+import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
-import 'package:painel_windowns/widgets/dialogs/user_dialog.dart';
-import 'package:painel_windowns/widgets/profile_avatar_widget.dart';
+
 
 class AdminUsersTab extends StatefulWidget {
   const AdminUsersTab({super.key, required this.authService});

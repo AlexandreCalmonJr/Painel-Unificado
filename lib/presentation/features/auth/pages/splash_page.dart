@@ -1,8 +1,9 @@
 // splash_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/devices/dashboard_screen.dart';
-import 'package:painel_windowns/screen/login_screen.dart';
+import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
+import 'package:painel_windowns/presentation/features/devices/pages/devices_dashboard_legacy.dart';
+
 import 'package:painel_windowns/services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -28,6 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Após a verificação, navega para a tela correta
     if (widget.authService.isLoggedIn) {
       Navigator.of(context).pushReplacement(
+        // ignore: inference_failure_on_instance_creation
         MaterialPageRoute(builder: (context) => MDMDashboard(authService: widget.authService)),
       );
     } else {

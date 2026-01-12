@@ -8,13 +8,15 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 // Imports dos Modelos Específicos (Ajuste os caminhos)
 import 'package:painel_windowns/data/models/unit_model.dart';
-import 'package:painel_windowns/modules/tabs/generic_assets_list_tab.dart';
-import 'package:painel_windowns/modules/tabs/generic_dashboard_tab.dart';
-import 'package:painel_windowns/modules/tabs/generic_maintenance_tab.dart';
-import 'package:painel_windowns/modules/tabs/generic_permissions_tab.dart';
+import 'package:painel_windowns/presentation/features/modules/widgets/generic_assets_list_tab.dart';
+import 'package:painel_windowns/presentation/features/modules/widgets/generic_dashboard_tab.dart';
+import 'package:painel_windowns/presentation/features/modules/widgets/generic_maintenance_tab.dart';
+import 'package:painel_windowns/presentation/features/modules/widgets/generic_permissions_tab.dart';
+import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
+
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
+
 
 class GenericDashboardScreen extends StatefulWidget {
 

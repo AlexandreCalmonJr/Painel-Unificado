@@ -2,13 +2,13 @@
 // VERSÃO MIGRADA USANDO BaseCommandMenu
 
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/modules/widgets/send_command_dialog.dart';
+import 'package:painel_windowns/presentation/features/modules/widgets/send_command_dialog.dart';
+import 'package:painel_windowns/presentation/shared/widgets/dialogs/base_dialog.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
-import 'package:painel_windowns/widgets/common/base_command_menu.dart';
-import 'package:painel_windowns/widgets/dialogs/base_dialog.dart';
+
 
 class AssetCommandControlsV2 extends StatelessWidget {
 

@@ -2,22 +2,26 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
-import 'package:painel_windowns/devices/widgets/hub_menu_item.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
+
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/modules/generic_dashboard_screen.dart';
-import 'package:painel_windowns/screen/profile_screen.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/features/auth/pages/profile_page.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/hub_menu_item.dart';
+import 'package:painel_windowns/presentation/features/modules/pages/generic_dashboard_screen.dart';
+import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
+import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widget.dart';
+
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
-import 'package:painel_windowns/widgets/profile_avatar_widget.dart';
-import 'package:painel_windowns/widgets/theme_selector_widget.dart';
+
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.authService});
+  const HomeScreen({required this.authService, super.key});
   final AuthService authService;
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
 }
 

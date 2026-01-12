@@ -1,9 +1,9 @@
 ﻿import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:painel_windowns/devices/utils/helpers.dart';
-import 'package:painel_windowns/devices/widgets/managed_devices_card.dart';
-import 'package:painel_windowns/data/models/device.dart';
+import 'package:painel_windowns/data/models/device_model.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/managed_devices_card.dart';
+
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:synchronized/synchronized.dart';
 

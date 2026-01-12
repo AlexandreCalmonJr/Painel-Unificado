@@ -1,8 +1,8 @@
 ﻿// File: lib/tabs/generic_dashboard_tab.dart (CORRIGIDO)
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/devices/widgets/stat_card.dart'; // Import do StatCard
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/modules/widgets/generic_managed_assets_card.dart';
+import 'package:painel_windowns/presentation/features/modules/widgets/generic_managed_assets_card.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 
 class GenericDashboardTab extends StatelessWidget { // <-- ADICIONADO
 

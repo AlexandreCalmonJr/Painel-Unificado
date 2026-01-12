@@ -3,18 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/device_model.dart';
-import 'package:painel_windowns/devices/device_detail_screen.dart';
-import 'package:painel_windowns/devices/widgets/tabs/dashboard_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/devices_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/maintenance_tab.dart';
-import 'package:painel_windowns/devices/widgets/tabs/reports_tab.dart';
 import 'package:painel_windowns/presentation/bloc/device/device_bloc.dart';
 import 'package:painel_windowns/presentation/bloc/device/device_event.dart';
 import 'package:painel_windowns/presentation/bloc/device/device_state.dart';
+import 'package:painel_windowns/presentation/features/devices/pages/device_detail_page.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/tabs/dashboard_tab.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/tabs/devices_tab.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/tabs/maintenance_tab.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/tabs/reports_tab.dart';
 import 'package:painel_windowns/presentation/shared/layouts/base_dashboard_layout.dart';
 import 'package:painel_windowns/presentation/shared/widgets/app_bar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+
 
 /// Dashboard refatorado de dispositivos móveis
 ///
@@ -233,7 +234,7 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                                     context.read<DeviceBloc>().add(
                                       const RefreshDevices(),
                                     );
-                                  },
+                                  }, token: '', onDeviceUpdate: () {  }, isReadOnly: null, currentUser: const {}, currentPage: null, totalPages: null, onPageChange: (int p1) {  }, onSearch: (String p1) {  },
                                 ),
                                 onRefresh: () async {
                                   context.read<DeviceBloc>().add(
@@ -249,7 +250,7 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                                 stats: const [],
                                 mainContent: MaintenanceTab(
                                   authService: widget.authService,
-                                  devices: devices,
+                                  devices: devices, token: '', onDeviceUpdate: () {  }, currentUser: {},
                                 ),
                                 onRefresh: () async {
                                   context.read<DeviceBloc>().add(
@@ -265,7 +266,7 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                                 stats: const [],
                                 mainContent: ReportsTab(
                                   authService: widget.authService,
-                                  devices: devices,
+                                  devices: devices, currentUser: {},
                                 ),
                                 onRefresh: () async {
                                   context.read<DeviceBloc>().add(

@@ -1,16 +1,15 @@
 // File: lib/admin/admin_dashboard_screen.dart (ATUALIZADO)
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/admin/tabs/admin_apk_manager_tab.dart';
-import 'package:painel_windowns/admin/tabs/admin_locations_tab.dart';
-import 'package:painel_windowns/admin/tabs/admin_modules_tab.dart';
-
-import 'package:painel_windowns/admin/tabs/admin_users_tab.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/presentation/features/admin/widgets/admin_apk_manager_tab.dart';
+import 'package:painel_windowns/presentation/features/admin/widgets/admin_locations_tab.dart';
+import 'package:painel_windowns/presentation/features/admin/widgets/admin_modules_tab.dart';
+import 'package:painel_windowns/presentation/features/admin/widgets/admin_users_tab.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/shared/widgets/app_bar_widget.dart';
+import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
-import 'package:painel_windowns/widgets/app_bar_widget.dart';
-import 'package:painel_windowns/widgets/common/custom_sidebar.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key, required this.authService});

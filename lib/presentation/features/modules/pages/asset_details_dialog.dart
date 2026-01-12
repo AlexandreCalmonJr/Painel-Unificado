@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/data/models/desktop.dart';
-import 'package:painel_windowns/data/models/notebook.dart';
-import 'package:painel_windowns/data/models/painel.dart';
-import 'package:painel_windowns/data/models/printer.dart';
+import 'package:painel_windowns/data/models/desktop_model.dart';
+import 'package:painel_windowns/data/models/notebook_model.dart';
+import 'package:painel_windowns/data/models/panel_model.dart';
+import 'package:painel_windowns/data/models/printer_model.dart';
 
 class AssetDetailsDialog extends StatelessWidget {
 

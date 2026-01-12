@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 
 class HubMenuItem extends StatelessWidget {
 

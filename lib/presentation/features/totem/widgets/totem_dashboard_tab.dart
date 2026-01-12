@@ -1,6 +1,9 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:painel_windowns/data/models/totem_model.dart';
 import 'package:painel_windowns/devices/widgets/stat_card.dart';
 import 'package:painel_windowns/data/models/totem.dart';
+import 'package:painel_windowns/presentation/features/totem/widgets/managed_devices_card.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
 
 class TotemDashboardTab extends StatelessWidget {

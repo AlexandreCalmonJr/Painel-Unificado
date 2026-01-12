@@ -1,9 +1,9 @@
 ﻿// File: lib/controllers/device_controller.dart
 import 'package:get/get.dart';
-import 'package:painel_windowns/controllers/auth_controller.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
-import 'package:painel_windowns/data/models/device.dart';
+import 'package:painel_windowns/data/models/device_model.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/auth_controller.dart';
 import 'package:painel_windowns/services/device_service.dart';
 
 /// Controller para gerenciamento de dispositivos usando GetX

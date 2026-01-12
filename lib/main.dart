@@ -104,6 +104,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         },
 
         // GetX bindings
+        // ignore: inference_failure_on_instance_creation
         initialBinding: BindingsBuilder(() {
           Get.put(ThemeController());
         }),

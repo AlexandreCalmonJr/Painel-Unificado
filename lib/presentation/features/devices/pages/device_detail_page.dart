@@ -1,9 +1,10 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:painel_windowns/devices/utils/helpers.dart';
-import 'package:painel_windowns/data/models/device.dart';
+import 'package:painel_windowns/core/utils/helpers.dart';
+import 'package:painel_windowns/data/models/device_model.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
-import 'package:painel_windowns/widgets/common/app_card.dart';
+
 
 class DeviceDetailScreen extends StatefulWidget {
 

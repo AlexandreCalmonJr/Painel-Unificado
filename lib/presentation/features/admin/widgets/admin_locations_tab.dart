@@ -1,18 +1,17 @@
 ﻿// File: lib/admin/tabs/admin_locations_tab.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/admin/widgets/location_dialog.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/location.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
-import 'package:painel_windowns/screen/unit_bssids_page.dart';
+import 'package:painel_windowns/presentation/features/admin/pages/unit_bssids_page.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
 import 'package:painel_windowns/services/location_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
 
 class AdminLocationsTab extends StatefulWidget {
-  const AdminLocationsTab({super.key, required this.authService});
+  const AdminLocationsTab({required this.authService, super.key});
   final AuthService authService;
 
   @override
@@ -206,13 +205,13 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
   Future<void> _showImportDialog() async {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
+        const SnackBar(
+          content: Text(
             'Funcionalidade de importação em desenvolvimento. '
             'Use a interface de Unidades para cadastrar BSSIDs.',
           ),
           backgroundColor: AppColors.primary,
-          duration: const Duration(seconds: 4),
+          duration: Duration(seconds: 4),
         ),
       );
     }

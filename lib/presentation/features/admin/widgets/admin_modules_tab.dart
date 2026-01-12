@@ -1,12 +1,12 @@
 ﻿// File: lib/admin/tabs/admin_modules_tab.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/admin/widgets/module_dialog.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/module.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
+
 
 class AdminModulesTab extends StatefulWidget {
   const AdminModulesTab({super.key, required this.authService});

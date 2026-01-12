@@ -8,15 +8,18 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
-import 'package:painel_windowns/devices/device_detail_screen.dart';
-import 'package:painel_windowns/devices/utils/helpers.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/core/utils/helpers.dart';
+import 'package:painel_windowns/data/models/device_model.dart';
+
 import 'package:painel_windowns/devices/widgets/command_controls_v2.dart';
-import 'package:painel_windowns/data/models/device.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/features/devices/pages/device_detail_page.dart';
+import 'package:painel_windowns/presentation/features/devices/widgets/command_controls_v2.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
+
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
-import 'package:painel_windowns/widgets/common/app_card.dart';
-import 'package:painel_windowns/widgets/common/index.dart';
+
 import 'package:path_provider/path_provider.dart';
 
 class ManagedDevicesCard extends StatelessWidget {

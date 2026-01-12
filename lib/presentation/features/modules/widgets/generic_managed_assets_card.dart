@@ -3,13 +3,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/modules/asset_detail_screen.dart';
-import 'package:painel_windowns/modules/widgets/asset_command_controls_v2.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/features/modules/pages/asset_detail_screen.dart';
+import 'package:painel_windowns/presentation/features/modules/widgets/asset_command_controls_v2.dart';
+import 'package:painel_windowns/presentation/shared/widgets/status/status_chip.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
-import 'package:painel_windowns/widgets/common/index.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/base_card.dart';
+import 'package:painel_windowns/presentation/shared/widgets/data_table/base_data_table.dart';
+import 'package:painel_windowns/presentation/shared/widgets/texts/app_text_styles.dart';
+import 'package:painel_windowns/presentation/shared/widgets/theme_controller.dart';
+
 
 class GenericManagedAssetsCard extends StatelessWidget {
 

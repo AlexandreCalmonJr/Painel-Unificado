@@ -8,7 +8,7 @@ class StatusChip extends StatelessWidget {
     required this.status,
     this.color,
     this.icon,
-    this.showIcon = true,
+    this.showIcon = true, required type,
   });
 
   /// Factory para criar chip baseado em status de dispositivo
@@ -45,7 +45,7 @@ class StatusChip extends StatelessWidget {
         icon = Icons.help_outline;
     }
 
-    return StatusChip(status: status, color: color, icon: icon);
+    return StatusChip(status: status, color: color, icon: icon, type: null,);
   }
   final String status;
   final Color? color;

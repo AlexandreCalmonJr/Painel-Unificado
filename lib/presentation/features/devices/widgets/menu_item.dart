@@ -14,6 +14,7 @@ class MenuItem extends StatelessWidget {
   final String title;
   final int index;
   final int selectedIndex;
+  // ignore: inference_failure_on_function_return_type
   final Function(int) onTap;
 
   @override

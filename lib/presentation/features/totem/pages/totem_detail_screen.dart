@@ -1,8 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:painel_windowns/data/models/totem.dart';
+import 'package:painel_windowns/data/models/totem_model.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/widgets/common/app_card.dart';
 
 class TotemDetailScreen extends StatelessWidget {
 
@@ -320,6 +320,7 @@ class TotemDetailScreen extends StatelessWidget {
             )
           else
             ...totem.installedPrograms.map(
+              // ignore: inference_failure_on_untyped_parameter
               (program) => _buildProgramItem(program),
             ),
         ],

@@ -1,9 +1,9 @@
 // File: lib/admin/tabs/admin_apk_manager_tab.dart (REDESIGNED)
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/controllers/theme_controller.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/utils/app_constants.dart';
+
 
 class AdminApkManagerTab extends StatefulWidget {
   const AdminApkManagerTab({super.key, required this.authService});

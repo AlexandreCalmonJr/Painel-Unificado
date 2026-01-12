@@ -1,5 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/totem.dart';
+import 'package:painel_windowns/data/models/totem_model.dart';
+import 'package:painel_windowns/presentation/features/totem/widgets/managed_devices_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
 

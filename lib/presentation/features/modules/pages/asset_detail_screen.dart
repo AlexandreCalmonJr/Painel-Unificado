@@ -1,16 +1,17 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:painel_windowns/devices/utils/helpers.dart';
+import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/data/models/desktop.dart';
-import 'package:painel_windowns/data/models/notebook.dart';
-import 'package:painel_windowns/data/models/painel.dart';
-import 'package:painel_windowns/data/models/printer.dart';
+import 'package:painel_windowns/data/models/desktop_model.dart';
+import 'package:painel_windowns/data/models/notebook_model.dart';
+import 'package:painel_windowns/data/models/panel_model.dart';
+import 'package:painel_windowns/data/models/printer_model.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 import 'package:painel_windowns/services/asset_command_service.dart';
 import 'package:painel_windowns/services/asset_maintenance_service.dart';
-import 'package:painel_windowns/widgets/common/app_card.dart';
+
 
 class AssetDetailScreen extends StatefulWidget {
 
