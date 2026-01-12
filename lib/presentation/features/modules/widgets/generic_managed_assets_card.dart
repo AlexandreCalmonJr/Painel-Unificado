@@ -8,13 +8,12 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/features/modules/pages/asset_detail_screen.dart';
 import 'package:painel_windowns/presentation/features/modules/widgets/asset_command_controls_v2.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/base_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/status/status_chip.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tables/base_data_table.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
-
-
 class GenericManagedAssetsCard extends StatelessWidget {
-
   const GenericManagedAssetsCard({
     super.key,
     required this.title,

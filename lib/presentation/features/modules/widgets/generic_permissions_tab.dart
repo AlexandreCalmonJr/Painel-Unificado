@@ -4,7 +4,6 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
 class GenericPermissionsTab extends StatefulWidget {
-
   const GenericPermissionsTab({
     super.key,
     required this.moduleId,
@@ -43,14 +42,15 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
       // 1. Buscar todos os usuários
       final usersResponse = await widget.authService.getUsers();
       // ignore: unnecessary_cast
-      if (!usersResponse['success'] as bool) {
+      if (!(usersResponse['success'] as bool)) {
         throw Exception(usersResponse['message'] as String);
       }
       final allUsers = usersResponse['users'] as List<dynamic>;
 
       // 2. Buscar permissões atuais do módulo
-      final permittedIds =
-          await widget.moduleService.getModulePermissions(widget.moduleId);
+      final permittedIds = await widget.moduleService.getModulePermissions(
+        widget.moduleId,
+      );
 
       // Filtra usuários "admin" (eles sempre têm acesso)
       final nonAdminUsers =
@@ -138,10 +138,7 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
               Expanded(
                 child: Text(
                   'Administradores sempre têm acesso total a todos os módulos.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.blue.shade700,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.blue.shade700),
                 ),
               ),
             ],
@@ -151,8 +148,9 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
         Expanded(
           child: Card(
             elevation: 2,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: _buildBody(),
           ),
         ),
@@ -162,19 +160,25 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
           children: [
             ElevatedButton.icon(
               onPressed: _isLoading ? null : _savePermissions,
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.save, color: Colors.white),
+              icon:
+                  _isLoading
+                      ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                      : const Icon(Icons.save, color: Colors.white),
               label: const Text('Salvar Permissões'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
               ),
             ),
           ],
@@ -192,7 +196,10 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Text('Erro: $_errorMessage', style: const TextStyle(color: Colors.red)),
+          child: Text(
+            'Erro: $_errorMessage',
+            style: const TextStyle(color: Colors.red),
+          ),
         ),
       );
     }
@@ -215,7 +222,7 @@ class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
           title: Text(user['username'] as String ?? 'Usuário Inválido'),
           subtitle: Text('Setor: ${user['sector'] as String ?? 'N/D'}'),
           value: hasPermission,
-          onChanged: (bool? value) {  
+          onChanged: (bool? value) {
             setState(() {
               if (value == true) {
                 _permittedUserIds.add(userId);

@@ -115,7 +115,7 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result['message'] ?? 'Comando enviado'),
+            content: Text(result['message'] as String?? 'Comando enviado'),
             backgroundColor:
                 result['success'] == true ? Colors.green : Colors.red,
             behavior: SnackBarBehavior.floating,

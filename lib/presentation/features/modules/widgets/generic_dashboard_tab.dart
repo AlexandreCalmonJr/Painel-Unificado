@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/presentation/features/modules/widgets/generic_managed_assets_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
+import 'package:painel_windowns/services/auth_service.dart';
 
-class GenericDashboardTab extends StatelessWidget { // <-- ADICIONADO
+class GenericDashboardTab extends StatelessWidget {
+  // <-- ADICIONADO
 
   const GenericDashboardTab({
     super.key,
@@ -14,16 +16,16 @@ class GenericDashboardTab extends StatelessWidget { // <-- ADICIONADO
     required this.moduleType,
     required this.columns, // <-- CAMPO ADICIONADO
     required this.authService,
-    required this.moduleConfig,// <-- ADICIONADO
+    required this.moduleConfig, // <-- ADICIONADO
   });
   final List<ManagedAsset> allAssets;
   final VoidCallback onRefresh;
   final IconData Function() getModuleIcon;
   final String moduleType;
   final List<TableColumnConfig> columns; // <-- CAMPO ADICIONADO
-  final dynamic authService;
-  
-  final dynamic moduleConfig;
+  final AuthService authService;
+
+  final AssetModuleConfig moduleConfig;
 
   @override
   Widget build(BuildContext context) {
@@ -91,12 +93,12 @@ class GenericDashboardTab extends StatelessWidget { // <-- ADICIONADO
           Expanded(
             child: GenericManagedAssetsCard(
               title: '($moduleType) Gerenciados (${allAssets.length})',
-              columns: columns, 
+              columns: columns,
               assets: allAssets,
               showActions: false, // Ações desabilitadas no dashboard
               authService: authService,
               moduleConfig: moduleConfig,
-              
+
               // ✅ CORREÇÃO APLICADA AQUI
               onAssetChanged: onRefresh, // Passa a função de recarregar
             ),

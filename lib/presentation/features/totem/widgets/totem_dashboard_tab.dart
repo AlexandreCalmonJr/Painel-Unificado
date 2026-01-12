@@ -1,13 +1,10 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/totem_model.dart';
-import 'package:painel_windowns/devices/widgets/stat_card.dart';
-import 'package:painel_windowns/data/models/totem.dart';
 import 'package:painel_windowns/presentation/features/totem/widgets/managed_devices_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
-import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
+import 'package:painel_windowns/services/auth_service.dart';
 
 class TotemDashboardTab extends StatelessWidget {
-
   const TotemDashboardTab({
     super.key,
     required this.totems,
@@ -17,7 +14,7 @@ class TotemDashboardTab extends StatelessWidget {
   });
   final List<Totem> totems;
   final VoidCallback onRefresh;
-  final dynamic authService;
+  final AuthService authService;
   final dynamic currentUser;
 
   @override
