@@ -8,7 +8,6 @@ import 'package:painel_windowns/services/asset_maintenance_service.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
-
 class AssetDetailScreen extends StatefulWidget {
   const AssetDetailScreen({
     required this.asset,
@@ -508,208 +507,295 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   // Continuação do asset_detail_screen.dart
 
   Widget _buildAssetSpecificDetails() {
-    if (widget.asset is Desktop) {
+    if (widget.asset.assetType == 'desktop') {
       return _buildSectionCard(
         title: 'Detalhes do Desktop',
         icon: Icons.computer,
-        children: _buildDesktopDetails(widget.asset as Desktop),
+        children: _buildDesktopDetails(widget.asset),
       );
-    } else if (widget.asset is Notebook) {
+    } else if (widget.asset.assetType == 'notebook') {
       return _buildSectionCard(
         title: 'Detalhes do Notebook',
         icon: Icons.laptop,
-        children: _buildNotebookDetails(widget.asset as Notebook),
+        children: _buildNotebookDetails(widget.asset),
       );
-    } else if (widget.asset is Panel) {
+    } else if (widget.asset.assetType == 'panel') {
       return _buildSectionCard(
         title: 'Detalhes do Painel',
         icon: Icons.tv,
-        children: _buildPanelDetails(widget.asset as Panel),
+        children: _buildPanelDetails(widget.asset),
       );
-    } else if (widget.asset is Printer) {
+    } else if (widget.asset.assetType == 'printer') {
       return _buildSectionCard(
         title: 'Detalhes da Impressora',
         icon: Icons.print,
-        children: _buildPrinterDetails(widget.asset as Printer),
+        children: _buildPrinterDetails(widget.asset),
       );
     }
     return const SizedBox.shrink();
   }
 
-  List<Widget> _buildDesktopDetails(Desktop desktop) => [
-    _buildDetailRow('Hostname', desktop.hostname, Icons.dns, copyable: true),
-    _buildDetailRow('Modelo', desktop.model, Icons.laptop_chromebook),
-    _buildDetailRow('Fabricante', desktop.manufacturer, Icons.business_center),
-    _buildDetailRow('Processador', desktop.processor, Icons.memory),
-    _buildDetailRow('Memória RAM', desktop.ram, Icons.storage),
-    _buildDetailRow('Armazenamento', desktop.storage, Icons.sd_storage),
-    _buildDetailRow('Tipo de HD', desktop.storageType, Icons.data_usage),
-    _buildDetailRow('SO', desktop.operatingSystem, Icons.computer),
-    _buildDetailRow('Versão do SO', desktop.osVersion, Icons.info),
-    _buildDetailRow(
-      'Endereço IP',
-      desktop.ipAddress,
-      Icons.network_check,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'MAC Address',
-      desktop.macAddress,
-      Icons.router,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'Leitor Biométrico',
-      desktop.biometricReaderStatus ?? 'N/D',
-      Icons.fingerprint,
-    ),
-    _buildDetailRow(
-      'Impressora Conectada',
-      desktop.connectedPrinter ?? 'N/D',
-      Icons.print,
-    ),
-    _buildDetailRow('Versão Java', desktop.javaVersion ?? 'N/D', Icons.code),
-    _buildDetailRow('Navegador', desktop.browserVersion ?? 'N/D', Icons.public),
-    _buildDetailRow(
-      'Antivírus',
-      desktop.antivirusStatus ? 'Ativo' : 'Inativo',
-      Icons.security,
-    ),
-    if (desktop.antivirusVersion != null)
+  List<Widget> _buildDesktopDetails(ManagedAsset desktop) {
+    final d = desktop as dynamic;
+    return [
       _buildDetailRow(
-        'Versão Antivírus',
-        desktop.antivirusVersion!,
-        Icons.verified_user,
+        'Hostname',
+        d.hostname as String? ?? 'N/D',
+        Icons.dns,
+        copyable: true,
       ),
-  ];
-
-  List<Widget> _buildNotebookDetails(Notebook notebook) => [
-    _buildDetailRow('Hostname', notebook.hostname, Icons.dns, copyable: true),
-    _buildDetailRow('Modelo', notebook.model, Icons.laptop),
-    _buildDetailRow('Fabricante', notebook.manufacturer, Icons.business_center),
-    _buildDetailRow('Processador', notebook.processor, Icons.memory),
-    _buildDetailRow('Memória RAM', notebook.ram, Icons.storage),
-    _buildDetailRow('Armazenamento', notebook.storage, Icons.sd_storage),
-    _buildDetailRow(
-      'Nível Bateria',
-      notebook.batteryLevel != null ? '${notebook.batteryLevel}%' : 'N/D',
-      Icons.battery_charging_full,
-    ),
-    _buildDetailRow(
-      'Saúde Bateria',
-      notebook.batteryHealth ?? 'N/D',
-      Icons.health_and_safety,
-    ),
-    _buildDetailRow(
-      'Endereço IP',
-      notebook.ipAddress,
-      Icons.network_check,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'MAC Address',
-      notebook.macAddress,
-      Icons.router,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'Antivírus',
-      notebook.antivirusStatus ? 'Ativo' : 'Inativo',
-      Icons.security,
-    ),
-    _buildDetailRow(
-      'Criptografia',
-      notebook.isEncrypted ? 'Ativa' : 'Inativa',
-      Icons.lock,
-    ),
-  ];
-
-  List<Widget> _buildPanelDetails(Panel panel) => [
-    _buildDetailRow('Tamanho da Tela', panel.screenSize, Icons.aspect_ratio),
-    _buildDetailRow(
-      'Resolução',
-      panel.resolution,
-      Icons.photo_size_select_large,
-    ),
-    if (panel.brightness != null)
-      _buildDetailRow('Brilho', '${panel.brightness}%', Icons.brightness_6),
-    if (panel.volume != null)
-      _buildDetailRow('Volume', '${panel.volume}%', Icons.volume_up),
-    _buildDetailRow(
-      'Endereço IP',
-      panel.ipAddress,
-      Icons.network_check,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'MAC Address',
-      panel.macAddress,
-      Icons.router,
-      copyable: true,
-    ),
-    _buildDetailRow('Firmware', panel.firmwareVersion, Icons.system_update),
-    _buildDetailRow('Entrada HDMI', panel.hdmiInput ?? 'N/D', Icons.hd),
-  ];
-
-  List<Widget> _buildPrinterDetails(Printer printer) => [
-    _buildDetailRow(
-      'Tipo de Conexão',
-      printer.connectionType,
-      Icons.settings_input_hdmi,
-    ),
-    if (printer.ipAddress != null)
+      _buildDetailRow(
+        'Modelo',
+        d.model as String? ?? 'N/D',
+        Icons.laptop_chromebook,
+      ),
+      _buildDetailRow(
+        'Fabricante',
+        d.manufacturer as String? ?? 'N/D',
+        Icons.business_center,
+      ),
+      _buildDetailRow(
+        'Processador',
+        d.processor as String? ?? 'N/D',
+        Icons.memory,
+      ),
+      _buildDetailRow('Memória RAM', d.ram as String? ?? 'N/D', Icons.storage),
+      _buildDetailRow(
+        'Armazenamento',
+        d.storage as String? ?? 'N/D',
+        Icons.sd_storage,
+      ),
+      _buildDetailRow(
+        'Tipo de HD',
+        d.storageType as String? ?? 'N/D',
+        Icons.data_usage,
+      ),
+      _buildDetailRow(
+        'SO',
+        d.operatingSystem as String? ?? 'N/D',
+        Icons.computer,
+      ),
+      _buildDetailRow(
+        'Versão do SO',
+        d.osVersion as String? ?? 'N/D',
+        Icons.info,
+      ),
       _buildDetailRow(
         'Endereço IP',
-        printer.ipAddress!,
+        d.ipAddress as String? ?? 'N/D',
         Icons.network_check,
         copyable: true,
       ),
-    if (printer.hostComputerName != null)
       _buildDetailRow(
-        'Computador Host',
-        printer.hostComputerName!,
-        Icons.computer,
-      ),
-    _buildDetailRow('Status', printer.printerStatus, Icons.print),
-    if (printer.errorMessage != null)
-      _buildDetailRow(
-        'Erro',
-        printer.errorMessage!,
-        Icons.error,
+        'MAC Address',
+        d.macAddress as String? ?? 'N/D',
+        Icons.router,
         copyable: true,
       ),
-    if (printer.totalPageCount != null)
       _buildDetailRow(
-        'Total de Páginas',
-        printer.totalPageCount.toString(),
-        Icons.description,
+        'Leitor Biométrico',
+        d.biometricReaderStatus as String? ?? 'N/D',
+        Icons.fingerprint,
       ),
-    if (printer.colorPageCount != null)
       _buildDetailRow(
-        'Páginas Coloridas',
-        printer.colorPageCount.toString(),
-        Icons.color_lens,
+        'Impressora Conectada',
+        d.connectedPrinter as String? ?? 'N/D',
+        Icons.print,
       ),
-    if (printer.blackWhitePageCount != null)
       _buildDetailRow(
-        'Páginas P&B',
-        printer.blackWhitePageCount.toString(),
-        Icons.filter_b_and_w,
+        'Versão Java',
+        d.javaVersion as String? ?? 'N/D',
+        Icons.code,
       ),
-    _buildDetailRow(
-      'Impressão Duplex',
-      printer.isDuplex == true ? 'Sim' : 'Não',
-      Icons.compare_arrows,
-    ),
-    _buildDetailRow(
-      'Impressão Colorida',
-      printer.isColor == true ? 'Sim' : 'Não',
-      Icons.palette,
-    ),
-  ];
+      _buildDetailRow(
+        'Navegador',
+        d.browserVersion as String? ?? 'N/D',
+        Icons.public,
+      ),
+      _buildDetailRow(
+        'Antivírus',
+        (d.antivirusStatus == true) ? 'Ativo' : 'Inativo',
+        Icons.security,
+      ),
+      if (d.antivirusVersion != null)
+        _buildDetailRow(
+          'Versão Antivírus',
+          d.antivirusVersion as String,
+          Icons.verified_user,
+        ),
+    ];
+  }
+
+  List<Widget> _buildNotebookDetails(ManagedAsset notebook) {
+    final n = notebook as dynamic;
+    return [
+      _buildDetailRow(
+        'Hostname',
+        n.hostname as String? ?? 'N/D',
+        Icons.dns,
+        copyable: true,
+      ),
+      _buildDetailRow('Modelo', n.model as String? ?? 'N/D', Icons.laptop),
+      _buildDetailRow(
+        'Fabricante',
+        n.manufacturer as String? ?? 'N/D',
+        Icons.business_center,
+      ),
+      _buildDetailRow(
+        'Processador',
+        n.processor as String? ?? 'N/D',
+        Icons.memory,
+      ),
+      _buildDetailRow('Memória RAM', n.ram as String? ?? 'N/D', Icons.storage),
+      _buildDetailRow(
+        'Armazenamento',
+        n.storage as String? ?? 'N/D',
+        Icons.sd_storage,
+      ),
+      _buildDetailRow(
+        'Nível Bateria',
+        n.batteryLevel != null ? '${n.batteryLevel}%' : 'N/D',
+        Icons.battery_charging_full,
+      ),
+      _buildDetailRow(
+        'Saúde Bateria',
+        n.batteryHealth as String? ?? 'N/D',
+        Icons.health_and_safety,
+      ),
+      _buildDetailRow(
+        'Endereço IP',
+        n.ipAddress as String? ?? 'N/D',
+        Icons.network_check,
+        copyable: true,
+      ),
+      _buildDetailRow(
+        'MAC Address',
+        n.macAddress as String? ?? 'N/D',
+        Icons.router,
+        copyable: true,
+      ),
+      _buildDetailRow(
+        'Antivírus',
+        (n.antivirusStatus == true) ? 'Ativo' : 'Inativo',
+        Icons.security,
+      ),
+      _buildDetailRow(
+        'Criptografia',
+        (n.isEncrypted == true) ? 'Ativa' : 'Inativa',
+        Icons.lock,
+      ),
+    ];
+  }
+
+  List<Widget> _buildPanelDetails(ManagedAsset panel) {
+    final p = panel as dynamic;
+    return [
+      _buildDetailRow(
+        'Tamanho da Tela',
+        p.screenSize as String? ?? 'N/D',
+        Icons.aspect_ratio,
+      ),
+      _buildDetailRow(
+        'Resolução',
+        p.resolution as String? ?? 'N/D',
+        Icons.photo_size_select_large,
+      ),
+      if (p.brightness != null)
+        _buildDetailRow('Brilho', '${p.brightness}% ', Icons.brightness_6),
+      if (p.volume != null)
+        _buildDetailRow('Volume', '${p.volume}%', Icons.volume_up),
+      _buildDetailRow(
+        'Endereço IP',
+        p.ipAddress as String? ?? 'N/D',
+        Icons.network_check,
+        copyable: true,
+      ),
+      _buildDetailRow(
+        'MAC Address',
+        p.macAddress as String? ?? 'N/D',
+        Icons.router,
+        copyable: true,
+      ),
+      _buildDetailRow(
+        'Firmware',
+        p.firmwareVersion as String? ?? 'N/D',
+        Icons.system_update,
+      ),
+      _buildDetailRow(
+        'Entrada HDMI',
+        p.hdmiInput as String? ?? 'N/D',
+        Icons.hd,
+      ),
+    ];
+  }
+
+  List<Widget> _buildPrinterDetails(ManagedAsset printer) {
+    final pr = printer as dynamic;
+    return [
+      _buildDetailRow(
+        'Tipo de Conexão',
+        pr.connectionType as String? ?? 'N/D',
+        Icons.settings_input_hdmi,
+      ),
+      if (pr.ipAddress != null)
+        _buildDetailRow(
+          'Endereço IP',
+          pr.ipAddress as String,
+          Icons.network_check,
+          copyable: true,
+        ),
+      if (pr.hostComputerName != null)
+        _buildDetailRow(
+          'Computador Host',
+          pr.hostComputerName as String,
+          Icons.computer,
+        ),
+      _buildDetailRow(
+        'Status',
+        pr.printerStatus as String? ?? 'N/D',
+        Icons.print,
+      ),
+      if (pr.errorMessage != null)
+        _buildDetailRow(
+          'Erro',
+          pr.errorMessage as String,
+          Icons.error,
+          copyable: true,
+        ),
+      if (pr.totalPageCount != null)
+        _buildDetailRow(
+          'Total de Páginas',
+          pr.totalPageCount.toString(),
+          Icons.description,
+        ),
+      if (pr.colorPageCount != null)
+        _buildDetailRow(
+          'Páginas Coloridas',
+          pr.colorPageCount.toString(),
+          Icons.color_lens,
+        ),
+      if (pr.blackWhitePageCount != null)
+        _buildDetailRow(
+          'Páginas P&B',
+          pr.blackWhitePageCount.toString(),
+          Icons.filter_b_and_w,
+        ),
+      _buildDetailRow(
+        'Impressão Duplex',
+        (pr.isDuplex == true) ? 'Sim' : 'Não',
+        Icons.compare_arrows,
+      ),
+      _buildDetailRow(
+        'Impressão Colorida',
+        (pr.isColor == true) ? 'Sim' : 'Não',
+        Icons.palette,
+      ),
+    ];
+  }
 
   bool _isCommandSupported() {
-    return widget.asset is Desktop || widget.asset is Notebook;
+    // Only allow remote commands when the asset is online
+    return widget.asset.status.toLowerCase() == 'online';
   }
 
   Widget _buildCommandsCard() {
