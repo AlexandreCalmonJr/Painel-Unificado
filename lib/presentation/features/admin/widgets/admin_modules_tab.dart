@@ -6,8 +6,9 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/module.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/module_dialog.dart';
-import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
+// import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/module_management_service.dart';
 
 class AdminModulesTab extends StatefulWidget {
   const AdminModulesTab({required this.authService, super.key});
@@ -41,7 +42,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
       final configs = await _moduleService.listModules();
       setState(() {
         _modules =
-            configs
+            (configs as List<dynamic>)
                 .map(
                   (c) => Module.fromAssetModuleConfig(c as AssetModuleConfig),
                 )
@@ -64,7 +65,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
             module: module,
             onSave: (Map<String, dynamic> data) async {
               if (module == null) {
-                // Create - usa as colunas que v�m do dialog
+                // Create - usa as colunas que vêm do dialog
                 final typeIdentifier = data['type'] as String;
                 final moduleType = AssetModuleType.values.firstWhere(
                   (t) => t.identifier == typeIdentifier,
@@ -102,8 +103,8 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
           SnackBar(
             content: Text(
               module == null
-                  ? 'M�dulo criado com sucesso!'
-                  : 'M�dulo atualizado com sucesso!',
+                  ? 'Módulo criado com sucesso!'
+                  : 'Módulo atualizado com sucesso!',
             ),
             backgroundColor: AppColors.success,
           ),
@@ -117,9 +118,9 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Confirmar Exclus�o'),
+            title: const Text('Confirmar Exclusão'),
             content: Text(
-              'Tem certeza que deseja excluir o m�dulo "${module.name}"?\n\nEsta a��o n�o pode ser desfeita.',
+              'Tem certeza que deseja excluir o módulo "${module.name}"?\n\nEsta ação não pode ser desfeita.',
             ),
             actions: [
               TextButton(
@@ -146,7 +147,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('M�dulo exclu�do com sucesso!'),
+              content: Text('Módulo excluído com sucesso!'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -164,16 +165,6 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     }
   }
 
-  // Helper para converter string identifier para AssetModuleType
-  dynamic _getModuleTypeFromIdentifier(String identifier) {
-    return _modules
-        .firstWhere(
-          (m) => m.type.identifier == identifier,
-          orElse: () => _modules.first,
-        )
-        .type;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -182,9 +173,12 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
       final palette = themeController.currentPalette;
 
       final filteredModules =
-          _modules.where((mod) {
-            return mod.name.toLowerCase().contains(_searchQuery.toLowerCase());
-          }).toList();
+          _modules
+              .where(
+                (mod) =>
+                    mod.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+              )
+              .toList();
 
       if (_isLoading) {
         return const Center(child: CircularProgressIndicator());
@@ -202,7 +196,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Erro ao carregar m�dulos',
+                'Erro ao carregar módulos',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -241,12 +235,12 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
 
       return Column(
         children: [
-          // Header com estat�sticas
+          // Header com estatísticas
           Row(
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'Total de M�dulos',
+                  'Total de Módulos',
                   _modules.length.toString(),
                   Icons.apps,
                   palette['primary']!,
@@ -256,7 +250,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatCard(
-                  'M�dulos Ativos',
+                  'Módulos Ativos',
                   activeModules.toString(),
                   Icons.check_circle,
                   AppColors.success,
@@ -266,7 +260,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatCard(
-                  'M�dulos Inativos',
+                  'Módulos Inativos',
                   (_modules.length - activeModules).toString(),
                   Icons.pause_circle,
                   AppColors.warning,
@@ -300,7 +294,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                               : AppColors.textPrimaryLight,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Buscar m�dulos...',
+                      hintText: 'Buscar módulos...',
                       hintStyle: TextStyle(
                         color:
                             isDark
@@ -330,7 +324,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                 ElevatedButton.icon(
                   onPressed: () => _showModuleDialog(),
                   icon: const Icon(Icons.add, size: 20),
-                  label: const Text('Novo M�dulo'),
+                  label: const Text('Novo Módulo'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: palette['primary'],
                     foregroundColor: Colors.white,
@@ -359,7 +353,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
 
           const SizedBox(height: 20),
 
-          // Lista de m�dulos
+          // Lista de módulos
           Expanded(
             child:
                 filteredModules.isEmpty
@@ -378,7 +372,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                           const SizedBox(height: 16),
                           Text(
                             _searchQuery.isEmpty
-                                ? 'Nenhum m�dulo encontrado'
+                                ? 'Nenhum módulo encontrado'
                                 : 'Nenhum resultado para "$_searchQuery"',
                             style: TextStyle(
                               fontSize: 16,

@@ -7,13 +7,12 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/presentation/features/modules/pages/asset_detail_screen.dart';
-import 'package:painel_windowns/presentation/screens/asset_detail_screen.dart';
 import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_dashboard_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_list_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_maintenance_tab.dart';
-import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart' hide ModuleManagementService;
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
@@ -84,7 +83,8 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   Future<void> _loadUnits() async {
     try {
       final dynamic fetched = await _moduleService.fetchUnits();
-      final List<Unit> fetchedUnits = (fetched is List) ? fetched.cast<Unit>() : <Unit>[];
+      final List<Unit> fetchedUnits =
+          (fetched is List) ? fetched.cast<Unit>() : <Unit>[];
       if (mounted) {
         setState(() {
           _units = fetchedUnits;
@@ -100,8 +100,9 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   Future<void> _loadBssidMappings() async {
     try {
       final fetchedBssids = await _moduleService.fetchBssidMappings();
-      final List<BssidMapping> parsedBssids =
-          (fetchedBssids is List) ? fetchedBssids.cast<BssidMapping>() : <BssidMapping>[];
+      final List<BssidMapping> parsedBssids = List<BssidMapping>.from(
+        fetchedBssids,
+      );
       if (mounted) {
         setState(() {
           _bssidMappings = parsedBssids;
@@ -120,14 +121,13 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     if (isInitialLoad) setState(() => isLoading = true);
 
     try {
-      final dynamic result = await _moduleService.listModuleAssetsTyped(
+      final result = await _moduleService.listModuleAssetsTyped(
         moduleId: widget.moduleConfig.id,
         moduleType: widget.moduleConfig.type,
         units: _units,
         bssidMappings: _bssidMappings,
       );
-      final List<ManagedAsset> parsedAssets =
-          (result is List) ? (result as List).cast<ManagedAsset>() : <ManagedAsset>[];
+      final List<ManagedAsset> parsedAssets = List<ManagedAsset>.from(result);
 
       if (mounted) {
         setState(() {
@@ -151,22 +151,24 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   void _updateDisplayedAssets() {
     List<ManagedAsset> filteredList = List.from(_allAssets);
     if (_searchQuery.isNotEmpty) {
-      filteredList = _allAssets.where((asset) {
-        final query = _searchQuery.toLowerCase();
-        return (asset.assetName.toLowerCase()).contains(query) ||
-            (asset.serialNumber.toLowerCase()).contains(query) ||
-            (asset.location?.toLowerCase().contains(query) ?? false) ||
-            (asset.sector?.toLowerCase().contains(query) ?? false) ||
-            (asset.floor?.toLowerCase().contains(query) ?? false);
-      }).toList();
+      filteredList =
+          _allAssets.where((asset) {
+            final query = _searchQuery.toLowerCase();
+            return (asset.assetName.toLowerCase()).contains(query) ||
+                (asset.serialNumber.toLowerCase()).contains(query) ||
+                (asset.location?.toLowerCase().contains(query) ?? false) ||
+                (asset.sector?.toLowerCase().contains(query) ?? false) ||
+                (asset.floor?.toLowerCase().contains(query) ?? false);
+          }).toList();
     }
     _totalPages = (filteredList.length / _itemsPerPage).ceil();
     if (_totalPages == 0) _totalPages = 1;
     if (_currentPage > _totalPages) _currentPage = _totalPages;
     final startIndex = (_currentPage - 1) * _itemsPerPage;
-    final endIndex = (startIndex + _itemsPerPage > filteredList.length)
-        ? filteredList.length
-        : startIndex + _itemsPerPage;
+    final endIndex =
+        (startIndex + _itemsPerPage > filteredList.length)
+            ? filteredList.length
+            : startIndex + _itemsPerPage;
     setState(() {
       _displayedAssets = filteredList.sublist(startIndex, endIndex);
     });
@@ -206,11 +208,12 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     final shouldReload = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => AssetDetailScreen(
-          asset: asset,
-          authService: widget.authService,
-          moduleConfig: widget.moduleConfig,
-        ),
+        builder:
+            (context) => AssetDetailScreen(
+              asset: asset,
+              authService: widget.authService,
+              moduleConfig: widget.moduleConfig,
+            ),
       ),
     );
 
@@ -367,8 +370,8 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              onPressed: () =>
-                  setState(() => _isSidebarVisible = !_isSidebarVisible),
+              onPressed:
+                  () => setState(() => _isSidebarVisible = !_isSidebarVisible),
               tooltip: 'Esconder/Mostrar Menu',
             ),
             const SizedBox(width: 12),
@@ -483,9 +486,10 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
         );
 
       case 2:
-        final maintenanceAssets = _allAssets
-            .where((a) => a.status.toLowerCase() == 'maintenance')
-            .toList();
+        final maintenanceAssets =
+            _allAssets
+                .where((a) => a.status.toLowerCase() == 'maintenance')
+                .toList();
         return UnifiedMaintenanceTab<ManagedAsset>(
           items: maintenanceAssets,
           columns: columns,
@@ -500,7 +504,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
           moduleId: widget.moduleConfig.id,
           moduleName: widget.moduleConfig.name,
           authService: widget.authService,
-          moduleService: _moduleService as dynamic,
+          moduleService: _moduleService,
         );
 
       default:

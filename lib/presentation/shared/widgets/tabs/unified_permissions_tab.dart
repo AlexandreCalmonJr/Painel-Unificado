@@ -1,6 +1,7 @@
 // File: lib/tabs/generic_permissions_tab.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/module_management_service.dart';
 
 class UnifiedPermissionsTab extends StatefulWidget {
   const UnifiedPermissionsTab({
@@ -19,15 +20,7 @@ class UnifiedPermissionsTab extends StatefulWidget {
   State<UnifiedPermissionsTab> createState() => _UnifiedPermissionsTabState();
 }
 
-class ModuleManagementService {
-  Future<List<String>> getModulePermissions(String moduleId) async {
-    return [];
-  }
-  
-  Future<void> updateModulePermissions(String moduleId, List<String> list) async {
-    return;
-  }
-}
+// Usamos o ModuleManagementService real (import acima) em vez de um placeholder local.
 
 class _UnifiedPermissionsTabState extends State<UnifiedPermissionsTab> {
   bool _isLoading = true;

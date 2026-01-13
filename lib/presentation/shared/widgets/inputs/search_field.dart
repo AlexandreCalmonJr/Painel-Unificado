@@ -13,6 +13,7 @@ class SearchField extends StatefulWidget {
     this.prefixIcon = Icons.search,
     this.suffixIcon,
   });
+  // ignore: inference_failure_on_function_return_type
   final Function(String) onSearch;
   final String hintText;
   final Duration debounceDuration;
@@ -26,6 +27,7 @@ class SearchField extends StatefulWidget {
 class _SearchFieldState extends State<SearchField> {
   final _searchController = TextEditingController();
   final _searchSubject = BehaviorSubject<String>();
+  // ignore: strict_raw_type
   StreamSubscription? _subscription;
 
   @override
@@ -85,6 +87,7 @@ class CompactSearchField extends StatefulWidget {
     this.hintText = 'Pesquisar...',
     this.debounceDuration = const Duration(milliseconds: 500),
   });
+  // ignore: inference_failure_on_function_return_type
   final Function(String) onSearch;
   final String hintText;
   final Duration debounceDuration;
@@ -96,6 +99,7 @@ class CompactSearchField extends StatefulWidget {
 class _CompactSearchFieldState extends State<CompactSearchField> {
   final _searchController = TextEditingController();
   final _searchSubject = BehaviorSubject<String>();
+  // ignore: strict_raw_type
   StreamSubscription? _subscription;
   bool _isSearching = false;
 

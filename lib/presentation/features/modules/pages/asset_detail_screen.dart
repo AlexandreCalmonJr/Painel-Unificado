@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/data/models/desktop_model.dart';
-import 'package:painel_windowns/data/models/notebook_model.dart';
-import 'package:painel_windowns/data/models/panel_model.dart';
-import 'package:painel_windowns/data/models/printer_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
 import 'package:painel_windowns/services/asset_command_service.dart';
 import 'package:painel_windowns/services/asset_maintenance_service.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
+
 
 class AssetDetailScreen extends StatefulWidget {
   const AssetDetailScreen({
@@ -41,7 +38,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
 
   Future<List<Map<String, dynamic>>> _fetchAssetHistory() async {
     if (!mounted) return [];
-    
+
     setState(() => _isLoadingHistory = true);
     try {
       final token = widget.authService.currentToken;
@@ -288,63 +285,63 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
           const SizedBox(height: 24),
           _isLoadingHistory
               ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                )
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
               : FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _assetHistoryFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Erro: ${snapshot.error}',
-                          style: TextStyle(color: Colors.red[400]),
-                        ),
-                      );
-                    }
-                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          final entry = snapshot.data![index];
-                          final timestamp = DateTime.parse(
-                            entry['timestamp'] as String,
-                          );
-                          return _buildTimelineTile(
-                            title: entry['status'] as String,
-                            subtitle:
-                                '${formatDateTime(timestamp)} - ${entry['reason'] ?? ''}',
-                            isFirst: index == 0,
-                            isLast: index == snapshot.data!.length - 1,
-                          );
-                        },
-                      );
-                    }
+                future: _assetHistoryFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
                     return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24.0),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.history_toggle_off,
-                              color: Colors.grey[300],
-                              size: 48,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Nenhum histórico disponível',
-                              style: TextStyle(color: Colors.grey[500]),
-                            ),
-                          ],
-                        ),
+                      child: Text(
+                        'Erro: ${snapshot.error}',
+                        style: TextStyle(color: Colors.red[400]),
                       ),
                     );
-                  },
-                ),
+                  }
+                  if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        final entry = snapshot.data![index];
+                        final timestamp = DateTime.parse(
+                          entry['timestamp'] as String,
+                        );
+                        return _buildTimelineTile(
+                          title: entry['status'] as String,
+                          subtitle:
+                              '${formatDateTime(timestamp)} - ${entry['reason'] ?? ''}',
+                          isFirst: index == 0,
+                          isLast: index == snapshot.data!.length - 1,
+                        );
+                      },
+                    );
+                  }
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.history_toggle_off,
+                            color: Colors.grey[300],
+                            size: 48,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Nenhum histórico disponível',
+                            style: TextStyle(color: Colors.grey[500]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
         ],
       ),
     );
@@ -509,7 +506,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   }
 
   // Continuação do asset_detail_screen.dart
-  
+
   Widget _buildAssetSpecificDetails() {
     if (widget.asset is Desktop) {
       return _buildSectionCard(
@@ -540,180 +537,176 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   }
 
   List<Widget> _buildDesktopDetails(Desktop desktop) => [
-        _buildDetailRow('Hostname', desktop.hostname, Icons.dns, copyable: true),
-        _buildDetailRow('Modelo', desktop.model, Icons.laptop_chromebook),
-        _buildDetailRow('Fabricante', desktop.manufacturer, Icons.business_center),
-        _buildDetailRow('Processador', desktop.processor, Icons.memory),
-        _buildDetailRow('Memória RAM', desktop.ram, Icons.storage),
-        _buildDetailRow('Armazenamento', desktop.storage, Icons.sd_storage),
-        _buildDetailRow('Tipo de HD', desktop.storageType, Icons.data_usage),
-        _buildDetailRow('SO', desktop.operatingSystem, Icons.computer),
-        _buildDetailRow('Versão do SO', desktop.osVersion, Icons.info),
-        _buildDetailRow(
-          'Endereço IP',
-          desktop.ipAddress,
-          Icons.network_check,
-          copyable: true,
-        ),
-        _buildDetailRow(
-          'MAC Address',
-          desktop.macAddress,
-          Icons.router,
-          copyable: true,
-        ),
-        _buildDetailRow(
-          'Leitor Biométrico',
-          desktop.biometricReaderStatus ?? 'N/D',
-          Icons.fingerprint,
-        ),
-        _buildDetailRow(
-          'Impressora Conectada',
-          desktop.connectedPrinter ?? 'N/D',
-          Icons.print,
-        ),
-        _buildDetailRow(
-            'Versão Java', desktop.javaVersion ?? 'N/D', Icons.code),
-        _buildDetailRow(
-            'Navegador', desktop.browserVersion ?? 'N/D', Icons.public),
-        _buildDetailRow(
-          'Antivírus',
-          desktop.antivirusStatus ? 'Ativo' : 'Inativo',
-          Icons.security,
-        ),
-        if (desktop.antivirusVersion != null)
-          _buildDetailRow(
-            'Versão Antivírus',
-            desktop.antivirusVersion!,
-            Icons.verified_user,
-          ),
-      ];
+    _buildDetailRow('Hostname', desktop.hostname, Icons.dns, copyable: true),
+    _buildDetailRow('Modelo', desktop.model, Icons.laptop_chromebook),
+    _buildDetailRow('Fabricante', desktop.manufacturer, Icons.business_center),
+    _buildDetailRow('Processador', desktop.processor, Icons.memory),
+    _buildDetailRow('Memória RAM', desktop.ram, Icons.storage),
+    _buildDetailRow('Armazenamento', desktop.storage, Icons.sd_storage),
+    _buildDetailRow('Tipo de HD', desktop.storageType, Icons.data_usage),
+    _buildDetailRow('SO', desktop.operatingSystem, Icons.computer),
+    _buildDetailRow('Versão do SO', desktop.osVersion, Icons.info),
+    _buildDetailRow(
+      'Endereço IP',
+      desktop.ipAddress,
+      Icons.network_check,
+      copyable: true,
+    ),
+    _buildDetailRow(
+      'MAC Address',
+      desktop.macAddress,
+      Icons.router,
+      copyable: true,
+    ),
+    _buildDetailRow(
+      'Leitor Biométrico',
+      desktop.biometricReaderStatus ?? 'N/D',
+      Icons.fingerprint,
+    ),
+    _buildDetailRow(
+      'Impressora Conectada',
+      desktop.connectedPrinter ?? 'N/D',
+      Icons.print,
+    ),
+    _buildDetailRow('Versão Java', desktop.javaVersion ?? 'N/D', Icons.code),
+    _buildDetailRow('Navegador', desktop.browserVersion ?? 'N/D', Icons.public),
+    _buildDetailRow(
+      'Antivírus',
+      desktop.antivirusStatus ? 'Ativo' : 'Inativo',
+      Icons.security,
+    ),
+    if (desktop.antivirusVersion != null)
+      _buildDetailRow(
+        'Versão Antivírus',
+        desktop.antivirusVersion!,
+        Icons.verified_user,
+      ),
+  ];
 
   List<Widget> _buildNotebookDetails(Notebook notebook) => [
-        _buildDetailRow(
-            'Hostname', notebook.hostname, Icons.dns, copyable: true),
-        _buildDetailRow('Modelo', notebook.model, Icons.laptop),
-        _buildDetailRow(
-            'Fabricante', notebook.manufacturer, Icons.business_center),
-        _buildDetailRow('Processador', notebook.processor, Icons.memory),
-        _buildDetailRow('Memória RAM', notebook.ram, Icons.storage),
-        _buildDetailRow('Armazenamento', notebook.storage, Icons.sd_storage),
-        _buildDetailRow(
-          'Nível Bateria',
-          notebook.batteryLevel != null ? '${notebook.batteryLevel}%' : 'N/D',
-          Icons.battery_charging_full,
-        ),
-        _buildDetailRow(
-          'Saúde Bateria',
-          notebook.batteryHealth ?? 'N/D',
-          Icons.health_and_safety,
-        ),
-        _buildDetailRow(
-          'Endereço IP',
-          notebook.ipAddress,
-          Icons.network_check,
-          copyable: true,
-        ),
-        _buildDetailRow(
-          'MAC Address',
-          notebook.macAddress,
-          Icons.router,
-          copyable: true,
-        ),
-        _buildDetailRow(
-          'Antivírus',
-          notebook.antivirusStatus ? 'Ativo' : 'Inativo',
-          Icons.security,
-        ),
-        _buildDetailRow(
-          'Criptografia',
-          notebook.isEncrypted ? 'Ativa' : 'Inativa',
-          Icons.lock,
-        ),
-      ];
+    _buildDetailRow('Hostname', notebook.hostname, Icons.dns, copyable: true),
+    _buildDetailRow('Modelo', notebook.model, Icons.laptop),
+    _buildDetailRow('Fabricante', notebook.manufacturer, Icons.business_center),
+    _buildDetailRow('Processador', notebook.processor, Icons.memory),
+    _buildDetailRow('Memória RAM', notebook.ram, Icons.storage),
+    _buildDetailRow('Armazenamento', notebook.storage, Icons.sd_storage),
+    _buildDetailRow(
+      'Nível Bateria',
+      notebook.batteryLevel != null ? '${notebook.batteryLevel}%' : 'N/D',
+      Icons.battery_charging_full,
+    ),
+    _buildDetailRow(
+      'Saúde Bateria',
+      notebook.batteryHealth ?? 'N/D',
+      Icons.health_and_safety,
+    ),
+    _buildDetailRow(
+      'Endereço IP',
+      notebook.ipAddress,
+      Icons.network_check,
+      copyable: true,
+    ),
+    _buildDetailRow(
+      'MAC Address',
+      notebook.macAddress,
+      Icons.router,
+      copyable: true,
+    ),
+    _buildDetailRow(
+      'Antivírus',
+      notebook.antivirusStatus ? 'Ativo' : 'Inativo',
+      Icons.security,
+    ),
+    _buildDetailRow(
+      'Criptografia',
+      notebook.isEncrypted ? 'Ativa' : 'Inativa',
+      Icons.lock,
+    ),
+  ];
 
   List<Widget> _buildPanelDetails(Panel panel) => [
-        _buildDetailRow('Tamanho da Tela', panel.screenSize, Icons.aspect_ratio),
-        _buildDetailRow(
-          'Resolução',
-          panel.resolution,
-          Icons.photo_size_select_large,
-        ),
-        if (panel.brightness != null)
-          _buildDetailRow('Brilho', '${panel.brightness}%', Icons.brightness_6),
-        if (panel.volume != null)
-          _buildDetailRow('Volume', '${panel.volume}%', Icons.volume_up),
-        _buildDetailRow(
-          'Endereço IP',
-          panel.ipAddress,
-          Icons.network_check,
-          copyable: true,
-        ),
-        _buildDetailRow(
-          'MAC Address',
-          panel.macAddress,
-          Icons.router,
-          copyable: true,
-        ),
-        _buildDetailRow('Firmware', panel.firmwareVersion, Icons.system_update),
-        _buildDetailRow('Entrada HDMI', panel.hdmiInput ?? 'N/D', Icons.hd),
-      ];
+    _buildDetailRow('Tamanho da Tela', panel.screenSize, Icons.aspect_ratio),
+    _buildDetailRow(
+      'Resolução',
+      panel.resolution,
+      Icons.photo_size_select_large,
+    ),
+    if (panel.brightness != null)
+      _buildDetailRow('Brilho', '${panel.brightness}%', Icons.brightness_6),
+    if (panel.volume != null)
+      _buildDetailRow('Volume', '${panel.volume}%', Icons.volume_up),
+    _buildDetailRow(
+      'Endereço IP',
+      panel.ipAddress,
+      Icons.network_check,
+      copyable: true,
+    ),
+    _buildDetailRow(
+      'MAC Address',
+      panel.macAddress,
+      Icons.router,
+      copyable: true,
+    ),
+    _buildDetailRow('Firmware', panel.firmwareVersion, Icons.system_update),
+    _buildDetailRow('Entrada HDMI', panel.hdmiInput ?? 'N/D', Icons.hd),
+  ];
 
   List<Widget> _buildPrinterDetails(Printer printer) => [
-        _buildDetailRow(
-          'Tipo de Conexão',
-          printer.connectionType,
-          Icons.settings_input_hdmi,
-        ),
-        if (printer.ipAddress != null)
-          _buildDetailRow(
-            'Endereço IP',
-            printer.ipAddress!,
-            Icons.network_check,
-            copyable: true,
-          ),
-        if (printer.hostComputerName != null)
-          _buildDetailRow(
-            'Computador Host',
-            printer.hostComputerName!,
-            Icons.computer,
-          ),
-        _buildDetailRow('Status', printer.printerStatus, Icons.print),
-        if (printer.errorMessage != null)
-          _buildDetailRow(
-            'Erro',
-            printer.errorMessage!,
-            Icons.error,
-            copyable: true,
-          ),
-        if (printer.totalPageCount != null)
-          _buildDetailRow(
-            'Total de Páginas',
-            printer.totalPageCount.toString(),
-            Icons.description,
-          ),
-        if (printer.colorPageCount != null)
-          _buildDetailRow(
-            'Páginas Coloridas',
-            printer.colorPageCount.toString(),
-            Icons.color_lens,
-          ),
-        if (printer.blackWhitePageCount != null)
-          _buildDetailRow(
-            'Páginas P&B',
-            printer.blackWhitePageCount.toString(),
-            Icons.filter_b_and_w,
-          ),
-        _buildDetailRow(
-          'Impressão Duplex',
-          printer.isDuplex == true ? 'Sim' : 'Não',
-          Icons.compare_arrows,
-        ),
-        _buildDetailRow(
-          'Impressão Colorida',
-          printer.isColor == true ? 'Sim' : 'Não',
-          Icons.palette,
-        ),
-      ];
+    _buildDetailRow(
+      'Tipo de Conexão',
+      printer.connectionType,
+      Icons.settings_input_hdmi,
+    ),
+    if (printer.ipAddress != null)
+      _buildDetailRow(
+        'Endereço IP',
+        printer.ipAddress!,
+        Icons.network_check,
+        copyable: true,
+      ),
+    if (printer.hostComputerName != null)
+      _buildDetailRow(
+        'Computador Host',
+        printer.hostComputerName!,
+        Icons.computer,
+      ),
+    _buildDetailRow('Status', printer.printerStatus, Icons.print),
+    if (printer.errorMessage != null)
+      _buildDetailRow(
+        'Erro',
+        printer.errorMessage!,
+        Icons.error,
+        copyable: true,
+      ),
+    if (printer.totalPageCount != null)
+      _buildDetailRow(
+        'Total de Páginas',
+        printer.totalPageCount.toString(),
+        Icons.description,
+      ),
+    if (printer.colorPageCount != null)
+      _buildDetailRow(
+        'Páginas Coloridas',
+        printer.colorPageCount.toString(),
+        Icons.color_lens,
+      ),
+    if (printer.blackWhitePageCount != null)
+      _buildDetailRow(
+        'Páginas P&B',
+        printer.blackWhitePageCount.toString(),
+        Icons.filter_b_and_w,
+      ),
+    _buildDetailRow(
+      'Impressão Duplex',
+      printer.isDuplex == true ? 'Sim' : 'Não',
+      Icons.compare_arrows,
+    ),
+    _buildDetailRow(
+      'Impressão Colorida',
+      printer.isColor == true ? 'Sim' : 'Não',
+      Icons.palette,
+    ),
+  ];
 
   bool _isCommandSupported() {
     return widget.asset is Desktop || widget.asset is Notebook;
@@ -787,20 +780,21 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   Future<void> _sendCommand(String commandType) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar Comando'),
-        content: const Text('Deseja executar este comando no dispositivo?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirmar Comando'),
+            content: const Text('Deseja executar este comando no dispositivo?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Confirmar'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirmar'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed != true || !mounted) return;
@@ -872,47 +866,48 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          setToMaintenance
-              ? 'Colocar em Manutenção'
-              : 'Retirar de Manutenção',
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (setToMaintenance) ...[
-              TextField(
-                controller: ticketController,
-                decoration: const InputDecoration(
-                  labelText: 'Ticket',
-                  hintText: 'Número do chamado',
-                ),
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              setToMaintenance
+                  ? 'Colocar em Manutenção'
+                  : 'Retirar de Manutenção',
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (setToMaintenance) ...[
+                  TextField(
+                    controller: ticketController,
+                    decoration: const InputDecoration(
+                      labelText: 'Ticket',
+                      hintText: 'Número do chamado',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: reasonController,
+                    decoration: const InputDecoration(
+                      labelText: 'Motivo',
+                      hintText: 'Descreva o motivo',
+                    ),
+                    maxLines: 3,
+                  ),
+                ] else
+                  const Text('Confirma retirar o dispositivo de manutenção?'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: reasonController,
-                decoration: const InputDecoration(
-                  labelText: 'Motivo',
-                  hintText: 'Descreva o motivo',
-                ),
-                maxLines: 3,
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Confirmar'),
               ),
-            ] else
-              const Text('Confirma retirar o dispositivo de manutenção?'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirmar'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed != true || !mounted) return;
@@ -1004,6 +999,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   }
 }
 
-class Desktop {
-  
-}
+// NOTE: model classes (Desktop, Notebook, Panel, Printer, etc.) are defined in
+// `package:painel_windowns/data/models/asset_module_base_model.dart` which is
+// imported at the top of this file. Removed local placeholder type to avoid
+// shadowing the real models.

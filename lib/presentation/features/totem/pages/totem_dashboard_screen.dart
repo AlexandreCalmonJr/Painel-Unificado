@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/di/injection.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/totem_model.dart';
 import 'package:painel_windowns/presentation/bloc/totem/totem_bloc.dart';
 import 'package:painel_windowns/presentation/bloc/totem/totem_event.dart';
 import 'package:painel_windowns/presentation/bloc/totem/totem_state.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
-import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_dashboard_tab.dart';
-import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_list_tab.dart';
 import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_dashboard_tab.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_list_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class TotemDashboardScreen extends StatefulWidget {
@@ -454,6 +454,8 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
           title: 'Totens',
           searchHint: 'Buscar por hostname, IP, localiza��o...',
           searchLabel: 'Buscar Totens',
+          // required callback for asset taps; no-op implementation for now
+          onAssetTap: (ManagedAsset asset) async {},
           isLoading: state is TotemLoading,
         );
       default:

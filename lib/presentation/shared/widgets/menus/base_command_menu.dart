@@ -16,6 +16,7 @@ class CommandAction<T> {
   });
   final String label;
   final IconData icon;
+  // ignore: inference_failure_on_function_return_type
   final Function(BuildContext context, T item) onTap;
   final bool Function(T item)? isVisible;
   final bool requiresConfirmation;
