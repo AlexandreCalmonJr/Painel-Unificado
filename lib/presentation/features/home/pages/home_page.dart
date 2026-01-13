@@ -1,4 +1,4 @@
-Ôªø// File: lib/home_screen.dart (ATUALIZADO)
+// File: lib/home_screen.dart (ATUALIZADO)
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final modules = await _moduleService.listModules();
       if (mounted) {
         setState(() {
-          // Filtra apenas m√≥dulos ativos
+          // Filtra apenas mÛdulos ativos
           _availableModules = modules.where((m) => m.isActive).toList();
           _isLoadingModules = false;
         });
@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         setState(() => _isLoadingModules = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao carregar m√≥dulos: $e'),
+            content: Text('Erro ao carregar mÛdulos: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -174,17 +174,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           child: Stack(
             children: [
-              // Header com bot√µes (Top Right)
+              // Header com botıes (Top Right)
               Positioned(
                 top: 24,
                 right: 24,
                 child: Row(
                   children: [
-                    // Bot√£o de Tema
+                    // Bot„o de Tema
                     const ThemeSelectorButton(),
                     const SizedBox(width: 12),
 
-                    // Bot√£o de Perfil
+                    // Bot„o de Perfil
                     InkWell(
                       onTap: () {
                         Navigator.push(
@@ -227,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             Text(
                               widget.authService.currentUser?['username']
                                       as String ??
-                                  'Usu√°rio',
+                                  'Usu·rio',
                               style: TextStyle(
                                 color:
                                     isDark
@@ -242,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                     const SizedBox(width: 12),
 
-                    // Bot√£o de Logout
+                    // Bot„o de Logout
                     IconButton(
                       onPressed: () => _logout(context),
                       icon: const Icon(Icons.logout),
@@ -311,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   ),
                                   const SizedBox(height: 24),
                                   Text(
-                                    'Central de M√≥dulos',
+                                    'Central de MÛdulos',
                                     style: TextStyle(
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
@@ -324,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Selecione um m√≥dulo para gerenciar',
+                                    'Selecione um mÛdulo para gerenciar',
                                     style: TextStyle(
                                       fontSize: 16,
                                       color:
@@ -388,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                           .authService
                                                           .currentUser?['username']
                                                       as String ??
-                                                  'Usu√°rio',
+                                                  'Usu·rio',
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w600,
@@ -465,13 +465,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildModulesGrid() {
     final List<Widget> moduleCards = [];
 
-    // Adiciona m√≥dulos fixos baseados em permiss√µes
+    // Adiciona mÛdulos fixos baseados em permissıes
     if (_hasPermission('mobile')) {
       moduleCards.add(
         UnifiedMenuItem(
           icon: Icons.phone_android,
-          title: 'M√≥dulo Mobile',
-          subtitle: 'Gest√£o de Dispositivos',
+          title: 'MÛdulo Mobile',
+          subtitle: 'Gest„o de Dispositivos',
           style: MenuItemStyle.hub,
           onTap: () => Navigator.pushNamed(context, '/dashboard'),
         ),
@@ -482,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       moduleCards.add(
         UnifiedMenuItem(
           icon: Icons.desktop_windows,
-          title: 'M√≥dulo Totem',
+          title: 'MÛdulo Totem',
           subtitle: 'Monitoramento de Totens',
           style: MenuItemStyle.hub,
           onTap: () => Navigator.pushNamed(context, '/totem_dashboard'),
@@ -490,7 +490,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       );
     }
 
-    // Adiciona m√≥dulos din√¢micos
+    // Adiciona mÛdulos din‚micos
     for (final module in _availableModules) {
       if (module.type == AssetModuleType.mobile ||
           module.type == AssetModuleType.totem) {
@@ -527,7 +527,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (moduleCards.isEmpty) {
       return const Center(
         child: Text(
-          'Nenhum m√≥dulo dispon√≠vel',
+          'Nenhum mÛdulo disponÌvel',
           style: TextStyle(color: AppColors.textSecondary),
         ),
       );

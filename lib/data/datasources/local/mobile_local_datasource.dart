@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:painel_windowns/core/error/exceptions.dart';
-import 'package:painel_windowns/data/models/device_model.dart';
+import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Data Source local para dispositivos

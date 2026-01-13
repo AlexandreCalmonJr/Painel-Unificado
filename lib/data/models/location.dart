@@ -1,4 +1,4 @@
-ï»¿// File: lib/models/location.dart
+// File: lib/models/location.dart
 import 'package:painel_windowns/data/models/unit_model.dart';
 
 class Location {
@@ -15,7 +15,7 @@ class Location {
        bssids = bssids ?? [];
 
   factory Location.fromJson(Map<String, dynamic> json) {
-    // Parse mÃºltiplas faixas de IP
+    // Parse múltiplas faixas de IP
     List<IpRange> ranges = [];
 
     // Primeiro tenta ler o array 'ip_ranges'
@@ -34,7 +34,7 @@ class Location {
         ),
       );
     }
-    // Fallback para campo Ãºnico 'ip_range'
+    // Fallback para campo único 'ip_range'
     else if (json['ip_range'] != null || json['ipRange'] != null) {
       final ipRange = (json['ip_range'] ?? json['ipRange']) as String;
       ranges.add(IpRange(start: ipRange, end: ipRange));
@@ -45,7 +45,7 @@ class Location {
     if (json['bssids'] != null && json['bssids'] is List) {
       bssidList = (json['bssids'] as List).map((b) => b.toString()).toList();
     } else if (json['bssid'] != null) {
-      // Fallback para campo Ãºnico
+      // Fallback para campo único
       bssidList = [json['bssid'].toString()];
     }
 

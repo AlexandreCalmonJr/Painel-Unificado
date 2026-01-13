@@ -1,4 +1,4 @@
-ï»¿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
@@ -44,7 +44,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
 
       return await _moduleService.fetchAssetHistory(token, widget.asset.id);
     } catch (e) {
-      print('Erro ao buscar histÃ³rico: $e');
+      print('Erro ao buscar histórico: $e');
       return [];
     } finally {
       if (mounted) {
@@ -63,7 +63,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$label copiado para a Ã¡rea de transferÃªncia'),
+        content: Text('$label copiado para a área de transferência'),
         duration: const Duration(seconds: 2),
         backgroundColor: Colors.green,
       ),
@@ -83,7 +83,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
         break;
       case 'maintenance':
         color = Colors.orange;
-        text = 'ManutenÃ§Ã£o';
+        text = 'Manutenção';
         icon = Icons.build_outlined;
         break;
       case 'retired':
@@ -184,7 +184,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     return Column(
       children: [
         _buildSectionCard(
-          title: 'InformaÃ§Ãµes BÃ¡sicas',
+          title: 'Informações Básicas',
           icon: Icons.info_outline,
           children: [
             _buildDetailRow(
@@ -194,13 +194,13 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
               copyable: true,
             ),
             _buildDetailRow(
-              'UsuÃ¡rio Logado',
+              'Usuário Logado',
               widget.asset.currentUser ?? 'N/D',
               Icons.person_outline,
               copyable: true,
             ),
             _buildDetailRow(
-              'LocalizaÃ§Ã£o',
+              'Localização',
               widget.asset.location ?? 'N/D',
               Icons.location_on,
             ),
@@ -216,8 +216,8 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
             ),
             _buildDetailRow('Andar', widget.asset.floor ?? 'N/D', Icons.layers),
             _buildDetailRow(
-              'AtribuÃ­do a',
-              widget.asset.assignedTo ?? 'NÃ£o atribuÃ­do',
+              'Atribuído a',
+              widget.asset.assignedTo ?? 'Não atribuído',
               Icons.person,
             ),
           ],
@@ -232,11 +232,11 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     return Column(
       children: [
         _buildSectionCard(
-          title: 'Status e ConexÃ£o',
+          title: 'Status e Conexão',
           icon: Icons.monitor_heart_outlined,
           children: [
             _buildDetailRow(
-              'Ãšltima SincronizaÃ§Ã£o',
+              'Última Sincronização',
               formatDateTime(widget.asset.lastSeen),
               Icons.access_time,
             ),
@@ -250,13 +250,13 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
         const SizedBox(height: 24),
         _buildHistoryCard(),
         const SizedBox(height: 24),
-        // AÃ§Ãµes Remotas (apenas para Desktop/Notebook)
+        // Ações Remotas (apenas para Desktop/Notebook)
         if (_isCommandSupported()) _buildCommandsCard(),
         if (_isCommandSupported()) const SizedBox(height: 24),
-        // ManutenÃ§Ã£o
+        // Manutenção
         _buildMaintenanceCard(),
         const SizedBox(height: 24),
-        // AÃ§Ãµes RÃ¡pidas
+        // Ações Rápidas
         _buildQuickActionsCard(),
       ],
     );
@@ -270,11 +270,11 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildCardTitle('HistÃ³rico de ManutenÃ§Ã£o', Icons.history),
+              _buildCardTitle('Histórico de Manutenção', Icons.history),
               IconButton(
                 icon: const Icon(Icons.refresh, size: 20),
                 onPressed: _refreshAssetHistory,
-                tooltip: 'Atualizar HistÃ³rico',
+                tooltip: 'Atualizar Histórico',
                 color: Colors.grey[600],
               ),
             ],
@@ -330,7 +330,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Nenhum histÃ³rico disponÃ­vel',
+                            'Nenhum histórico disponível',
                             style: TextStyle(color: Colors.grey[500]),
                           ),
                         ],
@@ -536,13 +536,13 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     _buildDetailRow('Modelo', desktop.model, Icons.laptop_chromebook),
     _buildDetailRow('Fabricante', desktop.manufacturer, Icons.business_center),
     _buildDetailRow('Processador', desktop.processor, Icons.memory),
-    _buildDetailRow('MemÃ³ria RAM', desktop.ram, Icons.storage),
+    _buildDetailRow('Memória RAM', desktop.ram, Icons.storage),
     _buildDetailRow('Armazenamento', desktop.storage, Icons.sd_storage),
     _buildDetailRow('Tipo de HD', desktop.storageType, Icons.data_usage),
     _buildDetailRow('SO', desktop.operatingSystem, Icons.computer),
-    _buildDetailRow('VersÃ£o do SO', desktop.osVersion, Icons.info),
+    _buildDetailRow('Versão do SO', desktop.osVersion, Icons.info),
     _buildDetailRow(
-      'EndereÃ§o IP',
+      'Endereço IP',
       desktop.ipAddress,
       Icons.network_check,
       copyable: true,
@@ -554,7 +554,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       copyable: true,
     ),
     _buildDetailRow(
-      'Leitor BiomÃ©trico',
+      'Leitor Biométrico',
       desktop.biometricReaderStatus ?? 'N/D',
       Icons.fingerprint,
     ),
@@ -563,16 +563,16 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       desktop.connectedPrinter ?? 'N/D',
       Icons.print,
     ),
-    _buildDetailRow('VersÃ£o Java', desktop.javaVersion ?? 'N/D', Icons.code),
+    _buildDetailRow('Versão Java', desktop.javaVersion ?? 'N/D', Icons.code),
     _buildDetailRow('Navegador', desktop.browserVersion ?? 'N/D', Icons.public),
     _buildDetailRow(
-      'AntivÃ­rus',
+      'Antivírus',
       desktop.antivirusStatus ? 'Ativo' : 'Inativo',
       Icons.security,
     ),
     if (desktop.antivirusVersion != null)
       _buildDetailRow(
-        'VersÃ£o AntivÃ­rus',
+        'Versão Antivírus',
         desktop.antivirusVersion!,
         Icons.verified_user,
       ),
@@ -583,20 +583,20 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     _buildDetailRow('Modelo', notebook.model, Icons.laptop),
     _buildDetailRow('Fabricante', notebook.manufacturer, Icons.business_center),
     _buildDetailRow('Processador', notebook.processor, Icons.memory),
-    _buildDetailRow('MemÃ³ria RAM', notebook.ram, Icons.storage),
+    _buildDetailRow('Memória RAM', notebook.ram, Icons.storage),
     _buildDetailRow('Armazenamento', notebook.storage, Icons.sd_storage),
     _buildDetailRow(
-      'NÃ­vel Bateria',
+      'Nível Bateria',
       notebook.batteryLevel != null ? '${notebook.batteryLevel}%' : 'N/D',
       Icons.battery_charging_full,
     ),
     _buildDetailRow(
-      'SaÃºde Bateria',
+      'Saúde Bateria',
       notebook.batteryHealth ?? 'N/D',
       Icons.health_and_safety,
     ),
     _buildDetailRow(
-      'EndereÃ§o IP',
+      'Endereço IP',
       notebook.ipAddress,
       Icons.network_check,
       copyable: true,
@@ -608,7 +608,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       copyable: true,
     ),
     _buildDetailRow(
-      'AntivÃ­rus',
+      'Antivírus',
       notebook.antivirusStatus ? 'Ativo' : 'Inativo',
       Icons.security,
     ),
@@ -622,7 +622,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   List<Widget> _buildPanelDetails(Panel panel) => [
     _buildDetailRow('Tamanho da Tela', panel.screenSize, Icons.aspect_ratio),
     _buildDetailRow(
-      'ResoluÃ§Ã£o',
+      'Resolução',
       panel.resolution,
       Icons.photo_size_select_large,
     ),
@@ -631,7 +631,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     if (panel.volume != null)
       _buildDetailRow('Volume', '${panel.volume}%', Icons.volume_up),
     _buildDetailRow(
-      'EndereÃ§o IP',
+      'Endereço IP',
       panel.ipAddress,
       Icons.network_check,
       copyable: true,
@@ -648,13 +648,13 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
 
   List<Widget> _buildPrinterDetails(Printer printer) => [
     _buildDetailRow(
-      'Tipo de ConexÃ£o',
+      'Tipo de Conexão',
       printer.connectionType,
       Icons.settings_input_hdmi,
     ),
     if (printer.ipAddress != null)
       _buildDetailRow(
-        'EndereÃ§o IP',
+        'Endereço IP',
         printer.ipAddress!,
         Icons.network_check,
         copyable: true,
@@ -675,30 +675,30 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       ),
     if (printer.totalPageCount != null)
       _buildDetailRow(
-        'Total de PÃ¡ginas',
+        'Total de Páginas',
         printer.totalPageCount.toString(),
         Icons.description,
       ),
     if (printer.colorPageCount != null)
       _buildDetailRow(
-        'PÃ¡ginas Coloridas',
+        'Páginas Coloridas',
         printer.colorPageCount.toString(),
         Icons.color_lens,
       ),
     if (printer.blackWhitePageCount != null)
       _buildDetailRow(
-        'PÃ¡ginas P&B',
+        'Páginas P&B',
         printer.blackWhitePageCount.toString(),
         Icons.filter_b_and_w,
       ),
     _buildDetailRow(
-      'ImpressÃ£o Duplex',
-      printer.isDuplex == true ? 'Sim' : 'NÃ£o',
+      'Impressão Duplex',
+      printer.isDuplex == true ? 'Sim' : 'Não',
       Icons.compare_arrows,
     ),
     _buildDetailRow(
-      'ImpressÃ£o Colorida',
-      printer.isColor == true ? 'Sim' : 'NÃ£o',
+      'Impressão Colorida',
+      printer.isColor == true ? 'Sim' : 'Não',
       Icons.palette,
     ),
   ];
@@ -714,7 +714,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('AÃ§Ãµes Remotas', Icons.settings_remote),
+          _buildCardTitle('Ações Remotas', Icons.settings_remote),
           const SizedBox(height: 16),
           Text(
             'Envie comandos para executar no dispositivo',
@@ -815,7 +815,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     }
   }
 
-  // Card de ManutenÃ§Ã£o
+  // Card de Manutenção
   Widget _buildMaintenanceCard() {
     final isInMaintenance = widget.asset.status.toLowerCase() == 'maintenance';
 
@@ -823,14 +823,14 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('ManutenÃ§Ã£o', Icons.build),
+          _buildCardTitle('Manutenção', Icons.build),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Text(
                   isInMaintenance
-                      ? 'Dispositivo em manutenÃ§Ã£o'
+                      ? 'Dispositivo em manutenção'
                       : 'Dispositivo operacional',
                   style: TextStyle(
                     color: isInMaintenance ? Colors.orange : Colors.green,
@@ -868,8 +868,8 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
           (context) => AlertDialog(
             title: Text(
               setToMaintenance
-                  ? 'Colocar em ManutenÃ§Ã£o'
-                  : 'Retirar de ManutenÃ§Ã£o',
+                  ? 'Colocar em Manutenção'
+                  : 'Retirar de Manutenção',
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -879,7 +879,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
                     controller: ticketController,
                     decoration: const InputDecoration(
                       labelText: 'Ticket',
-                      hintText: 'NÃºmero do chamado',
+                      hintText: 'Número do chamado',
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -892,7 +892,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
                     maxLines: 3,
                   ),
                 ] else
-                  const Text('Confirma retirar o dispositivo de manutenÃ§Ã£o?'),
+                  const Text('Confirma retirar o dispositivo de manutenção?'),
               ],
             ),
             actions: [
@@ -936,13 +936,13 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     }
   }
 
-  // Card de AÃ§Ãµes RÃ¡pidas
+  // Card de Ações Rápidas
   Widget _buildQuickActionsCard() {
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('AÃ§Ãµes RÃ¡pidas', Icons.flash_on),
+          _buildCardTitle('Ações Rápidas', Icons.flash_on),
           const SizedBox(height: 16),
           Wrap(
             spacing: 12,
@@ -964,7 +964,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
                 // Recarrega a tela
               }, Colors.green),
               _buildQuickActionButton('Exportar', Icons.download, () {
-                // TODO: Implementar exportaÃ§Ã£o
+                // TODO: Implementar exportação
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Em desenvolvimento')),
                 );

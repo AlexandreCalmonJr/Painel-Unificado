@@ -1,20 +1,20 @@
-Ôªø// File: lib/services/report_generator.dart
-import 'dart:typed_data'; // Necess√°rio para Uint8List
+// File: lib/services/report_generator.dart
+import 'dart:typed_data'; // Necess·rio para Uint8List
 
-import 'package:excel/excel.dart'; // Necess√°rio para Excel
+import 'package:excel/excel.dart'; // Necess·rio para Excel
 import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // Import presumido
 import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw; // Necess√°rio para PDF
+import 'package:pdf/widgets.dart' as pw; // Necess·rio para PDF
 
 class ReportGenerator {
-  /// Gera relat√≥rio PDF com gr√°ficos
+  /// Gera relatÛrio PDF com gr·ficos
   Future<Uint8List> generatePdfReport({
     required List<ManagedAsset> assets,
     required AssetModuleConfig module,
   }) async {
     final pdf = pw.Document();
 
-    // P√°gina 1: Sum√°rio Executivo
+    // P·gina 1: Sum·rio Executivo
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Column(
@@ -22,22 +22,22 @@ class ReportGenerator {
           children: [
             pw.Header(
               level: 0,
-              child: pw.Text('Relat√≥rio de Ativos - ${module.name}'),
+              child: pw.Text('RelatÛrio de Ativos - ${module.name}'),
             ),
             pw.SizedBox(height: 20),
             _buildSummaryTable(assets),
             pw.SizedBox(height: 20),
-            // ‚úÖ M√âTODO ADICIONADO (PLACEHOLDER)
+            // ? M…TODO ADICIONADO (PLACEHOLDER)
             _buildStatusChart(assets),
           ],
         ),
       ),
     );
 
-    // P√°gina 2: Lista Detalhada
+    // P·gina 2: Lista Detalhada
     pdf.addPage(
       pw.Page(
-        // ‚úÖ M√âTODO ADICIONADO
+        // ? M…TODO ADICIONADO
         build: (context) => _buildDetailedTable(assets, module),
       ),
     );
@@ -79,7 +79,7 @@ class ReportGenerator {
         ]),
         pw.TableRow(children: [
           pw.Padding(
-              padding: const pw.EdgeInsets.all(8), child: pw.Text('Em Manuten√ß√£o')),
+              padding: const pw.EdgeInsets.all(8), child: pw.Text('Em ManutenÁ„o')),
           pw.Padding(
               padding: const pw.EdgeInsets.all(8),
               child: pw.Text(
@@ -90,10 +90,10 @@ class ReportGenerator {
   }
 
   // ===================================================================
-  // ‚úÖ M√âTODOS QUE FALTAVAM (FORAM ADICIONADOS)
+  // ? M…TODOS QUE FALTAVAM (FORAM ADICIONADOS)
   // ===================================================================
 
-  /// Constr√≥i a tabela detalhada para o PDF
+  /// ConstrÛi a tabela detalhada para o PDF
   pw.Widget _buildDetailedTable(
       List<ManagedAsset> assets, AssetModuleConfig module) {
     final headers = module.tableColumns.map((c) => c.label).toList();
@@ -121,11 +121,11 @@ class ReportGenerator {
         ]);
   }
 
-  /// Constr√≥i um placeholder para o gr√°fico de status no PDF
+  /// ConstrÛi um placeholder para o gr·fico de status no PDF
   pw.Widget _buildStatusChart(List<ManagedAsset> assets) {
-    // Gerar gr√°ficos em PDF √© complexo e requer a biblioteca pdf/charts
-    // ou uma imagem est√°tica de um gr√°fico.
-    // Este √© um placeholder.
+    // Gerar gr·ficos em PDF È complexo e requer a biblioteca pdf/charts
+    // ou uma imagem est·tica de um gr·fico.
+    // Este È um placeholder.
     return pw.Container(
       padding: const pw.EdgeInsets.all(20),
       decoration: pw.BoxDecoration(
@@ -133,17 +133,17 @@ class ReportGenerator {
         color: PdfColors.grey100,
       ),
       child: pw.Text(
-        'Placeholder para Gr√°fico de Status (Online, Offline, Manuten√ß√£o)',
+        'Placeholder para Gr·fico de Status (Online, Offline, ManutenÁ„o)',
         style: const pw.TextStyle(color: PdfColors.grey600),
       ),
     );
   }
 
   // ===================================================================
-  // FIM DOS M√âTODOS ADICIONADOS
+  // FIM DOS M…TODOS ADICIONADOS
   // ===================================================================
 
-  /// Gera relat√≥rio Excel com m√∫ltiplas abas
+  /// Gera relatÛrio Excel com m˙ltiplas abas
   Future<List<int>?> generateExcelReport({
     required List<ManagedAsset> assets,
     required AssetModuleConfig module,
@@ -152,7 +152,7 @@ class ReportGenerator {
 
     // Aba 1: Resumo
     final summarySheet = excel['Resumo'];
-    summarySheet.appendRow(['M√©trica', 'Valor']);
+    summarySheet.appendRow(['MÈtrica', 'Valor']);
     summarySheet.appendRow(['Total de Ativos', assets.length]);
     summarySheet
         .appendRow(['Online', assets.where((a) => a.status == 'online').length]);
@@ -172,8 +172,8 @@ class ReportGenerator {
       detailsSheet.appendRow(row);
     }
 
-    // Aba 3: Por Localiza√ß√£o
-    final locationSheet = excel['Por Localiza√ß√£o'];
+    // Aba 3: Por LocalizaÁ„o
+    final locationSheet = excel['Por LocalizaÁ„o'];
     final groupedByUnit = _groupByLocation(assets);
     locationSheet.appendRow(['Unidade', 'Setor', 'Andar', 'Total']);
 

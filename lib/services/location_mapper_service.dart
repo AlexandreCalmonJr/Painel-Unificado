@@ -1,7 +1,7 @@
-Ôªøimport 'package:painel_windowns/data/models/bssid_mapping.dart';
+import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 
-/// Classe para armazenar dados de localiza√ß√£o mapeados
+/// Classe para armazenar dados de localizaÁ„o mapeados
 class LocationData {
   LocationData({
     required this.unitName,
@@ -20,7 +20,7 @@ class LocationMapperService {
   static String? normalizeMac(String? mac) {
     if (mac == null || mac.isEmpty || mac == 'N/A') return null;
 
-    // Remove tudo que n√£o for hex
+    // Remove tudo que n„o for hex
     String normalized =
         mac.replaceAll(RegExp(r'[^0-9A-Fa-f]'), '').toUpperCase();
 
@@ -34,10 +34,10 @@ class LocationMapperService {
       return buffer.toString();
     }
 
-    return null; // Formato inv√°lido
+    return null; // Formato inv·lido
   }
 
-  /// Obt√©m o prefixo do MAC (primeiros 14 caracteres: AA:BB:CC:DD)
+  /// ObtÈm o prefixo do MAC (primeiros 14 caracteres: AA:BB:CC:DD)
   static String? getMacPrefix(String? mac) {
     final normalized = normalizeMac(mac);
     if (normalized == null) return null;
@@ -49,7 +49,7 @@ class LocationMapperService {
     return null;
   }
 
-  /// Mapeia a localiza√ß√£o de um dispositivo baseado em BSSID ou IP
+  /// Mapeia a localizaÁ„o de um dispositivo baseado em BSSID ou IP
   static LocationData mapLocation({
     required List<Unit> units,
     required List<BssidMapping> bssidMappings,
@@ -61,7 +61,7 @@ class LocationMapperService {
     String? sector;
     String? floor;
 
-    // 1Ô∏è‚É£ Tentar mapear por BSSID (WiFi MAC Address)
+    // 1?? Tentar mapear por BSSID (WiFi MAC Address)
     final normalizedMac = normalizeMac(macAddress);
     final macPrefix = getMacPrefix(macAddress);
 
@@ -74,10 +74,10 @@ class LocationMapperService {
           (mapping) => normalizeMac(mapping.macAddressRadio) == normalizedMac,
         );
       } catch (_) {
-        // N√£o encontrou exato
+        // N„o encontrou exato
       }
 
-      // Se n√£o encontrou exato, tenta por prefixo
+      // Se n„o encontrou exato, tenta por prefixo
       if (match == null && macPrefix != null) {
         try {
           match = bssidMappings.firstWhere((mapping) {
@@ -85,7 +85,7 @@ class LocationMapperService {
             return mappingPrefix == macPrefix;
           });
         } catch (_) {
-          // N√£o encontrou por prefixo
+          // N„o encontrou por prefixo
         }
       }
 
@@ -96,7 +96,7 @@ class LocationMapperService {
       }
     }
 
-    // 2Ô∏è‚É£ Se BSSID n√£o funcionou, tentar mapear por IP
+    // 2?? Se BSSID n„o funcionou, tentar mapear por IP
     if (unitName == null && ip.isNotEmpty && ip != 'N/A') {
       for (final unit in units) {
         if (_isIpInRangeStatic(ip, unit.ipRanges)) {
@@ -106,7 +106,7 @@ class LocationMapperService {
       }
     }
 
-    // 3Ô∏è‚É£ Construir a string de localiza√ß√£o
+    // 3?? Construir a string de localizaÁ„o
     final locationName = _buildLocationStringStatic(
       unitName: unitName,
       sector: sector,
@@ -122,7 +122,7 @@ class LocationMapperService {
     );
   }
 
-  /// Constr√≥i a string de localiza√ß√£o formatada (vers√£o est√°tica)
+  /// ConstrÛi a string de localizaÁ„o formatada (vers„o est·tica)
   static String _buildLocationStringStatic({
     String? unitName,
     String? sector,
@@ -150,7 +150,7 @@ class LocationMapperService {
     return parts.join(' - ');
   }
 
-  /// Verifica se um IP est√° dentro de uma faixa (vers√£o est√°tica)
+  /// Verifica se um IP est· dentro de uma faixa (vers„o est·tica)
   static bool _isIpInRangeStatic(String ip, List<IpRange> ranges) {
     try {
       final ipNum = _ipToIntStatic(ip);
@@ -167,7 +167,7 @@ class LocationMapperService {
     }
   }
 
-  /// Converte IP string para inteiro (vers√£o est√°tica)
+  /// Converte IP string para inteiro (vers„o est·tica)
   static int _ipToIntStatic(String ip) {
     final parts = ip.split('.').map(int.parse).toList();
     return (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3];

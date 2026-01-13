@@ -1,4 +1,4 @@
-﻿// File: lib/models/desktop.dart
+// File: lib/models/desktop.dart
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
@@ -74,7 +74,7 @@ class Desktop extends ManagedAsset {
       location ??= locationData.locationName;
 
       logger.debug(
-        'Mapeamento local concluído - Unit: $unit, Sector: $sector, Floor: $floor',
+        'Mapeamento local conclu�do - Unit: $unit, Sector: $sector, Floor: $floor',
         tag: 'Desktop.fromJson',
       );
     } else {

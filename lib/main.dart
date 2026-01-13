@@ -7,7 +7,7 @@ import 'package:painel_windowns/presentation/bloc/auth/auth_bloc.dart';
 import 'package:painel_windowns/presentation/features/admin/pages/admin_dashboard_page.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
-import 'package:painel_windowns/presentation/features/devices/pages/devices_dashboard_page.dart';
+import 'package:painel_windowns/presentation/features/mobile/pages/mobile_dashboard_page.dart';
 import 'package:painel_windowns/presentation/features/home/pages/home_page.dart';
 import 'package:painel_windowns/presentation/features/totem/pages/totem_dashboard_screen.dart';
 import 'package:painel_windowns/presentation/shared/theme/app_theme.dart';
@@ -94,7 +94,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           // A rota '/dashboard' agora aponta para a sua tela original, que é o Módulo Mobile.
           '/dashboard':
               (context) =>
-                  DevicesDashboardPage(authService: widget.authService),
+                  MobileDashboardPage(authService: widget.authService),
           '/totem_dashboard':
               (context) =>
                   TotemDashboardScreen(authService: widget.authService),

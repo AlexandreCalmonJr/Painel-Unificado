@@ -1,4 +1,4 @@
-ï»¿// File: lib/admin/tabs/admin_locations_tab.dart
+// File: lib/admin/tabs/admin_locations_tab.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
@@ -54,10 +54,10 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
     try {
       final token = widget.authService.currentToken;
       if (token == null) {
-        throw Exception('Token de autenticaÃ§Ã£o nÃ£o encontrado');
+        throw Exception('Token de autenticação não encontrado');
       }
 
-      // Carrega localizaÃ§Ãµes e unidades em paralelo
+      // Carrega localizações e unidades em paralelo
       final results = await Future.wait([
         LocationService.fetchLocationsWithDeviceData(token),
         _deviceService.fetchUnits(token),
@@ -111,7 +111,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
             onSave: (data) async {
               final token = widget.authService.currentToken;
               if (token == null) {
-                throw Exception('Token de autenticaÃ§Ã£o nÃ£o encontrado');
+                throw Exception('Token de autenticação não encontrado');
               }
 
               if (location == null) {
@@ -136,8 +136,8 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
           SnackBar(
             content: Text(
               location == null
-                  ? 'LocalizaÃ§Ã£o criada com sucesso!'
-                  : 'LocalizaÃ§Ã£o atualizada com sucesso!',
+                  ? 'Localização criada com sucesso!'
+                  : 'Localização atualizada com sucesso!',
             ),
             backgroundColor: AppColors.success,
           ),
@@ -151,9 +151,9 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Confirmar ExclusÃ£o'),
+            title: const Text('Confirmar Exclusão'),
             content: Text(
-              'Tem certeza que deseja excluir a localizaÃ§Ã£o "${location.name}"?\n\nEsta aÃ§Ã£o nÃ£o pode ser desfeita.',
+              'Tem certeza que deseja excluir a localização "${location.name}"?\n\nEsta ação não pode ser desfeita.',
             ),
             actions: [
               TextButton(
@@ -176,7 +176,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
       try {
         final token = widget.authService.currentToken;
         if (token == null) {
-          throw Exception('Token de autenticaÃ§Ã£o nÃ£o encontrado');
+          throw Exception('Token de autenticação não encontrado');
         }
 
         await LocationService.deleteLocation(token, location.name);
@@ -185,7 +185,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('LocalizaÃ§Ã£o excluÃ­da com sucesso!'),
+              content: Text('Localização excluída com sucesso!'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -208,7 +208,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Funcionalidade de importaÃ§Ã£o em desenvolvimento. '
+            'Funcionalidade de importação em desenvolvimento. '
             'Use a interface de Unidades para cadastrar BSSIDs.',
           ),
           backgroundColor: AppColors.primary,
@@ -222,7 +222,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
     try {
       final token = widget.authService.currentToken;
       if (token == null) {
-        throw Exception('Token de autenticaÃ§Ã£o nÃ£o encontrado');
+        throw Exception('Token de autenticação não encontrado');
       }
 
       // Busca todos os dados
@@ -239,7 +239,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Exportando ${locations.length} localizaÃ§Ãµes...\n'
+              'Exportando ${locations.length} localizações...\n'
               'Funcionalidade completa em desenvolvimento.',
             ),
             backgroundColor: AppColors.success,
@@ -248,7 +248,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
         );
       }
 
-      print('ðŸ“¤ Dados para exportar: ${exportData.toString()}');
+      print('?? Dados para exportar: ${exportData.toString()}');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -336,7 +336,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
                       ? AppColors.textSecondary
                       : AppColors.textSecondaryLight,
               tabs: const [
-                Tab(text: 'LocalizaÃ§Ãµes', icon: Icon(Icons.location_on)),
+                Tab(text: 'Localizações', icon: Icon(Icons.location_on)),
                 Tab(text: 'Unidades', icon: Icon(Icons.business)),
               ],
             ),
@@ -365,7 +365,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
 
     return Column(
       children: [
-        // Barra de busca e aÃ§Ãµes (Locations)
+        // Barra de busca e ações (Locations)
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -387,7 +387,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
                             : AppColors.textPrimaryLight,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Buscar localizaÃ§Ãµes...',
+                    hintText: 'Buscar localizações...',
                     hintStyle: TextStyle(
                       color:
                           isDark
@@ -417,7 +417,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
               ElevatedButton.icon(
                 onPressed: () => _showLocationDialog(),
                 icon: const Icon(Icons.add, size: 20),
-                label: const Text('Nova LocalizaÃ§Ã£o'),
+                label: const Text('Nova Localização'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: palette['primary'],
                   foregroundColor: Colors.white,
@@ -443,7 +443,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
               const SizedBox(width: 8),
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert),
-                tooltip: 'Mais opÃ§Ãµes',
+                tooltip: 'Mais opções',
                 onSelected: (value) {
                   if (value == 'import') {
                     _showImportDialog();
@@ -481,7 +481,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
 
         const SizedBox(height: 20),
 
-        // Lista de LocalizaÃ§Ãµes
+        // Lista de Localizações
         Expanded(
           child:
               filteredLocations.isEmpty
@@ -500,7 +500,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
                         const SizedBox(height: 16),
                         Text(
                           _searchQuery.isEmpty
-                              ? 'Nenhuma localizaÃ§Ã£o encontrada'
+                              ? 'Nenhuma localização encontrada'
                               : 'Nenhum resultado para "$_searchQuery"',
                           style: TextStyle(
                             fontSize: 16,
@@ -540,7 +540,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
 
     return Column(
       children: [
-        // Header com estatÃ­sticas (Units)
+        // Header com estatísticas (Units)
         Row(
           children: [
             Expanded(

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/core/error/exceptions.dart';
-import 'package:painel_windowns/data/models/device_model.dart';
+import 'package:painel_windowns/data/models/mobile_model.dart';
 
 /// Data Source remoto para dispositivos
 ///

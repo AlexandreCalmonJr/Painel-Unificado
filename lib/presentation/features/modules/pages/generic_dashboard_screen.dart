@@ -1,27 +1,28 @@
-Ôªø// File: lib/screens/generic_dashboard_screen.dart (CORRIGIDO)
+// File: lib/screens/generic_dashboard_screen.dart (CORRIGIDO)
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-// Imports dos Modelos e Servi√ßos
+// Imports dos Modelos e ServiÁos
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
-// Imports dos Modelos Espec√≠ficos (Ajuste os caminhos)
+// Imports dos Modelos EspecÌficos (Ajuste os caminhos)
 import 'package:painel_windowns/data/models/unit_model.dart';
-import 'package:painel_windowns/presentation/features/modules/widgets/generic_assets_list_tab.dart';
-import 'package:painel_windowns/presentation/features/modules/widgets/generic_dashboard_tab.dart';
-import 'package:painel_windowns/presentation/features/modules/widgets/generic_maintenance_tab.dart';
-import 'package:painel_windowns/presentation/features/modules/widgets/generic_permissions_tab.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_list_tab.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_dashboard_tab.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_maintenance_tab.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
+import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
-
 class GenericDashboardScreen extends StatefulWidget {
-
   const GenericDashboardScreen({
-    required this.authService, required this.moduleConfig, super.key,
+    required this.authService,
+    required this.moduleConfig,
+    super.key,
   });
   final AuthService authService;
   final AssetModuleConfig moduleConfig;
@@ -94,7 +95,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     }
   }
 
-  /// Carrega os ativos do m√≥dulo
+  /// Carrega os ativos do mÛdulo
   Future<void> _loadAssets({bool isInitialLoad = false}) async {
     if (!mounted) return;
     if (isInitialLoad) setState(() => isLoading = true);
@@ -198,10 +199,10 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
     );
   }
 
-  // _showDeleteAssetDialog n√£o √© mais necess√°rio aqui,
-  // pois asset_command_controls.dart cuida do pop-up de dele√ß√£o.
+  // _showDeleteAssetDialog n„o È mais necess·rio aqui,
+  // pois asset_command_controls.dart cuida do pop-up de deleÁ„o.
 
-  // ... (fun√ß√µes _getModuleIcon, _buildSidebar, _buildAppBar) ...
+  // ... (funÁıes _getModuleIcon, _buildSidebar, _buildAppBar) ...
 
   IconData _getModuleIcon() {
     switch (widget.moduleConfig.type.iconName) {
@@ -266,7 +267,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
       const SidebarMenuItem(
         icon: Icons.dashboard,
         title: 'Painel',
-        subtitle: 'Vis√£o Geral',
+        subtitle: 'Vis„o Geral',
         index: 0,
       ),
       SidebarMenuItem(
@@ -277,14 +278,14 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
       ),
       const SidebarMenuItem(
         icon: Icons.build_outlined,
-        title: 'Manuten√ß√£o',
+        title: 'ManutenÁ„o',
         subtitle: 'Gerenciar Ativos',
         index: 2,
       ),
       const SidebarMenuItem(
         icon: Icons.admin_panel_settings_outlined,
-        title: 'Permiss√µes',
-        subtitle: 'Gerenciar Usu√°rios',
+        title: 'Permissıes',
+        subtitle: 'Gerenciar Usu·rios',
         index: 3,
         isAdminOnly: true,
       ),
@@ -315,7 +316,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
 
   Widget _buildAppBar() {
     final currentUser = widget.authService.currentUser;
-    final username = currentUser?['username'] ?? 'Usu√°rio';
+    final username = currentUser?['username'] ?? 'Usu·rio';
 
     return Container(
       height: 70,
@@ -429,63 +430,60 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   }
 
   Widget _buildTabContent() {
-    // Pega a configura√ß√£o de colunas do m√≥dulo
-    final columns = widget.moduleConfig.tableColumns;
+    // Pega a configuraÁ„o de colunas do mÛdulo
+    final columns = convertTableColumns(widget.moduleConfig.tableColumns);
+    final config = createAssetCardConfig('${widget.moduleConfig.name}_export');
 
     switch (selectedIndex) {
-      // Aba 0: Painel (Vis√£o Geral)
+      // Aba 0: Painel (Vis„o Geral)
       case 0:
-        return GenericDashboardTab(
-          allAssets: _allAssets,
-          onRefresh: () => _loadAssets(isInitialLoad: true),
-          getModuleIcon: _getModuleIcon,
-          moduleType: widget.moduleConfig.type.displayName,
+        final stats = generateDashboardStats(
+          _allAssets,
+          widget.moduleConfig.type.displayName,
+        );
+        return UnifiedDashboardTab<ManagedAsset>(
+          items: _allAssets,
           columns: columns,
-          authService: widget.authService,
-          moduleConfig: widget.moduleConfig,
+          config: config,
+          stats: stats,
+          title: 'Painel - ${widget.moduleConfig.name}',
+          showActions: true,
         );
 
-      // Aba 1: Lista de Ativos (Nome din√¢mico)
+      // Aba 1: Lista de Ativos (Nome din‚mico)
       case 1:
-        return GenericAssetsListTab(
-          displayedAssets: _displayedAssets,
-          isLoading: isLoading,
+        return UnifiedListTab<ManagedAsset>(
+          items: _displayedAssets,
+          columns: columns,
+          config: config,
           currentPage: _currentPage,
           totalPages: _totalPages,
           onPageChange: _changePage,
           onSearch: _performSearch,
-
-          // ‚úÖ CORRE√á√ÉO APLICADA AQUI
-          onRefresh: () => _loadAssets(isInitialLoad: true),
-
-          // ‚ùå REMOVIDO: onAssetUpdate e onDeleteAsset
-          columns: columns,
-          authService: widget.authService,
-          moduleConfig: widget.moduleConfig,
-          selectedAssets: const [], // TODO: Implementar l√≥gica de sele√ß√£o
-          onSelectionChanged: (List<ManagedAsset> p1) {},
-        ); // TODO: Implementar
-
-      // Aba 2: Manuten√ß√£o (Nova)
-      case 2:
-        return GenericMaintenanceTab(
-          allAssets: _allAssets,
-          moduleConfig: widget.moduleConfig,
-          moduleService: _moduleService,
-
-          // ‚úÖ CORRE√á√ÉO APLICADA AQUI
-          onRefresh: () => _loadAssets(isInitialLoad: true),
-
-          showSnackbar: _showSnackbar,
-
-          // ‚ùå REMOVIDO: onEditAsset e onDeleteAsset
-          columns: columns,
-          authService: widget.authService,
+          title: widget.moduleConfig.name,
+          searchHint: 'Buscar por nome, serial, localizaÁ„o...',
+          searchLabel: 'Buscar ${widget.moduleConfig.name}',
+          showActions: true,
+          isLoading: isLoading,
         );
 
-      // Aba 3: Permiss√µes (Nova)
+      // Aba 2: ManutenÁ„o (Nova)
+      case 2:
+        final maintenanceAssets =
+            _allAssets
+                .where((a) => a.status.toLowerCase() == 'maintenance')
+                .toList();
+        return UnifiedMaintenanceTab<ManagedAsset>(
+          items: maintenanceAssets,
+          columns: columns,
+          config: config,
+          moduleTypeName: widget.moduleConfig.name,
+          showActions: true,
+        );
+
+      // Aba 3: Permissıes (Nova)
       case 3:
-        return GenericPermissionsTab(
+        return UnifiedPermissionsTab(
           moduleId: widget.moduleConfig.id,
           moduleName: widget.moduleConfig.name,
           authService: widget.authService,
@@ -493,14 +491,17 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
         );
 
       default:
-        return GenericDashboardTab(
-          allAssets: _allAssets,
-          onRefresh: () => _loadAssets(isInitialLoad: true),
-          getModuleIcon: _getModuleIcon,
-          moduleType: widget.moduleConfig.type.displayName,
+        final stats = generateDashboardStats(
+          _allAssets,
+          widget.moduleConfig.type.displayName,
+        );
+        return UnifiedDashboardTab<ManagedAsset>(
+          items: _allAssets,
           columns: columns,
-          authService: widget.authService,
-          moduleConfig: widget.moduleConfig,
+          config: config,
+          stats: stats,
+          title: 'Painel - ${widget.moduleConfig.name}',
+          showActions: true,
         );
     }
   }

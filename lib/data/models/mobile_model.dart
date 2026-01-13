@@ -1,4 +1,3 @@
-﻿import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/domain/entities/device_entity.dart';
 
@@ -11,7 +10,7 @@ enum DeviceStatusType {
   unmonitored,
 }
 
-class Device { // ✅ NOVO: Status em tempo real
+class Device { // ? NOVO: Status em tempo real
 
   Device({
     required this.status, this.id,
@@ -24,7 +23,7 @@ class Device { // ✅ NOVO: Status em tempo real
     this.serialNumber,
     this.imei,
     this.macAddress,
-    this.macAddressRadio, // ✅ NOVO
+    this.macAddressRadio, // ? NOVO
     this.lastSeen,
     this.lastSync,
     this.sector,
@@ -43,7 +42,7 @@ class Device { // ✅ NOVO: Status em tempo real
     this.complianceStatus,
     this.installedApps,
     this.securityPolicies,
-    this.isOnline, // ✅ NOVO
+    this.isOnline, // ? NOVO
   });
 
   factory Device.fromJson(Map<String, dynamic> json, List<Unit> units) {
@@ -73,7 +72,7 @@ class Device { // ✅ NOVO: Status em tempo real
       macAddressRadio:
           json['mac_address_radio']?.toString() == 'N/A'
               ? null
-              : json['mac_address_radio']?.toString(), // ✅ NOVO: BSSID
+              : json['mac_address_radio']?.toString(), // ? NOVO: BSSID
       lastSeen: json['last_seen']?.toString(),
       lastSync: json['last_sync']?.toString(),
       sector: json['sector']?.toString(),
@@ -85,9 +84,7 @@ class Device { // ✅ NOVO: Status em tempo real
       maintenanceHistory:
           (json['maintenance_history'] as List<dynamic>?)
               ?.cast<Map<String, dynamic>>(),
-      unit:
-          json['unit']?.toString() ??
-          getUnitFromIp(json['ip_address']?.toString(), units),
+      unit: json['unit']?.toString(),
       provisioningStatus: json['provisioning_status']?.toString(),
       provisioningToken: json['provisioning_token']?.toString(),
       enrollmentDate: json['enrollment_date']?.toString(),
@@ -103,7 +100,7 @@ class Device { // ✅ NOVO: Status em tempo real
               : null,
       status: (json['status'] ?? 'offline') as String,
       isOnline: json['is_online'] is bool ? json['is_online'] as bool : null,
-    ); // ✅ NOVO: Status em tempo real
+    ); // ? NOVO: Status em tempo real
   }
 
   /// Cria Model a partir de Entity
@@ -153,7 +150,7 @@ class Device { // ✅ NOVO: Status em tempo real
   final String? imei;
   final String? macAddress;
   final String?
-  macAddressRadio; // ✅ NOVO: BSSID WiFi para mapeamento de localização
+  macAddressRadio; // ? NOVO: BSSID WiFi para mapeamento de localiza��o
   final String? lastSeen;
   final String? lastSync;
   final String? sector;
@@ -175,7 +172,7 @@ class Device { // ✅ NOVO: Status em tempo real
   final String status;
   final bool? isOnline;
 
-  // ADICIONADO: Getter para centralizar a lógica de status
+  // ADICIONADO: Getter para centralizar a l�gica de status
   DeviceStatusType get displayStatus {
     if (maintenanceStatus ?? false) {
       return maintenanceReason == 'collected_by_it'
@@ -199,10 +196,10 @@ class Device { // ✅ NOVO: Status em tempo real
       deviceName: deviceName,
       serialNumber: serialNumber,
       imei: imei,
-      phoneNumber: null, // Não disponível no model atual
+      phoneNumber: null, // N�o dispon�vel no model atual
       model: deviceModel,
-      manufacturer: null, // Não disponível no model atual
-      osVersion: null, // Não disponível no model atual
+      manufacturer: null, // N�o dispon�vel no model atual
+      osVersion: null, // N�o dispon�vel no model atual
       lastSeen: lastSeen,
       battery: battery?.toInt(),
       status: status,
@@ -214,7 +211,7 @@ class Device { // ✅ NOVO: Status em tempo real
     );
   }
 
-  /// Cria uma cópia do Device com campos atualizados
+  /// Cria uma c�pia do Device com campos atualizados
   Device copyWith({
     String? id,
     String? deviceId,

@@ -1,8 +1,8 @@
-ï»¿// File: lib/models/module.dart
+// File: lib/models/module.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 
-/// Modelo simplificado de mÃ³dulo para uso na UI administrativa
+/// Modelo simplificado de módulo para uso na UI administrativa
 class Module {
   Module({
     required this.id,
@@ -59,7 +59,7 @@ class Module {
     };
   }
 
-  /// Ãcone do mÃ³dulo baseado no tipo
+  /// Ícone do módulo baseado no tipo
   IconData get icon {
     switch (type) {
       case AssetModuleType.mobile:
@@ -84,7 +84,7 @@ class Module {
   /// Status formatado
   String get statusText => isActive ? 'Ativo' : 'Inativo';
 
-  /// Cria uma cÃ³pia com campos atualizados
+  /// Cria uma cópia com campos atualizados
   Module copyWith({
     String? id,
     String? name,

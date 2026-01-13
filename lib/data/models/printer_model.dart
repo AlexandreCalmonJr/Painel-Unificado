@@ -1,6 +1,6 @@
-﻿// File: lib/models/printer.dart
+// File: lib/models/printer.dart
 // IMPORTANTE: Adicionar 'printer' ao enum AssetModuleType em asset_module_base.dart:
-// printer('Módulo Impressoras', 'printer', 'print'),
+// printer('M�dulo Impressoras', 'printer', 'print'),
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
@@ -51,7 +51,7 @@ class Printer extends ManagedAsset {
     List<Unit> units, [
     List<BssidMapping>? bssidMappings,
   ]) {
-    // ✅ PRIORIZA DADOS DO SERVIDOR
+    // ? PRIORIZA DADOS DO SERVIDOR
     String? unit = json['unit'] as String?;
     String? sector = json['sector'] as String?;
     String? floor = json['floor'] as String?;
@@ -61,14 +61,14 @@ class Printer extends ManagedAsset {
     final effectiveIp =
         (json['ip_address'] ?? json['host_computer_ip'] ?? '') as String;
 
-    // 🔥 SÓ MAPEIA SE AUSENTE OU INVÁLIDO
+    // ?? S� MAPEIA SE AUSENTE OU INV�LIDO
     final bool shouldMap =
         (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
         (sector == null || sector == 'Desconhecido') ||
         (floor == null || floor == 'Desconhecido');
 
     if (shouldMap) {
-      print('⚠️ Printer ${json['serial_number']}: Mapeando localização...');
+      print('?? Printer ${json['serial_number']}: Mapeando localiza��o...');
 
       final locationData = LocationMapperService.mapLocation(
         units: units,
@@ -83,7 +83,7 @@ class Printer extends ManagedAsset {
       floor ??= locationData.floor;
       location ??= locationData.locationName;
 
-      print('✅ Mapeamento: Unit=$unit | Sector=$sector | Floor=$floor');
+      print('? Mapeamento: Unit=$unit | Sector=$sector | Floor=$floor');
     }
 
     return Printer(

@@ -1,6 +1,6 @@
-﻿// File: lib/services/asset_cache_service.dart
+// File: lib/services/asset_cache_service.dart
 
-import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // ✅ IMPORT ADICIONADO
+import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // ? IMPORT ADICIONADO
 
 class AssetCacheService {
   factory AssetCacheService() => _instance;
@@ -9,7 +9,7 @@ class AssetCacheService {
 
   final Map<String, List<ManagedAsset>> _cache = {};
   final Map<String, DateTime> _cacheTimestamps = {};
-  final Duration _cacheDuration = const Duration(minutes: 5); // ✅ Adicionado 'const'
+  final Duration _cacheDuration = const Duration(minutes: 5); // ? Adicionado 'const'
 
   /// Armazena assets em cache
   void cacheAssets(String moduleId, List<ManagedAsset> assets) {
@@ -17,7 +17,7 @@ class AssetCacheService {
     _cacheTimestamps[moduleId] = DateTime.now();
   }
 
-  /// Recupera assets do cache (se válido)
+  /// Recupera assets do cache (se v�lido)
   List<ManagedAsset>? getCachedAssets(String moduleId) {
     if (!_cache.containsKey(moduleId)) return null;
 
@@ -32,7 +32,7 @@ class AssetCacheService {
     return _cache[moduleId];
   }
 
-  /// Invalida cache de um módulo específico
+  /// Invalida cache de um m�dulo espec�fico
   void invalidate(String moduleId) {
     _cache.remove(moduleId);
     _cacheTimestamps.remove(moduleId);

@@ -1,4 +1,4 @@
-Ôªø// File: lib/controllers/device_controller.dart
+// File: lib/controllers/device_controller.dart
 import 'package:get/get.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/device_model.dart';
@@ -31,7 +31,7 @@ class DeviceController extends GetxController {
     }).toList();
   }
 
-  // Estat√≠sticas
+  // EstatÌsticas
   int get onlineDevices => devices.where((d) => d.status == 'online').length;
   int get offlineDevices => devices.where((d) => d.status == 'offline').length;
   int get maintenanceDevices =>
@@ -56,7 +56,7 @@ class DeviceController extends GetxController {
 
       final token = _authController.token;
       if (token == null) {
-        errorMessage.value = 'Token n√£o encontrado';
+        errorMessage.value = 'Token n„o encontrado';
         return;
       }
 
@@ -107,7 +107,7 @@ class DeviceController extends GetxController {
 
       final token = _authController.token;
       if (token == null) {
-        errorMessage.value = 'Token n√£o encontrado';
+        errorMessage.value = 'Token n„o encontrado';
         return false;
       }
 
@@ -118,7 +118,7 @@ class DeviceController extends GetxController {
         parameters,
       );
 
-      // Atualiza o dispositivo na lista se necess√°rio
+      // Atualiza o dispositivo na lista se necess·rio
       await fetchDevices();
       return true;
     } catch (e) {
@@ -137,7 +137,7 @@ class DeviceController extends GetxController {
 
       final token = _authController.token;
       if (token == null) {
-        errorMessage.value = 'Token n√£o encontrado';
+        errorMessage.value = 'Token n„o encontrado';
         return false;
       }
 
@@ -161,7 +161,7 @@ class DeviceController extends GetxController {
 
       final token = _authController.token;
       if (token == null) {
-        errorMessage.value = 'Token n√£o encontrado';
+        errorMessage.value = 'Token n„o encontrado';
         return false;
       }
 
@@ -185,7 +185,7 @@ class DeviceController extends GetxController {
 
       final token = _authController.token;
       if (token == null) {
-        errorMessage.value = 'Token n√£o encontrado';
+        errorMessage.value = 'Token n„o encontrado';
         return false;
       }
 
@@ -212,7 +212,7 @@ class DeviceController extends GetxController {
 
       final token = _authController.token;
       if (token == null) {
-        errorMessage.value = 'Token n√£o encontrado';
+        errorMessage.value = 'Token n„o encontrado';
         return false;
       }
 

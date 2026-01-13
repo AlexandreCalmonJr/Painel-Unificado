@@ -1,5 +1,5 @@
-ï»¿// Ficheiro: lib/services/totem_service.dart
-// DescriÃ§Ã£o: ServiÃ§o dedicado para gerenciar as operaÃ§Ãµes CRUD da API de Totens.
+// Ficheiro: lib/services/totem_service.dart
+// Descrição: Serviço dedicado para gerenciar as operações CRUD da API de Totens.
 // Consome as rotas de /api/monitoring/... (definidas em totemRoutes.js)
 
 import 'dart:async';
@@ -11,19 +11,19 @@ import 'package:painel_windowns/data/models/bssid_mapping.dart';
 // Importe o modelo Totem
 import 'package:painel_windowns/data/models/totem_model.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
-// Importe seu serviÃ§o de configuraÃ§Ã£o de servidor
+// Importe seu serviço de configuração de servidor
 import 'package:painel_windowns/services/server_config_service.dart';
 
-// Constantes para a lÃ³gica de retentativa
+// Constantes para a lógica de retentativa
 const int kMaxRetries = 3;
 const Duration kRetryDelay = Duration(seconds: 2);
 
 ///
-/// ServiÃ§o dedicado para gerenciar as operaÃ§Ãµes CRUD da API de Totens.
+/// Serviço dedicado para gerenciar as operações CRUD da API de Totens.
 /// (/api/monitoring/...)
 ///
 class TotemService {
-  /// Wrapper de requisiÃ§Ã£o HTTP com lÃ³gica de retentativa, timeout e tratamento de erro.
+  /// Wrapper de requisição HTTP com lógica de retentativa, timeout e tratamento de erro.
   Future<http.Response> _performHttpRequest({
     required Future<http.Response> Function() request,
     required String errorMessage,
@@ -63,7 +63,7 @@ class TotemService {
         await Future.delayed(kRetryDelay);
       } on SocketException {
         if (attempts == kMaxRetries) {
-          throw Exception('$errorMessage: Falha na conexÃ£o com o servidor.');
+          throw Exception('$errorMessage: Falha na conexão com o servidor.');
         }
         // ignore: inference_failure_on_instance_creation
         await Future.delayed(kRetryDelay);
@@ -74,24 +74,24 @@ class TotemService {
         );
       }
     }
-    // Nunca deve chegar aqui, mas Ã© um fallback
-    throw Exception('$errorMessage apÃ³s $kMaxRetries tentativas.');
+    // Nunca deve chegar aqui, mas é um fallback
+    throw Exception('$errorMessage após $kMaxRetries tentativas.');
   }
 
   // ----------------------------------------------
-  // MÃ‰TODOS CRUD PARA TOTEMS
+  // MÉTODOS CRUD PARA TOTEMS
   // ----------------------------------------------
 
   /// [R] READ (All)
-  /// Busca todos os totens do servidor, aplicando o mapeamento de localizaÃ§Ã£o.
+  /// Busca todos os totens do servidor, aplicando o mapeamento de localização.
   /// Rota: GET /api/monitoring/totems
   Future<List<Totem>> fetchTotems(String token) async {
     final config = ServerConfigService.instance.loadConfig();
     final serverIp = config['ip'];
     final serverPort = config['port'];
 
-    // âš¡ PASSO 1: Carregar units e bssids (necessÃ¡rio para o mapeamento de localizaÃ§Ã£o no Totem.fromJson)
-    // Nota: Idealmente, estes deveriam ser passados para o serviÃ§o ou carregados por um serviÃ§o de localizaÃ§Ã£o dedicado.
+    // ? PASSO 1: Carregar units e bssids (necessário para o mapeamento de localização no Totem.fromJson)
+    // Nota: Idealmente, estes deveriam ser passados para o serviço ou carregados por um serviço de localização dedicado.
     // Por simplicidade e para resolver o problema atual, estamos carregando-os aqui.
     final units = await _fetchUnits(token);
     final bssidMappings = await _fetchBssidMappings(token);
@@ -111,7 +111,7 @@ class TotemService {
           .toList();
     }
     throw Exception(
-      'Resposta invÃ¡lida do servidor: Esperado uma lista de totens.',
+      'Resposta inválida do servidor: Esperado uma lista de totens.',
     );
   }
 
@@ -170,13 +170,13 @@ class TotemService {
     );
 
     final data = jsonDecode(response.body);
-    return data['message']?.toString() ?? 'Totem excluÃ­do com sucesso';
+    return data['message']?.toString() ?? 'Totem excluído com sucesso';
   }
 
   // ----------------------------------------------
-  // MÃ‰TODOS AUXILIARES PARA LOCALIZAÃ‡ÃƒO
-  // (Duplicados do DeviceService para evitar dependÃªncia circular,
-  // mas idealmente deveriam vir de um serviÃ§o de localizaÃ§Ã£o compartilhado)
+  // MÉTODOS AUXILIARES PARA LOCALIZAÇÃO
+  // (Duplicados do DeviceService para evitar dependência circular,
+  // mas idealmente deveriam vir de um serviço de localização compartilhado)
   // ----------------------------------------------
 
   /// Busca todas as unidades do servidor.
@@ -206,7 +206,7 @@ class TotemService {
           .toList();
     } else {
       throw Exception(
-        'Resposta invÃ¡lida do servidor: Esperado uma lista de unidades.',
+        'Resposta inválida do servidor: Esperado uma lista de unidades.',
       );
     }
   }
@@ -232,6 +232,6 @@ class TotemService {
           .map((json) => BssidMapping.fromJson(json as Map<String, dynamic>))
           .toList();
     }
-    throw Exception('Resposta invÃ¡lida: Esperado uma lista de mapeamentos');
+    throw Exception('Resposta inválida: Esperado uma lista de mapeamentos');
   }
 }

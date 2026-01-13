@@ -1,4 +1,4 @@
-ï»¿// File: lib/widgets/asset_details_dialog.dart
+// File: lib/widgets/asset_details_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
@@ -15,7 +15,7 @@ class AssetDetailsDialog extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$label copiado para a Ã¡rea de transferÃªncia'),
+        content: Text('$label copiado para a área de transferência'),
         duration: const Duration(seconds: 2),
         backgroundColor: Colors.green,
       ),
@@ -85,7 +85,7 @@ class AssetDetailsDialog extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSection('InformaÃ§Ãµes BÃ¡sicas', [
+                    _buildSection('Informações Básicas', [
                       _buildDetailRow(
                         context,
                         'Serial',
@@ -95,7 +95,7 @@ class AssetDetailsDialog extends StatelessWidget {
                       ),
                       _buildDetailRow(
                         context,
-                        'LocalizaÃ§Ã£o',
+                        'Localização',
                         asset.location ?? 'N/D',
                         Icons.location_on,
                       ),
@@ -119,13 +119,13 @@ class AssetDetailsDialog extends StatelessWidget {
                       ),
                       _buildDetailRow(
                         context,
-                        'AtribuÃ­do a',
-                        asset.assignedTo ?? 'NÃ£o atribuÃ­do',
+                        'Atribuído a',
+                        asset.assignedTo ?? 'Não atribuído',
                         Icons.person,
                       ),
                       _buildDetailRow(
                         context,
-                        'Ãšltima ConexÃ£o',
+                        'Última Conexão',
                         _formatDateTime(asset.lastSeen),
                         Icons.access_time,
                       ),
@@ -133,7 +133,7 @@ class AssetDetailsDialog extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // SeÃ§Ãµes especÃ­ficas por tipo
+                    // Seções específicas por tipo
                     if (asset is Desktop)
                       _buildDesktopDetails(context, asset as Desktop)
                     else if (asset is Notebook)
@@ -275,7 +275,7 @@ class AssetDetailsDialog extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSection('IdentificaÃ§Ã£o', [
+        _buildSection('Identificação', [
           _buildDetailRow(
             context,
             'Hostname',
@@ -304,7 +304,7 @@ class AssetDetailsDialog extends StatelessWidget {
             desktop.processor,
             Icons.memory,
           ),
-          _buildDetailRow(context, 'MemÃ³ria RAM', desktop.ram, Icons.storage),
+          _buildDetailRow(context, 'Memória RAM', desktop.ram, Icons.storage),
           _buildDetailRow(
             context,
             'Armazenamento',
@@ -328,7 +328,7 @@ class AssetDetailsDialog extends StatelessWidget {
           ),
           _buildDetailRow(
             context,
-            'VersÃ£o do SO',
+            'Versão do SO',
             desktop.osVersion,
             Icons.info,
           ),
@@ -337,7 +337,7 @@ class AssetDetailsDialog extends StatelessWidget {
         _buildSection('Rede', [
           _buildDetailRow(
             context,
-            'EndereÃ§o IP',
+            'Endereço IP',
             desktop.ipAddress,
             Icons.network_check,
             copyable: true,
@@ -351,10 +351,10 @@ class AssetDetailsDialog extends StatelessWidget {
           ),
         ]),
         const SizedBox(height: 20),
-        _buildSection('PerifÃ©ricos', [
+        _buildSection('Periféricos', [
           _buildDetailRow(
             context,
-            'Leitor BiomÃ©trico',
+            'Leitor Biométrico',
             desktop.biometricReaderStatus ?? 'N/D',
             Icons.fingerprint,
           ),
@@ -369,7 +369,7 @@ class AssetDetailsDialog extends StatelessWidget {
         _buildSection('Software', [
           _buildDetailRow(
             context,
-            'VersÃ£o Java',
+            'Versão Java',
             desktop.javaVersion ?? 'N/D',
             Icons.code,
           ),
@@ -381,17 +381,17 @@ class AssetDetailsDialog extends StatelessWidget {
           ),
         ]),
         const SizedBox(height: 20),
-        _buildSection('SeguranÃ§a', [
+        _buildSection('Segurança', [
           _buildDetailRow(
             context,
-            'AntivÃ­rus',
+            'Antivírus',
             desktop.antivirusStatus ? 'Ativo' : 'Inativo',
             Icons.security,
           ),
           if (desktop.antivirusVersion != null)
             _buildDetailRow(
               context,
-              'VersÃ£o AntivÃ­rus',
+              'Versão Antivírus',
               desktop.antivirusVersion!,
               Icons.verified_user,
             ),
@@ -404,7 +404,7 @@ class AssetDetailsDialog extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSection('IdentificaÃ§Ã£o', [
+        _buildSection('Identificação', [
           _buildDetailRow(
             context,
             'Hostname',
@@ -428,7 +428,7 @@ class AssetDetailsDialog extends StatelessWidget {
             notebook.processor,
             Icons.memory,
           ),
-          _buildDetailRow(context, 'MemÃ³ria RAM', notebook.ram, Icons.storage),
+          _buildDetailRow(context, 'Memória RAM', notebook.ram, Icons.storage),
           _buildDetailRow(
             context,
             'Armazenamento',
@@ -440,13 +440,13 @@ class AssetDetailsDialog extends StatelessWidget {
         _buildSection('Bateria', [
           _buildDetailRow(
             context,
-            'NÃ­vel',
+            'Nível',
             notebook.batteryLevel != null ? '${notebook.batteryLevel}%' : 'N/D',
             Icons.battery_charging_full,
           ),
           _buildDetailRow(
             context,
-            'SaÃºde',
+            'Saúde',
             notebook.batteryHealth ?? 'N/D',
             Icons.health_and_safety,
           ),
@@ -455,7 +455,7 @@ class AssetDetailsDialog extends StatelessWidget {
         _buildSection('Rede', [
           _buildDetailRow(
             context,
-            'EndereÃ§o IP',
+            'Endereço IP',
             notebook.ipAddress,
             Icons.network_check,
             copyable: true,
@@ -469,10 +469,10 @@ class AssetDetailsDialog extends StatelessWidget {
           ),
         ]),
         const SizedBox(height: 20),
-        _buildSection('SeguranÃ§a', [
+        _buildSection('Segurança', [
           _buildDetailRow(
             context,
-            'AntivÃ­rus',
+            'Antivírus',
             notebook.antivirusStatus ? 'Ativo' : 'Inativo',
             Icons.security,
           ),
@@ -500,7 +500,7 @@ class AssetDetailsDialog extends StatelessWidget {
           ),
           _buildDetailRow(
             context,
-            'ResoluÃ§Ã£o',
+            'Resolução',
             panel.resolution,
             Icons.photo_size_select_large,
           ),
@@ -523,7 +523,7 @@ class AssetDetailsDialog extends StatelessWidget {
         _buildSection('Rede', [
           _buildDetailRow(
             context,
-            'EndereÃ§o IP',
+            'Endereço IP',
             panel.ipAddress,
             Icons.network_check,
             copyable: true,
@@ -562,14 +562,14 @@ class AssetDetailsDialog extends StatelessWidget {
         _buildSection('Conectividade', [
           _buildDetailRow(
             context,
-            'Tipo de ConexÃ£o',
+            'Tipo de Conexão',
             printer.connectionType,
             Icons.settings_input_hdmi,
           ),
           if (printer.ipAddress != null)
             _buildDetailRow(
               context,
-              'EndereÃ§o IP',
+              'Endereço IP',
               printer.ipAddress!,
               Icons.network_check,
               copyable: true,
@@ -604,21 +604,21 @@ class AssetDetailsDialog extends StatelessWidget {
           if (printer.totalPageCount != null)
             _buildDetailRow(
               context,
-              'Total de PÃ¡ginas',
+              'Total de Páginas',
               printer.totalPageCount.toString(),
               Icons.description,
             ),
           if (printer.colorPageCount != null)
             _buildDetailRow(
               context,
-              'PÃ¡ginas Coloridas',
+              'Páginas Coloridas',
               printer.colorPageCount.toString(),
               Icons.color_lens,
             ),
           if (printer.blackWhitePageCount != null)
             _buildDetailRow(
               context,
-              'PÃ¡ginas P&B',
+              'Páginas P&B',
               printer.blackWhitePageCount.toString(),
               Icons.filter_b_and_w,
             ),
@@ -627,14 +627,14 @@ class AssetDetailsDialog extends StatelessWidget {
         _buildSection('Capacidades', [
           _buildDetailRow(
             context,
-            'ImpressÃ£o Duplex',
-            printer.isDuplex == true ? 'Sim' : 'NÃ£o',
+            'Impressão Duplex',
+            printer.isDuplex == true ? 'Sim' : 'Não',
             Icons.compare_arrows,
           ),
           _buildDetailRow(
             context,
-            'ImpressÃ£o Colorida',
-            printer.isColor == true ? 'Sim' : 'NÃ£o',
+            'Impressão Colorida',
+            printer.isColor == true ? 'Sim' : 'Não',
             Icons.palette,
           ),
         ]),
@@ -649,11 +649,11 @@ class AssetDetailsDialog extends StatelessWidget {
     if (difference.inMinutes < 1) {
       return 'Agora mesmo';
     } else if (difference.inHours < 1) {
-      return 'HÃ¡ ${difference.inMinutes} minuto(s)';
+      return 'Há ${difference.inMinutes} minuto(s)';
     } else if (difference.inDays < 1) {
-      return 'HÃ¡ ${difference.inHours} hora(s)';
+      return 'Há ${difference.inHours} hora(s)';
     } else if (difference.inDays < 7) {
-      return 'HÃ¡ ${difference.inDays} dia(s)';
+      return 'Há ${difference.inDays} dia(s)';
     } else {
       return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     }

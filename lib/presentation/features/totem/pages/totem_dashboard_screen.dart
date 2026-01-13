@@ -1,4 +1,4 @@
-Ôªøimport 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/data/models/totem_model.dart';
@@ -9,7 +9,8 @@ import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/managed_assets_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/totem_table_columns.dart';
-import 'package:painel_windowns/presentation/features/modules/widgets/generic_assets_list_tab.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_list_tab.dart';
+import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -100,7 +101,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                       .toList()
                   : <Totem>[];
 
-          // Aplicar pagina√ß√£o e busca
+          // Aplicar paginaÁ„o e busca
           final displayedTotems = _updateDisplayedTotems(allTotems);
 
           return Container(
@@ -148,7 +149,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       const SidebarMenuItem(
         icon: Icons.dashboard,
         title: 'Painel',
-        subtitle: 'Vis√£o Geral',
+        subtitle: 'Vis„o Geral',
         index: 0,
       ),
       const SidebarMenuItem(
@@ -167,7 +168,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     ];
 
     return CustomSidebar(
-      title: 'M√≥dulo Totem',
+      title: 'MÛdulo Totem',
       titleIcon: Icons.desktop_windows,
       menuItems: menuItems,
       selectedIndex: selectedIndex,
@@ -185,7 +186,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
 
   Widget _buildAppBar(TotemState state, BuildContext context) {
     final currentUser = widget.authService.currentUser;
-    final username = currentUser?['username'] ?? 'Usu√°rio';
+    final username = currentUser?['username'] ?? 'Usu·rio';
     final role = currentUser?['role'] ?? 'user';
 
     return Container(
@@ -319,7 +320,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                   onPressed: () {
                     context.read<TotemBloc>().add(const LoadTotems());
                   },
-                  tooltip: 'For√ßar Atualiza√ß√£o de Localiza√ß√µes (Recarregar)',
+                  tooltip: 'ForÁar AtualizaÁ„o de LocalizaÁıes (Recarregar)',
                 ),
                 IconButton(
                   icon: Container(
@@ -350,7 +351,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                       ),
                     ),
                   ),
-                  tooltip: 'Menu do usu√°rio',
+                  tooltip: 'Menu do usu·rio',
                   onSelected: (value) {
                     if (value == 'logout') {
                       _showLogoutDialog();
@@ -423,35 +424,19 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       case 0:
         return _buildDashboardWithTable(allTotems);
       case 1:
-        // Create AssetModuleConfig for totems
-        final totemModuleConfig = AssetModuleConfig.fromJson({
-          '_id': 'totem-module',
-          'name': 'M√≥dulo Totem',
-          'description': 'Gerenciamento de Totens',
-          'type': 'totem',
-          'is_active': true,
-          'is_custom': false,
-          'created_at': DateTime.now().toIso8601String(),
-          'custom_fields': <String, dynamic>{},
-          'settings': <String, dynamic>{},
-          'table_columns': [
-            {'dataKey': 'hostname', 'label': 'Hostname'},
-            {'dataKey': 'status', 'label': 'Status'},
-            {'dataKey': 'ip', 'label': 'IP'},
-            {'dataKey': 'location', 'label': 'Localiza√ß√£o'},
-            {'dataKey': 'serialNumber', 'label': 'Serial'},
-            {'dataKey': 'zebraStatus', 'label': 'Status Zebra'},
-            {'dataKey': 'bematechStatus', 'label': 'Status Bematech'},
-            {'dataKey': 'totemType', 'label': 'Tipo de Totem'},
-            {'dataKey': 'mozillaVersion', 'label': 'Mozilla Firefox'},
-            {'dataKey': 'javaVersion', 'label': 'Java'},
-            {'dataKey': 'lastSeen', 'label': '√öltima Sincroniza√ß√£o'},
-          ],
-        });
+        // Convert table columns and create config
+        final columns = convertTableColumns([
+          TableColumnConfig(dataKey: 'hostname', label: 'Hostname'),
+          TableColumnConfig(dataKey: 'status', label: 'Status'),
+          TableColumnConfig(dataKey: 'serialNumber', label: 'Serial'),
+          TableColumnConfig(dataKey: 'location', label: 'LocalizaÁ„o'),
+        ]);
+        final config = createAssetCardConfig('totens_export');
 
-        return GenericAssetsListTab(
-          displayedAssets: displayedTotems.cast<ManagedAsset>(),
-          isLoading: state is TotemLoading,
+        return UnifiedListTab<ManagedAsset>(
+          items: displayedTotems.cast<ManagedAsset>(),
+          columns: columns,
+          config: config,
           currentPage: _currentPage,
           totalPages: _totalPages,
           onPageChange: (direction) {
@@ -468,16 +453,10 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
               _currentPage = 1;
             });
           },
-          onRefresh: () => context.read<TotemBloc>().add(const RefreshTotems()),
-          columns: totemModuleConfig.tableColumns,
-          authService: widget.authService,
-          moduleConfig: totemModuleConfig,
-          selectedAssets: _selectedTotems.cast<ManagedAsset>(),
-          onSelectionChanged: (selected) {
-            setState(() {
-              _selectedTotems = selected.cast<Totem>();
-            });
-          },
+          title: 'Totens',
+          searchHint: 'Buscar por hostname, IP, localizaÁ„o...',
+          searchLabel: 'Buscar Totens',
+          isLoading: state is TotemLoading,
         );
       default:
         return _buildDashboardWithTable(allTotems);
@@ -502,7 +481,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Vis√£o Geral dos Totens',
+            'Vis„o Geral dos Totens',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,

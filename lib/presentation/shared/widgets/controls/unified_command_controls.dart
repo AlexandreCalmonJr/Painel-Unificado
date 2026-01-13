@@ -4,9 +4,9 @@
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/data/models/device_model.dart';
-import 'package:painel_windowns/presentation/features/modules/widgets/send_command_dialog.dart';
+import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/base_dialog.dart';
+import 'package:painel_windowns/presentation/shared/widgets/dialogs/send_command_dialog.dart';
 import 'package:painel_windowns/presentation/shared/widgets/menus/base_command_menu.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';

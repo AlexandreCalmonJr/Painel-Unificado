@@ -1,21 +1,35 @@
-﻿// File: lib/models/totem.dart
+// File: lib/models/totem.dart
 // CORRIGIDO: Agora herda de ManagedAsset para compatibilidade total
 
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
-import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/domain/entities/totem_entity.dart';
+import 'package:painel_windowns/services/location_mapper_service.dart';
 
 /// Modelo Totem que herda de ManagedAsset
 class Totem extends ManagedAsset {
-
   Totem({
     required super.id,
     required super.serialNumber,
     required super.status,
     required super.lastSeen,
-    required this.hostname, required this.model, required this.serviceTag, required this.ip, required this.macAddress, required this.macAddressRadio, required this.installedPrograms, required this.printerStatus, required this.biometricReaderStatus, required this.totemType, required this.ram, required this.hdType, required this.hdStorage, required this.zebraStatus, required this.bematechStatus, super.location,
+    required this.hostname,
+    required this.model,
+    required this.serviceTag,
+    required this.ip,
+    required this.macAddress,
+    required this.macAddressRadio,
+    required this.installedPrograms,
+    required this.printerStatus,
+    required this.biometricReaderStatus,
+    required this.totemType,
+    required this.ram,
+    required this.hdType,
+    required this.hdStorage,
+    required this.zebraStatus,
+    required this.bematechStatus,
+    super.location,
     super.assignedTo,
     super.customData,
     super.unit,
@@ -23,7 +37,7 @@ class Totem extends ManagedAsset {
     super.floor,
   }) : super(assetName: hostname, assetType: totemType);
 
-  /// Factory com MAPEAMENTO DE LOCALIZAÇÃO
+  /// Factory com MAPEAMENTO DE LOCALIZA��O
   factory Totem.fromJson(
     Map<String, dynamic> json,
     List<Unit> units,
@@ -32,12 +46,12 @@ class Totem extends ManagedAsset {
     final DateTime parsedDate =
         DateTime.tryParse((json['lastSeen'] ?? '') as String) ?? DateTime.now();
 
-    // ⚡ MAPEAMENTO DE LOCALIZAÇÃO
-    // ✅ CORRIGIDO: Aceitar tanto 'unit' (novo) quanto 'unitRoutes' (legado)
+    // ? MAPEAMENTO DE LOCALIZA��O
+    // ? CORRIGIDO: Aceitar tanto 'unit' (novo) quanto 'unitRoutes' (legado)
     final originalLocation =
         (json['unit'] ?? json['unitRoutes'] ?? 'Desconhecida') as String;
 
-    // ✅ CORRIGIDO: Aceitar tanto 'macAddress' quanto 'mac_address'
+    // ? CORRIGIDO: Aceitar tanto 'macAddress' quanto 'mac_address'
     final macAddress =
         (json['macAddress'] ?? json['mac_address'] ?? 'N/A') as String;
     final macAddressRadio =
@@ -58,7 +72,7 @@ class Totem extends ManagedAsset {
       status: (json['status'] ?? 'Offline') as String,
       lastSeen: parsedDate.toLocal(),
       location: locationData.locationName,
-      assignedTo: null, // Totems geralmente não têm assignedTo
+      assignedTo: null, // Totems geralmente n�o t�m assignedTo
       customData: {},
       unit: locationData.unitName,
       sector: locationData.sector,
@@ -78,8 +92,8 @@ class Totem extends ManagedAsset {
       ram: (json['ram'] ?? 'N/A') as String,
       hdType: (json['hdType'] ?? 'N/A') as String,
       hdStorage: (json['hdStorage'] ?? 'N/A') as String,
-      zebraStatus: (json['zebraStatus'] ?? 'Não detectado') as String,
-      bematechStatus: (json['bematechStatus'] ?? 'Não detectado') as String,
+      zebraStatus: (json['zebraStatus'] ?? 'N�o detectado') as String,
+      bematechStatus: (json['bematechStatus'] ?? 'N�o detectado') as String,
     );
   }
 
@@ -107,11 +121,11 @@ class Totem extends ManagedAsset {
       ram: 'N/A',
       hdType: 'N/A',
       hdStorage: 'N/A',
-      zebraStatus: 'Não detectado',
-      bematechStatus: 'Não detectado',
+      zebraStatus: 'N�o detectado',
+      bematechStatus: 'N�o detectado',
     );
   }
-  // Campos específicos de Totem
+  // Campos espec�ficos de Totem
   final String hostname;
   final String model;
   final String serviceTag;
@@ -147,7 +161,7 @@ class Totem extends ManagedAsset {
               ? '${sector ?? "N/D"} / ${floor ?? "N/D"}'
               : (location ?? 'N/D'),
 
-      // Campos específicos
+      // Campos espec�ficos
       'hostname': hostname,
       'model': model,
       'serviceTag': serviceTag,
@@ -166,7 +180,7 @@ class Totem extends ManagedAsset {
     };
   }
 
-  // ✅ Getters mantidos para compatibilidade
+  // ? Getters mantidos para compatibilidade
   String get mozillaVersion {
     final regex = RegExp(r'Mozilla Firefox ([\d\.]+)');
     for (final program in installedPrograms) {
@@ -208,7 +222,7 @@ class Totem extends ManagedAsset {
     );
   }
 
-  /// Cria uma cópia do Totem com campos atualizados
+  /// Cria uma c�pia do Totem com campos atualizados
   Totem copyWith({
     String? id,
     String? serialNumber,

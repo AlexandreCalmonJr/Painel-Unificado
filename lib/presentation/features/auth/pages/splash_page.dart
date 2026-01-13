@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
-import 'package:painel_windowns/presentation/features/devices/pages/devices_dashboard_legacy.dart';
+import 'package:painel_windowns/presentation/features/mobile/pages/devices_dashboard_legacy.dart';
 
 import 'package:painel_windowns/services/auth_service.dart';
 

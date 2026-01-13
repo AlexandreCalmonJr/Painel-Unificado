@@ -1,5 +1,5 @@
-ï»¿// File: lib/modules/widgets/generic_managed_assets_card.dart
-// MIGRADO PARA USAR BaseDataTable MANTENDO COLUNAS DINÃ‚MICAS ORIGINAIS
+// File: lib/modules/widgets/generic_managed_assets_card.dart
+// MIGRADO PARA USAR BaseDataTable MANTENDO COLUNAS DINÂMICAS ORIGINAIS
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,8 +13,8 @@ import 'package:painel_windowns/presentation/shared/widgets/status/status_chip.d
 import 'package:painel_windowns/presentation/shared/widgets/tables/base_data_table.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
-class GenericManagedAssetsCard extends StatelessWidget {
-  const GenericManagedAssetsCard({
+class UnifiedManagedAssetsCard extends StatelessWidget {
+  const UnifiedManagedAssetsCard({
     required this.title,
     required this.assets,
     required this.columns,
@@ -95,7 +95,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
                   columns:
                       columns.map((col) {
                         return DataTableColumn<ManagedAsset>(
-                          label: col.label, // MANTÃ‰M O NOME ORIGINAL DA COLUNA
+                          label: col.label, // MANTÉM O NOME ORIGINAL DA COLUNA
                           builder: (asset) {
                             final assetData = asset.toJson();
                             final dataKey = col.dataKey;
@@ -110,7 +110,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
 
                             final value = assetData[dataKey];
 
-                            // CÃ©lula clicÃ¡vel para hostname/asset_name
+                            // Célula clicável para hostname/asset_name
                             if (dataKey == 'hostname' ||
                                 dataKey == 'asset_name') {
                               return InkWell(
@@ -137,7 +137,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
                               );
                             }
 
-                            // CÃ©lula de status com chip
+                            // Célula de status com chip
                             if (dataKey == 'status') {
                               return StatusChip(
                                 status: value?.toString() ?? 'unknown',
@@ -146,7 +146,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
                               );
                             }
 
-                            // CÃ©lulas padrÃ£o
+                            // Células padrão
                             return Text(
                               value?.toString() ?? 'N/D',
                               style: AppTextStyles.bodySmall.copyWith(
@@ -162,7 +162,7 @@ class GenericManagedAssetsCard extends StatelessWidget {
                           ? [
                             TableAction<ManagedAsset>(
                               icon: Icons.more_vert,
-                              label: 'AÃ§Ãµes',
+                              label: 'Ações',
                               onTap: (asset) {}, // Placeholder
                             ),
                           ]

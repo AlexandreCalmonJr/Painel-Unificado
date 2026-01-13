@@ -1,9 +1,7 @@
-﻿import 'package:flutter/material.dart';
-import 'package:painel_windowns/core/utils/helpers.dart';
-import 'package:painel_windowns/data/models/device_model.dart';
+import 'package:flutter/material.dart';
+import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/device_service.dart';
 
 
 class DeviceDetailScreen extends StatefulWidget {
@@ -54,7 +52,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
 
       return history;
     } catch (e) {
-      print('DEBUG: ERRO FATAL ao buscar histórico de localização: $e');
+      print('DEBUG: ERRO FATAL ao buscar hist�rico de localiza��o: $e');
       return [];
     } finally {
       setState(() {
@@ -86,7 +84,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
         statusIcon = Icons.error_outline;
         break;
       case DeviceStatusType.maintenance:
-        status = 'Em Manutenção';
+        status = 'Em Manuten��o';
         statusColor = Colors.orange;
         statusIcon = Icons.build_outlined;
         break;
@@ -207,7 +205,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
   Widget _buildMaintenanceStatusCard(BuildContext context) {
     final maintenanceReason = widget.device.maintenanceReason ?? '';
     final isCollectedByIT = maintenanceReason == 'collected_by_it';
-    final statusText = isCollectedByIT ? 'Recolhido pelo TI' : 'Em Manutenção';
+    final statusText = isCollectedByIT ? 'Recolhido pelo TI' : 'Em Manuten��o';
     final statusColor = isCollectedByIT ? Colors.purple : Colors.orange;
     final statusIcon =
         isCollectedByIT ? Icons.inventory_2_outlined : Icons.build_outlined;
@@ -237,7 +235,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
             _buildMaintenanceDetail(
               isCollectedByIT
                   ? 'Motivo do Recolhimento:'
-                  : 'Número do Chamado:',
+                  : 'N�mero do Chamado:',
               widget.device.maintenanceTicket!,
               statusColor,
             ),
@@ -296,10 +294,10 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
         Expanded(
           child: _buildStatCard(
             icon: Icons.sync,
-            label: 'Último Sync',
+            label: '�ltimo Sync',
             value:
                 minutesSinceSync != null
-                    ? '$minutesSinceSync min atrás'
+                    ? '$minutesSinceSync min atr�s'
                     : 'N/A',
             color: Colors.blue,
           ),
@@ -377,19 +375,19 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('Informações do Dispositivo', Icons.info_outline),
+          _buildCardTitle('Informa��es do Dispositivo', Icons.info_outline),
           const SizedBox(height: 24),
-          _buildSectionTitle('Identificação'),
+          _buildSectionTitle('Identifica��o'),
           _buildDetailRow('Serial', widget.device.serialNumber ?? 'N/A'),
           _buildDetailRow('IMEI', widget.device.imei ?? 'N/A'),
           _buildDetailRow('ID Interno', widget.device.deviceId ?? 'N/A'),
           const Divider(height: 32),
-          _buildSectionTitle('Localização'),
+          _buildSectionTitle('Localiza��o'),
           _buildDetailRow('Unidade', widget.device.unit ?? 'N/A'),
           _buildDetailRow('Setor', widget.device.sector ?? 'Desconhecido'),
           _buildDetailRow('Andar', widget.device.floor ?? 'Desconhecido'),
           const Divider(height: 32),
-          _buildSectionTitle('Rede & Conexão'),
+          _buildSectionTitle('Rede & Conex�o'),
           _buildDetailRow('IP', widget.device.ipAddress ?? 'N/A'),
           _buildDetailRow('MAC', widget.device.macAddress ?? 'N/A'),
           _buildDetailRow('BSSID', widget.device.macAddressRadio ?? 'N/A'),
@@ -407,13 +405,13 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildCardTitle(
-                'Histórico de Localização',
+                'Hist�rico de Localiza��o',
                 Icons.location_on_outlined,
               ),
               IconButton(
                 icon: const Icon(Icons.refresh, size: 20),
                 onPressed: _refreshLocationHistory,
-                tooltip: 'Atualizar histórico',
+                tooltip: 'Atualizar hist�rico',
                 color: Colors.grey[600],
               ),
             ],
@@ -467,7 +465,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Nenhum histórico encontrado',
+                          'Nenhum hist�rico encontrado',
                           style: TextStyle(color: Colors.grey[500]),
                         ),
                       ],
@@ -512,7 +510,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('Histórico de Manutenção', Icons.history),
+          _buildCardTitle('Hist�rico de Manuten��o', Icons.history),
           const SizedBox(height: 24),
           history.isEmpty
               ? Center(
@@ -527,7 +525,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Nenhum registro de manutenção',
+                        'Nenhum registro de manuten��o',
                         style: TextStyle(color: Colors.grey[500]),
                       ),
                     ],
@@ -544,7 +542,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
                   final entryStatus = entry['status']?.toString() ?? '';
                   final ticket =
                       entry['ticket'] != null
-                          ? " • Chamado: ${entry['ticket']}"
+                          ? " � Chamado: ${entry['ticket']}"
                           : '';
                   final reason =
                       entry['reason'] != null
@@ -556,11 +554,11 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
 
                   switch (entryStatus) {
                     case 'entered_maintenance':
-                      displayStatus = 'Entrou em manutenção';
+                      displayStatus = 'Entrou em manuten��o';
                       displayColor = Colors.orange;
                       break;
                     case 'returned_to_production':
-                      displayStatus = 'Retornou à produção';
+                      displayStatus = 'Retornou � produ��o';
                       displayColor = Colors.green;
                       break;
                     case 'collected_by_it':

@@ -1,4 +1,4 @@
-Ôªø// File: lib/modules/widgets/send_command_dialog.dart
+// File: lib/modules/widgets/send_command_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -22,12 +22,12 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
   late final CommandService _commandService;
   String? _selectedCommandType;
 
-  // Controllers para capturar os par√¢metros (URL, Caminho, Nome, etc)
+  // Controllers para capturar os par‚metros (URL, Caminho, Nome, etc)
   final _param1Controller = TextEditingController();
   final _param2Controller = TextEditingController();
 
   bool _isLoading = false;
-  bool _showInputs = false; // Alterna entre a Grid de √≠cones e o Formul√°rio
+  bool _showInputs = false; // Alterna entre a Grid de Ìcones e o Formul·rio
 
   @override
   void initState() {
@@ -49,11 +49,11 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
       _param1Controller.clear();
       _param2Controller.clear();
 
-      // Se o comando tem a flag 'hasParams' ou √© o customizado, abre o formul√°rio
+      // Se o comando tem a flag 'hasParams' ou È o customizado, abre o formul·rio
       if (data['hasParams'] == true || key == 'cmd_custom') {
         _showInputs = true;
       } else {
-        // Se for comando simples (ex: reiniciar), mostra confirma√ß√£o
+        // Se for comando simples (ex: reiniciar), mostra confirmaÁ„o
         _showInputs = true;
       }
     });
@@ -71,12 +71,12 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
       // Monta o payload de acordo com o tipo selecionado
       if (_selectedCommandType == 'map_lpt2') {
         if (_param1Controller.text.isEmpty) {
-          throw Exception('Caminho da impressora obrigat√≥rio');
+          throw Exception('Caminho da impressora obrigatÛrio');
         }
         params = {'path': _param1Controller.text.trim()};
       } else if (_selectedCommandType == 'download_file') {
         if (_param1Controller.text.isEmpty || _param2Controller.text.isEmpty) {
-          throw Exception('URL e Destino obrigat√≥rios');
+          throw Exception('URL e Destino obrigatÛrios');
         }
         params = {
           'url': _param1Controller.text.trim(),
@@ -84,7 +84,7 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
         };
       } else if (_selectedCommandType == 'auto_start_app') {
         if (_param1Controller.text.isEmpty || _param2Controller.text.isEmpty) {
-          throw Exception('Nome e Caminho obrigat√≥rios');
+          throw Exception('Nome e Caminho obrigatÛrios');
         }
         params = {
           'name': _param1Controller.text.trim(),
@@ -92,7 +92,7 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
         };
       } else if (_selectedCommandType == 'cmd_custom') {
         if (_param1Controller.text.isEmpty) {
-          throw Exception('Comando obrigat√≥rio');
+          throw Exception('Comando obrigatÛrio');
         }
         customCmd = _param1Controller.text.trim();
       }
@@ -135,12 +135,12 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // Se selecionou um comando, mostra a tela de inputs/confirma√ß√£o
+    // Se selecionou um comando, mostra a tela de inputs/confirmaÁ„o
     if (_showInputs && _selectedCommandType != null) {
       return _buildInputForm();
     }
 
-    // Caso contr√°rio, mostra a grade de op√ß√µes
+    // Caso contr·rio, mostra a grade de opÁıes
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: const Text('Enviar Comando Remoto'),
@@ -153,12 +153,12 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
             crossAxisCount: 3, // 3 Colunas
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 2.2, // Bot√µes retangulares
+            childAspectRatio: 2.2, // Botıes retangulares
           ),
-          // Soma 1 para incluir o bot√£o "Customizado" manual
+          // Soma 1 para incluir o bot„o "Customizado" manual
           itemCount: CommandService.predefinedCommands.length + 1,
           itemBuilder: (ctx, i) {
-            // Adiciona o bot√£o "Customizado" no final da lista
+            // Adiciona o bot„o "Customizado" no final da lista
             if (i == CommandService.predefinedCommands.length) {
               return _buildCommandCard('cmd_custom', {
                 'label': 'CMD / PowerShell',
@@ -183,13 +183,13 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
     );
   }
 
-  // Constr√≥i o formul√°rio din√¢mico baseado no comando
+  // ConstrÛi o formul·rio din‚mico baseado no comando
   Widget _buildInputForm() {
     String title = 'Configurar Comando';
     final List<Widget> inputs = [];
     String? iconName;
 
-    // L√≥gica de UI para cada tipo de comando
+    // LÛgica de UI para cada tipo de comando
     if (_selectedCommandType == 'map_lpt2') {
       title = 'Mapear Impressora LPT2';
       iconName = 'print';
@@ -203,7 +203,7 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
       inputs.add(const SizedBox(height: 8));
       inputs.add(
         _buildInfoText(
-          'Isso mapear√° o compartilhamento para a porta LPT2 com persist√™ncia.',
+          'Isso mapear· o compartilhamento para a porta LPT2 com persistÍncia.',
         ),
       );
     } else if (_selectedCommandType == 'download_file') {
@@ -238,7 +238,7 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
       inputs.add(
         _buildTextField(
           _param2Controller,
-          'Caminho do Execut√°vel',
+          'Caminho do Execut·vel',
           r'C:\Sistema\app.exe',
         ),
       );
@@ -254,8 +254,8 @@ class _SendCommandDialogState extends State<SendCommandDialog> {
         ),
       );
     } else {
-      // Comandos sem par√¢metros (Reiniciar, Limpar Temp, etc)
-      title = 'Confirmar Execu√ß√£o';
+      // Comandos sem par‚metros (Reiniciar, Limpar Temp, etc)
+      title = 'Confirmar ExecuÁ„o';
       iconName = 'check_circle';
       inputs.add(
         Text(

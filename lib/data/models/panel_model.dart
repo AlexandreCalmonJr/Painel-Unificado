@@ -1,4 +1,4 @@
-Ôªø// File: lib/models/painel.dart (VERS√ÉO CORRIGIDA)
+// File: lib/models/painel.dart (VERS√O CORRIGIDA)
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
@@ -6,7 +6,7 @@ import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/services/logger_service.dart';
 import 'package:painel_windowns/domain/entities/module_entity.dart';
 
-/// Modelo completo para Pain√©is/TVs/Monitores
+/// Modelo completo para PainÈis/TVs/Monitores
 class Panel extends ManagedAsset {
 
   Panel({
@@ -29,10 +29,10 @@ class Panel extends ManagedAsset {
     this.volume,
     this.hdmiInput,
     this.connectedDevices,
-    this.maintenanceStatus = false, // ‚úÖ NOVO
-    this.maintenanceTicket, // ‚úÖ NOVO
-    this.maintenanceReason, // ‚úÖ NOVO
-    this.maintenanceHistory, // ‚úÖ NOVO
+    this.maintenanceStatus = false, // ? NOVO
+    this.maintenanceTicket, // ? NOVO
+    this.maintenanceReason, // ? NOVO
+    this.maintenanceHistory, // ? NOVO
   }) : super(assetType: 'panel');
 
   factory Panel.fromJson(
@@ -40,13 +40,13 @@ class Panel extends ManagedAsset {
     List<Unit> units, [
     List<BssidMapping>? bssidMappings,
   ]) {
-    // ‚úÖ PRIORIZA DADOS DO SERVIDOR
+    // ? PRIORIZA DADOS DO SERVIDOR
     String? unit = json['unit'] as String?;
     String? sector = json['sector'] as String?;
     String? floor = json['floor'] as String?;
     String? location = json['location'] as String?;
 
-    // üî• S√ì MAPEIA SE AUSENTE OU INV√ÅLIDO
+    // ?? S” MAPEIA SE AUSENTE OU INV¡LIDO
     final bool shouldMap =
         (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
         (sector == null || sector == 'Desconhecido') ||
@@ -54,7 +54,7 @@ class Panel extends ManagedAsset {
 
     if (shouldMap) {
       logger.info(
-        'Panel ${json['serial_number']}: Mapeando localiza√ß√£o localmente',
+        'Panel ${json['serial_number']}: Mapeando localizaÁ„o localmente',
         tag: 'Panel.fromJson',
       );
 
@@ -72,7 +72,7 @@ class Panel extends ManagedAsset {
       location ??= locationData.locationName;
 
       logger.debug(
-        'Mapeamento conclu√≠do - Unit: $unit, Sector: $sector, Floor: $floor',
+        'Mapeamento concluÌdo - Unit: $unit, Sector: $sector, Floor: $floor',
         tag: 'Panel.fromJson',
       );
     }
@@ -120,7 +120,7 @@ class Panel extends ManagedAsset {
               ? List<String>.from(json['connected_devices'] as List)
               : null,
 
-      // ‚úÖ NOVO: Campos de manuten√ß√£o
+      // ? NOVO: Campos de manutenÁ„o
       maintenanceStatus: (json['maintenance_status'] ?? false) as bool,
       maintenanceTicket: json['maintenance_ticket']?.toString(),
       maintenanceReason: json['maintenance_reason']?.toString(),
@@ -170,7 +170,7 @@ class Panel extends ManagedAsset {
   final String? hdmiInput;
   final List<String>? connectedDevices;
 
-  // ‚úÖ NOVO: Campos de manuten√ß√£o
+  // ? NOVO: Campos de manutenÁ„o
   final bool maintenanceStatus;
   final String? maintenanceTicket;
   final String? maintenanceReason;
@@ -212,7 +212,7 @@ class Panel extends ManagedAsset {
       'hdmi_input': hdmiInput,
       'connected_devices': connectedDevices,
 
-      // ‚úÖ NOVO: Campos de manuten√ß√£o
+      // ? NOVO: Campos de manutenÁ„o
       'maintenance_status': maintenanceStatus,
       'maintenance_ticket': maintenanceTicket,
       'maintenance_reason': maintenanceReason,

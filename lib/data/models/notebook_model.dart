@@ -1,4 +1,4 @@
-ï»¿// File: lib/models/notebook.dart
+// File: lib/models/notebook.dart
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
@@ -62,7 +62,7 @@ class Notebook extends ManagedAsset {
 
     if (shouldMap) {
       logger.info(
-        'Notebook $serialNumber: Mapeando localizaÃ§Ã£o localmente',
+        'Notebook $serialNumber: Mapeando localização localmente',
         tag: 'Notebook.fromJson',
       );
 
@@ -80,7 +80,7 @@ class Notebook extends ManagedAsset {
       location ??= locationData.locationName;
 
       logger.debug(
-        'Mapeamento local concluÃ­do - Unit: $unit, Sector: $sector, Floor: $floor',
+        'Mapeamento local concluído - Unit: $unit, Sector: $sector, Floor: $floor',
         tag: 'Notebook.fromJson',
       );
     } else {

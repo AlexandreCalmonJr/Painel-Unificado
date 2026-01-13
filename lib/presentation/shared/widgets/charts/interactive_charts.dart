@@ -1,6 +1,6 @@
-Ôªø// File: lib/widgets/interactive_charts.dart
-import 'package:fl_chart/fl_chart.dart'; // Necess√°rio para PieChart, BarChart, etc.
-import 'package:flutter/material.dart'; // Necess√°rio para Widgets, Colors, etc.
+// File: lib/widgets/interactive_charts.dart
+import 'package:fl_chart/fl_chart.dart'; // Necess·rio para PieChart, BarChart, etc.
+import 'package:flutter/material.dart'; // Necess·rio para Widgets, Colors, etc.
 import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // Import presumido
 
 class AssetStatusChart extends StatelessWidget {
@@ -39,7 +39,7 @@ class AssetStatusChart extends StatelessWidget {
                     ),
                     PieChartSectionData(
                       value: statusData['maintenance']!.toDouble(),
-                      title: 'Manuten√ß√£o\n${statusData['maintenance']}',
+                      title: 'ManutenÁ„o\n${statusData['maintenance']}',
                       color: Colors.orange,
                       radius: 100,
                     ),
@@ -78,7 +78,7 @@ class LocationHeatmap extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Text('Distribui√ß√£o por Localiza√ß√£o',
+            const Text('DistribuiÁ„o por LocalizaÁ„o',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             SizedBox(
@@ -109,7 +109,7 @@ class LocationHeatmap extends StatelessWidget {
                         },
                       ),
                     ),
-                    // Oculta os t√≠tulos da esquerda, topo e direita
+                    // Oculta os tÌtulos da esquerda, topo e direita
                     leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),

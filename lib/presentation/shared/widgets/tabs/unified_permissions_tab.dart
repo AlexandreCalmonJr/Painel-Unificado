@@ -1,11 +1,14 @@
 // File: lib/tabs/generic_permissions_tab.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/module_management_service.dart';
 
-class GenericPermissionsTab extends StatefulWidget {
-  const GenericPermissionsTab({
-    required this.moduleId, required this.moduleName, required this.authService, required this.moduleService, super.key,
+class UnifiedPermissionsTab extends StatefulWidget {
+  const UnifiedPermissionsTab({
+    required this.moduleId,
+    required this.moduleName,
+    required this.authService,
+    required this.moduleService,
+    super.key,
   });
   final String moduleId;
   final String moduleName;
@@ -13,10 +16,10 @@ class GenericPermissionsTab extends StatefulWidget {
   final ModuleManagementService moduleService;
 
   @override
-  State<GenericPermissionsTab> createState() => _GenericPermissionsTabState();
+  State<UnifiedPermissionsTab> createState() => _UnifiedPermissionsTabState();
 }
 
-class _GenericPermissionsTabState extends State<GenericPermissionsTab> {
+class _UnifiedPermissionsTabState extends State<UnifiedPermissionsTab> {
   bool _isLoading = true;
   String? _errorMessage;
   List<dynamic> _allUsers = [];

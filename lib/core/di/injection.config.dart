@@ -16,13 +16,13 @@ import 'package:painel_windowns/core/di/app_module.dart' as _i836;
 import 'package:painel_windowns/core/network/network_info.dart' as _i958;
 import 'package:painel_windowns/data/datasources/local/auth_local_datasource.dart'
     as _i441;
-import 'package:painel_windowns/data/datasources/local/device_local_datasource.dart'
+import 'package:painel_windowns/data/datasources/local/mobile_local_datasource.dart'
     as _i1022;
 import 'package:painel_windowns/data/datasources/local/totem_local_datasource.dart'
     as _i1028;
 import 'package:painel_windowns/data/datasources/remote/auth_remote_datasource.dart'
     as _i552;
-import 'package:painel_windowns/data/datasources/remote/device_remote_datasource.dart'
+import 'package:painel_windowns/data/datasources/remote/mobile_remote_datasource.dart'
     as _i1054;
 import 'package:painel_windowns/data/datasources/remote/totem_remote_datasource.dart'
     as _i711;

@@ -1,10 +1,7 @@
-// File: lib/presentation/shared/widgets/cards/device_table_columns.dart
+// File: lib/presentation/shared/widgets/cards/mobile_table_columns.dart
 // Helper functions to build table columns for devices
 
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/core/utils/helpers.dart';
-import 'package:painel_windowns/data/models/device_model.dart';
-import 'package:painel_windowns/presentation/features/devices/pages/device_detail_page.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/managed_assets_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
