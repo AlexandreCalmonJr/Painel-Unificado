@@ -7,8 +7,10 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/base_dialog.dart';
 import 'package:painel_windowns/presentation/shared/widgets/menus/base_command_menu.dart';
-import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/device_service.dart';
+import 'package:painel_windowns/services/module_management_service.dart'
+    as management_service;
 
 /// Configuration for command actions specific to item type
 class CommandConfig<T> {
@@ -240,8 +242,7 @@ class UnifiedCommandControls<T> extends StatelessWidget {
   Future<void> _deleteDevice(BuildContext context, dynamic device) async {
     final deviceService = DeviceService();
     final serialNumber =
-        config?.getSerialNumber?.call(item as T) ??
-        (item as Device).serialNumber;
+        config?.getSerialNumber?.call(item) ?? (item as Device).serialNumber;
 
     if (serialNumber == null || token == null) return;
 
@@ -273,8 +274,7 @@ class UnifiedCommandControls<T> extends StatelessWidget {
   ) async {
     final deviceService = DeviceService();
     final serialNumber =
-        config?.getSerialNumber?.call(item as T) ??
-        (item as Device).serialNumber;
+        config?.getSerialNumber?.call(item) ?? (item as Device).serialNumber;
 
     if (serialNumber == null || token == null) return;
 
@@ -340,28 +340,48 @@ class UnifiedCommandControls<T> extends StatelessWidget {
 
     if (data == null) return;
 
-    final service = ModuleManagementService(authService: authService);
-    final assetId =
-        config?.getAssetId?.call(item as T) ?? (asset as ManagedAsset).id;
-
-    await service.setMaintenanceMode(
-      moduleId: config?.moduleId ?? '',
-      assetId: assetId,
-      maintenanceMode: true,
-      reason: data['reason'] as String? ?? '',
+    final service = management_service.ModuleManagementService(
+      authService: authService,
     );
+    final assetId =
+        config?.getAssetId?.call(item) ?? (asset as ManagedAsset).id;
 
-    onCommandExecuted?.call();
+    try {
+      await service.setMaintenanceMode(
+        moduleId: config?.moduleId ?? '',
+        assetId: assetId,
+        maintenanceMode: true,
+        reason: data['reason'] as String? ?? '',
+      );
+
+      onCommandExecuted?.call();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Manutenção marcada com sucesso')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao marcar manutenção: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _returnAssetToProduction(
     BuildContext context,
     dynamic asset,
   ) async {
-    final service = ModuleManagementService(authService: authService
-    ));
+    final service = management_service.ModuleManagementService(
+      authService: authService,
+    );
     final assetId =
-        config?.getAssetId?.call(item as T) ?? (asset as ManagedAsset).id;
+        config?.getAssetId?.call(item) ?? (asset as ManagedAsset).id;
 
     await service.setMaintenanceMode(
       moduleId: config?.moduleId ?? '',
@@ -373,9 +393,11 @@ class UnifiedCommandControls<T> extends StatelessWidget {
   }
 
   Future<void> _deleteAsset(BuildContext context, dynamic asset) async {
-    final service = ModuleManagementService(authService: authService);
+    final service = management_service.ModuleManagementService(
+      authService: authService,
+    );
     final assetId =
-        config?.getAssetId?.call(item as T) ?? (asset as ManagedAsset).id;
+        config?.getAssetId?.call(item) ?? (asset as ManagedAsset).id;
 
     await service.deleteAsset(
       moduleId: config?.moduleId ?? '',
@@ -386,9 +408,38 @@ class UnifiedCommandControls<T> extends StatelessWidget {
   }
 }
 
-class SendCommandDialog {
-  late final ManagedAsset asset;
-  late final String moduleId;
-  late final AuthService authService;
-  late final VoidCallback onCommandSent;
+class SendCommandDialog extends StatelessWidget {
+  const SendCommandDialog({
+    required this.asset,
+    required this.moduleId,
+    required this.authService,
+    required this.onCommandSent,
+    super.key,
+  });
+
+  final ManagedAsset asset;
+  final String moduleId;
+  final AuthService authService;
+  final VoidCallback onCommandSent;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Enviar Comando'),
+      content: const Text('Diálogo para enviar comando ao ativo'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () {
+            onCommandSent();
+            Navigator.pop(context);
+          },
+          child: const Text('Enviar'),
+        ),
+      ],
+    );
+  }
 }

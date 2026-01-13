@@ -1,8 +1,4 @@
 class IpMapping {
-  final String id;
-  final String location;
-  final String ipStart;
-  final String ipEnd;
 
   IpMapping({
     required this.id,
@@ -19,6 +15,10 @@ class IpMapping {
       ipEnd: json['ipEnd'] as String,
     );
   }
+  final String id;
+  final String location;
+  final String ipStart;
+  final String ipEnd;
 
   Map<String, dynamic> toJson() {
     return {

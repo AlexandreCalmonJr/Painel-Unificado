@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/presentation/bloc/auth/auth_bloc.dart';
 import 'package:painel_windowns/presentation/bloc/auth/auth_event.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/features/home/pages/home_page.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 import 'package:painel_windowns/services/websocket_service.dart';
-import 'package:painel_windowns/core/constants/app_constants.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({required this.authService, super.key});
   final AuthService authService;
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoginScreenState createState() => _LoginScreenState();
 }
 

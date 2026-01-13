@@ -10,7 +10,6 @@ import 'package:painel_windowns/services/websocket_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  // ... (todo o resto do seu código: _token, _user, login, etc. permanece igual)
   String? _token;
   Map<String, dynamic>? _user;
 
@@ -105,9 +104,10 @@ class AuthService {
     }
   }
 
-  // ##### MÉTODO createUser MODIFICADO #####
   Future<Map<String, dynamic>> createUser(Map<String, dynamic> userData) async {
-    if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
+    if (!isAdmin) {
+      return {'success': false, 'message': 'Acesso não autorizado'};
+    }
     final config = ServerConfigService.instance.loadConfig();
     try {
       final response = await http.post(
@@ -120,20 +120,22 @@ class AuthService {
       );
       final data = jsonDecode(response.body);
 
-      // A mudança está aqui: agora retornamos o usuário no sucesso
       if (response.statusCode == 201) {
         return {
           'success': true,
-          'message': data['message'],
-          'user': data['user'],
+          'message': data['message'] ?? 'Usuário criado com sucesso',
+          'user': data['user'] ?? {}, // Garantir que nunca seja null
         };
       } else {
-        return {'success': false, 'message': data['message']};
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Erro ao criar usuário',
+        };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': 'Falha na conexão ao criar utilizador',
+        'message': 'Falha na conexão ao criar utilizador: ${e.toString()}',
       };
     }
   }
@@ -142,7 +144,9 @@ class AuthService {
     String userId,
     Map<String, dynamic> userData,
   ) async {
-    if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
+    if (!isAdmin) {
+      return {'success': false, 'message': 'Acesso não autorizado'};
+    }
     final config = ServerConfigService.instance.loadConfig();
     try {
       final response = await http.put(
@@ -158,12 +162,12 @@ class AuthService {
       final data = jsonDecode(response.body);
       return {
         'success': response.statusCode == 200,
-        'message': data['message'],
+        'message': data['message'] ?? 'Operação concluída',
       };
     } catch (e) {
       return {
         'success': false,
-        'message': 'Falha na conexão ao atualizar utilizador',
+        'message': 'Falha na conexão ao atualizar utilizador: ${e.toString()}',
       };
     }
   }
@@ -173,8 +177,7 @@ class AuthService {
       return {
         'success': false,
         'message': 'Acesso não autorizado',
-        // ignore: inference_failure_on_collection_literal
-        'users': [],
+        'users': <dynamic>[],
       };
     }
     final config = ServerConfigService.instance.loadConfig();
@@ -189,27 +192,27 @@ class AuthService {
           .timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return {'success': true, 'users': data['users']};
+        return {'success': true, 'users': data['users'] ?? []};
       } else {
         return {
           'success': false,
           'message': 'Falha ao buscar usuários',
-          // ignore: inference_failure_on_collection_literal
-          'users': [],
+          'users': <dynamic>[],
         };
       }
     } catch (e) {
       return {
         'success': false,
-        // ignore: inference_failure_on_collection_literal
-        'users': [],
+        'users': <dynamic>[],
         'message': 'Erro de conexão: ${e.toString()}',
       };
     }
   }
 
   Future<Map<String, dynamic>> deleteUser(String userId) async {
-    if (!isAdmin) return {'success': false, 'message': 'Acesso não autorizado'};
+    if (!isAdmin) {
+      return {'success': false, 'message': 'Acesso não autorizado'};
+    }
     final config = ServerConfigService.instance.loadConfig();
     try {
       final response = await http.delete(
@@ -221,12 +224,12 @@ class AuthService {
       final data = jsonDecode(response.body);
       return {
         'success': response.statusCode == 200,
-        'message': data['message'],
+        'message': data['message'] ?? 'Operação concluída',
       };
     } catch (e) {
       return {
         'success': false,
-        'message': 'Falha na conexão ao eliminar utilizador',
+        'message': 'Falha na conexão ao eliminar utilizador: ${e.toString()}',
       };
     }
   }

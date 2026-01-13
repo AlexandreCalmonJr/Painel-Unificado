@@ -1,8 +1,8 @@
 // File: lib/widgets/common/stat_card.dart (ENHANCED)
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 
 /// Widget reutilizável para cards de estatística com animações e efeitos modernos
 class StatCard extends StatefulWidget {

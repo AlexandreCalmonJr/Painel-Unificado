@@ -1,10 +1,4 @@
 class Command {
-  final String id;
-  final String name;
-  final String command;
-  final String description;
-  final bool requiresAdmin;
-  final List<String> supportedOS;
 
   Command({
     required this.id,
@@ -25,6 +19,12 @@ class Command {
       supportedOS: List<String>.from(json['supportedOS'] as List? ?? []),
     );
   }
+  final String id;
+  final String name;
+  final String command;
+  final String description;
+  final bool requiresAdmin;
+  final List<String> supportedOS;
 
   Map<String, dynamic> toJson() {
     return {

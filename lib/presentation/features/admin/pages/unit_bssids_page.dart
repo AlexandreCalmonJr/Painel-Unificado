@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+ï»¿import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -27,16 +27,16 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
     _loadBssids();
   }
 
-  /// Carrega os BSSIDs filtrados para esta unidade específica
+  /// Carrega os BSSIDs filtrados para esta unidade especï¿½fica
   Future<void> _loadBssids() async {
     setState(() => isLoading = true);
     try {
       final token = widget.authService.currentToken ?? '';
       if (token.isEmpty) {
-        _showSnackbar('Token inválido. Faça login novamente.', isError: true);
+        _showSnackbar('Token invï¿½lido. Faï¿½a login novamente.', isError: true);
         return;
       }
-      // Chama o método correto do service
+      // Chama o mï¿½todo correto do service
       bssidMappings =
           await _deviceService.fetchBssidsForUnit(token, widget.unit.name);
     } catch (e) {
@@ -57,14 +57,14 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
     );
   }
 
-  /// Mostra o diálogo para criar ou editar um BSSID.
-  /// A 'unitName' já vem preenchida e desabilitada.
+  /// Mostra o diï¿½logo para criar ou editar um BSSID.
+  /// A 'unitName' jï¿½ vem preenchida e desabilitada.
   Future<void> _createOrUpdateBssidMapping(BssidMapping? mapping) async {
     final isEditing = mapping != null;
     final macController = TextEditingController(text: mapping?.macAddressRadio);
     final sectorController = TextEditingController(text: mapping?.sector);
     final floorController = TextEditingController(text: mapping?.floor);
-    // CRÍTICO: Pré-preenche o nome da unidade e desabilita a edição
+    // CRï¿½TICO: Prï¿½-preenche o nome da unidade e desabilita a ediï¿½ï¿½o
     final unitNameController = TextEditingController(text: widget.unit.name);
 
     await showDialog(
@@ -114,7 +114,7 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
             const SizedBox(height: 16),
             TextField(
               controller: unitNameController,
-              readOnly: true, // Desabilita a edição
+              readOnly: true, // Desabilita a ediï¿½ï¿½o
               decoration: InputDecoration(
                 labelText: 'Unidade',
                 border:
@@ -137,16 +137,16 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
                   macController.text.trim().toUpperCase().replaceAll('-', ':');
               final sector = sectorController.text.trim();
               final floor = floorController.text.trim();
-              // Sempre usa o nome da unidade da página
+              // Sempre usa o nome da unidade da pï¿½gina
               final unitName = unitNameController.text.trim();
 
               if (mac.isEmpty || sector.isEmpty || floor.isEmpty) {
-                _showSnackbar('Campos MAC, Setor e Andar são obrigatórios.',
+                _showSnackbar('Campos MAC, Setor e Andar sï¿½o obrigatï¿½rios.',
                     isError: true);
                 return;
               }
               if (!RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$').hasMatch(mac)) {
-                _showSnackbar('MAC inválido.', isError: true);
+                _showSnackbar('MAC invï¿½lido.', isError: true);
                 return;
               }
 
@@ -194,7 +194,7 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
           children: [
             Icon(Icons.warning, color: Colors.red),
             SizedBox(width: 8),
-            Text('Confirmar Exclusão'),
+            Text('Confirmar Exclusï¿½o'),
           ],
         ),
         content: Text('Excluir mapeamento para "${mapping.macAddressRadio}"?'),
@@ -216,14 +216,14 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
     try {
       await _deviceService.deleteBssidMapping(
           widget.authService.currentToken!, mapping.macAddressRadio);
-      _showSnackbar('Mapeamento excluído com sucesso!');
+      _showSnackbar('Mapeamento excluï¿½do com sucesso!');
       _loadBssids(); // Recarrega a lista
     } catch (e) {
       _showSnackbar('Erro ao excluir: $e', isError: true);
     }
   }
 
-  /// Constrói a lista de BSSIDs
+  /// Constrï¿½i a lista de BSSIDs
   Widget _buildBssidList() {
     if (bssidMappings.isEmpty) {
       return const Center(
@@ -234,7 +234,7 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
               leading: Icon(Icons.location_off, color: Colors.grey),
               title: Text('Nenhum BSSID cadastrado'),
               subtitle: Text(
-                  'Adicione um mapeamento no botão (+) para esta unidade.'),
+                  'Adicione um mapeamento no botï¿½o (+) para esta unidade.'),
             ),
           ),
         ),

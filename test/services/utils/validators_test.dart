@@ -1,6 +1,6 @@
 // File: test/utils/validators_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:painel_windowns/utils/validators.dart';
+import 'package:painel_windowns/core/utils/validators.dart';
 
 void main() {
   group('Validators Tests', () {

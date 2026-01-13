@@ -14,7 +14,10 @@ import 'package:painel_windowns/services/module_management_service.dart';
 
 class AssetDetailScreen extends StatefulWidget {
   const AssetDetailScreen({
-    required this.asset, required this.authService, required this.moduleConfig, super.key,
+    required this.asset,
+    required this.authService,
+    required this.moduleConfig,
+    super.key,
   });
   final ManagedAsset asset;
   final AuthService authService;
@@ -37,6 +40,8 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchAssetHistory() async {
+    if (!mounted) return [];
+    
     setState(() => _isLoadingHistory = true);
     try {
       final token = widget.authService.currentToken;
@@ -44,7 +49,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
 
       return await _moduleService.fetchAssetHistory(token, widget.asset.id);
     } catch (e) {
-      print('Erro ao buscar histórico: $e');
+      print('Erro ao buscar histÃ³rico: $e');
       return [];
     } finally {
       if (mounted) {
@@ -54,6 +59,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   }
 
   void _refreshAssetHistory() {
+    if (!mounted) return;
     setState(() {
       _assetHistoryFuture = _fetchAssetHistory();
     });
@@ -61,13 +67,15 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
 
   void _copyToClipboard(String text, String label) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$label copiado para a área de transferência'),
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.green,
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$label copiado para a Ã¡rea de transferÃªncia'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 
   Map<String, dynamic> _getAssetStatus() {
@@ -75,7 +83,8 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     String text;
     IconData icon;
 
-    switch (widget.asset.status.toLowerCase()) {
+    final statusStr = widget.asset.status.toLowerCase();
+    switch (statusStr) {
       case 'online':
         color = Colors.green;
         text = 'Online';
@@ -83,7 +92,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
         break;
       case 'maintenance':
         color = Colors.orange;
-        text = 'Manutenção';
+        text = 'ManutenÃ§Ã£o';
         icon = Icons.build_outlined;
         break;
       case 'retired':
@@ -184,7 +193,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     return Column(
       children: [
         _buildSectionCard(
-          title: 'Informações Básicas',
+          title: 'InformaÃ§Ãµes BÃ¡sicas',
           icon: Icons.info_outline,
           children: [
             _buildDetailRow(
@@ -194,13 +203,13 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
               copyable: true,
             ),
             _buildDetailRow(
-              'Usuário Logado',
+              'UsuÃ¡rio Logado',
               widget.asset.currentUser ?? 'N/D',
               Icons.person_outline,
               copyable: true,
             ),
             _buildDetailRow(
-              'Localização',
+              'LocalizaÃ§Ã£o',
               widget.asset.location ?? 'N/D',
               Icons.location_on,
             ),
@@ -216,8 +225,8 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
             ),
             _buildDetailRow('Andar', widget.asset.floor ?? 'N/D', Icons.layers),
             _buildDetailRow(
-              'Atribuído a',
-              widget.asset.assignedTo ?? 'Não atribuído',
+              'AtribuÃ­do a',
+              widget.asset.assignedTo ?? 'NÃ£o atribuÃ­do',
               Icons.person,
             ),
           ],
@@ -232,11 +241,11 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     return Column(
       children: [
         _buildSectionCard(
-          title: 'Status e Conexão',
+          title: 'Status e ConexÃ£o',
           icon: Icons.monitor_heart_outlined,
           children: [
             _buildDetailRow(
-              'Última Sincronização',
+              'Ãšltima SincronizaÃ§Ã£o',
               formatDateTime(widget.asset.lastSeen),
               Icons.access_time,
             ),
@@ -250,13 +259,10 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
         const SizedBox(height: 24),
         _buildHistoryCard(),
         const SizedBox(height: 24),
-        // Ações Remotas (apenas para Desktop/Notebook)
         if (_isCommandSupported()) _buildCommandsCard(),
         if (_isCommandSupported()) const SizedBox(height: 24),
-        // Manutenção
         _buildMaintenanceCard(),
         const SizedBox(height: 24),
-        // Ações Rápidas
         _buildQuickActionsCard(),
       ],
     );
@@ -270,11 +276,11 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildCardTitle('Histórico de Manutenção', Icons.history),
+              _buildCardTitle('HistÃ³rico de ManutenÃ§Ã£o', Icons.history),
               IconButton(
                 icon: const Icon(Icons.refresh, size: 20),
                 onPressed: _refreshAssetHistory,
-                tooltip: 'Atualizar Histórico',
+                tooltip: 'Atualizar HistÃ³rico',
                 color: Colors.grey[600],
               ),
             ],
@@ -282,63 +288,63 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
           const SizedBox(height: 24),
           _isLoadingHistory
               ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24.0),
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              )
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
               : FutureBuilder<List<Map<String, dynamic>>>(
-                future: _assetHistoryFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
+                  future: _assetHistoryFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Erro: ${snapshot.error}',
+                          style: TextStyle(color: Colors.red[400]),
+                        ),
+                      );
+                    }
+                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          final entry = snapshot.data![index];
+                          final timestamp = DateTime.parse(
+                            entry['timestamp'] as String,
+                          );
+                          return _buildTimelineTile(
+                            title: entry['status'] as String,
+                            subtitle:
+                                '${formatDateTime(timestamp)} - ${entry['reason'] ?? ''}',
+                            isFirst: index == 0,
+                            isLast: index == snapshot.data!.length - 1,
+                          );
+                        },
+                      );
+                    }
                     return Center(
-                      child: Text(
-                        'Erro: ${snapshot.error}',
-                        style: TextStyle(color: Colors.red[400]),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24.0),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.history_toggle_off,
+                              color: Colors.grey[300],
+                              size: 48,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Nenhum histÃ³rico disponÃ­vel',
+                              style: TextStyle(color: Colors.grey[500]),
+                            ),
+                          ],
+                        ),
                       ),
                     );
-                  }
-                  if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) {
-                        final entry = snapshot.data![index];
-                        final timestamp = DateTime.parse(
-                          entry['timestamp'] as String,
-                        );
-                        return _buildTimelineTile(
-                          title: entry['status'] as String,
-                          subtitle:
-                              '${formatDateTime(timestamp)} - ${entry['reason'] ?? ''}',
-                          isFirst: index == 0,
-                          isLast: index == snapshot.data!.length - 1,
-                        );
-                      },
-                    );
-                  }
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24.0),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.history_toggle_off,
-                            color: Colors.grey[300],
-                            size: 48,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Nenhum histórico disponível',
-                            style: TextStyle(color: Colors.grey[500]),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+                  },
+                ),
         ],
       ),
     );
@@ -502,6 +508,8 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     );
   }
 
+  // ContinuaÃ§Ã£o do asset_detail_screen.dart
+  
   Widget _buildAssetSpecificDetails() {
     if (widget.asset is Desktop) {
       return _buildSectionCard(
@@ -532,189 +540,191 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   }
 
   List<Widget> _buildDesktopDetails(Desktop desktop) => [
-    _buildDetailRow('Hostname', desktop.hostname, Icons.dns, copyable: true),
-    _buildDetailRow('Modelo', desktop.model, Icons.laptop_chromebook),
-    _buildDetailRow('Fabricante', desktop.manufacturer, Icons.business_center),
-    _buildDetailRow('Processador', desktop.processor, Icons.memory),
-    _buildDetailRow('Memória RAM', desktop.ram, Icons.storage),
-    _buildDetailRow('Armazenamento', desktop.storage, Icons.sd_storage),
-    _buildDetailRow('Tipo de HD', desktop.storageType, Icons.data_usage),
-    _buildDetailRow('SO', desktop.operatingSystem, Icons.computer),
-    _buildDetailRow('Versão do SO', desktop.osVersion, Icons.info),
-    _buildDetailRow(
-      'Endereço IP',
-      desktop.ipAddress,
-      Icons.network_check,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'MAC Address',
-      desktop.macAddress,
-      Icons.router,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'Leitor Biométrico',
-      desktop.biometricReaderStatus ?? 'N/D',
-      Icons.fingerprint,
-    ),
-    _buildDetailRow(
-      'Impressora Conectada',
-      desktop.connectedPrinter ?? 'N/D',
-      Icons.print,
-    ),
-    _buildDetailRow('Versão Java', desktop.javaVersion ?? 'N/D', Icons.code),
-    _buildDetailRow('Navegador', desktop.browserVersion ?? 'N/D', Icons.public),
-    _buildDetailRow(
-      'Antivírus',
-      desktop.antivirusStatus ? 'Ativo' : 'Inativo',
-      Icons.security,
-    ),
-    if (desktop.antivirusVersion != null)
-      _buildDetailRow(
-        'Versão Antivírus',
-        desktop.antivirusVersion!,
-        Icons.verified_user,
-      ),
-  ];
+        _buildDetailRow('Hostname', desktop.hostname, Icons.dns, copyable: true),
+        _buildDetailRow('Modelo', desktop.model, Icons.laptop_chromebook),
+        _buildDetailRow('Fabricante', desktop.manufacturer, Icons.business_center),
+        _buildDetailRow('Processador', desktop.processor, Icons.memory),
+        _buildDetailRow('MemÃ³ria RAM', desktop.ram, Icons.storage),
+        _buildDetailRow('Armazenamento', desktop.storage, Icons.sd_storage),
+        _buildDetailRow('Tipo de HD', desktop.storageType, Icons.data_usage),
+        _buildDetailRow('SO', desktop.operatingSystem, Icons.computer),
+        _buildDetailRow('VersÃ£o do SO', desktop.osVersion, Icons.info),
+        _buildDetailRow(
+          'EndereÃ§o IP',
+          desktop.ipAddress,
+          Icons.network_check,
+          copyable: true,
+        ),
+        _buildDetailRow(
+          'MAC Address',
+          desktop.macAddress,
+          Icons.router,
+          copyable: true,
+        ),
+        _buildDetailRow(
+          'Leitor BiomÃ©trico',
+          desktop.biometricReaderStatus ?? 'N/D',
+          Icons.fingerprint,
+        ),
+        _buildDetailRow(
+          'Impressora Conectada',
+          desktop.connectedPrinter ?? 'N/D',
+          Icons.print,
+        ),
+        _buildDetailRow(
+            'VersÃ£o Java', desktop.javaVersion ?? 'N/D', Icons.code),
+        _buildDetailRow(
+            'Navegador', desktop.browserVersion ?? 'N/D', Icons.public),
+        _buildDetailRow(
+          'AntivÃ­rus',
+          desktop.antivirusStatus ? 'Ativo' : 'Inativo',
+          Icons.security,
+        ),
+        if (desktop.antivirusVersion != null)
+          _buildDetailRow(
+            'VersÃ£o AntivÃ­rus',
+            desktop.antivirusVersion!,
+            Icons.verified_user,
+          ),
+      ];
 
   List<Widget> _buildNotebookDetails(Notebook notebook) => [
-    _buildDetailRow('Hostname', notebook.hostname, Icons.dns, copyable: true),
-    _buildDetailRow('Modelo', notebook.model, Icons.laptop),
-    _buildDetailRow('Fabricante', notebook.manufacturer, Icons.business_center),
-    _buildDetailRow('Processador', notebook.processor, Icons.memory),
-    _buildDetailRow('Memória RAM', notebook.ram, Icons.storage),
-    _buildDetailRow('Armazenamento', notebook.storage, Icons.sd_storage),
-    _buildDetailRow(
-      'Nível Bateria',
-      notebook.batteryLevel != null ? '${notebook.batteryLevel}%' : 'N/D',
-      Icons.battery_charging_full,
-    ),
-    _buildDetailRow(
-      'Saúde Bateria',
-      notebook.batteryHealth ?? 'N/D',
-      Icons.health_and_safety,
-    ),
-    _buildDetailRow(
-      'Endereço IP',
-      notebook.ipAddress,
-      Icons.network_check,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'MAC Address',
-      notebook.macAddress,
-      Icons.router,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'Antivírus',
-      notebook.antivirusStatus ? 'Ativo' : 'Inativo',
-      Icons.security,
-    ),
-    _buildDetailRow(
-      'Criptografia',
-      notebook.isEncrypted ? 'Ativa' : 'Inativa',
-      Icons.lock,
-    ),
-  ];
+        _buildDetailRow(
+            'Hostname', notebook.hostname, Icons.dns, copyable: true),
+        _buildDetailRow('Modelo', notebook.model, Icons.laptop),
+        _buildDetailRow(
+            'Fabricante', notebook.manufacturer, Icons.business_center),
+        _buildDetailRow('Processador', notebook.processor, Icons.memory),
+        _buildDetailRow('MemÃ³ria RAM', notebook.ram, Icons.storage),
+        _buildDetailRow('Armazenamento', notebook.storage, Icons.sd_storage),
+        _buildDetailRow(
+          'NÃ­vel Bateria',
+          notebook.batteryLevel != null ? '${notebook.batteryLevel}%' : 'N/D',
+          Icons.battery_charging_full,
+        ),
+        _buildDetailRow(
+          'SaÃºde Bateria',
+          notebook.batteryHealth ?? 'N/D',
+          Icons.health_and_safety,
+        ),
+        _buildDetailRow(
+          'EndereÃ§o IP',
+          notebook.ipAddress,
+          Icons.network_check,
+          copyable: true,
+        ),
+        _buildDetailRow(
+          'MAC Address',
+          notebook.macAddress,
+          Icons.router,
+          copyable: true,
+        ),
+        _buildDetailRow(
+          'AntivÃ­rus',
+          notebook.antivirusStatus ? 'Ativo' : 'Inativo',
+          Icons.security,
+        ),
+        _buildDetailRow(
+          'Criptografia',
+          notebook.isEncrypted ? 'Ativa' : 'Inativa',
+          Icons.lock,
+        ),
+      ];
 
   List<Widget> _buildPanelDetails(Panel panel) => [
-    _buildDetailRow('Tamanho da Tela', panel.screenSize, Icons.aspect_ratio),
-    _buildDetailRow(
-      'Resolução',
-      panel.resolution,
-      Icons.photo_size_select_large,
-    ),
-    if (panel.brightness != null)
-      _buildDetailRow('Brilho', '${panel.brightness}%', Icons.brightness_6),
-    if (panel.volume != null)
-      _buildDetailRow('Volume', '${panel.volume}%', Icons.volume_up),
-    _buildDetailRow(
-      'Endereço IP',
-      panel.ipAddress,
-      Icons.network_check,
-      copyable: true,
-    ),
-    _buildDetailRow(
-      'MAC Address',
-      panel.macAddress,
-      Icons.router,
-      copyable: true,
-    ),
-    _buildDetailRow('Firmware', panel.firmwareVersion, Icons.system_update),
-    _buildDetailRow('Entrada HDMI', panel.hdmiInput ?? 'N/D', Icons.hd),
-  ];
+        _buildDetailRow('Tamanho da Tela', panel.screenSize, Icons.aspect_ratio),
+        _buildDetailRow(
+          'ResoluÃ§Ã£o',
+          panel.resolution,
+          Icons.photo_size_select_large,
+        ),
+        if (panel.brightness != null)
+          _buildDetailRow('Brilho', '${panel.brightness}%', Icons.brightness_6),
+        if (panel.volume != null)
+          _buildDetailRow('Volume', '${panel.volume}%', Icons.volume_up),
+        _buildDetailRow(
+          'EndereÃ§o IP',
+          panel.ipAddress,
+          Icons.network_check,
+          copyable: true,
+        ),
+        _buildDetailRow(
+          'MAC Address',
+          panel.macAddress,
+          Icons.router,
+          copyable: true,
+        ),
+        _buildDetailRow('Firmware', panel.firmwareVersion, Icons.system_update),
+        _buildDetailRow('Entrada HDMI', panel.hdmiInput ?? 'N/D', Icons.hd),
+      ];
 
   List<Widget> _buildPrinterDetails(Printer printer) => [
-    _buildDetailRow(
-      'Tipo de Conexão',
-      printer.connectionType,
-      Icons.settings_input_hdmi,
-    ),
-    if (printer.ipAddress != null)
-      _buildDetailRow(
-        'Endereço IP',
-        printer.ipAddress!,
-        Icons.network_check,
-        copyable: true,
-      ),
-    if (printer.hostComputerName != null)
-      _buildDetailRow(
-        'Computador Host',
-        printer.hostComputerName!,
-        Icons.computer,
-      ),
-    _buildDetailRow('Status', printer.printerStatus, Icons.print),
-    if (printer.errorMessage != null)
-      _buildDetailRow(
-        'Erro',
-        printer.errorMessage!,
-        Icons.error,
-        copyable: true,
-      ),
-    if (printer.totalPageCount != null)
-      _buildDetailRow(
-        'Total de Páginas',
-        printer.totalPageCount.toString(),
-        Icons.description,
-      ),
-    if (printer.colorPageCount != null)
-      _buildDetailRow(
-        'Páginas Coloridas',
-        printer.colorPageCount.toString(),
-        Icons.color_lens,
-      ),
-    if (printer.blackWhitePageCount != null)
-      _buildDetailRow(
-        'Páginas P&B',
-        printer.blackWhitePageCount.toString(),
-        Icons.filter_b_and_w,
-      ),
-    _buildDetailRow(
-      'Impressão Duplex',
-      printer.isDuplex == true ? 'Sim' : 'Não',
-      Icons.compare_arrows,
-    ),
-    _buildDetailRow(
-      'Impressão Colorida',
-      printer.isColor == true ? 'Sim' : 'Não',
-      Icons.palette,
-    ),
-  ];
+        _buildDetailRow(
+          'Tipo de ConexÃ£o',
+          printer.connectionType,
+          Icons.settings_input_hdmi,
+        ),
+        if (printer.ipAddress != null)
+          _buildDetailRow(
+            'EndereÃ§o IP',
+            printer.ipAddress!,
+            Icons.network_check,
+            copyable: true,
+          ),
+        if (printer.hostComputerName != null)
+          _buildDetailRow(
+            'Computador Host',
+            printer.hostComputerName!,
+            Icons.computer,
+          ),
+        _buildDetailRow('Status', printer.printerStatus, Icons.print),
+        if (printer.errorMessage != null)
+          _buildDetailRow(
+            'Erro',
+            printer.errorMessage!,
+            Icons.error,
+            copyable: true,
+          ),
+        if (printer.totalPageCount != null)
+          _buildDetailRow(
+            'Total de PÃ¡ginas',
+            printer.totalPageCount.toString(),
+            Icons.description,
+          ),
+        if (printer.colorPageCount != null)
+          _buildDetailRow(
+            'PÃ¡ginas Coloridas',
+            printer.colorPageCount.toString(),
+            Icons.color_lens,
+          ),
+        if (printer.blackWhitePageCount != null)
+          _buildDetailRow(
+            'PÃ¡ginas P&B',
+            printer.blackWhitePageCount.toString(),
+            Icons.filter_b_and_w,
+          ),
+        _buildDetailRow(
+          'ImpressÃ£o Duplex',
+          printer.isDuplex == true ? 'Sim' : 'NÃ£o',
+          Icons.compare_arrows,
+        ),
+        _buildDetailRow(
+          'ImpressÃ£o Colorida',
+          printer.isColor == true ? 'Sim' : 'NÃ£o',
+          Icons.palette,
+        ),
+      ];
 
-  // Verifica se o asset suporta comandos remotos
   bool _isCommandSupported() {
     return widget.asset is Desktop || widget.asset is Notebook;
   }
 
-  // Card de Comandos Remotos
   Widget _buildCommandsCard() {
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('Ações Remotas', Icons.settings_remote),
+          _buildCardTitle('AÃ§Ãµes Remotas', Icons.settings_remote),
           const SizedBox(height: 16),
           Text(
             'Envie comandos para executar no dispositivo',
@@ -777,24 +787,23 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   Future<void> _sendCommand(String commandType) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Confirmar Comando'),
-            content: const Text('Deseja executar este comando no dispositivo?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Confirmar'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Comando'),
+        content: const Text('Deseja executar este comando no dispositivo?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirmar'),
+          ),
+        ],
+      ),
     );
 
-    if (confirmed != true) return;
+    if (confirmed != true || !mounted) return;
 
     final commandService = AssetCommandService(authService: widget.authService);
     final success = await commandService.sendCommand(
@@ -815,7 +824,6 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     }
   }
 
-  // Card de Manutenção
   Widget _buildMaintenanceCard() {
     final isInMaintenance = widget.asset.status.toLowerCase() == 'maintenance';
 
@@ -823,14 +831,14 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('Manutenção', Icons.build),
+          _buildCardTitle('ManutenÃ§Ã£o', Icons.build),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Text(
                   isInMaintenance
-                      ? 'Dispositivo em manutenção'
+                      ? 'Dispositivo em manutenÃ§Ã£o'
                       : 'Dispositivo operacional',
                   style: TextStyle(
                     color: isInMaintenance ? Colors.orange : Colors.green,
@@ -864,51 +872,50 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              setToMaintenance
-                  ? 'Colocar em Manutenção'
-                  : 'Retirar de Manutenção',
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (setToMaintenance) ...[
-                  TextField(
-                    controller: ticketController,
-                    decoration: const InputDecoration(
-                      labelText: 'Ticket',
-                      hintText: 'Número do chamado',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: reasonController,
-                    decoration: const InputDecoration(
-                      labelText: 'Motivo',
-                      hintText: 'Descreva o motivo',
-                    ),
-                    maxLines: 3,
-                  ),
-                ] else
-                  const Text('Confirma retirar o dispositivo de manutenção?'),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar'),
+      builder: (context) => AlertDialog(
+        title: Text(
+          setToMaintenance
+              ? 'Colocar em ManutenÃ§Ã£o'
+              : 'Retirar de ManutenÃ§Ã£o',
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (setToMaintenance) ...[
+              TextField(
+                controller: ticketController,
+                decoration: const InputDecoration(
+                  labelText: 'Ticket',
+                  hintText: 'NÃºmero do chamado',
+                ),
               ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Confirmar'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: reasonController,
+                decoration: const InputDecoration(
+                  labelText: 'Motivo',
+                  hintText: 'Descreva o motivo',
+                ),
+                maxLines: 3,
               ),
-            ],
+            ] else
+              const Text('Confirma retirar o dispositivo de manutenÃ§Ã£o?'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirmar'),
+          ),
+        ],
+      ),
     );
 
-    if (confirmed != true) return;
+    if (confirmed != true || !mounted) return;
 
     final maintenanceService = AssetMaintenanceService(
       authService: widget.authService,
@@ -930,19 +937,18 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       );
 
       if (success) {
-        // Recarrega a tela
-        Navigator.pop(context);
+        // CORREÃ‡ÃƒO: Retornar true para indicar que houve mudanÃ§a
+        Navigator.pop(context, true);
       }
     }
   }
 
-  // Card de Ações Rápidas
   Widget _buildQuickActionsCard() {
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('Ações Rápidas', Icons.flash_on),
+          _buildCardTitle('AÃ§Ãµes RÃ¡pidas', Icons.flash_on),
           const SizedBox(height: 16),
           Wrap(
             spacing: 12,
@@ -952,22 +958,25 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
                 Clipboard.setData(
                   ClipboardData(text: widget.asset.serialNumber),
                 );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Serial copiado!'),
-                    duration: Duration(seconds: 1),
-                  ),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Serial copiado!'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                }
               }, Colors.blue),
               _buildQuickActionButton('Atualizar', Icons.refresh, () {
-                Navigator.pop(context);
-                // Recarrega a tela
+                // CORREÃ‡ÃƒO: Retornar true para indicar mudanÃ§a
+                Navigator.pop(context, true);
               }, Colors.green),
               _buildQuickActionButton('Exportar', Icons.download, () {
-                // TODO: Implementar exportação
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Em desenvolvimento')),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Em desenvolvimento')),
+                  );
+                }
               }, Colors.purple),
             ],
           ),
@@ -993,4 +1002,8 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       ),
     );
   }
+}
+
+class Desktop {
+  
 }

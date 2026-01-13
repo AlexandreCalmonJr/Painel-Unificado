@@ -41,8 +41,8 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
       filteredList =
           allDevices.where((device) {
             final query = _searchQuery.toLowerCase();
-            return (device.deviceName.toLowerCase().contains(query)) ||
-                (device.serialNumber.toLowerCase().contains(query)) ||
+            return (device.deviceName?.toLowerCase() ?? '').contains(query) ||
+                (device.serialNumber?.toLowerCase() ?? '').contains(query) ||
                 (device.location?.toLowerCase().contains(query) ?? false);
           }).toList();
     }
@@ -246,11 +246,11 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
               _displayedDevices
                   .map(
                     (d) => _DeviceAsset(
-                      id: d.id,
-                      assetName: d.deviceName,
+                      id: d.id ?? '',
+                      assetName: d.deviceName ?? 'N/A',
                       assetType: 'mobile',
-                      serialNumber: d.serialNumber,
-                      status: d.status,
+                      serialNumber: d.serialNumber ?? 'N/A',
+                      status: d.status ?? 'unknown',
                       lastSeen: DateTime.tryParse(d.lastSeen) ?? DateTime.now(),
                       location: d.location,
                       unit: d.unit,

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-
+import 'package:painel_windowns/services/device_service.dart';
 
 class DeviceDetailScreen extends StatefulWidget {
-
   const DeviceDetailScreen({
-    required this.device, required this.authService, super.key,
+    required this.device,
+    required this.authService,
+    super.key,
   });
   final Device device;
   final AuthService authService;
@@ -702,8 +704,4 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
       ),
     );
   }
-}
-
-class DeviceService {
-  late final AuthService authService;
 }

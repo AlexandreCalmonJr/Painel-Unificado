@@ -39,10 +39,10 @@ dependencies:
   path_provider: ^2.1.5
   process: ^5.0.4
   shared_preferences: ^2.5.3
-  fl_chart: ^0.68.0
-  excel: ^2.1.0
+  fl_chart: ^1.1.1
+  excel: ^4.0.6
   file_picker: ^10.2.0
-  elegant_notification: ^1.1.0
+  elegant_notification: ^2.5.1
   intl: ^0.20.2
   file_saver: 0.3.1
   synchronized: ^3.3.1
@@ -52,17 +52,17 @@ dependencies:
   pdf: ^3.11.3
   
   # Segurança
-  flutter_secure_storage: ^9.0.0
+  flutter_secure_storage: ^10.0.0
   
   # Performance
-  rxdart: ^0.27.7
+  rxdart: ^0.28.0
   web_socket_channel: ^3.0.3
   
   # Clean Architecture & State Management
   dartz: ^0.10.1  # Either, Option, etc
   equatable: ^2.0.5  # Value equality
-  flutter_bloc: ^8.1.3  # State management
-  get_it: ^7.6.4  # Dependency injection
+  flutter_bloc: ^9.1.1  # State management
+  get_it: ^9.2.0  # Dependency injection
   injectable: ^2.3.2  # Code generation for DI
 
 dev_dependencies:
@@ -74,17 +74,17 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   
   # Testes
   mockito: ^5.4.4
   build_runner: ^2.4.8
-  bloc_test: ^9.1.5  # Testes para Bloc
+  bloc_test: ^10.0.0  # Testes para Bloc
   injectable_generator: ^2.4.1  # Code gen para DI
   
   # Code generation
-  freezed: ^2.4.6  # Immutable classes
-  freezed_annotation: ^2.4.1
+  freezed: ^3.2.3  # Immutable classes
+  freezed_annotation: ^3.1.0
   json_serializable: ^6.7.1
   json_annotation: ^4.8.1
 

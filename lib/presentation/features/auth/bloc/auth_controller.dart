@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:painel_windowns/core/error/exceptions.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
-
 /// Controller para gerenciamento de autenticação usando GetX
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
@@ -18,8 +17,9 @@ class AuthController extends GetxController {
   bool get isLoggedIn => currentUser.value != null;
   bool get isAdmin => currentUser.value?['role'] == 'admin';
   String? get token => _authService.currentToken;
-  List<String> get permissions =>
-      List<String>.from(currentUser.value?['permissions'] as List<String> ?? []);
+  List<String> get permissions => List<String>.from(
+    currentUser.value?['permissions'] as List<String> ?? [],
+  );
 
   @override
   void onInit() {
@@ -52,7 +52,8 @@ class AuthController extends GetxController {
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] as String ?? 'Erro ao fazer login';
+        errorMessage.value =
+            (result['message'] as String?) ?? 'Erro ao fazer login';
         isLoading.value = false;
         return false;
       }
@@ -97,9 +98,12 @@ class AuthController extends GetxController {
       final result = await _authService.getUsers();
 
       if (result['success'] as bool) {
-        users.value = List<Map<String, dynamic>>.from(result['users'] as List<dynamic> ?? []);
+        users.value = List<Map<String, dynamic>>.from(
+          result['users'] as List<dynamic> ?? [],
+        );
       } else {
-        errorMessage.value = result['message'] as String ?? 'Erro ao buscar usuários';
+        errorMessage.value =
+            (result['message'] as String?) ?? 'Erro ao buscar usuários';
       }
     } catch (e) {
       errorMessage.value = 'Erro ao buscar usuários: ${e.toString()}';
@@ -129,7 +133,8 @@ class AuthController extends GetxController {
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] as String ?? 'Erro ao criar usuário';
+        errorMessage.value =
+            (result['message'] as String?) ?? 'Erro ao criar usuário';
         isLoading.value = false;
         return false;
       }
@@ -162,7 +167,8 @@ class AuthController extends GetxController {
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] as String ?? 'Erro ao atualizar usuário';
+        errorMessage.value =
+            (result['message'] as String?) ?? 'Erro ao atualizar usuário';
         isLoading.value = false;
         return false;
       }
@@ -192,7 +198,8 @@ class AuthController extends GetxController {
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] as String ?? 'Erro ao deletar usuário';
+        errorMessage.value =
+            (result['message'] as String?) ?? 'Erro ao deletar usuário';
         isLoading.value = false;
         return false;
       }
@@ -204,18 +211,25 @@ class AuthController extends GetxController {
   }
 
   /// Altera senha do usuário logado
-  Future<bool> changePassword(String currentPassword, String newPassword) async {
+  Future<bool> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final result = await _authService.changePassword(currentPassword, newPassword);
+      final result = await _authService.changePassword(
+        currentPassword,
+        newPassword,
+      );
 
       if (result['success'] as bool) {
         isLoading.value = false;
         return true;
       } else {
-        errorMessage.value = result['message'] as String ?? 'Erro ao alterar senha';
+        errorMessage.value =
+            (result['message'] as String?) ?? 'Erro ao alterar senha';
         isLoading.value = false;
         return false;
       }

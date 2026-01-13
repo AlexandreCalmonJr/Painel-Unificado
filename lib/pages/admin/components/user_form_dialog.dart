@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:painel_windowns/data/models/user_model.dart';
 
 class UserFormDialog extends StatefulWidget {
-  final User? user;
 
-  const UserFormDialog({Key? key, this.user}) : super(key: key);
+  const UserFormDialog({super.key, this.user});
+  final User? user;
 
   @override
   _UserFormDialogState createState() => _UserFormDialogState();
@@ -58,7 +58,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
     return AlertDialog(
       title: Text(widget.user == null ? 'Novo Usuário' : 'Editar Usuário'),
       content: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           width: 500,
           child: Form(
             key: _formKey,
@@ -106,7 +106,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _role,
+                  initialValue: _role,
                   decoration: const InputDecoration(labelText: 'Função'),
                   items: const [
                     DropdownMenuItem(value: 'user', child: Text('Usuário')),
@@ -151,7 +151,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
                       });
                     },
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),

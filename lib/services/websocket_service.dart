@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:get/get.dart';
 import 'package:logger/src/logger.dart';
 import 'package:web_socket_channel/io.dart';
@@ -40,7 +39,7 @@ class WebSocketService extends GetxService {
 
     try {
       // Converte http:// para ws://
-      final wsUrl = _lastUrl!.replaceFirst('http', 'ws') + '/ws';
+      final wsUrl = '${_lastUrl!.replaceFirst('http', 'ws')}/ws';
       print('Tentando conectar WebSocket: $wsUrl');
 
       _channel = IOWebSocketChannel.connect(

@@ -66,9 +66,9 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       filteredList =
           allTotems.where((totem) {
             final query = _searchQuery.toLowerCase();
-            return (totem.hostname.toLowerCase().contains(query)) ||
-                (totem.serialNumber.toLowerCase().contains(query)) ||
-                (totem.ip.toLowerCase().contains(query)) ||
+            return (totem.hostname.toLowerCase()).contains(query) ||
+                (totem.serialNumber.toLowerCase()).contains(query) ||
+                (totem.ip.toLowerCase()).contains(query) ||
                 (totem.unit?.toLowerCase().contains(query) ?? false) ||
                 (totem.location?.toLowerCase().contains(query) ?? false);
           }).toList();
@@ -101,7 +101,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                       .toList()
                   : <Totem>[];
 
-          // Aplicar paginação e busca
+          // Aplicar paginaï¿½ï¿½o e busca
           final displayedTotems = _updateDisplayedTotems(allTotems);
 
           return Container(
@@ -149,7 +149,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       const SidebarMenuItem(
         icon: Icons.dashboard,
         title: 'Painel',
-        subtitle: 'Visão Geral',
+        subtitle: 'Visï¿½o Geral',
         index: 0,
       ),
       const SidebarMenuItem(
@@ -168,7 +168,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
     ];
 
     return CustomSidebar(
-      title: 'Módulo Totem',
+      title: 'Mï¿½dulo Totem',
       titleIcon: Icons.desktop_windows,
       menuItems: menuItems,
       selectedIndex: selectedIndex,
@@ -186,7 +186,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
 
   Widget _buildAppBar(TotemState state, BuildContext context) {
     final currentUser = widget.authService.currentUser;
-    final username = currentUser?['username'] ?? 'Usuário';
+    final username = currentUser?['username'] ?? 'Usuï¿½rio';
     final role = currentUser?['role'] ?? 'user';
 
     return Container(
@@ -320,7 +320,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                   onPressed: () {
                     context.read<TotemBloc>().add(const LoadTotems());
                   },
-                  tooltip: 'Forçar Atualização de Localizações (Recarregar)',
+                  tooltip: 'Forï¿½ar Atualizaï¿½ï¿½o de Localizaï¿½ï¿½es (Recarregar)',
                 ),
                 IconButton(
                   icon: Container(
@@ -351,7 +351,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
                       ),
                     ),
                   ),
-                  tooltip: 'Menu do usuário',
+                  tooltip: 'Menu do usuï¿½rio',
                   onSelected: (value) {
                     if (value == 'logout') {
                       _showLogoutDialog();
@@ -429,7 +429,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
           TableColumnConfig(dataKey: 'hostname', label: 'Hostname'),
           TableColumnConfig(dataKey: 'status', label: 'Status'),
           TableColumnConfig(dataKey: 'serialNumber', label: 'Serial'),
-          TableColumnConfig(dataKey: 'location', label: 'Localização'),
+          TableColumnConfig(dataKey: 'location', label: 'Localizaï¿½ï¿½o'),
         ]);
         final config = createAssetCardConfig('totens_export');
 
@@ -454,7 +454,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
             });
           },
           title: 'Totens',
-          searchHint: 'Buscar por hostname, IP, localização...',
+          searchHint: 'Buscar por hostname, IP, localizaï¿½ï¿½o...',
           searchLabel: 'Buscar Totens',
           isLoading: state is TotemLoading,
         );
@@ -481,7 +481,7 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Visão Geral dos Totens',
+            'Visï¿½o Geral dos Totens',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,

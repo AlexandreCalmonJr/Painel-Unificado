@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+ï»¿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:painel_windowns/data/models/totem_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
@@ -30,7 +30,7 @@ class TotemDetailScreen extends StatelessWidget {
         break;
       case 'maintenance':
       case 'com erro':
-        status = 'Manutenção';
+        status = 'Manutenï¿½ï¿½o';
         statusColor = Colors.orange;
         statusIcon = Icons.build_outlined;
         break;
@@ -135,7 +135,7 @@ class TotemDetailScreen extends StatelessWidget {
         Expanded(
           child: _buildStatCard(
             icon: Icons.location_on,
-            label: 'Localização',
+            label: 'Localizaï¿½ï¿½o',
             value: totem.unit ?? totem.location ?? 'N/A',
             color: Colors.blue,
           ),
@@ -144,8 +144,8 @@ class TotemDetailScreen extends StatelessWidget {
         Expanded(
           child: _buildStatCard(
             icon: Icons.access_time,
-            label: 'Última Conexão',
-            value: '$minutesSinceLastSeen min atrás',
+            label: 'ï¿½ltima Conexï¿½o',
+            value: '$minutesSinceLastSeen min atrï¿½s',
             color: Colors.purple,
           ),
         ),
@@ -225,9 +225,9 @@ class TotemDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('Informações Gerais', Icons.computer),
+          _buildCardTitle('Informaï¿½ï¿½es Gerais', Icons.computer),
           const SizedBox(height: 24),
-          _buildSectionTitle('Identificação'),
+          _buildSectionTitle('Identificaï¿½ï¿½o'),
           _buildDetailRow('Hostname', totem.hostname),
           _buildDetailRow('Unidade', totem.unit ?? totem.location ?? 'N/A'),
           _buildDetailRow('Tipo', totem.totemType),
@@ -238,7 +238,7 @@ class TotemDetailScreen extends StatelessWidget {
           _buildDetailRow('MAC Address', totem.macAddress),
           _buildDetailRow('BSSID', totem.macAddressRadio),
           _buildDetailRow(
-            'Última vez visto',
+            'ï¿½ltima vez visto',
             DateFormat('dd/MM/yyyy HH:mm:ss').format(totem.lastSeen.toLocal()),
           ),
         ],
@@ -251,18 +251,18 @@ class TotemDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('Hardware e Periféricos', Icons.memory),
+          _buildCardTitle('Hardware e Perifï¿½ricos', Icons.memory),
           const SizedBox(height: 24),
-          _buildSectionTitle('Especificações'),
+          _buildSectionTitle('Especificaï¿½ï¿½es'),
           _buildDetailRow('Serial', totem.serialNumber),
           _buildDetailRow('Service Tag', totem.serviceTag),
-          _buildDetailRow('Memória RAM', totem.ram),
+          _buildDetailRow('Memï¿½ria RAM', totem.ram),
           _buildDetailRow(
             'Armazenamento',
             '${totem.hdType} ${totem.hdStorage}',
           ),
           const Divider(height: 32),
-          _buildSectionTitle('Periféricos'),
+          _buildSectionTitle('Perifï¿½ricos'),
           _buildPeripheralStatus(
             'Impressora Zebra',
             totem.zebraStatus,
@@ -274,12 +274,12 @@ class TotemDetailScreen extends StatelessWidget {
             Icons.print_outlined,
           ),
           _buildPeripheralStatus(
-            'Impressora Padrão',
+            'Impressora Padrï¿½o',
             totem.printerStatus,
             Icons.print_outlined,
           ),
           _buildPeripheralStatus(
-            'Leitor Biométrico',
+            'Leitor Biomï¿½trico',
             totem.biometricReaderStatus,
             Icons.fingerprint,
           ),
@@ -295,7 +295,7 @@ class TotemDetailScreen extends StatelessWidget {
         children: [
           _buildCardTitle('Software Instalado', Icons.apps),
           const SizedBox(height: 24),
-          _buildSectionTitle('Versões'),
+          _buildSectionTitle('Versï¿½es'),
           _buildDetailRow('Mozilla Firefox', totem.mozillaVersion),
           _buildDetailRow('Java', totem.javaVersion),
           const Divider(height: 32),

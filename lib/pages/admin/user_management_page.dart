@@ -5,7 +5,7 @@ import 'package:painel_windowns/pages/admin/components/user_form_dialog.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class UserManagementPage extends StatefulWidget {
-  const UserManagementPage({Key? key}) : super(key: key);
+  const UserManagementPage({super.key});
 
   @override
   _UserManagementPageState createState() => _UserManagementPageState();
@@ -13,7 +13,7 @@ class UserManagementPage extends StatefulWidget {
 
 class _UserManagementPageState extends State<UserManagementPage> {
   final AuthService _authService = Get.find<AuthService>();
-  List<User> _users = [];
+  final List<User> _users = [];
   bool _isLoading = true;
 
   @override
@@ -132,13 +132,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
     if (result != null) {
       // Call API to save/update
       // await _saveUser(result);
-      _loadUsers();
+      await _loadUsers();
     }
   }
 
   void _deleteUser(User user) async {
     // Call API to delete
     // await _deleteUserApi(user.id);
-    _loadUsers();
+    await _loadUsers();
   }
 }

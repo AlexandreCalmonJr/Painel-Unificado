@@ -1,9 +1,10 @@
 import 'dart:convert';
+
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/data/models/ip_mapping_model.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
-import 'package:get/get.dart';
 
 class IpMappingService extends GetxService {
   final AuthService _authService = Get.find<AuthService>();

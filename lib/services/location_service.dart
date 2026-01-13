@@ -1,4 +1,4 @@
-// File: lib/services/location_service.dart
+ï»¿// File: lib/services/location_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/data/models/location.dart';
@@ -46,11 +46,11 @@ class LocationService {
             .toList();
       } else {
         throw Exception(
-          'Falha ao carregar localizações: ${response.statusCode}',
+          'Falha ao carregar localizaï¿½ï¿½es: ${response.statusCode}',
         );
       }
     } catch (e) {
-      throw Exception('Erro ao buscar localizações: $e');
+      throw Exception('Erro ao buscar localizaï¿½ï¿½es: $e');
     }
   }
 
@@ -77,10 +77,10 @@ class LocationService {
           json.decode(response.body) as Map<String, dynamic>,
         );
       } else {
-        throw Exception('Falha ao criar localização: ${response.statusCode}');
+        throw Exception('Falha ao criar localizaï¿½ï¿½o: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Erro ao criar localização: $e');
+      throw Exception('Erro ao criar localizaï¿½ï¿½o: $e');
     }
   }
 
@@ -109,11 +109,11 @@ class LocationService {
         );
       } else {
         throw Exception(
-          'Falha ao atualizar localização: ${response.statusCode}',
+          'Falha ao atualizar localizaï¿½ï¿½o: ${response.statusCode}',
         );
       }
     } catch (e) {
-      throw Exception('Erro ao atualizar localização: $e');
+      throw Exception('Erro ao atualizar localizaï¿½ï¿½o: $e');
     }
   }
 
@@ -132,10 +132,10 @@ class LocationService {
       );
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Falha ao excluir localização: ${response.statusCode}');
+        throw Exception('Falha ao excluir localizaï¿½ï¿½o: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Erro ao excluir localização: $e');
+      throw Exception('Erro ao excluir localizaï¿½ï¿½o: $e');
     }
   }
 
@@ -156,12 +156,12 @@ class LocationService {
     }
   }
 
-  /// Busca localizações e enriquece com dados de dispositivos
+  /// Busca localizaï¿½ï¿½es e enriquece com dados de dispositivos
   static Future<List<Location>> fetchLocationsWithDeviceData(
     String token,
   ) async {
     try {
-      // Busca as localizações
+      // Busca as localizaï¿½ï¿½es
       final locations = await fetchLocations(token);
 
       // Busca os dispositivos
@@ -200,13 +200,13 @@ class LocationService {
           if (unitName != null) {
             deviceCountByUnit[unitName] =
                 (deviceCountByUnit[unitName] ?? 0) + 1;
-            // Se pelo menos um dispositivo está online, a unidade está online
+            // Se pelo menos um dispositivo estï¿½ online, a unidade estï¿½ online
             onlineStatusByUnit[unitName] =
                 (onlineStatusByUnit[unitName] ?? false) || isOnline;
           }
         }
 
-        // Enriquece as localizações com os dados
+        // Enriquece as localizaï¿½ï¿½es com os dados
         return locations.map((location) {
           final count = deviceCountByUnit[location.name] ?? 0;
           final isOnline = onlineStatusByUnit[location.name] ?? false;
@@ -215,11 +215,11 @@ class LocationService {
         }).toList();
       }
 
-      // Se falhar ao buscar dispositivos, retorna localizações sem enriquecimento
+      // Se falhar ao buscar dispositivos, retorna localizaï¿½ï¿½es sem enriquecimento
       return locations;
     } catch (e) {
       throw Exception(
-        'Erro ao buscar localizações com dados de dispositivos: $e',
+        'Erro ao buscar localizaï¿½ï¿½es com dados de dispositivos: $e',
       );
     }
   }

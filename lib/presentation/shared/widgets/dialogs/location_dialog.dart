@@ -5,11 +5,13 @@ import 'package:painel_windowns/services/auth_service.dart';
 
 class LocationDialog extends StatefulWidget {
   const LocationDialog({
-    required this.authService, required this.onSave, super.key,
+    required this.authService,
+    required this.onSave,
+    super.key,
     this.location,
   });
 
-  final Location? location;
+  final LocationDialogData? location;
   final AuthService authService;
   final Future<void> Function(Map<String, dynamic> data) onSave;
 
@@ -17,7 +19,7 @@ class LocationDialog extends StatefulWidget {
   State<LocationDialog> createState() => _LocationDialogState();
 }
 
-class Location {
+class LocationDialogData {
   late final String name;
   late final String description;
 }

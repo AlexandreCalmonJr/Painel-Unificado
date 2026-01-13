@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+ï»¿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:painel_windowns/core/utils/constants.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
@@ -37,8 +37,8 @@ bool isValidIp(String ip) {
   return regex.hasMatch(ip);
 }
 
-// --- FUNÇÃO ATUALIZADA ---
-/// Encontra o nome da Unidade correspondente a um dado endereço IP.
+// --- FUNï¿½ï¿½O ATUALIZADA ---
+/// Encontra o nome da Unidade correspondente a um dado endereï¿½o IP.
 String? getUnitFromIp(String? ipAddress, List<Unit> units) {
   if (ipAddress == null || ipAddress == 'N/A' || !isValidIp(ipAddress)) {
     return null;
@@ -60,9 +60,9 @@ String? getUnitFromIp(String? ipAddress, List<Unit> units) {
   }
   return null;
 }
-// --- FIM DA ATUALIZAÇÃO ---
+// --- FIM DA ATUALIZAï¿½ï¿½O ---
 
-/// Formata uma data/hora para exibição
+/// Formata uma data/hora para exibiï¿½ï¿½o
 String formatDateTimeDetailed(DateTime dateTime) {
   return DateFormat('dd/MM/yyyy HH:mm:ss').format(dateTime);
 }
@@ -92,7 +92,7 @@ Color getStatusColor(String status) {
   }
 }
 
-/// Formata bytes para formato legível (KB, MB, GB)
+/// Formata bytes para formato legï¿½vel (KB, MB, GB)
 String formatBytes(int bytes, {int decimals = 2}) {
   if (bytes <= 0) return '0 B';
   const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -106,13 +106,13 @@ String timeAgo(DateTime dateTime) {
   final difference = now.difference(dateTime);
 
   if (difference.inSeconds < 60) {
-    return 'há ${difference.inSeconds} segundos';
+    return 'hï¿½ ${difference.inSeconds} segundos';
   } else if (difference.inMinutes < 60) {
-    return 'há ${difference.inMinutes} minutos';
+    return 'hï¿½ ${difference.inMinutes} minutos';
   } else if (difference.inHours < 24) {
-    return 'há ${difference.inHours} horas';
+    return 'hï¿½ ${difference.inHours} horas';
   } else if (difference.inDays < 7) {
-    return 'há ${difference.inDays} dias';
+    return 'hï¿½ ${difference.inDays} dias';
   } else {
     return DateFormat('dd/MM/yyyy').format(dateTime);
   }

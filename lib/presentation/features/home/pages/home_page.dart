@@ -3,15 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/profile_page.dart';
-import 'package:painel_windowns/presentation/features/modules/pages/generic_dashboard_screen.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/unified_menu_item.dart';
 import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widget.dart';
-
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
@@ -79,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final modules = await _moduleService.listModules();
       if (mounted) {
         setState(() {
-          // Filtra apenas m骴ulos ativos
+          // Filtra apenas m贸dulos ativos
           _availableModules = modules.where((m) => m.isActive).toList();
           _isLoadingModules = false;
         });
@@ -89,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         setState(() => _isLoadingModules = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao carregar m骴ulos: $e'),
+            content: Text('Erro ao carregar m贸dulos: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -133,18 +130,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  void _navigateToModule(AssetModuleConfig module) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => GenericDashboardScreen(
-              authService: widget.authService,
-              moduleConfig: module,
-            ),
-      ),
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -174,17 +160,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           child: Stack(
             children: [
-              // Header com bot鮡s (Top Right)
+              // Header com bot玫es (Top Right)
               Positioned(
                 top: 24,
                 right: 24,
                 child: Row(
                   children: [
-                    // Bot鉶 de Tema
+                    // Bot茫o de Tema
                     const ThemeSelectorButton(),
                     const SizedBox(width: 12),
 
-                    // Bot鉶 de Perfil
+                    // Bot茫o de Perfil
                     InkWell(
                       onTap: () {
                         Navigator.push(
@@ -217,17 +203,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           children: [
                             ProfileAvatarWidget(
                               username:
-                                  widget.authService.currentUser?['username']
-                                      as String ??
+                                  (widget.authService.currentUser?['username']
+                                      as String?) ??
                                   'User',
                               size: 32,
                               isOnline: true,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              widget.authService.currentUser?['username']
-                                      as String ??
-                                  'Usu醨io',
+                              (widget.authService.currentUser?['username']
+                                      as String?) ??
+                                  'Usu谩rio',
                               style: TextStyle(
                                 color:
                                     isDark
@@ -242,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                     const SizedBox(width: 12),
 
-                    // Bot鉶 de Logout
+                    // Bot茫o de Logout
                     IconButton(
                       onPressed: () => _logout(context),
                       icon: const Icon(Icons.logout),
@@ -311,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   ),
                                   const SizedBox(height: 24),
                                   Text(
-                                    'Central de M骴ulos',
+                                    'Central de M贸dulos',
                                     style: TextStyle(
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
@@ -324,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Selecione um m骴ulo para gerenciar',
+                                    'Selecione um m贸dulo para gerenciar',
                                     style: TextStyle(
                                       fontSize: 16,
                                       color:
@@ -384,11 +370,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              widget
+                                              (widget
                                                           .authService
                                                           .currentUser?['username']
-                                                      as String ??
-                                                  'Usu醨io',
+                                                      as String?) ??
+                                                  'Usu谩rio',
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w600,
@@ -465,13 +451,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildModulesGrid() {
     final List<Widget> moduleCards = [];
 
-    // Adiciona m骴ulos fixos baseados em permiss鮡s
+    // Adiciona m贸dulos fixos baseados em permiss玫es
     if (_hasPermission('mobile')) {
       moduleCards.add(
         UnifiedMenuItem(
           icon: Icons.phone_android,
-          title: 'M骴ulo Mobile',
-          subtitle: 'Gest鉶 de Dispositivos',
+          title: 'M贸dulo Mobile',
+          subtitle: 'Gest茫o de Dispositivos',
           style: MenuItemStyle.hub,
           onTap: () => Navigator.pushNamed(context, '/dashboard'),
         ),
@@ -482,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       moduleCards.add(
         UnifiedMenuItem(
           icon: Icons.desktop_windows,
-          title: 'M骴ulo Totem',
+          title: 'M贸dulo Totem',
           subtitle: 'Monitoramento de Totens',
           style: MenuItemStyle.hub,
           onTap: () => Navigator.pushNamed(context, '/totem_dashboard'),
@@ -490,7 +476,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       );
     }
 
-    // Adiciona m骴ulos din鈓icos
+    // Adiciona m贸dulos din芒micos
     for (final module in _availableModules) {
       if (module.type == AssetModuleType.mobile ||
           module.type == AssetModuleType.totem) {
@@ -506,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ? module.description
                   : module.type.displayName,
           style: MenuItemStyle.hub,
-          onTap: () => _navigateToModule(module),
+          onTap: () => (module),
         ),
       );
     }
@@ -527,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (moduleCards.isEmpty) {
       return const Center(
         child: Text(
-          'Nenhum m骴ulo dispon韛el',
+          'Nenhum m贸dulo dispon铆vel',
           style: TextStyle(color: AppColors.textSecondary),
         ),
       );

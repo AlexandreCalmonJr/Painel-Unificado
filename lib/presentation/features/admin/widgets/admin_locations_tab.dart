@@ -1,10 +1,10 @@
-// File: lib/admin/tabs/admin_locations_tab.dart
+ï»¿// File: lib/admin/tabs/admin_locations_tab.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/data/models/location.dart';
+// ignore: library_prefixes
+import 'package:painel_windowns/data/models/location.dart' as LocationModel;
 import 'package:painel_windowns/data/models/unit_model.dart';
-import 'package:painel_windowns/presentation/features/admin/pages/unit_bssids_page.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/location_dialog.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -24,7 +24,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
   late TabController _tabController;
 
   String _searchQuery = '';
-  List<Location> _locations = [];
+  List<LocationModel.Location> _locations = [];
   List<Unit> _units = [];
   Map<String, int> _bssidCounts = {};
   bool _isLoading = true;
@@ -54,17 +54,17 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
     try {
       final token = widget.authService.currentToken;
       if (token == null) {
-        throw Exception('Token de autenticação não encontrado');
+        throw Exception('Token de autenticaï¿½ï¿½o nï¿½o encontrado');
       }
 
-      // Carrega localizações e unidades em paralelo
+      // Carrega localizaï¿½ï¿½es e unidades em paralelo
       final results = await Future.wait([
         LocationService.fetchLocationsWithDeviceData(token),
         _deviceService.fetchUnits(token),
         _deviceService.fetchBssidMappings(token),
       ]);
 
-      final locations = results[0] as List<Location>;
+      final locations = results[0] as List<LocationModel.Location>;
       final units = results[1] as List<Unit>;
       final bssids = results[2] as List;
 
@@ -101,17 +101,25 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
         .then((_) => _loadData()); // Recarrega ao voltar
   }
 
-  Future<void> _showLocationDialog({Location? location}) async {
+  Future<void> _showLocationDialog({LocationModel.Location? location}) async {
+    // Convert to LocationDialogData for the dialog
+    final dialogData =
+        location != null
+            ? (LocationDialogData()
+              ..name = location.name
+              ..description = location.description ?? '')
+            : null;
+
     final result = await showDialog<bool>(
       context: context,
       builder:
           (context) => LocationDialog(
-            location: location,
+            location: dialogData,
             authService: widget.authService,
             onSave: (data) async {
               final token = widget.authService.currentToken;
               if (token == null) {
-                throw Exception('Token de autenticação não encontrado');
+                throw Exception('Token de autenticaï¿½ï¿½o nï¿½o encontrado');
               }
 
               if (location == null) {
@@ -136,8 +144,8 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
           SnackBar(
             content: Text(
               location == null
-                  ? 'Localização criada com sucesso!'
-                  : 'Localização atualizada com sucesso!',
+                  ? 'Localizaï¿½ï¿½o criada com sucesso!'
+                  : 'Localizaï¿½ï¿½o atualizada com sucesso!',
             ),
             backgroundColor: AppColors.success,
           ),
@@ -146,14 +154,14 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
     }
   }
 
-  Future<void> _deleteLocation(Location location) async {
+  Future<void> _deleteLocation(LocationModel.Location location) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Confirmar Exclusão'),
+            title: const Text('Confirmar Exclusï¿½o'),
             content: Text(
-              'Tem certeza que deseja excluir a localização "${location.name}"?\n\nEsta ação não pode ser desfeita.',
+              'Tem certeza que deseja excluir a localizaï¿½ï¿½o "${location.name}"?\n\nEsta aï¿½ï¿½o nï¿½o pode ser desfeita.',
             ),
             actions: [
               TextButton(
@@ -176,7 +184,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
       try {
         final token = widget.authService.currentToken;
         if (token == null) {
-          throw Exception('Token de autenticação não encontrado');
+          throw Exception('Token de autenticaï¿½ï¿½o nï¿½o encontrado');
         }
 
         await LocationService.deleteLocation(token, location.name);
@@ -185,7 +193,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Localização excluída com sucesso!'),
+              content: Text('Localizaï¿½ï¿½o excluï¿½da com sucesso!'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -208,7 +216,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Funcionalidade de importação em desenvolvimento. '
+            'Funcionalidade de importaï¿½ï¿½o em desenvolvimento. '
             'Use a interface de Unidades para cadastrar BSSIDs.',
           ),
           backgroundColor: AppColors.primary,
@@ -222,7 +230,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
     try {
       final token = widget.authService.currentToken;
       if (token == null) {
-        throw Exception('Token de autenticação não encontrado');
+        throw Exception('Token de autenticaï¿½ï¿½o nï¿½o encontrado');
       }
 
       // Busca todos os dados
@@ -239,7 +247,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Exportando ${locations.length} localizações...\n'
+              'Exportando ${locations.length} localizaï¿½ï¿½es...\n'
               'Funcionalidade completa em desenvolvimento.',
             ),
             backgroundColor: AppColors.success,
@@ -277,7 +285,11 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: AppColors.danger),
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppColors.danger,
+              ),
               const SizedBox(height: 16),
               Text(
                 'Erro ao carregar dados',
@@ -336,7 +348,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
                       ? AppColors.textSecondary
                       : AppColors.textSecondaryLight,
               tabs: const [
-                Tab(text: 'Localizações', icon: Icon(Icons.location_on)),
+                Tab(text: 'Localizaï¿½ï¿½es', icon: Icon(Icons.location_on)),
                 Tab(text: 'Unidades', icon: Icon(Icons.business)),
               ],
             ),
@@ -365,7 +377,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
 
     return Column(
       children: [
-        // Barra de busca e ações (Locations)
+        // Barra de busca e aï¿½ï¿½es (Locations)
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -387,7 +399,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
                             : AppColors.textPrimaryLight,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Buscar localizações...',
+                    hintText: 'Buscar localizaï¿½ï¿½es...',
                     hintStyle: TextStyle(
                       color:
                           isDark
@@ -417,7 +429,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
               ElevatedButton.icon(
                 onPressed: () => _showLocationDialog(),
                 icon: const Icon(Icons.add, size: 20),
-                label: const Text('Nova Localização'),
+                label: const Text('Nova Localizaï¿½ï¿½o'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: palette['primary'],
                   foregroundColor: Colors.white,
@@ -443,7 +455,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
               const SizedBox(width: 8),
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert),
-                tooltip: 'Mais opções',
+                tooltip: 'Mais opï¿½ï¿½es',
                 onSelected: (value) {
                   if (value == 'import') {
                     _showImportDialog();
@@ -481,7 +493,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
 
         const SizedBox(height: 20),
 
-        // Lista de Localizações
+        // Lista de Localizaï¿½ï¿½es
         Expanded(
           child:
               filteredLocations.isEmpty
@@ -500,7 +512,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
                         const SizedBox(height: 16),
                         Text(
                           _searchQuery.isEmpty
-                              ? 'Nenhuma localização encontrada'
+                              ? 'Nenhuma localizaï¿½ï¿½o encontrada'
                               : 'Nenhum resultado para "$_searchQuery"',
                           style: TextStyle(
                             fontSize: 16,
@@ -540,7 +552,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
 
     return Column(
       children: [
-        // Header com estatísticas (Units)
+        // Header com estatï¿½sticas (Units)
         Row(
           children: [
             Expanded(
@@ -841,7 +853,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
   }
 
   Widget _buildLocationCard(
-    Location location,
+    LocationModel.Location location,
     bool isDark,
     Map<String, Color> palette,
   ) {

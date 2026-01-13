@@ -1,15 +1,15 @@
-import 'dart:async';
+ï»¿import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
-import 'package:painel_windowns/data/models/device_model.dart';
+import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:painel_windowns/data/models/totem_model.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
-import 'package:get/get.dart';
 
 const int kMaxRetries = 3;
 const Duration kRetryDelay = Duration(seconds: 2);
@@ -48,7 +48,7 @@ class DeviceService extends GetxService {
         await Future.delayed(kRetryDelay);
       } on SocketException {
         if (attempts == kMaxRetries) {
-          throw Exception('$errorMessage: Falha na conexão com o servidor.');
+          throw Exception('$errorMessage: Falha na conexï¿½o com o servidor.');
         }
         await Future.delayed(kRetryDelay);
       } catch (e) {
@@ -57,10 +57,10 @@ class DeviceService extends GetxService {
         );
       }
     }
-    throw Exception('$errorMessage após $kMaxRetries tentativas.');
+    throw Exception('$errorMessage apï¿½s $kMaxRetries tentativas.');
   }
 
-  // Busca dispositivos com paginação e filtros
+  // Busca dispositivos com paginaï¿½ï¿½o e filtros
   Future<Map<String, dynamic>> fetchDevices(
     String token,
     List<Unit> units, {
@@ -115,7 +115,7 @@ class DeviceService extends GetxService {
         throw Exception('Falha ao carregar dispositivos');
       }
     } catch (e) {
-      throw Exception('Erro de conexão: $e');
+      throw Exception('Erro de conexï¿½o: $e');
     }
   }
 
@@ -138,7 +138,7 @@ class DeviceService extends GetxService {
           .map((json) => BssidMapping.fromJson(json as Map<String, dynamic>))
           .toList();
     }
-    throw Exception('Resposta inválida: Esperado uma lista de mapeamentos');
+    throw Exception('Resposta invï¿½lida: Esperado uma lista de mapeamentos');
   }
 
   Future<List<BssidMapping>> fetchBssidsForUnit(
@@ -171,7 +171,7 @@ class DeviceService extends GetxService {
       if (data is Map<String, dynamic> && data.containsKey('error')) {
         throw Exception(data['error']);
       }
-      throw Exception('Resposta inválida: Esperado uma lista de BSSIDs');
+      throw Exception('Resposta invï¿½lida: Esperado uma lista de BSSIDs');
     }
   }
 
@@ -224,7 +224,7 @@ class DeviceService extends GetxService {
       errorMessage: 'Erro ao excluir dispositivo',
     );
     final data = jsonDecode(response.body);
-    return data['message']?.toString() ?? 'Dispositivo excluído com sucesso';
+    return data['message']?.toString() ?? 'Dispositivo excluï¿½do com sucesso';
   }
 
   Future<String> createUnit(String token, Unit unit) async {
@@ -278,7 +278,7 @@ class DeviceService extends GetxService {
       errorMessage: 'Erro ao excluir unidade',
     );
     final data = jsonDecode(response.body);
-    return data['message']?.toString() ?? 'Unidade excluída com sucesso';
+    return data['message']?.toString() ?? 'Unidade excluï¿½da com sucesso';
   }
 
   Future<String> createBssidMapping(String token, BssidMapping mapping) async {
@@ -342,7 +342,7 @@ class DeviceService extends GetxService {
           ),
       errorMessage: 'Erro ao excluir mapeamento',
     );
-    return 'Mapeamento de BSSID excluído com sucesso';
+    return 'Mapeamento de BSSID excluï¿½do com sucesso';
   }
 
   Future<List<Unit>> fetchUnits(String token) async {
@@ -373,7 +373,7 @@ class DeviceService extends GetxService {
           .toList();
     } else {
       throw Exception(
-        'Resposta inválida do servidor: Esperado "success: true" e uma lista de "units".',
+        'Resposta invï¿½lida do servidor: Esperado "success: true" e uma lista de "units".',
       );
     }
   }
@@ -394,7 +394,7 @@ class DeviceService extends GetxService {
             ),
             headers: {'Authorization': 'Bearer $token'},
           ),
-      errorMessage: 'Erro ao buscar histórico de localização',
+      errorMessage: 'Erro ao buscar histï¿½rico de localizaï¿½ï¿½o',
     );
 
     final data = jsonDecode(response.body);
@@ -402,7 +402,7 @@ class DeviceService extends GetxService {
       return List<Map<String, dynamic>>.from(data['history'] as List);
     } else {
       throw Exception(
-        data['message'] ?? 'Falha ao carregar histórico de localização',
+        data['message'] ?? 'Falha ao carregar histï¿½rico de localizaï¿½ï¿½o',
       );
     }
   }
@@ -446,7 +446,7 @@ class DeviceService extends GetxService {
           .toList();
     }
     throw Exception(
-      'Resposta inválida do servidor: Esperado uma lista de totens.',
+      'Resposta invï¿½lida do servidor: Esperado uma lista de totens.',
     );
   }
 
@@ -495,7 +495,7 @@ class DeviceService extends GetxService {
     }
   }
 
-  // Resumo de Localização
+  // Resumo de Localizaï¿½ï¿½o
   Future<Map<String, dynamic>> fetchLocationSummary() async {
     final config = ServerConfigService.instance.loadConfig();
     try {
@@ -509,7 +509,7 @@ class DeviceService extends GetxService {
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
-        throw Exception('Falha ao carregar resumo de localização');
+        throw Exception('Falha ao carregar resumo de localizaï¿½ï¿½o');
       }
     } catch (e) {
       throw Exception('Erro ao carregar resumo: $e');

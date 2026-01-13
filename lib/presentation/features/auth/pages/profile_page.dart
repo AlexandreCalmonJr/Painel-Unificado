@@ -237,22 +237,22 @@ class _ProfileScreenState extends State<ProfileScreen>
                 children: [
                   _buildInfoRow(
                     'Usuário',
-                    user?['username'] as String ?? 'N/A',
+                    (user?['username'] as String?) ?? 'N/A',
                     Icons.person,
                   ),
                   _buildInfoRow(
                     'Email',
-                    user?['email'] as String ?? 'N/A',
+                    (user?['email'] as String?) ?? 'N/A',
                     Icons.email,
                   ),
                   _buildInfoRow(
                     'Função',
-                    user?['role'] as String ?? 'N/A',
+                    (user?['role'] as String?) ?? 'N/A',
                     Icons.work,
                   ),
                   _buildInfoRow(
                     'Criado em',
-                    user?['created_at'] as String ?? 'N/A',
+                    (user?['created_at'] as String?) ?? 'N/A',
                     Icons.calendar_today,
                   ),
                 ],

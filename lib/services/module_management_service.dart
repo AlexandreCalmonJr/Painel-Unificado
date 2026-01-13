@@ -1,4 +1,3 @@
-// File: lib/services/module_management_service.dart (VERS√O CORRIGIDA)
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -6,31 +5,27 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
-import 'package:painel_windowns/data/models/desktop_model.dart';
-import 'package:painel_windowns/data/models/notebook_model.dart';
-import 'package:painel_windowns/data/models/panel_model.dart';
-import 'package:painel_windowns/data/models/printer_model.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/location_mapper_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
 class ModuleManagementService {
-
   ModuleManagementService({required this.authService});
   final AuthService authService;
 
   String? get _token => authService.currentToken;
   Map<String, String> get _headers => {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $_token',
-  };
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_token',
+      };
   String get _baseUrl {
     final config = ServerConfigService.instance.loadConfig();
     return 'http://${config['ip']}:${config['port']}';
   }
 
   // ===================================================================
-  // ? CORRIGIDO: MÈtodo com retries e validaÁ„o
+  // CORRE√á√ÉO: M√©todo com retries e valida√ß√£o
   // ===================================================================
   Future<http.Response> _performHttpRequest({
     required Future<http.Response> Function() request,
@@ -42,11 +37,11 @@ class ModuleManagementService {
       try {
         final response = await request().timeout(
           const Duration(seconds: 30),
-        ); // ? Aumentado timeout
+        );
 
         if (response.statusCode == 401) {
           await authService.logout();
-          throw Exception('Sess„o expirada. FaÁa login novamente.');
+          throw Exception('Sess√£o expirada. Fa√ßa login novamente.');
         }
 
         if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -67,31 +62,29 @@ class ModuleManagementService {
         if (attempts == 3) {
           throw Exception('$errorMessage: Tempo esgotado (30s)');
         }
-        // ignore: inference_failure_on_instance_creation
         await Future.delayed(const Duration(seconds: 2));
       } on SocketException {
         if (attempts == 3) {
-          throw Exception('$errorMessage: Sem conex„o com servidor');
+          throw Exception('$errorMessage: Sem conex√£o com servidor');
         }
-        // ignore: inference_failure_on_instance_creation
         await Future.delayed(const Duration(seconds: 2));
       } catch (e) {
         if (e is Exception) rethrow;
         throw Exception('$errorMessage: ${e.toString()}');
       }
     }
-    throw Exception('$errorMessage apÛs 3 tentativas');
+    throw Exception('$errorMessage ap√≥s 3 tentativas');
   }
 
   // ===================================================================
-  // ? NOVO: MÈtodo para buscar unidades e BSSIDs (necess·rio para parse)
+  // M√©todo para buscar unidades e BSSIDs (necess√°rio para parse)
   // ===================================================================
   Future<List<Unit>> fetchUnits() async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     final response = await _performHttpRequest(
-      request:
-          () => http.get(Uri.parse('$_baseUrl/api/units'), headers: _headers),
+      request: () =>
+          http.get(Uri.parse('$_baseUrl/api/units'), headers: _headers),
       errorMessage: 'Erro ao buscar unidades',
     );
 
@@ -101,18 +94,17 @@ class ModuleManagementService {
           .map((json) => Unit.fromJson(json as Map<String, dynamic>))
           .toList();
     }
-    throw Exception('Resposta inv·lida: esperado lista de unidades');
+    throw Exception('Resposta inv√°lida: esperado lista de unidades');
   }
 
   Future<List<BssidMapping>> fetchBssidMappings() async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     final response = await _performHttpRequest(
-      request:
-          () => http.get(
-            Uri.parse('$_baseUrl/api/bssid-mappings'),
-            headers: _headers,
-          ),
+      request: () => http.get(
+        Uri.parse('$_baseUrl/api/bssid-mappings'),
+        headers: _headers,
+      ),
       errorMessage: 'Erro ao buscar BSSIDs',
     );
 
@@ -122,14 +114,14 @@ class ModuleManagementService {
           .map((json) => BssidMapping.fromJson(json as Map<String, dynamic>))
           .toList();
     }
-    throw Exception('Resposta inv·lida: esperado lista de BSSIDs');
+    throw Exception('Resposta inv√°lida: esperado lista de BSSIDs');
   }
 
   // ===================================================================
-  // ? CRÕTICO: MÈtodo de parse de ativos MOVIDO PARA C¡
+  // CR√çTICO: M√©todo de parse de ativos centralizado
   // ===================================================================
-  /// Parse de ativos baseado no tipo do mÛdulo
-  /// AGORA INCLUI UNITS E BSSIDS COMO PAR¬METROS
+  /// Parse de ativos baseado no tipo do m√≥dulo
+  /// AGORA INCLUI UNITS E BSSIDS COMO PAR√ÇMETROS
   ManagedAsset parseAsset(
     Map<String, dynamic> json,
     AssetModuleType moduleType,
@@ -137,24 +129,68 @@ class ModuleManagementService {
     List<BssidMapping> bssidMappings,
   ) {
     try {
-      switch (moduleType) {
-        case AssetModuleType.notebook:
-          return Notebook.fromJson(json, units, bssidMappings);
-
-        case AssetModuleType.desktop:
-          return Desktop.fromJson(json, units);
-
-        case AssetModuleType.panel:
-          return Panel.fromJson(json, units);
-
-        case AssetModuleType.printer:
-          return Printer.fromJson(json, units);
-
-        default:
-          throw UnimplementedError('Tipo n„o suportado: $moduleType');
+      final id = (json['_id'] ?? json['id']) as String;
+      final assetName =
+          (json['asset_name'] ?? json['hostname'] ?? 'N/A') as String;
+      final serialNumber = (json['serial_number'] ?? 'N/A') as String;
+      final status = (json['status'] ?? 'offline') as String;
+      DateTime lastSeen;
+      try {
+        lastSeen = DateTime.parse(json['last_seen'] as String);
+      } catch (_) {
+        lastSeen = DateTime.now();
       }
+
+      String? unit = json['unit'] as String?;
+      String? sector = json['sector'] as String?;
+      String? floor = json['floor'] as String?;
+      String? location = json['location'] as String?;
+
+      final macAddressRadio =
+          (json['mac_address_radio'] ?? json['bssid'] ?? '') as String;
+      final shouldMap =
+          (unit == null || unit == 'N/A' || unit == 'Desconhecido') ||
+              (sector == null || sector == 'Desconhecido') ||
+              (floor == null || floor == 'Desconhecido');
+
+      if (shouldMap) {
+        try {
+          final locationData = LocationMapperService.mapLocation(
+            units: units,
+            bssidMappings: bssidMappings,
+            ip: (json['ip_address'] ?? 'N/A') as String,
+            macAddress: macAddressRadio,
+            originalLocation: location ?? 'N/D',
+          );
+
+          unit ??= locationData.unitName;
+          sector ??= locationData.sector;
+          floor ??= locationData.floor;
+          location ??= locationData.locationName;
+        } catch (e) {
+          print('Falha no mapeamento de localiza√ß√£o: $e');
+        }
+      }
+
+      return _ServiceManagedAsset(
+        id: id,
+        assetName: assetName,
+        assetType: moduleType.identifier,
+        serialNumber: serialNumber,
+        status: status,
+        lastSeen: lastSeen,
+        customData:
+            json['custom_data'] != null
+                ? Map<String, dynamic>.from(json['custom_data'] as Map)
+                : json,
+        location: location,
+        assignedTo: json['assigned_to'] as String?,
+        unit: unit,
+        sector: sector,
+        floor: floor,
+      );
     } catch (e, stackTrace) {
-      print('? Erro ao parsear ativo: $e');
+      print('Erro ao parsear ativo: $e');
       print('Stack: $stackTrace');
       print('JSON: $json');
       rethrow;
@@ -162,41 +198,39 @@ class ModuleManagementService {
   }
 
   // ===================================================================
-  // ? CORRIGIDO E ATUALIZADO: Lista ativos com PARSE AUTOM¡TICO E LOGS
+  // CORRIGIDO: Lista ativos com PARSE AUTOM√ÅTICO
   // ===================================================================
-  /// Lista ativos de um mÛdulo (AGORA COM PARSE)
+  /// Lista ativos de um m√≥dulo (AGORA COM PARSE)
   Future<List<ManagedAsset>> listModuleAssetsTyped({
     required String moduleId,
     required AssetModuleType moduleType,
     required List<Unit> units,
     required List<BssidMapping> bssidMappings,
   }) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
-    // ? LOGS DE DEBUG
-    print('?? Carregando ativos do mÛdulo: $moduleType');
-    print('   Units disponÌveis: ${units.length}');
-    print('   BSSIDs disponÌveis: ${bssidMappings.length}');
+    print('üì¶ Carregando ativos do m√≥dulo: $moduleType');
+    print('   Units dispon√≠veis: ${units.length}');
+    print('   BSSIDs dispon√≠veis: ${bssidMappings.length}');
 
     if (bssidMappings.isEmpty) {
       print(
-        '?? ATEN«√O: Nenhum BSSID cadastrado! O mapeamento por WiFi n„o funcionar·.',
+        '‚ö†Ô∏è ATEN√á√ÉO: Nenhum BSSID cadastrado! O mapeamento por WiFi n√£o funcionar√°.',
       );
     }
 
     final response = await _performHttpRequest(
-      request:
-          () => http.get(
-            Uri.parse('$_baseUrl/api/modules/$moduleId/assets'),
-            headers: _headers,
-          ),
+      request: () => http.get(
+        Uri.parse('$_baseUrl/api/modules/$moduleId/assets'),
+        headers: _headers,
+      ),
       errorMessage: 'Erro ao carregar ativos',
     );
 
     final data = json.decode(response.body);
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('Resposta inv·lida: esperado objeto JSON');
+      throw Exception('Resposta inv√°lida: esperado objeto JSON');
     }
 
     if (!data.containsKey('assets')) {
@@ -205,9 +239,8 @@ class ModuleManagementService {
 
     final assetsList = data['assets'] as List<dynamic>;
 
-    print('?? Total de ativos recebidos: ${assetsList.length}');
+    print('üìä Total de ativos recebidos: ${assetsList.length}');
 
-    // ? Parse cada ativo COM LOGS
     return assetsList.map((json) {
       try {
         return parseAsset(
@@ -217,8 +250,8 @@ class ModuleManagementService {
           bssidMappings,
         );
       } catch (e, stackTrace) {
-        print('? ERRO ao parsear ativo: $e');
-        print('   JSON problem·tico: ${json['serial_number']}');
+        print('‚ùå ERRO ao parsear ativo: $e');
+        print('   JSON problem√°tico: ${json['serial_number']}');
         print('   Stack: $stackTrace');
         rethrow;
       }
@@ -226,15 +259,15 @@ class ModuleManagementService {
   }
 
   // ===================================================================
-  // MANTIDO: Lista mÛdulos
+  // Lista m√≥dulos
   // ===================================================================
   Future<List<AssetModuleConfig>> listModules() async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     final response = await _performHttpRequest(
-      request:
-          () => http.get(Uri.parse('$_baseUrl/api/modules'), headers: _headers),
-      errorMessage: 'Erro ao carregar mÛdulos',
+      request: () =>
+          http.get(Uri.parse('$_baseUrl/api/modules'), headers: _headers),
+      errorMessage: 'Erro ao carregar m√≥dulos',
     );
 
     final data = json.decode(response.body);
@@ -245,16 +278,17 @@ class ModuleManagementService {
   }
 
   // ===================================================================
-  // MANTIDO: Cria mÛdulo
+  // Cria m√≥dulo
   // ===================================================================
   Future<AssetModuleConfig> createModule({
     required String name,
     required String description,
     required AssetModuleType type,
-    required List<Map<String, String>> tableColumns, Map<String, dynamic> customFields = const {},
+    required List<Map<String, String>> tableColumns,
+    Map<String, dynamic> customFields = const {},
     Map<String, dynamic> settings = const {},
   }) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     final moduleData = {
       'name': name,
@@ -267,13 +301,12 @@ class ModuleManagementService {
     };
 
     final response = await _performHttpRequest(
-      request:
-          () => http.post(
-            Uri.parse('$_baseUrl/api/modules'),
-            headers: _headers,
-            body: json.encode(moduleData),
-          ),
-      errorMessage: 'Erro ao criar mÛdulo',
+      request: () => http.post(
+        Uri.parse('$_baseUrl/api/modules'),
+        headers: _headers,
+        body: json.encode(moduleData),
+      ),
+      errorMessage: 'Erro ao criar m√≥dulo',
     );
 
     final data = json.decode(response.body);
@@ -281,18 +314,19 @@ class ModuleManagementService {
   }
 
   // ===================================================================
-  // MANTIDO: Atualiza mÛdulo
+  // Atualiza m√≥dulo
   // ===================================================================
   Future<AssetModuleConfig> updateModule({
     required String moduleId,
-    required AssetModuleType type, String? name,
+    required AssetModuleType type,
+    String? name,
     String? description,
     bool? isActive,
     Map<String, dynamic>? customFields,
     Map<String, dynamic>? settings,
     List<Map<String, String>>? tableColumns,
   }) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     final updateData = <String, dynamic>{};
     if (name != null) updateData['name'] = name;
@@ -303,13 +337,12 @@ class ModuleManagementService {
     if (tableColumns != null) updateData['table_columns'] = tableColumns;
 
     final response = await _performHttpRequest(
-      request:
-          () => http.put(
-            Uri.parse('$_baseUrl/api/modules/$moduleId'),
-            headers: _headers,
-            body: json.encode(updateData),
-          ),
-      errorMessage: 'Erro ao atualizar mÛdulo',
+      request: () => http.put(
+        Uri.parse('$_baseUrl/api/modules/$moduleId'),
+        headers: _headers,
+        body: json.encode(updateData),
+      ),
+      errorMessage: 'Erro ao atualizar m√≥dulo',
     );
 
     final data = json.decode(response.body);
@@ -317,99 +350,96 @@ class ModuleManagementService {
   }
 
   // ===================================================================
-  // MANTIDO: Deleta mÛdulo
+  // Deleta m√≥dulo
   // ===================================================================
   Future<bool> deleteModule(String moduleId) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     try {
       await _performHttpRequest(
-        request:
-            () => http.delete(
-              Uri.parse('$_baseUrl/api/modules/$moduleId'),
-              headers: _headers,
-            ),
-        errorMessage: 'Erro ao deletar mÛdulo',
+        request: () => http.delete(
+          Uri.parse('$_baseUrl/api/modules/$moduleId'),
+          headers: _headers,
+        ),
+        errorMessage: 'Erro ao deletar m√≥dulo',
       );
       return true;
     } catch (e) {
-      print('Erro ao deletar mÛdulo: $e');
+      print('Erro ao deletar m√≥dulo: $e');
       return false;
     }
   }
 
   // ===================================================================
-  // ?? MANUTEN«√O (CORRIGIDA) ??
+  // CORRE√á√ÉO: Manuten√ß√£o (status correto ao sair)
   // ===================================================================
   Future<Map<String, dynamic>> setMaintenanceMode({
     required String moduleId,
     required String assetId,
-    required bool maintenanceMode, // <-- Nome do par‚metro do Flutter
+    required bool maintenanceMode,
     String? reason,
   }) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
-    // ? CORRE«√O 1: Mapeamento dos nomes de campos
-    final body = {
-      'maintenance_status': maintenanceMode, // <-- Nome do campo do servidor
-      'status':
-          maintenanceMode
-              ? 'maintenance'
-              : 'online', // <-- Atualiza o status principal
+    // Monta o body base
+    final body = <String, dynamic>{
+      'maintenance_status': maintenanceMode,
       'maintenance_reason': reason ?? '',
-      'maintenance_ticket': reason ?? '', // O painel usa a raz„o como ticket
+      'maintenance_ticket': reason ?? '',
     };
 
+    // S√≥ for√ßa status 'maintenance' ao entrar em manuten√ß√£o
+    // Ao sair, deixa o agente atualizar o status real (online/offline)
+    if (maintenanceMode) {
+      body['status'] = 'maintenance';
+    }
+
     final response = await _performHttpRequest(
-      request:
-          () => http.patch(
-            // ? CORRE«√O 2: URL corrigida (removido /maintenance no final)
-            Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId'),
-            headers: _headers,
-            body: jsonEncode(body),
-          ),
-      errorMessage: 'Erro ao atualizar manutenÁ„o',
+      request: () => http.patch(
+        Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId'),
+        headers: _headers,
+        body: jsonEncode(body),
+      ),
+      errorMessage: 'Erro ao atualizar manuten√ß√£o',
     );
 
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
   // ===================================================================
-  // PERMISS’ES
+  // PERMISS√ïES
   // ===================================================================
   Future<List<String>> getModulePermissions(String moduleId) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     final response = await _performHttpRequest(
-      request:
-          () => http.get(
-            Uri.parse('$_baseUrl/api/modules/$moduleId/permissions'),
-            headers: _headers,
-          ),
-      errorMessage: 'Erro ao buscar permissıes',
+      request: () => http.get(
+        Uri.parse('$_baseUrl/api/modules/$moduleId/permissions'),
+        headers: _headers,
+      ),
+      errorMessage: 'Erro ao buscar permiss√µes',
     );
 
     final data = jsonDecode(response.body);
     if (data['success'] == true && data['users'] is List) {
       return List<String>.from(data['users'] as List);
     }
-    throw Exception(data['message'] ?? 'Resposta inv·lida');
+    throw Exception(data['message'] ?? 'Resposta inv√°lida');
   }
 
   Future<void> updateModulePermissions(
     String moduleId,
     List<String> userIds,
   ) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     await _performHttpRequest(
-      request:
-          () => http.put(
-            Uri.parse('$_baseUrl/api/modules/$moduleId/permissions'),
-            headers: _headers,
-            body: jsonEncode({'userIds': userIds}),
-          ),
-      errorMessage: 'Erro ao atualizar permissıes',
+      request: () => http.put(
+        Uri.parse('$_baseUrl/api/modules/$moduleId/permissions'),
+        headers: _headers,
+        body: jsonEncode({'userIds': userIds}),
+      ),
+      errorMessage: 'Erro ao atualizar permiss√µes',
     );
   }
 
@@ -420,15 +450,14 @@ class ModuleManagementService {
     required String moduleId,
     required Map<String, dynamic> assetData,
   }) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     final response = await _performHttpRequest(
-      request:
-          () => http.post(
-            Uri.parse('$_baseUrl/api/modules/$moduleId/assets'),
-            headers: _headers,
-            body: json.encode(assetData),
-          ),
+      request: () => http.post(
+        Uri.parse('$_baseUrl/api/modules/$moduleId/assets'),
+        headers: _headers,
+        body: json.encode(assetData),
+      ),
       errorMessage: 'Erro ao adicionar ativo',
     );
 
@@ -441,15 +470,14 @@ class ModuleManagementService {
     required String assetId,
     required Map<String, dynamic> updateData,
   }) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     final response = await _performHttpRequest(
-      request:
-          () => http.put(
-            Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId'),
-            headers: _headers,
-            body: json.encode(updateData),
-          ),
+      request: () => http.put(
+        Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId'),
+        headers: _headers,
+        body: json.encode(updateData),
+      ),
       errorMessage: 'Erro ao atualizar ativo',
     );
 
@@ -461,15 +489,14 @@ class ModuleManagementService {
     required String moduleId,
     required String assetId,
   }) async {
-    if (_token == null) throw Exception('N„o autenticado');
+    if (_token == null) throw Exception('N√£o autenticado');
 
     try {
       await _performHttpRequest(
-        request:
-            () => http.delete(
-              Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId'),
-              headers: _headers,
-            ),
+        request: () => http.delete(
+          Uri.parse('$_baseUrl/api/modules/$moduleId/assets/$assetId'),
+          headers: _headers,
+        ),
         errorMessage: 'Erro ao deletar ativo',
       );
       return true;
@@ -483,18 +510,16 @@ class ModuleManagementService {
     String token,
     String assetId,
   ) async {
-    if (token.isEmpty) throw Exception('N„o autenticado');
+    if (token.isEmpty) throw Exception('N√£o autenticado');
 
     final response = await _performHttpRequest(
-      request:
-          () => http.get(
-            // ?? NOTA: Requer a rota GET /:moduleId/assets/:assetId/history no servidor
-            Uri.parse(
-              '$_baseUrl/api/modules/${assetId.split('_')[0]}/assets/$assetId/history',
-            ),
-            headers: _headers,
-          ),
-      errorMessage: 'Erro ao buscar histÛrico',
+      request: () => http.get(
+        Uri.parse(
+          '$_baseUrl/api/modules/${assetId.split('_')[0]}/assets/$assetId/history',
+        ),
+        headers: _headers,
+      ),
+      errorMessage: 'Erro ao buscar hist√≥rico',
     );
 
     final data = json.decode(response.body);
@@ -503,6 +528,58 @@ class ModuleManagementService {
       return List<Map<String, dynamic>>.from(data['history'] as List);
     }
 
-    throw Exception(data['message'] ?? 'Falha ao carregar histÛrico');
+    throw Exception(data['message'] ?? 'Falha ao carregar hist√≥rico');
+  }
+}
+
+// Implementa√ß√£o simples de ManagedAsset usada pelo service
+class _ServiceManagedAsset extends ManagedAsset {
+  _ServiceManagedAsset({
+    required String id,
+    required String assetName,
+    required String assetType,
+    required String serialNumber,
+    required String status,
+    required DateTime lastSeen,
+    Map<String, dynamic> customData = const {},
+    String? location,
+    String? assignedTo,
+    String? unit,
+    String? sector,
+    String? floor,
+  })  : _custom = customData,
+        super(
+          id: id,
+          assetName: assetName,
+          assetType: assetType,
+          serialNumber: serialNumber,
+          status: status,
+          lastSeen: lastSeen,
+          customData: customData,
+          location: location,
+          assignedTo: assignedTo,
+          unit: unit,
+          sector: sector,
+          floor: floor,
+        );
+
+  final Map<String, dynamic> _custom;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'asset_name': assetName,
+      'asset_type': assetType,
+      'serial_number': serialNumber,
+      'status': status,
+      'last_seen': lastSeen.toIso8601String(),
+      'location': location,
+      'assigned_to': assignedTo,
+      'unit': unit,
+      'sector': sector,
+      'floor': floor,
+      'custom_data': _custom,
+    };
   }
 }

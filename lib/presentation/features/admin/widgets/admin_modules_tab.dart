@@ -1,4 +1,4 @@
-// File: lib/admin/tabs/admin_modules_tab.dart
+ï»¿// File: lib/admin/tabs/admin_modules_tab.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
@@ -6,8 +6,8 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/module.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/module_dialog.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/module_management_service.dart';
 
 class AdminModulesTab extends StatefulWidget {
   const AdminModulesTab({required this.authService, super.key});
@@ -40,7 +40,12 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     try {
       final configs = await _moduleService.listModules();
       setState(() {
-        _modules = configs.map((c) => Module.fromAssetModuleConfig(c)).toList();
+        _modules =
+            configs
+                .map(
+                  (c) => Module.fromAssetModuleConfig(c as AssetModuleConfig),
+                )
+                .toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -59,7 +64,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
             module: module,
             onSave: (Map<String, dynamic> data) async {
               if (module == null) {
-                // Create - usa as colunas que vêm do dialog
+                // Create - usa as colunas que vï¿½m do dialog
                 final typeIdentifier = data['type'] as String;
                 final moduleType = AssetModuleType.values.firstWhere(
                   (t) => t.identifier == typeIdentifier,
@@ -97,8 +102,8 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
           SnackBar(
             content: Text(
               module == null
-                  ? 'Módulo criado com sucesso!'
-                  : 'Módulo atualizado com sucesso!',
+                  ? 'Mï¿½dulo criado com sucesso!'
+                  : 'Mï¿½dulo atualizado com sucesso!',
             ),
             backgroundColor: AppColors.success,
           ),
@@ -112,9 +117,9 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Confirmar Exclusão'),
+            title: const Text('Confirmar Exclusï¿½o'),
             content: Text(
-              'Tem certeza que deseja excluir o módulo "${module.name}"?\n\nEsta ação não pode ser desfeita.',
+              'Tem certeza que deseja excluir o mï¿½dulo "${module.name}"?\n\nEsta aï¿½ï¿½o nï¿½o pode ser desfeita.',
             ),
             actions: [
               TextButton(
@@ -141,7 +146,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Módulo excluído com sucesso!'),
+              content: Text('Mï¿½dulo excluï¿½do com sucesso!'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -190,10 +195,14 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: AppColors.danger),
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppColors.danger,
+              ),
               const SizedBox(height: 16),
               Text(
-                'Erro ao carregar módulos',
+                'Erro ao carregar mï¿½dulos',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -232,12 +241,12 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
 
       return Column(
         children: [
-          // Header com estatísticas
+          // Header com estatï¿½sticas
           Row(
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'Total de Módulos',
+                  'Total de Mï¿½dulos',
                   _modules.length.toString(),
                   Icons.apps,
                   palette['primary']!,
@@ -247,7 +256,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatCard(
-                  'Módulos Ativos',
+                  'Mï¿½dulos Ativos',
                   activeModules.toString(),
                   Icons.check_circle,
                   AppColors.success,
@@ -257,7 +266,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatCard(
-                  'Módulos Inativos',
+                  'Mï¿½dulos Inativos',
                   (_modules.length - activeModules).toString(),
                   Icons.pause_circle,
                   AppColors.warning,
@@ -291,7 +300,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                               : AppColors.textPrimaryLight,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Buscar módulos...',
+                      hintText: 'Buscar mï¿½dulos...',
                       hintStyle: TextStyle(
                         color:
                             isDark
@@ -321,7 +330,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                 ElevatedButton.icon(
                   onPressed: () => _showModuleDialog(),
                   icon: const Icon(Icons.add, size: 20),
-                  label: const Text('Novo Módulo'),
+                  label: const Text('Novo Mï¿½dulo'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: palette['primary'],
                     foregroundColor: Colors.white,
@@ -350,7 +359,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
 
           const SizedBox(height: 20),
 
-          // Lista de módulos
+          // Lista de mï¿½dulos
           Expanded(
             child:
                 filteredModules.isEmpty
@@ -369,7 +378,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                           const SizedBox(height: 16),
                           Text(
                             _searchQuery.isEmpty
-                                ? 'Nenhum módulo encontrado'
+                                ? 'Nenhum mï¿½dulo encontrado'
                                 : 'Nenhum resultado para "$_searchQuery"',
                             style: TextStyle(
                               fontSize: 16,
