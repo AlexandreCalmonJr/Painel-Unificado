@@ -21,7 +21,7 @@ import 'package:painel_windowns/services/auth_service.dart';
 /// Versão simplificada usando BaseDashboardLayout e separação de responsabilidades.
 /// Reduzido de 843 linhas para ~350 linhas.
 class DevicesDashboardPage extends StatefulWidget {
-  const DevicesDashboardPage({super.key, required this.authService});
+  const DevicesDashboardPage({required this.authService, super.key});
   final AuthService authService;
 
   @override

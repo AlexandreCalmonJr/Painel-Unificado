@@ -21,9 +21,7 @@ import 'package:painel_windowns/services/module_management_service.dart';
 class GenericDashboardScreen extends StatefulWidget {
 
   const GenericDashboardScreen({
-    super.key,
-    required this.authService,
-    required this.moduleConfig,
+    required this.authService, required this.moduleConfig, super.key,
   });
   final AuthService authService;
   final AssetModuleConfig moduleConfig;
@@ -290,7 +288,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
         index: 3,
         isAdminOnly: true,
       ),
-      SidebarMenuItem(
+      const SidebarMenuItem(
         icon: Icons.arrow_back,
         title: 'Voltar',
         subtitle: 'Menu Principal',
@@ -464,7 +462,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
           columns: columns,
           authService: widget.authService,
           moduleConfig: widget.moduleConfig,
-          selectedAssets: [], // TODO: Implementar lógica de seleção
+          selectedAssets: const [], // TODO: Implementar lógica de seleção
           onSelectionChanged: (List<ManagedAsset> p1) {},
         ); // TODO: Implementar
 

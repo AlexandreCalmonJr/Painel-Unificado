@@ -10,10 +10,9 @@ class DashboardTab extends StatefulWidget {
 
   const DashboardTab({
     required this.authService,
-    super.key,
-    required this.devices,
+    required this.devices, required Null Function(Device device) onDeviceTap, super.key,
     this.errorMessage,
-    this.currentUser, required Null Function(Device device) onDeviceTap,
+    this.currentUser,
   });
   final List<Device> devices;
   final String? errorMessage;

@@ -1,160 +1,144 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:flutter/foundation.dart';
-import 'package:logger/logger.dart';
+import 'package:get/get.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-class WebSocketService {
-
-  WebSocketService(this._logger);
-  final Logger _logger;
+class WebSocketService extends GetxService {
   WebSocketChannel? _channel;
-  final _controller = StreamController<Map<String, dynamic>>.broadcast();
-  Timer? _heartbeatTimer;
+  final _isConnected = false.obs;
+  bool get isConnected => _isConnected.value;
+
+  // Streams para eventos específicos
+  final _deviceUpdatesController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get deviceUpdates =>
+      _deviceUpdatesController.stream;
+
+  final _dashboardStatsController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get dashboardStats =>
+      _dashboardStatsController.stream;
+
   Timer? _reconnectTimer;
-  bool _isDisposed = false;
-  String? _serverUrl;
-  bool _isConnected = false;
+  Timer? _heartbeatTimer;
+  String? _lastUrl;
+  int _retryCount = 0;
+  static const int _maxRetries = 5;
 
-  Stream<Map<String, dynamic>> get stream => _controller.stream;
+  void connect(String baseUrl) {
+    _lastUrl = baseUrl;
+    _connectInternal();
+  }
 
-  Future<void> connect(String serverUrl) async {
-    _serverUrl = serverUrl;
-    // Se já estiver conectado na mesma URL, não faz nada
-    if (_isConnected && _channel != null) return;
+  void _connectInternal() {
+    if (_isConnected.value || _lastUrl == null) return;
 
     try {
-      final wsUrl = serverUrl.replaceFirst('http', 'ws');
-      _logger.i('🔌 Tentando conectar WebSocket em $wsUrl/ws...');
+      // Converte http:// para ws://
+      final wsUrl = _lastUrl!.replaceFirst('http', 'ws') + '/ws';
+      print('Tentando conectar WebSocket: $wsUrl');
 
-      final uri = Uri.parse('$wsUrl/ws');
-      _channel = WebSocketChannel.connect(uri);
-
-      // Aguarda a primeira mensagem ou erro para confirmar conexão
-      // Na verdade, WebSocketChannel não tem callback de "conectado" explícito sem IO.
-      // Vamos assumir que está tentando e monitorar o stream.
+      _channel = IOWebSocketChannel.connect(
+        Uri.parse(wsUrl),
+        pingInterval: const Duration(seconds: 30),
+      );
 
       _channel!.stream.listen(
         (message) {
-          if (!_isConnected) {
-            _isConnected = true;
-            _logger.i('✅ WebSocket conectado com sucesso em $wsUrl!');
-            _sendRegister();
-            _startHeartbeat();
-          }
-
-          try {
-            final data = json.decode(message as String) as Map<String, dynamic>;
-            _controller.add(data);
-            _handleNotification(data);
-          } catch (e) {
-            _logger.e('Erro ao processar mensagem WS: $e');
-          }
-        },
-        onError: (Object error) {
-          _logger.e('❌ WebSocket error: $error');
-          _isConnected = false;
-          _scheduleReconnect();
+          _onMessage(message);
         },
         onDone: () {
-          _logger.w('🔌 WebSocket desconectado.');
-          _isConnected = false;
-          _scheduleReconnect();
+          print('WebSocket desconectado.');
+          _handleDisconnect();
+        },
+        onError: (error) {
+          print('Erro no WebSocket: $error');
+          _handleDisconnect();
         },
       );
 
-      // Envia um ping inicial para forçar a verificação da conexão
-      // Se falhar, vai cair no onError
-      // Mas só podemos enviar se o sink estiver aberto.
-      // O sink do WebSocketChannel geralmente está pronto.
+      _isConnected.value = true;
+      _retryCount = 0;
+      _startHeartbeat();
+      print('WebSocket conectado!');
+
+      // Registra o cliente
+      _send({'type': 'register', 'clientId': 'painel_admin'});
     } catch (e) {
-      _logger.e('❌ Falha ao iniciar conexão WebSocket: $e');
-      _isConnected = false;
-      _scheduleReconnect();
+      print('Falha ao conectar WebSocket: $e');
+      _handleDisconnect();
     }
   }
 
-  void _sendRegister() {
-    if (_isConnected) {
-      final hostname = kIsWeb ? 'Web Client' : Platform.localHostname;
-      final os = kIsWeb ? 'Web' : Platform.operatingSystem;
+  void _onMessage(dynamic message) {
+    try {
+      final data = jsonDecode(message);
 
-      try {
-        _channel?.sink.add(
-          json.encode({
-            'type': 'register',
-            'hostname': hostname,
-            'platform': os,
-          }),
-        );
-      } catch (e) {
-        _logger.e('Erro ao enviar registro: $e');
+      switch (data['type']) {
+        case 'heartbeat_ack':
+          // Alive
+          break;
+        case 'device_update':
+          _deviceUpdatesController.add(data['data']);
+          break;
+        case 'dashboard_stats':
+          _dashboardStatsController.add(data['data']);
+          break;
+        default:
+          print('Mensagem WebSocket recebida: $data');
       }
+    } catch (e) {
+      print('Erro ao processar mensagem WebSocket: $e');
+    }
+  }
+
+  void _send(Map<String, dynamic> data) {
+    if (_channel != null && _isConnected.value) {
+      _channel!.sink.add(jsonEncode(data));
     }
   }
 
   void _startHeartbeat() {
     _heartbeatTimer?.cancel();
     _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (_isConnected) {
-        try {
-          _channel?.sink.add(json.encode({'type': 'heartbeat'}));
-        } catch (e) {
-          _logger.e('Erro ao enviar heartbeat: $e');
-        }
-      }
+      _send({'type': 'heartbeat'});
     });
   }
 
-  void _scheduleReconnect() {
-    if (_isDisposed) return;
-
+  void _handleDisconnect() {
+    _isConnected.value = false;
     _heartbeatTimer?.cancel();
-    if (_reconnectTimer?.isActive ?? false) return;
+    _channel = null;
 
-    _logger.i('🔄 Tentando reconectar em 5 segundos...');
-    _reconnectTimer = Timer(const Duration(seconds: 5), () {
-      if (_serverUrl != null) {
-        connect(_serverUrl!);
-      }
-    });
-  }
-
-  Future<void> sendShutdownSignal() async {
-    if (_isConnected) {
-      _logger.w('🛑 Enviando sinal de SHUTDOWN...');
-      final hostname = kIsWeb ? 'Web Client' : Platform.localHostname;
-      try {
-        _channel?.sink.add(
-          json.encode({'type': 'shutdown', 'hostname': hostname}),
-        );
-        // Aguarda um pouco para garantir o envio
-        await Future<void>.delayed(const Duration(milliseconds: 500));
-        await _channel?.sink.close();
-      } catch (e) {
-        _logger.e('Erro ao enviar shutdown: $e');
-      }
-      _isConnected = false;
+    if (_retryCount < _maxRetries) {
+      final delay = Duration(
+        seconds: 2 * (_retryCount + 1),
+      ); // Backoff exponencial
+      print('Tentando reconectar em ${delay.inSeconds} segundos...');
+      _reconnectTimer?.cancel();
+      _reconnectTimer = Timer(delay, () {
+        _retryCount++;
+        _connectInternal();
+      });
+    } else {
+      print('Número máximo de tentativas de reconexão atingido.');
     }
   }
 
-  void _handleNotification(Map<String, dynamic> data) {
-    final type = data['type'];
-    // Implementar lógica de notificação se necessário
-    // Por enquanto, apenas loga
-    if (type == 'device_offline' || type == 'device_online') {
-      _logger.d('Status update received: $type');
-    }
-  }
-
-  void dispose() {
-    _isDisposed = true;
-    _heartbeatTimer?.cancel();
+  void disconnect() {
     _reconnectTimer?.cancel();
+    _heartbeatTimer?.cancel();
     _channel?.sink.close();
-    _controller.close();
-    _isConnected = false;
+    _isConnected.value = false;
+  }
+
+  @override
+  void onClose() {
+    disconnect();
+    _deviceUpdatesController.close();
+    _dashboardStatsController.close();
+    super.onClose();
   }
 }

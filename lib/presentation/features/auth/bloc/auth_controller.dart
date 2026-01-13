@@ -57,11 +57,11 @@ class AuthController extends GetxController {
         return false;
       }
     } on AuthException catch (e) {
-      errorMessage.value = e.message as String;
+      errorMessage.value = e.message;
       isLoading.value = false;
       return false;
     } on NetworkException catch (e) {
-      errorMessage.value = e.message as String;
+      errorMessage.value = e.message;
       isLoading.value = false;
       return false;
     } catch (e) {

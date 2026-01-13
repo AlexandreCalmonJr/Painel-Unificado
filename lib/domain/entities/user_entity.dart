@@ -7,9 +7,7 @@ class UserEntity extends Equatable {
     required this.id,
     required this.username,
     required this.email,
-    this.fullName,
-    required this.role,
-    required this.isActive,
+    required this.role, required this.isActive, this.fullName,
     this.createdAt,
     this.lastLogin,
   });

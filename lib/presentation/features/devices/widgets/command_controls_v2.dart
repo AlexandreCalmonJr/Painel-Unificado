@@ -9,9 +9,7 @@ import 'package:painel_windowns/services/device_service.dart';
 
 class CommandControlsV2 extends StatelessWidget {
   const CommandControlsV2({
-    super.key,
-    required this.device,
-    required this.token,
+    required this.device, required this.token, super.key,
     this.onCommandExecuted,
   });
   final Device device;
@@ -80,7 +78,7 @@ class CommandControlsV2 extends StatelessWidget {
                 ),
               ),
             if (device.status == 'maintenance')
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'production',
                 child: Row(
                   children: [
@@ -89,7 +87,7 @@ class CommandControlsV2 extends StatelessWidget {
                       size: 18,
                       color: AppColors.success,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Text(
                       'Retornar à Produção',
                       style: TextStyle(color: AppColors.success),
@@ -119,12 +117,12 @@ class CommandControlsV2 extends StatelessWidget {
               ),
             ),
             const PopupMenuDivider(),
-            PopupMenuItem(
+            const PopupMenuItem(
               value: 'delete',
               child: Row(
                 children: [
                   Icon(Icons.delete_forever, size: 18, color: AppColors.danger),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Text(
                     'Deletar Dispositivo',
                     style: TextStyle(color: AppColors.danger),

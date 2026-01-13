@@ -61,7 +61,7 @@ class DeviceController extends GetxController {
       }
 
       final fetchedDevices = await _deviceService.fetchDevices(token, units);
-      devices.value = fetchedDevices;
+      devices.value = fetchedDevices as List<Device>;
     } catch (e) {
       errorMessage.value = 'Erro ao buscar dispositivos: ${e.toString()}';
     } finally {

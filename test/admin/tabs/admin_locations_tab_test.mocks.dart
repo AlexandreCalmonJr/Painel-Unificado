@@ -148,15 +148,32 @@ class MockDeviceService extends _i1.Mock implements _i5.DeviceService {
   }
 
   @override
-  _i3.Future<List<dynamic>> fetchDevices(
+  _i3.Future<Map<String, dynamic>> fetchDevices(
     String? token,
-    List<_i6.Unit>? units,
-  ) =>
+    List<_i6.Unit>? units, {
+    int? page,
+    int? limit,
+    String? search,
+    String? status,
+    String? type,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#fetchDevices, [token, units]),
-            returnValue: _i3.Future<List<dynamic>>.value(<dynamic>[]),
+            Invocation.method(
+              #fetchDevices,
+              [token, units],
+              {
+                #page: page,
+                #limit: limit,
+                #search: search,
+                #status: status,
+                #type: type,
+              },
+            ),
+            returnValue: _i3.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
           )
-          as _i3.Future<List<dynamic>>);
+          as _i3.Future<Map<String, dynamic>>);
 
   @override
   _i3.Future<List<_i7.BssidMapping>> fetchBssidMappings(String? token) =>

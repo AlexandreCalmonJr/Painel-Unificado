@@ -6,11 +6,7 @@ import 'package:painel_windowns/services/auth_service.dart';
 
 class TotemDashboardTab extends StatelessWidget {
   const TotemDashboardTab({
-    super.key,
-    required this.totems,
-    required this.onRefresh,
-    required this.authService,
-    required this.currentUser,
+    required this.totems, required this.onRefresh, required this.authService, required this.currentUser, super.key,
   });
   final List<Totem> totems;
   final VoidCallback onRefresh;

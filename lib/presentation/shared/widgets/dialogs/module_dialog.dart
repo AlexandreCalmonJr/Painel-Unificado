@@ -5,7 +5,7 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/module.dart';
 
 class ModuleDialog extends StatefulWidget {
-  const ModuleDialog({super.key, this.module, required this.onSave});
+  const ModuleDialog({required this.onSave, super.key, this.module});
 
   final Module? module;
   final Future<void> Function(Map<String, dynamic> data) onSave;
@@ -121,7 +121,7 @@ class _ModuleDialogState extends State<ModuleDialog> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<AssetModuleType>(
-                  value: _selectedType,
+                  initialValue: _selectedType,
                   decoration: const InputDecoration(
                     labelText: 'Tipo de Módulo',
                     border: OutlineInputBorder(),
@@ -132,7 +132,7 @@ class _ModuleDialogState extends State<ModuleDialog> {
                           value: type,
                           child: Row(
                             children: [
-                              Icon(Icons.category, size: 20),
+                              const Icon(Icons.category, size: 20),
                               const SizedBox(width: 8),
                               Text(type.displayName),
                             ],

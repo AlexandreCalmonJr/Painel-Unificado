@@ -13,7 +13,7 @@ import 'package:painel_windowns/presentation/features/totem/widgets/managed_devi
 import 'package:painel_windowns/services/auth_service.dart';
 
 class TotemDashboardScreen extends StatefulWidget {
-  const TotemDashboardScreen({super.key, required this.authService});
+  const TotemDashboardScreen({required this.authService, super.key});
   final AuthService authService;
 
   @override

@@ -20,7 +20,7 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
 
 class MDMDashboard extends StatefulWidget {
-  const MDMDashboard({super.key, required this.authService});
+  const MDMDashboard({required this.authService, super.key});
   final AuthService authService;
 
   @override
@@ -123,7 +123,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
       if (mounted) {
         if (!isInitialLoad) _previousDevices = List.from(_allFetchedDevices);
         setState(() {
-          _allFetchedDevices = fetchedDevices;
+          _allFetchedDevices = fetchedDevices as List<Device>;
           if (!isInitialLoad) {
             _checkForAlerts(_previousDevices, _allFetchedDevices);
           }
@@ -370,7 +370,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
         isAdminOnly: true,
         showDividerBefore: true,
       ),
-      SidebarMenuItem(
+      const SidebarMenuItem(
         icon: Icons.arrow_back,
         title: 'Voltar',
         subtitle: 'Menu Principal',
@@ -515,7 +515,7 @@ class _MDMDashboardState extends State<MDMDashboard> {
                       role == 'admin' ? Colors.red[700] : Colors.blue[700],
                   child: Text(
                     username.isNotEmpty
-                        ? username[0].toUpperCase() as String
+                        ? username[0].toUpperCase()
                         : 'U',
                     style: const TextStyle(
                       color: Colors.white,

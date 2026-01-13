@@ -2,15 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 
 class CommandAction<T> {
-  final String label;
-  final IconData icon;
-  final Function(BuildContext context, T item) onTap;
-  final bool Function(T item)? isVisible;
-  final bool requiresConfirmation;
-  final String? confirmTitle;
-  final String? confirmMessage;
-  final bool isDestructive;
-  final Color? color;
 
   CommandAction({
     required this.label,
@@ -23,13 +14,20 @@ class CommandAction<T> {
     this.isDestructive = false,
     this.color,
   });
+  final String label;
+  final IconData icon;
+  final Function(BuildContext context, T item) onTap;
+  final bool Function(T item)? isVisible;
+  final bool requiresConfirmation;
+  final String? confirmTitle;
+  final String? confirmMessage;
+  final bool isDestructive;
+  final Color? color;
 }
 
 class BaseCommandMenu<T> extends StatelessWidget {
   const BaseCommandMenu({
-    super.key,
-    required this.item,
-    required this.actions,
+    required this.item, required this.actions, super.key,
     this.icon,
     this.tooltip,
   });

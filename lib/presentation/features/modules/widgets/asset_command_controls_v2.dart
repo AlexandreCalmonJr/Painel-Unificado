@@ -14,11 +14,7 @@ import 'package:painel_windowns/services/module_management_service.dart';
 class AssetCommandControlsV2 extends StatelessWidget {
 
   const AssetCommandControlsV2({
-    super.key,
-    required this.asset,
-    required this.assetType,
-    required this.token,
-    required this.authService, // ✅ Adicionado
+    required this.asset, required this.assetType, required this.token, required this.authService, // ✅ Adicionado, super.key,
     this.onCommandExecuted,
   });
   final ManagedAsset asset;

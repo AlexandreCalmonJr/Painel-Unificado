@@ -4,7 +4,6 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 
 /// Modelo simplificado de módulo para uso na UI administrativa
 class Module {
-
   Module({
     required this.id,
     required this.name,
@@ -14,6 +13,9 @@ class Module {
     required this.createdAt,
     this.updatedAt,
     this.tableColumns = const [],
+    this.isCustom = false,
+    this.customFields,
+    this.settings,
   });
 
   /// Cria um Module a partir de AssetModuleConfig
@@ -27,6 +29,8 @@ class Module {
       createdAt: config.createdAt,
       updatedAt: config.updatedAt,
       tableColumns: config.tableColumns.map((c) => c.toJson()).toList(),
+      // Assuming AssetModuleConfig will also be updated or we map defaults
+      isCustom: false,
     );
   }
   final String id;
@@ -37,6 +41,9 @@ class Module {
   final DateTime createdAt;
   final DateTime? updatedAt;
   final List<Map<String, dynamic>> tableColumns;
+  final bool isCustom;
+  final Map<String, dynamic>? customFields;
+  final Map<String, dynamic>? settings;
 
   /// Converte para JSON para envio ao servidor
   Map<String, dynamic> toJson() {
@@ -46,6 +53,9 @@ class Module {
       'type': type.identifier,
       'is_active': isActive,
       'table_columns': tableColumns,
+      'isCustom': isCustom,
+      'customFields': customFields,
+      'settings': settings,
     };
   }
 
@@ -84,6 +94,9 @@ class Module {
     DateTime? createdAt,
     DateTime? updatedAt,
     List<Map<String, dynamic>>? tableColumns,
+    bool? isCustom,
+    Map<String, dynamic>? customFields,
+    Map<String, dynamic>? settings,
   }) {
     return Module(
       id: id ?? this.id,
@@ -94,6 +107,9 @@ class Module {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       tableColumns: tableColumns ?? this.tableColumns,
+      isCustom: isCustom ?? this.isCustom,
+      customFields: customFields ?? this.customFields,
+      settings: settings ?? this.settings,
     );
   }
 }

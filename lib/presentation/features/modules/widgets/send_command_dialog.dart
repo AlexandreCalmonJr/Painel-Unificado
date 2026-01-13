@@ -7,11 +7,7 @@ import 'package:painel_windowns/services/command_service.dart';
 class SendCommandDialog extends StatefulWidget {
 
   const SendCommandDialog({
-    super.key,
-    required this.asset,
-    required this.moduleId,
-    required this.authService,
-    required this.onCommandSent,
+    required this.asset, required this.moduleId, required this.authService, required this.onCommandSent, super.key,
   });
   final ManagedAsset asset;
   final String moduleId;

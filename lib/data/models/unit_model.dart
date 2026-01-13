@@ -21,7 +21,7 @@ class IpRange {
 /// Representa uma Unidade com UMA OU MAIS faixas de IP.
 class Unit {
 
-  Unit({this.id, required this.name, required this.ipRanges});
+  Unit({required this.name, required this.ipRanges, this.id});
 
   factory Unit.fromJson(Map<String, dynamic> json) {
     // Lê o array 'ip_ranges' do JSON

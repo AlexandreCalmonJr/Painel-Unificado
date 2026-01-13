@@ -697,7 +697,7 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 80, color: AppColors.danger),
+          const Icon(Icons.error_outline, size: 80, color: AppColors.danger),
           const SizedBox(height: 16),
           Text(
             'Erro ao carregar usuários',

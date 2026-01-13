@@ -5,8 +5,7 @@ enum StatusType { asset, device, user }
 /// Widget de chip de status reutilizável
 class StatusChip extends StatelessWidget {
   const StatusChip({
-    super.key,
-    required this.status,
+    required this.status, super.key,
     this.color,
     this.icon,
     this.showIcon = true,

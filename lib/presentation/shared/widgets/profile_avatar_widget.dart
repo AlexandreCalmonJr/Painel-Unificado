@@ -6,8 +6,7 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 class ProfileAvatarWidget extends StatelessWidget {
 
   const ProfileAvatarWidget({
-    super.key,
-    required this.username,
+    required this.username, super.key,
     this.size = 40,
     this.isOnline = false,
     this.imageUrl,
@@ -126,8 +125,7 @@ class ProfileAvatarWidget extends StatelessWidget {
 class CompactAvatarWidget extends StatelessWidget {
 
   const CompactAvatarWidget({
-    super.key,
-    required this.username,
+    required this.username, super.key,
     this.isOnline = false,
     this.imageUrl,
   });

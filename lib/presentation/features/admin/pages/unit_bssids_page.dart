@@ -7,9 +7,7 @@ import 'package:painel_windowns/services/device_service.dart';
 class UnitBssidsPage extends StatefulWidget {
 
   const UnitBssidsPage({
-    super.key,
-    required this.unit,
-    required this.authService,
+    required this.unit, required this.authService, super.key,
   });
   final Unit unit;
   final AuthService authService;

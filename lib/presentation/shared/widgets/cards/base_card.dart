@@ -5,9 +5,7 @@ import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller
 
 class BaseCard extends StatelessWidget {
   const BaseCard({
-    super.key,
-    required this.title,
-    required this.child,
+    required this.title, required this.child, super.key,
     this.actions,
     this.expandChild = false,
   });

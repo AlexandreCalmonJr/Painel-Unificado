@@ -6,14 +6,13 @@ class LocationEntity extends Equatable {
   const LocationEntity({
     required this.id,
     required this.name,
-    this.description,
+    required this.isActive, this.description,
     this.address,
     this.city,
     this.state,
     this.country,
     this.latitude,
     this.longitude,
-    required this.isActive,
     this.createdAt,
     this.updatedAt,
   });

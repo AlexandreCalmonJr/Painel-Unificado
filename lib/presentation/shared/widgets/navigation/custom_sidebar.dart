@@ -26,12 +26,7 @@ class SidebarMenuItem {
 class CustomSidebar extends StatelessWidget {
 
   const CustomSidebar({
-    super.key,
-    required this.title,
-    required this.titleIcon,
-    required this.menuItems,
-    required this.selectedIndex,
-    required this.onItemTap,
+    required this.title, required this.titleIcon, required this.menuItems, required this.selectedIndex, required this.onItemTap, super.key,
     this.footerText,
     this.isAdmin = false,
   });

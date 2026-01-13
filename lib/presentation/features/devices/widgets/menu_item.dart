@@ -3,12 +3,7 @@ import 'package:flutter/material.dart';
 class MenuItem extends StatelessWidget {
 
   const MenuItem({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.index,
-    required this.selectedIndex,
-    required this.onTap, required String subtitle,
+    required this.icon, required this.title, required this.index, required this.selectedIndex, required this.onTap, required String subtitle, super.key,
   });
   final IconData icon;
   final String title;

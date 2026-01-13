@@ -9,15 +9,7 @@ import 'package:painel_windowns/totem/widgets/managed_devices_card.dart';
 class TotemsListTab extends StatefulWidget {
 
   const TotemsListTab({
-    super.key,
-    required this.totems,
-    required this.isLoading,
-    required this.currentPage,
-    required this.totalPages,
-    required this.onPageChange,
-    required this.onSearch,
-    required this.onRefresh,
-    required this.authService,
+    required this.totems, required this.isLoading, required this.currentPage, required this.totalPages, required this.onPageChange, required this.onSearch, required this.onRefresh, required this.authService, super.key,
   });
   final List<Totem> totems;
   final bool isLoading;

@@ -9,9 +9,7 @@ import 'package:painel_windowns/services/device_service.dart';
 class DeviceDetailScreen extends StatefulWidget {
 
   const DeviceDetailScreen({
-    super.key,
-    required this.device,
-    required this.authService,
+    required this.device, required this.authService, super.key,
   });
   final Device device;
   final AuthService authService;

@@ -4,9 +4,9 @@ import 'package:painel_windowns/core/error/failures.dart';
 import 'package:painel_windowns/core/network/network_info.dart';
 import 'package:painel_windowns/data/datasources/local/device_local_datasource.dart';
 import 'package:painel_windowns/data/datasources/remote/device_remote_datasource.dart';
+import 'package:painel_windowns/data/models/device_model.dart';
 import 'package:painel_windowns/domain/entities/device_entity.dart';
 import 'package:painel_windowns/domain/repositories/i_device_repository.dart';
-import 'package:painel_windowns/data/models/device_model.dart';
 import 'package:painel_windowns/services/status_service.dart';
 
 /// Implementação do repositório de dispositivos

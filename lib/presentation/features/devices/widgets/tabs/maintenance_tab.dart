@@ -8,12 +8,7 @@ import 'package:painel_windowns/services/auth_service.dart';
 class MaintenanceTab extends StatelessWidget {
 
   const MaintenanceTab({
-    super.key,
-    required this.devices,
-    required this.token,
-    required this.onDeviceUpdate,
-    required this.currentUser,
-    required this.authService,
+    required this.devices, required this.token, required this.onDeviceUpdate, required this.currentUser, required this.authService, super.key,
   });
   final List<Device> devices;
   final String token;

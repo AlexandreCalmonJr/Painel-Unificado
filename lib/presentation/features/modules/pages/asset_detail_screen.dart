@@ -14,10 +14,7 @@ import 'package:painel_windowns/services/module_management_service.dart';
 
 class AssetDetailScreen extends StatefulWidget {
   const AssetDetailScreen({
-    super.key,
-    required this.asset,
-    required this.authService,
-    required this.moduleConfig,
+    required this.asset, required this.authService, required this.moduleConfig, super.key,
   });
   final ManagedAsset asset;
   final AuthService authService;

@@ -5,11 +5,7 @@ import 'package:painel_windowns/services/module_management_service.dart';
 
 class GenericPermissionsTab extends StatefulWidget {
   const GenericPermissionsTab({
-    super.key,
-    required this.moduleId,
-    required this.moduleName,
-    required this.authService,
-    required this.moduleService,
+    required this.moduleId, required this.moduleName, required this.authService, required this.moduleService, super.key,
   });
   final String moduleId;
   final String moduleName;

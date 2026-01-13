@@ -8,16 +8,9 @@ import 'package:painel_windowns/services/module_management_service.dart';
 class GenericMaintenanceTab extends StatelessWidget {
 
   const GenericMaintenanceTab({
-    super.key,
-    required this.allAssets,
-    required this.moduleConfig,
-    required this.moduleService,
-    required this.onRefresh,
-    required this.showSnackbar,
-    // ❌ REMOVIDO: onEditAsset
+    required this.allAssets, required this.moduleConfig, required this.moduleService, required this.onRefresh, required this.showSnackbar, // ❌ REMOVIDO: onEditAsset
     // ❌ REMOVIDO: onDeleteAsset
-    required this.columns,
-    required this.authService,
+    required this.columns, required this.authService, super.key,
   });
   final List<ManagedAsset> allAssets;
   final AssetModuleConfig moduleConfig;

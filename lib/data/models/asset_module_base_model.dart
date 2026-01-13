@@ -64,9 +64,8 @@ abstract class AssetModuleConfig {
     required this.name,
     required this.description,
     required this.type,
-    this.isActive = true,
+    required this.createdAt, this.isActive = true,
     this.isCustom = false,
-    required this.createdAt,
     this.updatedAt,
     this.customFields = const {},
     this.settings = const {},
@@ -147,10 +146,7 @@ class _ConcreteAssetModuleConfig extends AssetModuleConfig {
     required super.isActive,
     required super.isCustom,
     required super.createdAt,
-    super.updatedAt,
-    required super.customFields,
-    required super.settings,
-    required super.tableColumns,
+    required super.customFields, required super.settings, required super.tableColumns, super.updatedAt,
   });
 }
 

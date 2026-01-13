@@ -9,14 +9,7 @@ class GenericDashboardTab extends StatelessWidget {
   // <-- ADICIONADO
 
   const GenericDashboardTab({
-    super.key,
-    required this.allAssets,
-    required this.onRefresh,
-    required this.getModuleIcon,
-    required this.moduleType,
-    required this.columns, // <-- CAMPO ADICIONADO
-    required this.authService,
-    required this.moduleConfig, // <-- ADICIONADO
+    required this.authService, required this.moduleConfig, required this.allAssets, required this.onRefresh, required this.getModuleIcon, required this.moduleType, required this.columns, // <-- CAMPO ADICIONADO, required this.authService, required this.moduleConfig, // <-- ADICIONADO, super.key,
   });
   final List<ManagedAsset> allAssets;
   final VoidCallback onRefresh;

@@ -3,11 +3,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/services/server_config_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:painel_windowns/services/websocket_service.dart';
-import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   // ... (todo o resto do seu código: _token, _user, login, etc. permanece igual)

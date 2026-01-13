@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 class AppCard extends StatelessWidget {
 
   const AppCard({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.padding,
     this.margin,
     this.backgroundColor,

@@ -11,16 +11,7 @@ class DevicesTab extends StatefulWidget {
 
   const DevicesTab({
     required this.authService,
-    super.key,
-    required this.devices,
-    required this.token,
-    required this.onDeviceUpdate,
-    required this.isReadOnly,
-    required this.currentUser,
-    required this.currentPage,
-    required this.totalPages,
-    required this.onPageChange,
-    required this.onSearch, required Future<Null> Function() onRefresh, required Null Function(Device device) onDeviceTap,
+    required this.devices, required this.token, required this.onDeviceUpdate, required this.isReadOnly, required this.currentUser, required this.currentPage, required this.totalPages, required this.onPageChange, required this.onSearch, required Future<Null> Function() onRefresh, required Null Function(Device device) onDeviceTap, super.key,
   });
   final List<Device> devices;
   final String token;

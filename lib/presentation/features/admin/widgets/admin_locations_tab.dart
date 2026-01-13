@@ -277,7 +277,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: AppColors.danger),
+              const Icon(Icons.error_outline, size: 64, color: AppColors.danger),
               const SizedBox(height: 16),
               Text(
                 'Erro ao carregar dados',

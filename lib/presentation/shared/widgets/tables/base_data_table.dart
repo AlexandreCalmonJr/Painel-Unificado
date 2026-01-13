@@ -4,10 +4,6 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 
 class DataTableColumn<T> {
-  final String label;
-  final Widget Function(T item) builder;
-  final bool sortable;
-  final int flex;
 
   DataTableColumn({
     required this.label,
@@ -15,21 +11,23 @@ class DataTableColumn<T> {
     this.sortable = false,
     this.flex = 1,
   });
+  final String label;
+  final Widget Function(T item) builder;
+  final bool sortable;
+  final int flex;
 }
 
 class TableAction<T> {
+
+  TableAction({required this.label, required this.icon, required this.onTap});
   final String label;
   final IconData icon;
   final void Function(T item) onTap;
-
-  TableAction({required this.label, required this.icon, required this.onTap});
 }
 
 class BaseDataTable<T> extends StatelessWidget {
   const BaseDataTable({
-    super.key,
-    required this.items,
-    required this.columns,
+    required this.items, required this.columns, super.key,
     this.actions,
     this.customRow,
     this.showPagination = true,

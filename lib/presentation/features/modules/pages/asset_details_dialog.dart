@@ -8,7 +8,7 @@ import 'package:painel_windowns/data/models/panel_model.dart';
 import 'package:painel_windowns/data/models/printer_model.dart';
 
 class AssetDetailsDialog extends StatelessWidget {
-  const AssetDetailsDialog({super.key, required this.asset});
+  const AssetDetailsDialog({required this.asset, super.key});
   final ManagedAsset asset;
 
   void _copyToClipboard(BuildContext context, String text, String label) {

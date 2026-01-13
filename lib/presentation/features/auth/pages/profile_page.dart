@@ -9,7 +9,7 @@ import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widge
 import 'package:painel_windowns/services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key, required this.authService});
+  const ProfileScreen({required this.authService, super.key});
   final AuthService authService;
 
   @override

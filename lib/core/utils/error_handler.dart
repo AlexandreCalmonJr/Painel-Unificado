@@ -142,12 +142,9 @@ class ErrorHandler {
 class ConfirmDialog extends StatelessWidget {
 
   const ConfirmDialog({
-    super.key,
-    required this.title,
-    required this.message,
+    required this.title, required this.message, required this.onConfirm, super.key,
     this.confirmText = 'Confirmar',
     this.cancelText = 'Cancelar',
-    required this.onConfirm,
   });
   final String title;
   final String message;

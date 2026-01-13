@@ -7,8 +7,7 @@ import 'package:rxdart/rxdart.dart';
 class SearchField extends StatefulWidget {
 
   const SearchField({
-    super.key,
-    required this.onSearch,
+    required this.onSearch, super.key,
     this.hintText = 'Pesquisar...',
     this.debounceDuration = const Duration(milliseconds: 500),
     this.prefixIcon = Icons.search,
@@ -82,8 +81,7 @@ class _SearchFieldState extends State<SearchField> {
 class CompactSearchField extends StatefulWidget {
 
   const CompactSearchField({
-    super.key,
-    required this.onSearch,
+    required this.onSearch, super.key,
     this.hintText = 'Pesquisar...',
     this.debounceDuration = const Duration(milliseconds: 500),
   });

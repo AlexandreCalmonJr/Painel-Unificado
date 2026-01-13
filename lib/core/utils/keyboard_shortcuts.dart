@@ -4,8 +4,7 @@ import 'package:flutter/services.dart'; // Para LogicalKeySet e LogicalKeyboardK
 class KeyboardShortcuts extends StatelessWidget {
 
   const KeyboardShortcuts({
-    super.key, // ✅ Adicionado Key
-    required this.child,
+    required this.child, super.key, // ✅ Adicionado Key
     this.onRefresh,
     this.onSearch,
     this.onExport,

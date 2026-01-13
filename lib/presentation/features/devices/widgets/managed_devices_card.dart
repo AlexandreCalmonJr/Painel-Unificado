@@ -24,9 +24,7 @@ import 'package:path_provider/path_provider.dart';
 class ManagedDevicesCard extends StatelessWidget {
   const ManagedDevicesCard({
     required this.authService,
-    super.key,
-    required this.title,
-    required this.devices,
+    required this.title, required this.devices, super.key,
     this.showActions = false,
     this.token,
     this.onDeviceUpdate,
@@ -235,7 +233,7 @@ class ManagedDevicesCard extends StatelessWidget {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
-                    headingRowColor: MaterialStateProperty.all(
+                    headingRowColor: WidgetStateProperty.all(
                       isDark ? Colors.grey[800] : Colors.grey[100],
                     ),
                     columns: const [

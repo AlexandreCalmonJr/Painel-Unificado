@@ -4,7 +4,7 @@ import 'package:painel_windowns/presentation/shared/widgets/inputs/asset_search_
 
 class AdvancedSearchBar extends StatefulWidget {
 
-  const AdvancedSearchBar({super.key, required this.onSearch});
+  const AdvancedSearchBar({required this.onSearch, super.key});
   final Function(AssetSearchFilter) onSearch;
 
   @override

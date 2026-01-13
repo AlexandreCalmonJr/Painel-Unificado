@@ -6,10 +6,8 @@ import 'package:painel_windowns/services/auth_service.dart';
 
 class LocationDialog extends StatefulWidget {
   const LocationDialog({
-    super.key,
+    required this.authService, required this.onSave, super.key,
     this.location,
-    required this.authService,
-    required this.onSave,
   });
 
   final Location? location;

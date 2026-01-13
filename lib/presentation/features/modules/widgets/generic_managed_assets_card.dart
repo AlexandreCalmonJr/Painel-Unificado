@@ -15,13 +15,7 @@ import 'package:painel_windowns/services/auth_service.dart';
 
 class GenericManagedAssetsCard extends StatelessWidget {
   const GenericManagedAssetsCard({
-    super.key,
-    required this.title,
-    required this.assets,
-    required this.columns,
-    required this.moduleConfig,
-    required this.authService,
-    required this.onAssetChanged,
+    required this.title, required this.assets, required this.columns, required this.moduleConfig, required this.authService, required this.onAssetChanged, super.key,
     this.showActions = false,
     this.expand = false,
   });

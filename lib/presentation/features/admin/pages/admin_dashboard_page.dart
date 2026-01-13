@@ -102,7 +102,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         index: 3,
         showDividerBefore: true,
       ),
-      SidebarMenuItem(
+      const SidebarMenuItem(
         icon: Icons.arrow_back,
         title: 'Voltar',
         subtitle: 'Menu Principal',

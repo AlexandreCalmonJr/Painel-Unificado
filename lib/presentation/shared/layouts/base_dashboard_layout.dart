@@ -26,10 +26,7 @@ class StatCardData {
 class BaseDashboardLayout extends StatelessWidget {
 
   const BaseDashboardLayout({
-    super.key,
-    required this.title,
-    required this.stats,
-    required this.mainContent,
+    required this.title, required this.stats, required this.mainContent, super.key,
     this.actions,
     this.onRefresh,
     this.floatingActionButton,

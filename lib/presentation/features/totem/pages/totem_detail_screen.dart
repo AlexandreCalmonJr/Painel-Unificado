@@ -7,9 +7,7 @@ import 'package:painel_windowns/services/auth_service.dart';
 class TotemDetailScreen extends StatelessWidget {
 
   const TotemDetailScreen({
-    super.key,
-    required this.totem,
-    required this.authService,
+    required this.totem, required this.authService, super.key,
   });
   final Totem totem;
   final AuthService authService;

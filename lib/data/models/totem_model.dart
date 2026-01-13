@@ -15,27 +15,12 @@ class Totem extends ManagedAsset {
     required super.serialNumber,
     required super.status,
     required super.lastSeen,
-    super.location,
+    required this.hostname, required this.model, required this.serviceTag, required this.ip, required this.macAddress, required this.macAddressRadio, required this.installedPrograms, required this.printerStatus, required this.biometricReaderStatus, required this.totemType, required this.ram, required this.hdType, required this.hdStorage, required this.zebraStatus, required this.bematechStatus, super.location,
     super.assignedTo,
     super.customData,
     super.unit,
     super.sector,
     super.floor,
-    required this.hostname,
-    required this.model,
-    required this.serviceTag,
-    required this.ip,
-    required this.macAddress,
-    required this.macAddressRadio,
-    required this.installedPrograms,
-    required this.printerStatus,
-    required this.biometricReaderStatus,
-    required this.totemType,
-    required this.ram,
-    required this.hdType,
-    required this.hdStorage,
-    required this.zebraStatus,
-    required this.bematechStatus,
   }) : super(assetName: hostname, assetType: totemType);
 
   /// Factory com MAPEAMENTO DE LOCALIZAÇÃO
@@ -44,7 +29,7 @@ class Totem extends ManagedAsset {
     List<Unit> units,
     List<BssidMapping> bssidMappings,
   ) {
-    DateTime parsedDate =
+    final DateTime parsedDate =
         DateTime.tryParse((json['lastSeen'] ?? '') as String) ?? DateTime.now();
 
     // ⚡ MAPEAMENTO DE LOCALIZAÇÃO

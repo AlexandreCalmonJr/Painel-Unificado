@@ -14,7 +14,7 @@ enum DeviceStatusType {
 class Device { // ✅ NOVO: Status em tempo real
 
   Device({
-    this.id,
+    required this.status, this.id,
     this.deviceId,
     this.deviceName,
     this.deviceModel,
@@ -43,7 +43,6 @@ class Device { // ✅ NOVO: Status em tempo real
     this.complianceStatus,
     this.installedApps,
     this.securityPolicies,
-    required this.status,
     this.isOnline, // ✅ NOVO
   });
 
@@ -81,8 +80,8 @@ class Device { // ✅ NOVO: Status em tempo real
       floor: json['floor']?.toString(),
       location: json['location']?.toString(),
       maintenanceStatus: (json['maintenance_status'] ?? false) as bool,
-      maintenanceTicket: json["maintenance_ticket"]?.toString(),
-      maintenanceReason: json["maintenance_reason"]?.toString(),
+      maintenanceTicket: json['maintenance_ticket']?.toString(),
+      maintenanceReason: json['maintenance_reason']?.toString(),
       maintenanceHistory:
           (json['maintenance_history'] as List<dynamic>?)
               ?.cast<Map<String, dynamic>>(),

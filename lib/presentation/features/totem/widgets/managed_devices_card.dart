@@ -16,9 +16,7 @@ class ManagedTotemsCard extends StatelessWidget {
 
   const ManagedTotemsCard({
     required this.authService,
-    super.key,
-    required this.title,
-    required this.totems,
+    required this.title, required this.totems, super.key,
     this.onTotemUpdate,
   });
   final String title;

@@ -6,11 +6,7 @@ import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller
 class HubMenuItem extends StatelessWidget {
 
   const HubMenuItem({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
+    required this.icon, required this.title, required this.subtitle, required this.onTap, super.key,
   });
   final IconData icon;
   final String title;

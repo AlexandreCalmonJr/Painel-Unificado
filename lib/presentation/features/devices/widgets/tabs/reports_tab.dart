@@ -10,10 +10,7 @@ import 'package:synchronized/synchronized.dart';
 
 class ReportsTab extends StatefulWidget {
   const ReportsTab({
-    super.key,
-    required this.devices,
-    required this.authService,
-    required this.currentUser,
+    required this.devices, required this.authService, required this.currentUser, super.key,
   });
   final List<Device> devices;
   final AuthService authService;

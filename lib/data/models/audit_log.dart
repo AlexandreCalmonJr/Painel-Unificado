@@ -5,12 +5,9 @@ class AuditLog {
     required this.assetId,
     required this.assetName,
     required this.action,
-    this.field,
+    required this.userId, required this.username, required this.timestamp, this.field,
     this.oldValue,
     this.newValue,
-    required this.userId,
-    required this.username,
-    required this.timestamp,
   });
 
   factory AuditLog.fromJson(Map<String, dynamic> json) {

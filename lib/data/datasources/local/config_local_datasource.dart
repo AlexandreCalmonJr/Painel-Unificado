@@ -1,5 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:painel_windowns/core/error/exceptions.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Data Source local para configurações do sistema
 abstract class ConfigLocalDataSource {

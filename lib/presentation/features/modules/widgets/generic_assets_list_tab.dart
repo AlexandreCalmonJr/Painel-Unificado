@@ -7,22 +7,10 @@ import 'package:painel_windowns/services/auth_service.dart'; // ✅ IMPORT ADICI
 class GenericAssetsListTab extends StatelessWidget {
 
   const GenericAssetsListTab({
-    super.key,
-    required this.displayedAssets,
-    required this.isLoading,
-    required this.currentPage,
-    required this.totalPages,
-    required this.onPageChange,
-    required this.onSearch,
-    required this.onRefresh,
-    // ❌ REMOVIDO: onAssetUpdate
+    required this.displayedAssets, required this.isLoading, required this.currentPage, required this.totalPages, required this.onPageChange, required this.onSearch, required this.onRefresh, // ❌ REMOVIDO: onAssetUpdate
     // ❌ REMOVIDO: onAssetDelete
-    required this.columns,
-    required this.authService,
-    required this.moduleConfig,
-    // ✅ CAMPOS ADICIONADOS PARA SELEÇÃO MÚLTIPLA
-    required this.selectedAssets,
-    required this.onSelectionChanged,
+    required this.columns, required this.authService, required this.moduleConfig, // ✅ CAMPOS ADICIONADOS PARA SELEÇÃO MÚLTIPLA
+    required this.selectedAssets, required this.onSelectionChanged, super.key,
   });
   final List<ManagedAsset> displayedAssets;
   final bool isLoading;

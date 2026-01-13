@@ -3,9 +3,9 @@ import 'package:painel_windowns/core/error/exceptions.dart';
 import 'package:painel_windowns/core/error/failures.dart';
 import 'package:painel_windowns/core/network/network_info.dart';
 import 'package:painel_windowns/data/datasources/remote/user_remote_datasource.dart';
+import 'package:painel_windowns/data/models/user_model.dart';
 import 'package:painel_windowns/domain/entities/user_entity.dart';
 import 'package:painel_windowns/domain/repositories/i_user_repository.dart';
-import 'package:painel_windowns/data/models/user_model.dart';
 
 /// Implementação do repositório de usuários
 class UserRepositoryImpl implements IUserRepository {

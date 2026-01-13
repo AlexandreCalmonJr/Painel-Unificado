@@ -8,10 +8,7 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 class StatCard extends StatefulWidget {
 
   const StatCard({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon,
+    required this.title, required this.value, required this.icon, super.key,
     this.color,
     this.onTap,
     this.subtitle,

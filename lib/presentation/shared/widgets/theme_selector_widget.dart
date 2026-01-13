@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/core/config/theme_models.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/core/utils/theme_utils.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 
 /// Widget para seleção de tema e esquema de cores
 class ThemeSelectorWidget extends StatelessWidget {

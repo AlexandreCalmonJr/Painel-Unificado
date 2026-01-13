@@ -3,7 +3,6 @@ import 'package:painel_windowns/data/models/unit_model.dart';
 
 /// Classe para armazenar dados de localização mapeados
 class LocationData {
-
   LocationData({
     required this.unitName,
     required this.sector,
@@ -17,6 +16,39 @@ class LocationData {
 }
 
 class LocationMapperService {
+  /// Normaliza o MAC Address (remove separadores e converte para uppercase)
+  static String? normalizeMac(String? mac) {
+    if (mac == null || mac.isEmpty || mac == 'N/A') return null;
+
+    // Remove tudo que não for hex
+    String normalized =
+        mac.replaceAll(RegExp(r'[^0-9A-Fa-f]'), '').toUpperCase();
+
+    // Se tiver 12 caracteres, formata com :
+    if (normalized.length == 12) {
+      final buffer = StringBuffer();
+      for (int i = 0; i < 12; i += 2) {
+        buffer.write(normalized.substring(i, i + 2));
+        if (i < 10) buffer.write(':');
+      }
+      return buffer.toString();
+    }
+
+    return null; // Formato inválido
+  }
+
+  /// Obtém o prefixo do MAC (primeiros 14 caracteres: AA:BB:CC:DD)
+  static String? getMacPrefix(String? mac) {
+    final normalized = normalizeMac(mac);
+    if (normalized == null) return null;
+
+    // Retorna os primeiros 14 caracteres (4 octetos + 3 separadores)
+    if (normalized.length >= 14) {
+      return normalized.substring(0, 14);
+    }
+    return null;
+  }
+
   /// Mapeia a localização de um dispositivo baseado em BSSID ou IP
   static LocationData mapLocation({
     required List<Unit> units,
@@ -29,24 +61,38 @@ class LocationMapperService {
     String? sector;
     String? floor;
 
-    // 1️⃣ Tentar mapear por BSSID (WiFi MAC Address) primeiro
-    if (macAddress.isNotEmpty && macAddress != 'N/A') {
-      final bssidMatch = bssidMappings.firstWhere(
-        (mapping) =>
-            mapping.macAddressRadio.toLowerCase() == macAddress.toLowerCase(),
-        orElse:
-            () => BssidMapping(
-              macAddressRadio: '',
-              sector: '',
-              floor: '',
-              unitName: '',
-            ),
-      );
+    // 1️⃣ Tentar mapear por BSSID (WiFi MAC Address)
+    final normalizedMac = normalizeMac(macAddress);
+    final macPrefix = getMacPrefix(macAddress);
 
-      if (bssidMatch.macAddressRadio.isNotEmpty) {
-        unitName = bssidMatch.unitName.isNotEmpty ? bssidMatch.unitName : null;
-        sector = bssidMatch.sector.isNotEmpty ? bssidMatch.sector : null;
-        floor = bssidMatch.floor.isNotEmpty ? bssidMatch.floor : null;
+    if (normalizedMac != null) {
+      // Tenta busca exata primeiro
+      BssidMapping? match;
+
+      try {
+        match = bssidMappings.firstWhere(
+          (mapping) => normalizeMac(mapping.macAddressRadio) == normalizedMac,
+        );
+      } catch (_) {
+        // Não encontrou exato
+      }
+
+      // Se não encontrou exato, tenta por prefixo
+      if (match == null && macPrefix != null) {
+        try {
+          match = bssidMappings.firstWhere((mapping) {
+            final mappingPrefix = getMacPrefix(mapping.macAddressRadio);
+            return mappingPrefix == macPrefix;
+          });
+        } catch (_) {
+          // Não encontrou por prefixo
+        }
+      }
+
+      if (match != null) {
+        unitName = match.unitName.isNotEmpty ? match.unitName : null;
+        sector = match.sector.isNotEmpty ? match.sector : null;
+        floor = match.floor.isNotEmpty ? match.floor : null;
       }
     }
 
