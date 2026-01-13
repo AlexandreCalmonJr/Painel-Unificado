@@ -3,11 +3,61 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
+// ignore: unused_import
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
 import 'package:painel_windowns/services/asset_command_service.dart';
 import 'package:painel_windowns/services/asset_maintenance_service.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
+
+class ModuleManagementService {
+  final AuthService? authService;
+  ModuleManagementService({this.authService});
+
+  Future<dynamic> createModule({
+    required String name,
+    required AssetModuleType type,
+    String? description,
+    List<Map<String, String>>? tableColumns,
+  }) async {
+    throw UnimplementedError('createModule is not implemented in test stub');
+  }
+
+  Future<List<dynamic>> listModules() async =>
+      throw UnimplementedError('listModules not implemented');
+
+  Future<Map<String, dynamic>> addAssetToModule({
+    required String moduleId,
+    required Map<String, dynamic> assetData,
+  }) async {
+    throw UnimplementedError('addAssetToModule not implemented');
+  }
+
+  Future<List<dynamic>> fetchUnits() async =>
+      throw UnimplementedError('fetchUnits not implemented');
+
+  Future<List<dynamic>> fetchBssidMappings() async =>
+      throw UnimplementedError('fetchBssidMappings not implemented');
+
+  Future<List<dynamic>> listModuleAssetsTyped({
+    required String moduleId,
+    required AssetModuleType moduleType,
+    required List<dynamic> units,
+    required List<dynamic> bssidMappings,
+  }) async {
+    throw UnimplementedError('listModuleAssetsTyped not implemented');
+  }
+
+  Future<bool> deleteAsset({
+    required String moduleId,
+    required String assetId,
+  }) async {
+    throw UnimplementedError('deleteAsset not implemented');
+  }
+
+  Future<bool> deleteModule(String moduleId) async =>
+      throw UnimplementedError('deleteModule not implemented');
+}
 
 void main() {
   group('🧪 Testes de Integração do Painel', () {
@@ -57,7 +107,7 @@ void main() {
       );
 
       expect(module, isNotNull);
-      testModuleId = module.id; // ✅ CORRIGIDO: Usar propriedade do objeto
+      testModuleId = module.id as String?; // cast dynamic to String?
       expect(testModuleId, isNotNull);
 
       print('✅ Módulo criado: $testModuleId');
@@ -99,7 +149,7 @@ void main() {
       );
 
       expect(asset, isNotNull);
-      testAssetId = asset['_id'] ?? asset['id'];
+      testAssetId = asset['_id'] as String;
       expect(testAssetId, isNotNull);
 
       print('✅ Asset criado: $testAssetId');
