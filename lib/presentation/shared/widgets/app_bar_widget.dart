@@ -267,6 +267,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   void _handleLogout(BuildContext context) {
+    // ignore: inference_failure_on_function_invocation
     showDialog(
       context: context,
       builder:

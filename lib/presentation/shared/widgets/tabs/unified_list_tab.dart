@@ -32,7 +32,9 @@ class UnifiedListTab<T> extends StatefulWidget {
   final AssetCardConfig<T> config;
   final int currentPage;
   final int totalPages;
+  // ignore: inference_failure_on_function_return_type
   final Function(int) onPageChange;
+  // ignore: inference_failure_on_function_return_type
   final Function(String) onSearch;
   final String title;
   final String searchHint;

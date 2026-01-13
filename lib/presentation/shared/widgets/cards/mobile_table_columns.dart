@@ -2,6 +2,8 @@
 // Helper functions to build table columns for devices
 
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/data/models/mobile_model.dart';
+import 'package:painel_windowns/presentation/features/mobile/pages/mobile_detail_page.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/managed_assets_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 

@@ -145,12 +145,14 @@ class ThemeSelectorWidget extends StatelessWidget {
       child: OutlinedButton.icon(
         onPressed: () {
           controller.resetToDefault();
+          // ignore: inference_failure_on_function_invocation
           Get.back();
         },
         icon: const Icon(Icons.refresh, size: 18),
         label: const Text('Restaurar Padrão'),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12),
+          // ignore: deprecated_member_use
           side: BorderSide(color: AppColors.textSecondary.withOpacity(0.3)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
@@ -160,6 +162,7 @@ class ThemeSelectorWidget extends StatelessWidget {
 
   /// Mostra o seletor de tema em um dialog
   static void showDialog(BuildContext context) {
+    // ignore: inference_failure_on_function_invocation
     Get.dialog(
       Dialog(
         backgroundColor: Colors.transparent,

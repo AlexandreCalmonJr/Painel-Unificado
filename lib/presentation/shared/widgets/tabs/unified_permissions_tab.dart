@@ -19,6 +19,16 @@ class UnifiedPermissionsTab extends StatefulWidget {
   State<UnifiedPermissionsTab> createState() => _UnifiedPermissionsTabState();
 }
 
+class ModuleManagementService {
+  Future<List<String>> getModulePermissions(String moduleId) async {
+    return [];
+  }
+  
+  Future<void> updateModulePermissions(String moduleId, List<String> list) async {
+    return;
+  }
+}
+
 class _UnifiedPermissionsTabState extends State<UnifiedPermissionsTab> {
   bool _isLoading = true;
   String? _errorMessage;
@@ -218,8 +228,8 @@ class _UnifiedPermissionsTabState extends State<UnifiedPermissionsTab> {
         final bool hasPermission = _permittedUserIds.contains(userId);
 
         return CheckboxListTile(
-          title: Text(user['username'] as String ?? 'Usuário Inválido'),
-          subtitle: Text('Setor: ${user['sector'] as String ?? 'N/D'}'),
+          title: Text(user['username'] as String),
+          subtitle: Text('Setor: ${user['sector'] as String}'),
           value: hasPermission,
           onChanged: (bool? value) {
             setState(() {

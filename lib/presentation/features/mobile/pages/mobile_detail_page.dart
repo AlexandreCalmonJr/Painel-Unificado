@@ -703,3 +703,7 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
     );
   }
 }
+
+class DeviceService {
+  late final AuthService authService;
+}

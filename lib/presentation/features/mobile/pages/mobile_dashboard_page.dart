@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/di/injection.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:painel_windowns/presentation/bloc/device/device_bloc.dart';
 import 'package:painel_windowns/presentation/bloc/device/device_event.dart';
 import 'package:painel_windowns/presentation/bloc/device/device_state.dart';
+import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_dashboard_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_list_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_maintenance_tab.dart';
-import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 
 /// Dashboard de dispositivos móveis usando widgets unificados
 class MobileDashboardPage extends StatefulWidget {

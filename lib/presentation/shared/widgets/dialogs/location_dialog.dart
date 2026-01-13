@@ -1,7 +1,6 @@
 // File: lib/presentation/shared/widgets/dialogs/location_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/data/models/location.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class LocationDialog extends StatefulWidget {
@@ -16,6 +15,11 @@ class LocationDialog extends StatefulWidget {
 
   @override
   State<LocationDialog> createState() => _LocationDialogState();
+}
+
+class Location {
+  late final String name;
+  late final String description;
 }
 
 class _LocationDialogState extends State<LocationDialog> {

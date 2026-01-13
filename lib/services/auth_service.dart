@@ -173,6 +173,7 @@ class AuthService {
       return {
         'success': false,
         'message': 'Acesso não autorizado',
+        // ignore: inference_failure_on_collection_literal
         'users': [],
       };
     }
@@ -193,12 +194,14 @@ class AuthService {
         return {
           'success': false,
           'message': 'Falha ao buscar usuários',
+          // ignore: inference_failure_on_collection_literal
           'users': [],
         };
       }
     } catch (e) {
       return {
         'success': false,
+        // ignore: inference_failure_on_collection_literal
         'users': [],
         'message': 'Erro de conexão: ${e.toString()}',
       };

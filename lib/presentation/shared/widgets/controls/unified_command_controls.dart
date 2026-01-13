@@ -6,11 +6,9 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/base_dialog.dart';
-import 'package:painel_windowns/presentation/shared/widgets/dialogs/send_command_dialog.dart';
 import 'package:painel_windowns/presentation/shared/widgets/menus/base_command_menu.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-import 'package:painel_windowns/services/device_service.dart';
-import 'package:painel_windowns/services/module_management_service.dart';
 
 /// Configuration for command actions specific to item type
 class CommandConfig<T> {
@@ -360,7 +358,8 @@ class UnifiedCommandControls<T> extends StatelessWidget {
     BuildContext context,
     dynamic asset,
   ) async {
-    final service = ModuleManagementService(authService: authService);
+    final service = ModuleManagementService(authService: authService
+    ));
     final assetId =
         config?.getAssetId?.call(item as T) ?? (asset as ManagedAsset).id;
 
@@ -385,4 +384,11 @@ class UnifiedCommandControls<T> extends StatelessWidget {
 
     onCommandExecuted?.call();
   }
+}
+
+class SendCommandDialog {
+  late final ManagedAsset asset;
+  late final String moduleId;
+  late final AuthService authService;
+  late final VoidCallback onCommandSent;
 }

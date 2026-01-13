@@ -94,6 +94,7 @@ class BaseDialog {
 
   /// Diálogo de loading
   static void loading(BuildContext context, {String? message}) {
+    // ignore: inference_failure_on_function_invocation
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -200,6 +201,7 @@ class BaseDialog {
     required String message,
     String buttonText = 'OK',
   }) async {
+    // ignore: inference_failure_on_function_invocation
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(

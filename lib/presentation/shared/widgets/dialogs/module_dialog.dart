@@ -1,8 +1,8 @@
 // File: lib/presentation/shared/widgets/dialogs/module_dialog.dart
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/data/models/module.dart';
 
 class ModuleDialog extends StatefulWidget {
   const ModuleDialog({required this.onSave, super.key, this.module});
@@ -182,4 +182,11 @@ class _ModuleDialogState extends State<ModuleDialog> {
       ],
     );
   }
+}
+
+extension on Module? {
+  String get name => this?.name ?? '';
+  String get description => this?.description ?? '';
+  bool get isActive => this?.isActive ?? false;
+  AssetModuleType get type => this?.type ?? AssetModuleType.custom;
 }

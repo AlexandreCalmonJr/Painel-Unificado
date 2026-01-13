@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 
 /// Model for sidebar menu items
 class SidebarMenuItem {
@@ -34,6 +34,7 @@ class CustomSidebar extends StatelessWidget {
   final IconData titleIcon;
   final List<SidebarMenuItem> menuItems;
   final int selectedIndex;
+  // ignore: inference_failure_on_function_return_type
   final Function(int) onItemTap;
   final String? footerText;
   final bool isAdmin;
@@ -96,6 +97,7 @@ class CustomSidebar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
+              // ignore: deprecated_member_use
               color: AppColors.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
@@ -166,6 +168,7 @@ class CustomSidebar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       decoration: BoxDecoration(
+        // ignore: deprecated_member_use
         color: selected ? activeColor.withOpacity(0.08) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),

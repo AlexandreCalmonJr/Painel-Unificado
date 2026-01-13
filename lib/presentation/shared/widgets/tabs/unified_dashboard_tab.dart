@@ -2,7 +2,6 @@
 // Unified dashboard tab for devices and generic assets
 
 import 'package:flutter/material.dart';
-import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/managed_assets_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 
@@ -50,6 +49,7 @@ class UnifiedDashboardTab<T> extends StatefulWidget {
   final VoidCallback? onItemUpdate;
   final Map<String, dynamic>? currentUser;
   final List<String>? filterOptions;
+  // ignore: inference_failure_on_function_return_type
   final Function(String)? onFilterChanged;
 
   @override

@@ -1,7 +1,7 @@
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
 
-/// Classe para armazenar dados de localização mapeados
+/// Classe para armazenar dados de localizaï¿½ï¿½o mapeados
 class LocationData {
   LocationData({
     required this.unitName,
@@ -20,8 +20,8 @@ class LocationMapperService {
   static String? normalizeMac(String? mac) {
     if (mac == null || mac.isEmpty || mac == 'N/A') return null;
 
-    // Remove tudo que não for hex
-    String normalized =
+    // Remove tudo que nï¿½o for hex
+    final String normalized =
         mac.replaceAll(RegExp(r'[^0-9A-Fa-f]'), '').toUpperCase();
 
     // Se tiver 12 caracteres, formata com :
@@ -34,10 +34,10 @@ class LocationMapperService {
       return buffer.toString();
     }
 
-    return null; // Formato inválido
+    return null; // Formato invï¿½lido
   }
 
-  /// Obtém o prefixo do MAC (primeiros 14 caracteres: AA:BB:CC:DD)
+  /// Obtï¿½m o prefixo do MAC (primeiros 14 caracteres: AA:BB:CC:DD)
   static String? getMacPrefix(String? mac) {
     final normalized = normalizeMac(mac);
     if (normalized == null) return null;
@@ -49,7 +49,7 @@ class LocationMapperService {
     return null;
   }
 
-  /// Mapeia a localização de um dispositivo baseado em BSSID ou IP
+  /// Mapeia a localizaï¿½ï¿½o de um dispositivo baseado em BSSID ou IP
   static LocationData mapLocation({
     required List<Unit> units,
     required List<BssidMapping> bssidMappings,
@@ -74,10 +74,10 @@ class LocationMapperService {
           (mapping) => normalizeMac(mapping.macAddressRadio) == normalizedMac,
         );
       } catch (_) {
-        // Não encontrou exato
+        // Nï¿½o encontrou exato
       }
 
-      // Se não encontrou exato, tenta por prefixo
+      // Se nï¿½o encontrou exato, tenta por prefixo
       if (match == null && macPrefix != null) {
         try {
           match = bssidMappings.firstWhere((mapping) {
@@ -85,7 +85,7 @@ class LocationMapperService {
             return mappingPrefix == macPrefix;
           });
         } catch (_) {
-          // Não encontrou por prefixo
+          // Nï¿½o encontrou por prefixo
         }
       }
 
@@ -96,7 +96,7 @@ class LocationMapperService {
       }
     }
 
-    // 2?? Se BSSID não funcionou, tentar mapear por IP
+    // 2?? Se BSSID nï¿½o funcionou, tentar mapear por IP
     if (unitName == null && ip.isNotEmpty && ip != 'N/A') {
       for (final unit in units) {
         if (_isIpInRangeStatic(ip, unit.ipRanges)) {
@@ -106,7 +106,7 @@ class LocationMapperService {
       }
     }
 
-    // 3?? Construir a string de localização
+    // 3?? Construir a string de localizaï¿½ï¿½o
     final locationName = _buildLocationStringStatic(
       unitName: unitName,
       sector: sector,
@@ -122,7 +122,7 @@ class LocationMapperService {
     );
   }
 
-  /// Constrói a string de localização formatada (versão estática)
+  /// Constrï¿½i a string de localizaï¿½ï¿½o formatada (versï¿½o estï¿½tica)
   static String _buildLocationStringStatic({
     String? unitName,
     String? sector,
@@ -150,7 +150,7 @@ class LocationMapperService {
     return parts.join(' - ');
   }
 
-  /// Verifica se um IP está dentro de uma faixa (versão estática)
+  /// Verifica se um IP estï¿½ dentro de uma faixa (versï¿½o estï¿½tica)
   static bool _isIpInRangeStatic(String ip, List<IpRange> ranges) {
     try {
       final ipNum = _ipToIntStatic(ip);
@@ -167,7 +167,7 @@ class LocationMapperService {
     }
   }
 
-  /// Converte IP string para inteiro (versão estática)
+  /// Converte IP string para inteiro (versï¿½o estï¿½tica)
   static int _ipToIntStatic(String ip) {
     final parts = ip.split('.').map(int.parse).toList();
     return (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3];
