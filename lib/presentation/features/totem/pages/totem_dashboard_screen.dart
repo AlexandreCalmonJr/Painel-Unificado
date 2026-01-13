@@ -6,10 +6,12 @@ import 'package:painel_windowns/presentation/bloc/totem/totem_bloc.dart';
 import 'package:painel_windowns/presentation/bloc/totem/totem_event.dart';
 import 'package:painel_windowns/presentation/bloc/totem/totem_state.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
-import 'package:painel_windowns/presentation/features/totem/widgets/totems_list_tab.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/managed_assets_card.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/totem_table_columns.dart';
+import 'package:painel_windowns/presentation/features/modules/widgets/generic_assets_list_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
-import 'package:painel_windowns/presentation/features/totem/widgets/managed_devices_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class TotemDashboardScreen extends StatefulWidget {
@@ -30,6 +32,9 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
   int _totalPages = 1;
   String _searchQuery = '';
   final int _itemsPerPage = 15;
+
+  // Selection state for generic list tab
+  List<Totem> _selectedTotems = [];
 
   @override
   void initState() {
@@ -418,8 +423,34 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       case 0:
         return _buildDashboardWithTable(allTotems);
       case 1:
-        return TotemsListTab(
-          totems: displayedTotems,
+        // Create AssetModuleConfig for totems
+        final totemModuleConfig = AssetModuleConfig.fromJson({
+          '_id': 'totem-module',
+          'name': 'Módulo Totem',
+          'description': 'Gerenciamento de Totens',
+          'type': 'totem',
+          'is_active': true,
+          'is_custom': false,
+          'created_at': DateTime.now().toIso8601String(),
+          'custom_fields': <String, dynamic>{},
+          'settings': <String, dynamic>{},
+          'table_columns': [
+            {'dataKey': 'hostname', 'label': 'Hostname'},
+            {'dataKey': 'status', 'label': 'Status'},
+            {'dataKey': 'ip', 'label': 'IP'},
+            {'dataKey': 'location', 'label': 'Localização'},
+            {'dataKey': 'serialNumber', 'label': 'Serial'},
+            {'dataKey': 'zebraStatus', 'label': 'Status Zebra'},
+            {'dataKey': 'bematechStatus', 'label': 'Status Bematech'},
+            {'dataKey': 'totemType', 'label': 'Tipo de Totem'},
+            {'dataKey': 'mozillaVersion', 'label': 'Mozilla Firefox'},
+            {'dataKey': 'javaVersion', 'label': 'Java'},
+            {'dataKey': 'lastSeen', 'label': 'Última Sincronização'},
+          ],
+        });
+
+        return GenericAssetsListTab(
+          displayedAssets: displayedTotems.cast<ManagedAsset>(),
           isLoading: state is TotemLoading,
           currentPage: _currentPage,
           totalPages: _totalPages,
@@ -438,7 +469,15 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
             });
           },
           onRefresh: () => context.read<TotemBloc>().add(const RefreshTotems()),
+          columns: totemModuleConfig.tableColumns,
           authService: widget.authService,
+          moduleConfig: totemModuleConfig,
+          selectedAssets: _selectedTotems.cast<ManagedAsset>(),
+          onSelectionChanged: (selected) {
+            setState(() {
+              _selectedTotems = selected.cast<Totem>();
+            });
+          },
         );
       default:
         return _buildDashboardWithTable(allTotems);
@@ -452,6 +491,8 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         allTotems.where((t) => t.status.toLowerCase() == 'offline').length;
     final errorCount =
         allTotems.where((t) => t.status.toLowerCase() == 'com erro').length;
+    final columns = buildTotemTableColumns();
+    final config = buildTotemCardConfig(context, widget.authService);
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -510,12 +551,12 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
           ),
           const SizedBox(height: 24),
           Expanded(
-            child: ManagedTotemsCard(
+            child: ManagedAssetsCard<Totem>(
               title: 'Totens Gerenciados (${allTotems.length})',
-              totems: allTotems,
-              authService: widget.authService,
-              onTotemUpdate:
-                  () => context.read<TotemBloc>().add(const RefreshTotems()),
+              items: allTotems,
+              columns: columns,
+              config: config,
+              showActions: false,
             ),
           ),
         ],

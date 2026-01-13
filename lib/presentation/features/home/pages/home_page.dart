@@ -7,14 +7,13 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/profile_page.dart';
-import 'package:painel_windowns/presentation/features/devices/widgets/hub_menu_item.dart';
 import 'package:painel_windowns/presentation/features/modules/pages/generic_dashboard_screen.dart';
+import 'package:painel_windowns/presentation/shared/widgets/navigation/unified_menu_item.dart';
 import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widget.dart';
 
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({required this.authService, super.key});
@@ -218,14 +217,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           children: [
                             ProfileAvatarWidget(
                               username:
-                                  widget.authService.currentUser?['username'] as String??
+                                  widget.authService.currentUser?['username']
+                                      as String ??
                                   'User',
                               size: 32,
                               isOnline: true,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              widget.authService.currentUser?['username'] as String ??
+                              widget.authService.currentUser?['username']
+                                      as String ??
                                   'Usuário',
                               style: TextStyle(
                                 color:
@@ -384,8 +385,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                           children: [
                                             Text(
                                               widget
-                                                      .authService
-                                                      .currentUser?['username'] as String ??
+                                                          .authService
+                                                          .currentUser?['username']
+                                                      as String ??
                                                   'Usuário',
                                               style: TextStyle(
                                                 fontSize: 14,
@@ -466,10 +468,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     // Adiciona módulos fixos baseados em permissões
     if (_hasPermission('mobile')) {
       moduleCards.add(
-        HubMenuItem(
+        UnifiedMenuItem(
           icon: Icons.phone_android,
           title: 'Módulo Mobile',
           subtitle: 'Gestão de Dispositivos',
+          style: MenuItemStyle.hub,
           onTap: () => Navigator.pushNamed(context, '/dashboard'),
         ),
       );
@@ -477,10 +480,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     if (_hasPermission('totem')) {
       moduleCards.add(
-        HubMenuItem(
+        UnifiedMenuItem(
           icon: Icons.desktop_windows,
           title: 'Módulo Totem',
           subtitle: 'Monitoramento de Totens',
+          style: MenuItemStyle.hub,
           onTap: () => Navigator.pushNamed(context, '/totem_dashboard'),
         ),
       );
@@ -494,13 +498,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
 
       moduleCards.add(
-        HubMenuItem(
+        UnifiedMenuItem(
           icon: _getModuleIcon(module.type.iconName),
           title: module.name,
           subtitle:
               module.description.isNotEmpty
                   ? module.description
                   : module.type.displayName,
+          style: MenuItemStyle.hub,
           onTap: () => _navigateToModule(module),
         ),
       );
@@ -509,10 +514,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     // Adiciona painel admin
     if (widget.authService.isAdmin) {
       moduleCards.add(
-        HubMenuItem(
+        UnifiedMenuItem(
           icon: Icons.admin_panel_settings,
           title: 'Painel de Controle',
           subtitle: 'Gerenciamento do Sistema',
+          style: MenuItemStyle.hub,
           onTap: () => Navigator.pushNamed(context, '/admin_dashboard'),
         ),
       );

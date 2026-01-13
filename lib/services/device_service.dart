@@ -102,7 +102,8 @@ class DeviceService extends GetxService {
         // Ideally, the backend should return mapped data.
         // For this implementation, I will assume simple parsing or that we pass empty lists if not critical for the list view.
         final devices =
-            devicesJson.map((json) => Device.fromJson(json, [])).toList();
+            devicesJson.map((json) => Device.fromJson(
+              json as Map<String, dynamic>, [])).toList();
 
         return {
           'devices': devices,
@@ -506,7 +507,7 @@ class DeviceService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
         throw Exception('Falha ao carregar resumo de localização');
       }

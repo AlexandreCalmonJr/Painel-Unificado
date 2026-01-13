@@ -23,7 +23,7 @@ class ConfigProfileService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
         return List<Map<String, dynamic>>.from(data);
       } else {
         throw Exception('Falha ao listar perfis de configuração');

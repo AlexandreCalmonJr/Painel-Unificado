@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:get/get.dart';
+import 'package:logger/src/logger.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketService extends GetxService {
+  WebSocketService(Logger logger);
+
   WebSocketChannel? _channel;
   final _isConnected = false.obs;
   bool get isConnected => _isConnected.value;
@@ -74,17 +77,19 @@ class WebSocketService extends GetxService {
 
   void _onMessage(dynamic message) {
     try {
-      final data = jsonDecode(message);
+      final data = jsonDecode(
+        message as String,
+      ) as Map<String, dynamic>;
 
       switch (data['type']) {
         case 'heartbeat_ack':
           // Alive
           break;
         case 'device_update':
-          _deviceUpdatesController.add(data['data']);
+          _deviceUpdatesController.add(data['data'] as Map<String, dynamic>);
           break;
         case 'dashboard_stats':
-          _dashboardStatsController.add(data['data']);
+          _dashboardStatsController.add(data['data'] as Map<String, dynamic>);
           break;
         default:
           print('Mensagem WebSocket recebida: $data');
@@ -141,4 +146,6 @@ class WebSocketService extends GetxService {
     _dashboardStatsController.close();
     super.onClose();
   }
+
+  void sendShutdownSignal() {}
 }

@@ -33,7 +33,7 @@ class ProvisioningService extends GetxService {
 
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        return data['token'];
+        return data['token'] as String;
       } else {
         throw Exception('Falha ao gerar token de provisionamento');
       }
@@ -54,7 +54,7 @@ class ProvisioningService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
         throw Exception('Falha no provisionamento do dispositivo');
       }

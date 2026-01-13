@@ -7,15 +7,21 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/features/modules/pages/asset_detail_screen.dart';
-import 'package:painel_windowns/presentation/features/modules/widgets/asset_command_controls_v2.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/base_card.dart';
+import 'package:painel_windowns/presentation/shared/widgets/controls/unified_command_controls.dart';
 import 'package:painel_windowns/presentation/shared/widgets/status/status_chip.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tables/base_data_table.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class GenericManagedAssetsCard extends StatelessWidget {
   const GenericManagedAssetsCard({
-    required this.title, required this.assets, required this.columns, required this.moduleConfig, required this.authService, required this.onAssetChanged, super.key,
+    required this.title,
+    required this.assets,
+    required this.columns,
+    required this.moduleConfig,
+    required this.authService,
+    required this.onAssetChanged,
+    super.key,
     this.showActions = false,
     this.expand = false,
   });
@@ -163,12 +169,16 @@ class GenericManagedAssetsCard extends StatelessWidget {
                           : null,
                   customRow:
                       showActions
-                          ? (asset) => AssetCommandControlsV2(
-                            asset: asset,
-                            assetType: moduleConfig.id,
-                            token: authService.currentToken ?? '',
+                          ? (asset) => UnifiedCommandControls<ManagedAsset>(
+                            item: asset,
                             authService: authService,
+                            token: authService.currentToken ?? '',
                             onCommandExecuted: onAssetChanged,
+                            config: CommandConfig<ManagedAsset>(
+                              moduleId: moduleConfig.id,
+                              getAssetId: (asset) => asset.id,
+                              getStatus: (asset) => asset.status,
+                            ),
                           )
                           : null,
                   showPagination: false,

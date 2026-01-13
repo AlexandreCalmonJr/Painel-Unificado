@@ -24,7 +24,7 @@ class IpMappingService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
         return IpMapping.fromJsonList(data);
       } else {
         throw Exception('Falha ao carregar mapeamentos de IP');

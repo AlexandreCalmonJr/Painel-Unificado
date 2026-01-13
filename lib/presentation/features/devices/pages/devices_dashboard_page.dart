@@ -10,7 +10,6 @@ import 'package:painel_windowns/presentation/features/devices/pages/device_detai
 import 'package:painel_windowns/presentation/features/devices/widgets/tabs/dashboard_tab.dart';
 import 'package:painel_windowns/presentation/features/devices/widgets/tabs/devices_tab.dart';
 import 'package:painel_windowns/presentation/features/devices/widgets/tabs/maintenance_tab.dart';
-import 'package:painel_windowns/presentation/features/devices/widgets/tabs/reports_tab.dart';
 import 'package:painel_windowns/presentation/shared/layouts/base_dashboard_layout.dart';
 import 'package:painel_windowns/presentation/shared/widgets/app_bar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
@@ -267,23 +266,6 @@ class _DevicesDashboardPageState extends State<DevicesDashboardPage>
                                       const RefreshDevices(),
                                     );
                                   },
-                                  currentUser: widget.authService.currentUser,
-                                ),
-                                onRefresh: () async {
-                                  context.read<DeviceBloc>().add(
-                                    const RefreshDevices(),
-                                  );
-                                },
-                                showStats: false,
-                              ),
-
-                              // Reports Tab
-                              BaseDashboardLayout(
-                                title: 'Relatórios',
-                                stats: const [],
-                                mainContent: ReportsTab(
-                                  authService: widget.authService,
-                                  devices: devices,
                                   currentUser: widget.authService.currentUser,
                                 ),
                                 onRefresh: () async {

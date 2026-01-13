@@ -1,16 +1,17 @@
 ﻿// Unified dashboard_tab.dart
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/device_model.dart';
-import 'package:painel_windowns/presentation/features/devices/widgets/managed_devices_card.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/managed_assets_card.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/device_table_columns.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
-
 import 'package:painel_windowns/services/auth_service.dart';
 
 class DashboardTab extends StatefulWidget {
-
   const DashboardTab({
     required this.authService,
-    required this.devices, required Null Function(Device device) onDeviceTap, super.key,
+    required this.devices,
+    required Null Function(Device device) onDeviceTap,
+    super.key,
     this.errorMessage,
     this.currentUser,
   });
@@ -74,7 +75,7 @@ class _DashboardTabState extends State<DashboardTab> {
           return device.displayStatus == DeviceStatusType.offline;
         case 'Manutenção':
           return device.displayStatus == DeviceStatusType.maintenance ||
-                 device.displayStatus == DeviceStatusType.collectedByIT;
+              device.displayStatus == DeviceStatusType.collectedByIT;
         case 'Sem Monitorar':
           return device.displayStatus == DeviceStatusType.unmonitored;
         default:
@@ -87,6 +88,8 @@ class _DashboardTabState extends State<DashboardTab> {
   Widget build(BuildContext context) {
     final stats = _getDeviceStats();
     final filteredDevices = _getFilteredDevices();
+    final columns = buildDeviceTableColumns(widget.authService);
+    final config = buildDeviceCardConfig(context, widget.authService);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,7 +108,8 @@ class _DashboardTabState extends State<DashboardTab> {
                     color: Colors.grey[800],
                   ),
                 ),
-                if (widget.currentUser != null && widget.currentUser!['role'] == 'user')
+                if (widget.currentUser != null &&
+                    widget.currentUser!['role'] == 'user')
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
@@ -126,8 +130,14 @@ class _DashboardTabState extends State<DashboardTab> {
                 DropdownMenuItem(value: 'Todos', child: Text('Todos')),
                 DropdownMenuItem(value: 'Online', child: Text('Online')),
                 DropdownMenuItem(value: 'Offline', child: Text('Offline')),
-                DropdownMenuItem(value: 'Manutenção', child: Text('Em Manutenção')),
-                DropdownMenuItem(value: 'Sem Monitorar', child: Text('Sem Monitorar')),
+                DropdownMenuItem(
+                  value: 'Manutenção',
+                  child: Text('Em Manutenção'),
+                ),
+                DropdownMenuItem(
+                  value: 'Sem Monitorar',
+                  child: Text('Sem Monitorar'),
+                ),
               ],
               onChanged: (value) {
                 setState(() {
@@ -234,12 +244,13 @@ class _DashboardTabState extends State<DashboardTab> {
           ],
         ),
         const SizedBox(height: 30),
-        // Tabela de dispositivos (sem alteração de widget)
+        // Tabela de dispositivos usando ManagedAssetsCard
         Expanded(
-          child: ManagedDevicesCard(
+          child: ManagedAssetsCard<Device>(
             title: 'Dispositivos Gerenciados (${filteredDevices.length})',
-            devices: filteredDevices,
-            authService: widget.authService,
+            items: filteredDevices,
+            columns: columns,
+            config: config,
             showActions: false,
             currentUser: widget.currentUser,
           ),

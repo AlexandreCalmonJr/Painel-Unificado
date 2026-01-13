@@ -14,7 +14,6 @@ import 'package:painel_windowns/presentation/features/devices/pages/device_detai
 import 'package:painel_windowns/presentation/features/devices/widgets/tabs/dashboard_tab.dart';
 import 'package:painel_windowns/presentation/features/devices/widgets/tabs/devices_tab.dart';
 import 'package:painel_windowns/presentation/features/devices/widgets/tabs/maintenance_tab.dart';
-import 'package:painel_windowns/presentation/features/devices/widgets/tabs/reports_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
@@ -625,12 +624,6 @@ class _MDMDashboardState extends State<MDMDashboard> {
           authService: widget.authService,
           onDeviceTap: (Device device) {},
           onRefresh: () async {},
-        );
-      case 5:
-        return ReportsTab(
-          devices: _allFetchedDevices,
-          currentUser: currentUser,
-          authService: widget.authService,
         );
       case 9:
         return MaintenanceTab(

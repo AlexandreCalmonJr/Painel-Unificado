@@ -3,15 +3,26 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/device_model.dart';
-import 'package:painel_windowns/presentation/features/devices/widgets/managed_devices_card.dart';
-
+import 'package:painel_windowns/presentation/shared/widgets/cards/managed_assets_card.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/device_table_columns.dart';
+import 'package:painel_windowns/presentation/shared/widgets/controls/unified_command_controls.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class DevicesTab extends StatefulWidget {
-
   const DevicesTab({
     required this.authService,
-    required this.devices, required this.token, required this.onDeviceUpdate, required this.isReadOnly, required this.currentUser, required this.currentPage, required this.totalPages, required this.onPageChange, required this.onSearch, required Future<Null> Function() onRefresh, required Null Function(Device device) onDeviceTap, super.key,
+    required this.devices,
+    required this.token,
+    required this.onDeviceUpdate,
+    required this.isReadOnly,
+    required this.currentUser,
+    required this.currentPage,
+    required this.totalPages,
+    required this.onPageChange,
+    required this.onSearch,
+    required Future<Null> Function() onRefresh,
+    required Null Function(Device device) onDeviceTap,
+    super.key,
   });
   final List<Device> devices;
   final String token;
@@ -55,6 +66,15 @@ class _DevicesTabState extends State<DevicesTab> {
 
   @override
   Widget build(BuildContext context) {
+    final columns = buildDeviceTableColumns(widget.authService);
+    final config = buildDeviceCardConfig(context, widget.authService);
+
+    String? subtitle;
+    if (widget.currentUser != null && widget.currentUser!['role'] == 'user') {
+      subtitle =
+          'Filtrado por: ${widget.currentUser!['sector']} | Dispositivos visíveis: ${widget.devices.length}';
+    }
+
     return Column(
       children: [
         Padding(
@@ -103,15 +123,28 @@ class _DevicesTabState extends State<DevicesTab> {
           ),
         ),
         Expanded(
-          child: ManagedDevicesCard(
+          child: ManagedAssetsCard<Device>(
             title: 'Todos os Dispositivos',
-            devices: widget.devices,
-            authService: widget.authService,
+            items: widget.devices,
+            columns: columns,
+            config: config,
             showActions: !widget.isReadOnly,
-            token: widget.token,
-            onDeviceUpdate: widget.onDeviceUpdate,
-            currentUser: widget.currentUser,
             expand: true,
+            onItemUpdate: widget.onDeviceUpdate,
+            currentUser: widget.currentUser,
+            subtitle: subtitle,
+            actions:
+                !widget.isReadOnly
+                    ? (device) => UnifiedCommandControls<Device>(
+                      item: device,
+                      authService: widget.authService,
+                      token: widget.token,
+                      onCommandExecuted: widget.onDeviceUpdate,
+                      config: CommandConfig<Device>(
+                        getSerialNumber: (d) => d.serialNumber,
+                      ),
+                    )
+                    : null,
           ),
         ),
         Padding(

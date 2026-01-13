@@ -31,7 +31,7 @@ class DiagnosticService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
         throw Exception('Falha ao testar localização');
       }
@@ -48,7 +48,7 @@ class DiagnosticService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
         throw Exception('Falha na validação de BSSIDs');
       }
@@ -65,7 +65,7 @@ class DiagnosticService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return jsonDecode(response.body) as List<dynamic>;
       } else {
         throw Exception('Falha ao buscar dispositivos não mapeados');
       }
