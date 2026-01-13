@@ -5,6 +5,7 @@ import 'package:painel_windowns/core/constants/app_constants.dart';
 // ignore: library_prefixes
 import 'package:painel_windowns/data/models/location.dart' as LocationModel;
 import 'package:painel_windowns/data/models/unit_model.dart';
+import 'package:painel_windowns/presentation/features/admin/pages/unit_bssids_page.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/location_dialog.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -92,6 +93,7 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
   void _openBssidManagement(Unit unit) {
     Navigator.of(context)
         .push(
+          // ignore: inference_failure_on_instance_creation
           MaterialPageRoute(
             builder:
                 (context) =>

@@ -165,7 +165,8 @@ AssetCardConfig<Device> buildDeviceCardConfig(
         MaterialPageRoute(
           builder:
               (context) =>
-                  DeviceDetailScreen(device: device, authService: authService),
+                  MobileDetailScreen
+                  (device: device, authService: authService),
         ),
       );
     },

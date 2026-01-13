@@ -7,11 +7,9 @@ import 'package:painel_windowns/presentation/bloc/totem/totem_event.dart';
 import 'package:painel_windowns/presentation/bloc/totem/totem_state.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
-import 'package:painel_windowns/presentation/shared/widgets/cards/managed_assets_card.dart';
-import 'package:painel_windowns/presentation/shared/widgets/cards/totem_table_columns.dart';
+import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_dashboard_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_list_tab.dart';
 import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
-import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
@@ -470,76 +468,54 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
         allTotems.where((t) => t.status.toLowerCase() == 'offline').length;
     final errorCount =
         allTotems.where((t) => t.status.toLowerCase() == 'com erro').length;
-    final columns = buildTotemTableColumns();
-    final config = buildTotemCardConfig(context, widget.authService);
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        context.read<TotemBloc>().add(const RefreshTotems());
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Vis�o Geral dos Totens',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.blueGrey[800],
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: StatCard(
-                  title: 'Total de Totens',
-                  value: allTotems.length.toString(),
-                  icon: Icons.desktop_windows,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: StatCard(
-                  title: 'Online',
-                  value: onlineCount.toString(),
-                  icon: Icons.wifi,
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: StatCard(
-                  title: 'Offline',
-                  value: offlineCount.toString(),
-                  icon: Icons.wifi_off,
-                  color: Colors.red,
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: StatCard(
-                  title: 'Com Erro',
-                  value: errorCount.toString(),
-                  icon: Icons.warning,
-                  color: Colors.orange,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: ManagedAssetsCard<Totem>(
-              title: 'Totens Gerenciados (${allTotems.length})',
-              items: allTotems,
-              columns: columns,
-              config: config,
-              showActions: false,
-            ),
-          ),
-        ],
+    // Convert to ManagedAsset for unified widgets
+    final managedAssets = allTotems.cast<ManagedAsset>();
+
+    // Create dashboard stats
+    final stats = [
+      DashboardStat(
+        title: 'Total de Totens',
+        value: allTotems.length.toString(),
+        icon: Icons.desktop_windows,
+        color: Colors.blue,
       ),
+      DashboardStat(
+        title: 'Online',
+        value: onlineCount.toString(),
+        icon: Icons.wifi,
+        color: Colors.green,
+      ),
+      DashboardStat(
+        title: 'Offline',
+        value: offlineCount.toString(),
+        icon: Icons.wifi_off,
+        color: Colors.red,
+      ),
+      DashboardStat(
+        title: 'Com Erro',
+        value: errorCount.toString(),
+        icon: Icons.warning,
+        color: Colors.orange,
+      ),
+    ];
+
+    final columns = convertTableColumns([
+      TableColumnConfig(dataKey: 'hostname', label: 'Hostname'),
+      TableColumnConfig(dataKey: 'status', label: 'Status'),
+      TableColumnConfig(dataKey: 'serialNumber', label: 'Serial'),
+      TableColumnConfig(dataKey: 'location', label: 'Localização'),
+    ]);
+    final config = createAssetCardConfig('totens_export');
+
+    return UnifiedDashboardTab<ManagedAsset>(
+      items: managedAssets,
+      columns: columns,
+      config: config,
+      stats: stats,
+      title: 'Visão Geral dos Totens',
+      showActions: false,
+      onAssetTap: (ManagedAsset asset) async {},
     );
   }
 }

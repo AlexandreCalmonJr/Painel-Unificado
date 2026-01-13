@@ -5,8 +5,8 @@ import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart'
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
 
-class DeviceDetailScreen extends StatefulWidget {
-  const DeviceDetailScreen({
+class MobileDetailScreen extends StatefulWidget {
+  const MobileDetailScreen({
     required this.device,
     required this.authService,
     super.key,
@@ -15,10 +15,10 @@ class DeviceDetailScreen extends StatefulWidget {
   final AuthService authService;
 
   @override
-  State<DeviceDetailScreen> createState() => _DeviceDetailScreenState();
+  State<MobileDetailScreen> createState() => _MobileDetailScreenState();
 }
 
-class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
+class _MobileDetailScreenState extends State<MobileDetailScreen> {
   final DeviceService _deviceService = DeviceService();
   late Future<List<Map<String, dynamic>>> _locationHistoryFuture;
   bool _isLoadingHistory = false;

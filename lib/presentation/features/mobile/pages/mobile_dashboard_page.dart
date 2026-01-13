@@ -6,6 +6,7 @@ import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:painel_windowns/presentation/bloc/device/device_bloc.dart';
 import 'package:painel_windowns/presentation/bloc/device/device_event.dart';
 import 'package:painel_windowns/presentation/bloc/device/device_state.dart';
+import 'package:painel_windowns/presentation/features/mobile/pages/mobile_detail_page.dart';
 import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_dashboard_tab.dart';
@@ -33,8 +34,10 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
   final int _itemsPerPage = 15;
 
   List<Device> _displayedDevices = [];
+  List<Device> _allDevices = [];
 
   void _updateDisplayedDevices(List<Device> allDevices) {
+    _allDevices = allDevices;
     List<Device> filteredList = List.from(allDevices);
 
     if (_searchQuery.isNotEmpty) {
@@ -60,6 +63,35 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
     setState(() {
       _displayedDevices = filteredList.sublist(startIndex, endIndex);
     });
+  }
+
+  // Método helper consolidado para navegação
+  Future<void> _navigateToDetail(ManagedAsset asset) async {
+    final device = _allDevices.firstWhere(
+      (Device d) => d.id == asset.id,
+      orElse:
+          () => Device(
+            id: asset.id,
+            deviceName: asset.assetName,
+            serialNumber: asset.serialNumber,
+            status: asset.status,
+            lastSeen: asset.lastSeen.toIso8601String(),
+            location: asset.location,
+            unit: asset.unit,
+            sector: asset.sector,
+            floor: asset.floor,
+          ),
+    );
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder:
+            (context) => MobileDetailScreen(
+              device: device,
+              authService: widget.authService,
+            ),
+      ),
+    );
   }
 
   @override
@@ -95,13 +127,14 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
               allDevices
                   .map(
                     (device) => _DeviceAsset(
-                      id: device.id,
-                      assetName: device.deviceName,
+                      id: device.id ?? '',
+                      assetName: device.deviceName ?? 'N/A',
                       assetType: 'mobile',
-                      serialNumber: device.serialNumber,
+                      serialNumber: device.serialNumber ?? 'N/A',
                       status: device.status,
                       lastSeen:
-                          DateTime.tryParse(device.lastSeen) ?? DateTime.now(),
+                          DateTime.tryParse(device.lastSeen ?? '') ??
+                          DateTime.now(),
                       location: device.location,
                       unit: device.unit,
                       sector: device.sector,
@@ -114,16 +147,6 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
                   .toList();
 
           _updateDisplayedDevices(allDevices);
-
-          // Prepare columns and config
-          final columns = convertTableColumns([
-            TableColumnConfig(dataKey: 'assetName', label: 'Nome'),
-            TableColumnConfig(dataKey: 'serialNumber', label: 'Serial'),
-            TableColumnConfig(dataKey: 'status', label: 'Status'),
-            TableColumnConfig(dataKey: 'location', label: 'Localização'),
-            TableColumnConfig(dataKey: 'lastSeen', label: 'Última Conexão'),
-          ]);
-          final config = createAssetCardConfig('mobile_devices_export');
 
           return Container(
             decoration: BoxDecoration(
@@ -145,7 +168,11 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(20),
-                            child: _buildTabContent(managedAssets, state),
+                            child: _buildTabContent(
+                              managedAssets,
+                              state,
+                              allDevices,
+                            ),
                           ),
                         ),
                       ],
@@ -219,7 +246,11 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
     );
   }
 
-  Widget _buildTabContent(List<ManagedAsset> assets, DeviceState state) {
+  Widget _buildTabContent(
+    List<ManagedAsset> assets,
+    DeviceState state,
+    List<Device> allDevices,
+  ) {
     final columns = convertTableColumns([
       TableColumnConfig(dataKey: 'assetName', label: 'Nome'),
       TableColumnConfig(dataKey: 'serialNumber', label: 'Serial'),
@@ -238,6 +269,7 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
           stats: stats,
           title: 'Dashboard - Dispositivos Móveis',
           showActions: true,
+          onAssetTap: _navigateToDetail,
         );
 
       case 1: // Lista
@@ -251,7 +283,8 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
                       assetType: 'mobile',
                       serialNumber: d.serialNumber ?? 'N/A',
                       status: d.status ?? 'unknown',
-                      lastSeen: DateTime.tryParse(d.lastSeen) ?? DateTime.now(),
+                      lastSeen:
+                          DateTime.tryParse(d.lastSeen ?? '') ?? DateTime.now(),
                       location: d.location,
                       unit: d.unit,
                       sector: d.sector,
@@ -276,6 +309,7 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
           },
           title: 'Dispositivos Móveis',
           isLoading: state is DeviceLoading,
+          onAssetTap: _navigateToDetail,
         );
 
       case 2: // Manutenção
@@ -288,6 +322,7 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
           columns: columns,
           config: config,
           moduleTypeName: 'Dispositivos Móveis',
+          onAssetTap: _navigateToDetail,
         );
 
       default:
@@ -298,6 +333,7 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
           config: config,
           stats: stats,
           title: 'Dashboard - Dispositivos Móveis',
+          onAssetTap: _navigateToDetail,
         );
     }
   }

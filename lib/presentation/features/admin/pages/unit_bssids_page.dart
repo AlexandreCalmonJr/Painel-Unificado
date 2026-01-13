@@ -67,6 +67,7 @@ class _UnitBssidsPageState extends State<UnitBssidsPage> {
     // CR�TICO: Pr�-preenche o nome da unidade e desabilita a edi��o
     final unitNameController = TextEditingController(text: widget.unit.name);
 
+    // ignore: inference_failure_on_function_invocation
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
