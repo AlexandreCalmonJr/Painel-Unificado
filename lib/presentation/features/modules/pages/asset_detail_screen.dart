@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/core/utils/helpers.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
@@ -31,7 +32,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _moduleService = ModuleManagementService(authService: widget.authService);
+    _moduleService = getIt<ModuleManagementService>();
     _assetHistoryFuture = _fetchAssetHistory();
   }
 

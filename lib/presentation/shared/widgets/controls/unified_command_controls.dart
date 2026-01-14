@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/mobile_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/base_dialog.dart';
@@ -340,9 +341,7 @@ class UnifiedCommandControls<T> extends StatelessWidget {
 
     if (data == null) return;
 
-    final service = management_service.ModuleManagementService(
-      authService: authService,
-    );
+    final service = getIt<management_service.ModuleManagementService>();
     final assetId =
         config?.getAssetId?.call(item) ?? (asset as ManagedAsset).id;
 
@@ -377,9 +376,7 @@ class UnifiedCommandControls<T> extends StatelessWidget {
     BuildContext context,
     dynamic asset,
   ) async {
-    final service = management_service.ModuleManagementService(
-      authService: authService,
-    );
+    final service = getIt<management_service.ModuleManagementService>();
     final assetId =
         config?.getAssetId?.call(item) ?? (asset as ManagedAsset).id;
 
@@ -393,9 +390,7 @@ class UnifiedCommandControls<T> extends StatelessWidget {
   }
 
   Future<void> _deleteAsset(BuildContext context, dynamic asset) async {
-    final service = management_service.ModuleManagementService(
-      authService: authService,
-    );
+    final service = getIt<management_service.ModuleManagementService>();
     final assetId =
         config?.getAssetId?.call(item) ?? (asset as ManagedAsset).id;
 

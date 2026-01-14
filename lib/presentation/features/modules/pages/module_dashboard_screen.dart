@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
@@ -52,7 +53,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _moduleService = ModuleManagementService(authService: widget.authService);
+    _moduleService = getIt<ModuleManagementService>();
     _initializeData();
   }
 

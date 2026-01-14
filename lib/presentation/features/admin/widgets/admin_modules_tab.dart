@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/module.dart';
 import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
@@ -28,7 +29,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
   @override
   void initState() {
     super.initState();
-    _moduleService = ModuleManagementService(authService: widget.authService);
+    _moduleService = getIt<ModuleManagementService>();
     _loadModules();
   }
 
