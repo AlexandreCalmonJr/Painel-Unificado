@@ -1,9 +1,10 @@
 // File: lib/screen/profile_screen.dart
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/core/utils/theme_gradients.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widget.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -34,46 +35,47 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final palette = themeController.currentPalette;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.isDarkMode;
+        final palette = themeState.currentPalette;
 
-      return Scaffold(
-        backgroundColor:
-            isDark ? AppColors.background : AppColors.backgroundLight,
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: ThemeGradients.getLoginBackgroundGradient(
-              themeController.colorScheme,
+        return Scaffold(
+          backgroundColor:
+              isDark ? AppColors.background : AppColors.backgroundLight,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: ThemeGradients.getLoginBackgroundGradient(
+                themeState.config.colorScheme,
+              ),
             ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                // Header
-                _buildHeader(isDark, palette),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // Header
+                  _buildHeader(isDark, palette),
 
-                // Tabs
-                _buildTabBar(isDark, palette),
+                  // Tabs
+                  _buildTabBar(isDark, palette),
 
-                // Tab Content
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildProfileTab(isDark, palette),
-                      _buildPreferencesTab(isDark, palette),
-                      _buildActivityTab(isDark, palette),
-                    ],
+                  // Tab Content
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildProfileTab(isDark, palette),
+                        _buildPreferencesTab(isDark, palette),
+                        _buildActivityTab(isDark, palette),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget _buildHeader(bool isDark, Map<String, Color> palette) {
@@ -202,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: ThemeGradients.getPrimaryButtonGradient(
-            ThemeController.to.colorScheme,
+            context.read<ThemeCubit>().state.config.colorScheme,
           ),
         ),
         labelColor: Colors.white,
@@ -414,7 +416,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildInfoRow(String label, String value, IconData icon) {
-    final isDark = ThemeController.to.isDarkMode;
+    final isDark = context.read<ThemeCubit>().state.isDarkMode;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -463,8 +465,8 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildPermissionsList() {
     final permissions = widget.authService.permissions ?? [];
-    final isDark = ThemeController.to.isDarkMode;
-    final palette = ThemeController.to.currentPalette;
+    final isDark = context.read<ThemeCubit>().state.isDarkMode;
+    final palette = context.read<ThemeCubit>().state.currentPalette;
 
     if (widget.authService.isAdmin) {
       return _buildPermissionChip(
@@ -634,7 +636,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     String title,
     bool value,
     IconData icon,
-    Function(bool) onChanged,
+    void Function(bool) onChanged,
     bool isDark,
     Map<String, Color> palette,
   ) {

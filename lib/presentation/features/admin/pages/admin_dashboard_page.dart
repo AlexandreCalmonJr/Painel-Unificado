@@ -1,12 +1,13 @@
 // File: lib/admin/admin_dashboard_screen.dart (ATUALIZADO)
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/features/admin/widgets/admin_apk_manager_tab.dart';
 import 'package:painel_windowns/presentation/features/admin/widgets/admin_locations_tab.dart';
 import 'package:painel_windowns/presentation/features/admin/widgets/admin_modules_tab.dart';
 import 'package:painel_windowns/presentation/features/admin/widgets/admin_users_tab.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/shared/widgets/app_bar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -26,53 +27,54 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.isDarkMode;
 
-      return Container(
-        decoration: BoxDecoration(
-          gradient:
-              isDark
-                  ? const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.background, AppColors.surface],
-                  )
-                  : const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.backgroundLight,
-                      AppColors.surfaceLightVariant,
-                    ],
+        return Container(
+          decoration: BoxDecoration(
+            gradient:
+                isDark
+                    ? const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [AppColors.background, AppColors.surface],
+                    )
+                    : const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.backgroundLight,
+                        AppColors.surfaceLightVariant,
+                      ],
+                    ),
+          ),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: CustomAppBar(
+              title: 'Painel Administrativo',
+              authService: widget.authService,
+              showBackButton: true,
+              showMenuButton: true,
+              onMenuPressed: () {
+                setState(() => _isSidebarVisible = !_isSidebarVisible);
+              },
+            ),
+            body: Row(
+              children: [
+                if (_isSidebarVisible) _buildSidebar(),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: _buildTabContent(),
                   ),
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: CustomAppBar(
-            title: 'Painel Administrativo',
-            authService: widget.authService,
-            showBackButton: true,
-            showMenuButton: true,
-            onMenuPressed: () {
-              setState(() => _isSidebarVisible = !_isSidebarVisible);
-            },
-          ),
-          body: Row(
-            children: [
-              if (_isSidebarVisible) _buildSidebar(),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: _buildTabContent(),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget _buildSidebar() {
