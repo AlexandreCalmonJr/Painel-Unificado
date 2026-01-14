@@ -1,7 +1,11 @@
 // File: lib/widgets/dialogs/user_dialog.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:painel_windowns/core/config/theme_models.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/core/utils/theme_utils.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class UserDialog {
@@ -11,9 +15,10 @@ class UserDialog {
     AuthService authService,
     VoidCallback onSuccess,
   ) {
-    final themeController = ThemeController.to;
-    final isDark = themeController.isDarkMode;
-    final palette = themeController.currentPalette;
+    final themeCubit = context.read<ThemeCubit>();
+    final themeState = themeCubit.state;
+    final isDark = themeState.effectiveDarkMode;
+    final palette = ColorPalettes.getPalette(themeState.config.colorScheme);
 
     final usernameController = TextEditingController();
     final passwordController = TextEditingController();
@@ -277,9 +282,10 @@ class UserDialog {
     Map<String, dynamic> user,
     VoidCallback onSuccess,
   ) {
-    final themeController = ThemeController.to;
-    final isDark = themeController.isDarkMode;
-    final palette = themeController.currentPalette;
+    final themeCubit = context.read<ThemeCubit>();
+    final themeState = themeCubit.state;
+    final isDark = themeState.effectiveDarkMode;
+    final palette = ColorPalettes.getPalette(themeState.config.colorScheme);
 
     final usernameController = TextEditingController(
       text: user['username']?.toString() ?? '',
@@ -486,8 +492,8 @@ class UserDialog {
     Map<String, dynamic> user,
     VoidCallback onSuccess,
   ) {
-    final themeController = ThemeController.to;
-    final isDark = themeController.isDarkMode;
+    final themeCubit = context.read<ThemeCubit>();
+    final isDark = themeCubit.state.effectiveDarkMode;
 
     showDialog(
       context: context,
@@ -544,7 +550,9 @@ class UserDialog {
               ),
               ElevatedButton.icon(
                 onPressed: () async {
-                  final result = await authService.deleteUser(user['_id'] as String);
+                  final result = await authService.deleteUser(
+                    user['_id'] as String,
+                  );
                   Navigator.pop(context);
                   if (result['success'] == true) {
                     onSuccess();
@@ -615,10 +623,7 @@ class UserDialog {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: ThemeController.to.currentPalette['primary']!,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
         ),
       ),
     );

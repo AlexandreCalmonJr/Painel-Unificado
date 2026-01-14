@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:painel_windowns/data/models/user_model.dart';
 import 'package:painel_windowns/pages/admin/components/user_form_dialog.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
 class UserManagementPage extends StatefulWidget {
-  const UserManagementPage({super.key});
+  const UserManagementPage({required this.authService, super.key});
+
+  final AuthService authService;
 
   @override
   _UserManagementPageState createState() => _UserManagementPageState();
 }
 
 class _UserManagementPageState extends State<UserManagementPage> {
-  final AuthService _authService = Get.find<AuthService>();
   final List<User> _users = [];
   bool _isLoading = true;
 
@@ -79,7 +79,11 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
       // ...
     } catch (e) {
-      Get.snackbar('Erro', 'Falha ao carregar usuários: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Falha ao carregar usuários: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -128,7 +132,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
   }
 
   void _openUserForm(User? user) async {
-    final result = await Get.dialog(UserFormDialog(user: user));
+    final result = await showDialog<User>(
+      context: context,
+      builder: (context) => UserFormDialog(user: user),
+    );
     if (result != null) {
       // Call API to save/update
       // await _saveUser(result);

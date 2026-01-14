@@ -1,112 +1,120 @@
 // File: lib/widgets/theme_selector_widget.dart
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/config/theme_models.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/core/utils/theme_utils.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 
 /// Widget para seleção de tema e esquema de cores
 class ThemeSelectorWidget extends StatelessWidget {
-
   const ThemeSelectorWidget({super.key, this.showInDialog = false});
   final bool showInDialog;
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
+        final themeCubit = context.read<ThemeCubit>();
 
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark ? AppColors.border : AppColors.borderLight,
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? AppColors.border : AppColors.borderLight,
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Título
-            Row(
-              children: [
-                Icon(
-                  Icons.palette,
-                  color:
-                      isDark ? AppColors.primary : AppColors.textPrimaryLight,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Personalização',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Título
+              Row(
+                children: [
+                  Icon(
+                    Icons.palette,
                     color:
-                        isDark
-                            ? AppColors.textPrimary
-                            : AppColors.textPrimaryLight,
+                        isDark ? AppColors.primary : AppColors.textPrimaryLight,
+                    size: 24,
                   ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Personalização',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryLight,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Modo de tema (Light/Dark/Auto)
+              Text(
+                'Modo de Tema',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color:
+                      isDark
+                          ? AppColors.textSecondary
+                          : AppColors.textSecondaryLight,
                 ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Modo de tema (Light/Dark/Auto)
-            Text(
-              'Modo de Tema',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color:
-                    isDark
-                        ? AppColors.textSecondary
-                        : AppColors.textSecondaryLight,
               ),
-            ),
-            const SizedBox(height: 12),
-            _buildThemeModeSelector(themeController, isDark),
+              const SizedBox(height: 12),
+              _buildThemeModeSelector(themeCubit, themeState, isDark),
 
-            const SizedBox(height: 24),
-            Divider(color: isDark ? AppColors.border : AppColors.borderLight),
-            const SizedBox(height: 24),
-
-            // Esquema de cores
-            Text(
-              'Esquema de Cores',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color:
-                    isDark
-                        ? AppColors.textSecondary
-                        : AppColors.textSecondaryLight,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _buildColorSchemeSelector(themeController, isDark),
-
-            if (showInDialog) ...[
               const SizedBox(height: 24),
               Divider(color: isDark ? AppColors.border : AppColors.borderLight),
-              const SizedBox(height: 16),
-              _buildResetButton(themeController),
+              const SizedBox(height: 24),
+
+              // Esquema de cores
+              Text(
+                'Esquema de Cores',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color:
+                      isDark
+                          ? AppColors.textSecondary
+                          : AppColors.textSecondaryLight,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildColorSchemeSelector(themeCubit, themeState, isDark),
+
+              if (showInDialog) ...[
+                const SizedBox(height: 24),
+                Divider(
+                  color: isDark ? AppColors.border : AppColors.borderLight,
+                ),
+                const SizedBox(height: 16),
+                _buildResetButton(context, themeCubit),
+              ],
             ],
-          ],
-        ),
-      );
-    });
+          ),
+        );
+      },
+    );
   }
 
-  Widget _buildThemeModeSelector(ThemeController controller, bool isDark) {
+  Widget _buildThemeModeSelector(
+    ThemeCubit cubit,
+    ThemeState state,
+    bool isDark,
+  ) {
     return Row(
       children:
           AppThemeMode.values.map((mode) {
-            final isSelected = controller.themeMode == mode;
+            final isSelected = state.config.mode == mode;
             return Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -114,7 +122,8 @@ class ThemeSelectorWidget extends StatelessWidget {
                   mode: mode,
                   isSelected: isSelected,
                   isDark: isDark,
-                  onTap: () => controller.setThemeMode(mode),
+                  palette: ColorPalettes.getPalette(state.config.colorScheme),
+                  onTap: () => cubit.setThemeMode(mode),
                 ),
               ),
             );
@@ -122,37 +131,39 @@ class ThemeSelectorWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildColorSchemeSelector(ThemeController controller, bool isDark) {
+  Widget _buildColorSchemeSelector(
+    ThemeCubit cubit,
+    ThemeState state,
+    bool isDark,
+  ) {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
       children:
           AppColorScheme.values.map((scheme) {
-            final isSelected = controller.colorScheme == scheme;
+            final isSelected = state.config.colorScheme == scheme;
             return _ColorSchemeCard(
               scheme: scheme,
               isSelected: isSelected,
               isDark: isDark,
-              onTap: () => controller.setColorScheme(scheme),
+              onTap: () => cubit.setColorScheme(scheme),
             );
           }).toList(),
     );
   }
 
-  Widget _buildResetButton(ThemeController controller) {
+  Widget _buildResetButton(BuildContext context, ThemeCubit cubit) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: () {
-          controller.resetToDefault();
-          // ignore: inference_failure_on_function_invocation
-          Get.back();
+          cubit.resetToDefault();
+          Navigator.of(context).pop();
         },
         icon: const Icon(Icons.refresh, size: 18),
         label: const Text('Restaurar Padrão'),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          // ignore: deprecated_member_use
           side: BorderSide(color: AppColors.textSecondary.withOpacity(0.3)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
@@ -161,38 +172,38 @@ class ThemeSelectorWidget extends StatelessWidget {
   }
 
   /// Mostra o seletor de tema em um dialog
-  static void showDialog(BuildContext context) {
-    // ignore: inference_failure_on_function_invocation
-    Get.dialog(
-      Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 500),
-          child: const ThemeSelectorWidget(showInDialog: true),
-        ),
-      ),
+  static void show(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder:
+          (dialogContext) => Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: const ThemeSelectorWidget(showInDialog: true),
+            ),
+          ),
     );
   }
 }
 
 /// Card para seleção de modo de tema
 class _ThemeModeCard extends StatelessWidget {
-
   const _ThemeModeCard({
     required this.mode,
     required this.isSelected,
     required this.isDark,
+    required this.palette,
     required this.onTap,
   });
   final AppThemeMode mode;
   final bool isSelected;
   final bool isDark;
+  final Map<String, Color> palette;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final palette = ThemeController.to.currentPalette;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -252,7 +263,6 @@ class _ThemeModeCard extends StatelessWidget {
 
 /// Card para seleção de esquema de cores
 class _ColorSchemeCard extends StatelessWidget {
-
   const _ColorSchemeCard({
     required this.scheme,
     required this.isSelected,
@@ -345,26 +355,27 @@ class ThemeSelectorButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
 
-      return IconButton(
-        onPressed: () => ThemeSelectorWidget.showDialog(context),
-        icon: Icon(
-          Icons.palette,
-          color:
-              isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-        ),
-        style: IconButton.styleFrom(
-          backgroundColor: (isDark
-                  ? AppColors.surface
-                  : AppColors.surfaceLightMode)
-              .withOpacity(0.5),
-          padding: const EdgeInsets.all(12),
-        ),
-        tooltip: 'Personalizar Tema',
-      );
-    });
+        return IconButton(
+          onPressed: () => ThemeSelectorWidget.show(context),
+          icon: Icon(
+            Icons.palette,
+            color:
+                isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+          ),
+          style: IconButton.styleFrom(
+            backgroundColor: (isDark
+                    ? AppColors.surface
+                    : AppColors.surfaceLightMode)
+                .withOpacity(0.5),
+            padding: const EdgeInsets.all(12),
+          ),
+          tooltip: 'Personalizar Tema',
+        );
+      },
+    );
   }
 }

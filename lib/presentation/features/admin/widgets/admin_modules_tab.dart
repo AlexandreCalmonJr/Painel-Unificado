@@ -1,10 +1,13 @@
 ﻿// File: lib/admin/tabs/admin_modules_tab.dart
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:painel_windowns/core/config/theme_models.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/core/utils/theme_utils.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/module.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/module_dialog.dart';
 // import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -167,242 +170,245 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final palette = themeController.currentPalette;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
+        final palette = ColorPalettes.getPalette(themeState.config.colorScheme);
 
-      final filteredModules =
-          _modules
-              .where(
-                (mod) =>
-                    mod.name.toLowerCase().contains(_searchQuery.toLowerCase()),
-              )
-              .toList();
+        final filteredModules =
+            _modules
+                .where(
+                  (mod) => mod.name.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ),
+                )
+                .toList();
 
-      if (_isLoading) {
-        return const Center(child: CircularProgressIndicator());
-      }
+        if (_isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-      if (_error != null) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: AppColors.danger,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Erro ao carregar módulos',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color:
-                      isDark
-                          ? AppColors.textPrimary
-                          : AppColors.textPrimaryLight,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _error!,
-                style: TextStyle(
-                  color:
-                      isDark
-                          ? AppColors.textSecondary
-                          : AppColors.textSecondaryLight,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _loadModules,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Tentar Novamente'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        );
-      }
-
-      final activeModules = _modules.where((m) => m.isActive).length;
-
-      return Column(
-        children: [
-          // Header com estatísticas
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  'Total de Módulos',
-                  _modules.length.toString(),
-                  Icons.apps,
-                  palette['primary']!,
-                  isDark,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  'Módulos Ativos',
-                  activeModules.toString(),
-                  Icons.check_circle,
-                  AppColors.success,
-                  isDark,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  'Módulos Inativos',
-                  (_modules.length - activeModules).toString(),
-                  Icons.pause_circle,
-                  AppColors.warning,
-                  isDark,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 20),
-
-          // Barra de busca
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark ? AppColors.border : AppColors.borderLight,
-              ),
-            ),
-            child: Row(
+        if (_error != null) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  child: TextField(
-                    onChanged: (value) => setState(() => _searchQuery = value),
-                    style: TextStyle(
-                      color:
-                          isDark
-                              ? AppColors.textPrimary
-                              : AppColors.textPrimaryLight,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Buscar módulos...',
-                      hintStyle: TextStyle(
-                        color:
-                            isDark
-                                ? AppColors.textSecondary
-                                : AppColors.textSecondaryLight,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color:
-                            isDark
-                                ? AppColors.textSecondary
-                                : AppColors.textSecondaryLight,
-                      ),
-                      filled: true,
-                      fillColor:
-                          isDark
-                              ? AppColors.background
-                              : AppColors.surfaceLightVariant,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: AppColors.danger,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Erro ao carregar módulos',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        isDark
+                            ? AppColors.textPrimary
+                            : AppColors.textPrimaryLight,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(height: 8),
+                Text(
+                  _error!,
+                  style: TextStyle(
+                    color:
+                        isDark
+                            ? AppColors.textSecondary
+                            : AppColors.textSecondaryLight,
+                  ),
+                ),
+                const SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: () => _showModuleDialog(),
-                  icon: const Icon(Icons.add, size: 20),
-                  label: const Text('Novo Módulo'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: palette['primary'],
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
                   onPressed: _loadModules,
                   icon: const Icon(Icons.refresh),
-                  tooltip: 'Atualizar',
-                  style: IconButton.styleFrom(
-                    backgroundColor: palette['primary']!.withOpacity(0.1),
-                    foregroundColor: palette['primary'],
+                  label: const Text('Tentar Novamente'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
                   ),
                 ),
               ],
             ),
-          ),
+          );
+        }
 
-          const SizedBox(height: 20),
+        final activeModules = _modules.where((m) => m.isActive).length;
 
-          // Lista de módulos
-          Expanded(
-            child:
-                filteredModules.isEmpty
-                    ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.apps_outlined,
-                            size: 64,
-                            color:
-                                isDark
-                                    ? AppColors.textSecondary
-                                    : AppColors.textSecondaryLight,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _searchQuery.isEmpty
-                                ? 'Nenhum módulo encontrado'
-                                : 'Nenhum resultado para "$_searchQuery"',
-                            style: TextStyle(
-                              fontSize: 16,
+        return Column(
+          children: [
+            // Header com estatísticas
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    'Total de Módulos',
+                    _modules.length.toString(),
+                    Icons.apps,
+                    palette['primary']!,
+                    isDark,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatCard(
+                    'Módulos Ativos',
+                    activeModules.toString(),
+                    Icons.check_circle,
+                    AppColors.success,
+                    isDark,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatCard(
+                    'Módulos Inativos',
+                    (_modules.length - activeModules).toString(),
+                    Icons.pause_circle,
+                    AppColors.warning,
+                    isDark,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // Barra de busca
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? AppColors.border : AppColors.borderLight,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged:
+                          (value) => setState(() => _searchQuery = value),
+                      style: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.textPrimary
+                                : AppColors.textPrimaryLight,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar módulos...',
+                        hintStyle: TextStyle(
+                          color:
+                              isDark
+                                  ? AppColors.textSecondary
+                                  : AppColors.textSecondaryLight,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color:
+                              isDark
+                                  ? AppColors.textSecondary
+                                  : AppColors.textSecondaryLight,
+                        ),
+                        filled: true,
+                        fillColor:
+                            isDark
+                                ? AppColors.background
+                                : AppColors.surfaceLightVariant,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => _showModuleDialog(),
+                    icon: const Icon(Icons.add, size: 20),
+                    label: const Text('Novo Módulo'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: palette['primary'],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed: _loadModules,
+                    icon: const Icon(Icons.refresh),
+                    tooltip: 'Atualizar',
+                    style: IconButton.styleFrom(
+                      backgroundColor: palette['primary']!.withOpacity(0.1),
+                      foregroundColor: palette['primary'],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Lista de módulos
+            Expanded(
+              child:
+                  filteredModules.isEmpty
+                      ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.apps_outlined,
+                              size: 64,
                               color:
                                   isDark
                                       ? AppColors.textSecondary
                                       : AppColors.textSecondaryLight,
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Text(
+                              _searchQuery.isEmpty
+                                  ? 'Nenhum módulo encontrado'
+                                  : 'Nenhum resultado para "$_searchQuery"',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color:
+                                    isDark
+                                        ? AppColors.textSecondary
+                                        : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                      : GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount:
+                              MediaQuery.of(context).size.width > 1400 ? 3 : 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 1.3,
+                        ),
+                        itemCount: filteredModules.length,
+                        itemBuilder: (context, index) {
+                          final module = filteredModules[index];
+                          return _buildModuleCard(module, isDark, palette);
+                        },
                       ),
-                    )
-                    : GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount:
-                            MediaQuery.of(context).size.width > 1400 ? 3 : 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 1.3,
-                      ),
-                      itemCount: filteredModules.length,
-                      itemBuilder: (context, index) {
-                        final module = filteredModules[index];
-                        return _buildModuleCard(module, isDark, palette);
-                      },
-                    ),
-          ),
-        ],
-      );
-    });
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildStatCard(

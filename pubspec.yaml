@@ -48,6 +48,7 @@ dependencies:
   synchronized: ^3.3.1
   csv: ^6.0.0
   logger: ^2.6.2
+  # GetX mantido APENAS para serviços (GetxService) - State management usa BLoC
   get: ^4.7.2
   pdf: ^3.11.3
   

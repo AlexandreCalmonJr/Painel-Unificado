@@ -1,10 +1,11 @@
 // File: lib/admin/tabs/admin_apk_manager_tab.dart (REDESIGNED)
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/core/utils/theme_utils.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/services/auth_service.dart';
-
 
 class AdminApkManagerTab extends StatefulWidget {
   const AdminApkManagerTab({required this.authService, super.key});
@@ -53,162 +54,164 @@ class _AdminApkManagerTabState extends State<AdminApkManagerTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final palette = themeController.currentPalette;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
+        final palette = ColorPalettes.getPalette(themeState.config.colorScheme);
 
-      final filteredApks =
-          _apks.where((apk) {
-            return apk['name'].toString().toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
-                apk['package'].toString().toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                );
-          }).toList();
+        final filteredApks =
+            _apks.where((apk) {
+              return apk['name'].toString().toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ) ||
+                  apk['package'].toString().toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  );
+            }).toList();
 
-      final totalSize = _apks.fold(0.0, (sum, apk) {
-        final sizeStr = apk['size'].toString().replaceAll(' MB', '');
-        return sum + double.parse(sizeStr);
-      });
+        final totalSize = _apks.fold(0.0, (sum, apk) {
+          final sizeStr = apk['size'].toString().replaceAll(' MB', '');
+          return sum + double.parse(sizeStr);
+        });
 
-      final totalDownloads = _apks.fold(
-        0,
-        (sum, apk) => sum + (apk['downloads'] as int),
-      );
+        final totalDownloads = _apks.fold(
+          0,
+          (sum, apk) => sum + (apk['downloads'] as int),
+        );
 
-      return Column(
-        children: [
-          // Header com estatísticas
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  'Total de APKs',
-                  _apks.length.toString(),
-                  Icons.android,
-                  palette['primary']!,
-                  isDark,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  'Downloads Totais',
-                  totalDownloads.toString(),
-                  Icons.download,
-                  AppColors.success,
-                  isDark,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  'Espaço Total',
-                  '${totalSize.toStringAsFixed(1)} MB',
-                  Icons.storage,
-                  palette['accent']!,
-                  isDark,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 20),
-
-          // Barra de busca e upload
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark ? AppColors.border : AppColors.borderLight,
-              ),
-            ),
-            child: Row(
+        return Column(
+          children: [
+            // Header com estatísticas
+            Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    onChanged: (value) => setState(() => _searchQuery = value),
-                    style: TextStyle(
-                      color:
-                          isDark
-                              ? AppColors.textPrimary
-                              : AppColors.textPrimaryLight,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Buscar APKs...',
-                      hintStyle: TextStyle(
-                        color:
-                            isDark
-                                ? AppColors.textSecondary
-                                : AppColors.textSecondaryLight,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color:
-                            isDark
-                                ? AppColors.textSecondary
-                                : AppColors.textSecondaryLight,
-                      ),
-                      filled: true,
-                      fillColor:
-                          isDark
-                              ? AppColors.background
-                              : AppColors.surfaceLightVariant,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                  child: _buildStatCard(
+                    'Total de APKs',
+                    _apks.length.toString(),
+                    Icons.android,
+                    palette['primary']!,
+                    isDark,
                   ),
                 ),
                 const SizedBox(width: 16),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Funcionalidade de upload em desenvolvimento',
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.upload_file, size: 20),
-                  label: const Text('Upload APK'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: palette['primary'],
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                Expanded(
+                  child: _buildStatCard(
+                    'Downloads Totais',
+                    totalDownloads.toString(),
+                    Icons.download,
+                    AppColors.success,
+                    isDark,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatCard(
+                    'Espaço Total',
+                    '${totalSize.toStringAsFixed(1)} MB',
+                    Icons.storage,
+                    palette['accent']!,
+                    isDark,
                   ),
                 ),
               ],
             ),
-          ),
 
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-          // Lista de APKs
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredApks.length,
-              itemBuilder: (context, index) {
-                final apk = filteredApks[index];
-                return _buildApkCard(apk, isDark, palette);
-              },
+            // Barra de busca e upload
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? AppColors.border : AppColors.borderLight,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged:
+                          (value) => setState(() => _searchQuery = value),
+                      style: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.textPrimary
+                                : AppColors.textPrimaryLight,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar APKs...',
+                        hintStyle: TextStyle(
+                          color:
+                              isDark
+                                  ? AppColors.textSecondary
+                                  : AppColors.textSecondaryLight,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color:
+                              isDark
+                                  ? AppColors.textSecondary
+                                  : AppColors.textSecondaryLight,
+                        ),
+                        filled: true,
+                        fillColor:
+                            isDark
+                                ? AppColors.background
+                                : AppColors.surfaceLightVariant,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Funcionalidade de upload em desenvolvimento',
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.upload_file, size: 20),
+                    label: const Text('Upload APK'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: palette['primary'],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      );
-    });
+
+            const SizedBox(height: 20),
+
+            // Lista de APKs
+            Expanded(
+              child: ListView.builder(
+                itemCount: filteredApks.length,
+                itemBuilder: (context, index) {
+                  final apk = filteredApks[index];
+                  return _buildApkCard(apk, isDark, palette);
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildStatCard(
@@ -370,7 +373,11 @@ class _AdminApkManagerTabState extends State<AdminApkManagerTab> {
                       'v${apk['version']} (${apk['versionCode']})',
                       isDark,
                     ),
-                    _buildInfoChip(Icons.storage, apk['size'] as String, isDark),
+                    _buildInfoChip(
+                      Icons.storage,
+                      apk['size'] as String,
+                      isDark,
+                    ),
                     _buildInfoChip(
                       Icons.download,
                       '${apk['downloads']} downloads',

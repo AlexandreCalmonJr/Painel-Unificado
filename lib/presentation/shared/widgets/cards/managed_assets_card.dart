@@ -7,9 +7,10 @@ import 'dart:io';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/base_card.dart';
 import 'package:path_provider/path_provider.dart';
@@ -128,183 +129,188 @@ class ManagedAssetsCard<T> extends StatelessWidget {
       sortedItems.sort(config.sortComparator);
     }
 
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final titleColor =
-          isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
-      final subtitleColor =
-          isDark ? AppColors.textSecondary : AppColors.textSecondaryLight;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
+        final titleColor =
+            isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
+        final subtitleColor =
+            isDark ? AppColors.textSecondary : AppColors.textSecondaryLight;
 
-      final content = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: titleColor,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
+        final content = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle!,
-                      style: TextStyle(color: subtitleColor, fontSize: 12),
+                      title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
+                      ),
                     ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle!,
+                        style: TextStyle(color: subtitleColor, fontSize: 12),
+                      ),
+                    ],
                   ],
-                ],
-              ),
-              if (showActions)
-                ElevatedButton.icon(
-                  onPressed: () => _downloadCsv(context),
-                  icon: const Icon(Icons.download, size: 16),
-                  label: const Text('Baixar CSV'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    textStyle: const TextStyle(fontSize: 12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          // Content
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  headingRowColor: WidgetStateProperty.all(
-                    isDark ? Colors.grey[800] : Colors.grey[100],
+                if (showActions)
+                  ElevatedButton.icon(
+                    onPressed: () => _downloadCsv(context),
+                    icon: const Icon(Icons.download, size: 16),
+                    label: const Text('Baixar CSV'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      textStyle: const TextStyle(fontSize: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                   ),
-                  columns: [
-                    ...columns.map((col) => DataColumn(label: Text(col.label))),
-                    if (actions != null) const DataColumn(label: Text('Ações')),
-                  ],
-                  rows:
-                      sortedItems.map((item) {
-                        return DataRow(
-                          cells: [
-                            ...columns.map(
-                              (col) => DataCell(col.builder(item)),
-                            ),
-                            if (actions != null) DataCell(actions!(item)),
-                          ],
-                        );
-                      }).toList(),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Content
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    headingRowColor: WidgetStateProperty.all(
+                      isDark ? Colors.grey[800] : Colors.grey[100],
+                    ),
+                    columns: [
+                      ...columns.map(
+                        (col) => DataColumn(label: Text(col.label)),
+                      ),
+                      if (actions != null)
+                        const DataColumn(label: Text('Ações')),
+                    ],
+                    rows:
+                        sortedItems.map((item) {
+                          return DataRow(
+                            cells: [
+                              ...columns.map(
+                                (col) => DataCell(col.builder(item)),
+                              ),
+                              if (actions != null) DataCell(actions!(item)),
+                            ],
+                          );
+                        }).toList(),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      );
+          ],
+        );
 
-      // Use BaseCard or AppCard based on config
-      if (config.useBaseCard) {
-        return BaseCard(
-          title: title,
-          expandChild: expand,
-          actions:
-              showActions
-                  ? [
-                    ElevatedButton.icon(
-                      onPressed: () => _downloadCsv(context),
-                      icon: const Icon(Icons.download, size: 16),
-                      label: const Text('Baixar CSV'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.success,
-                        foregroundColor: Colors.white,
-                        textStyle: AppTextStyles.bodySmall.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppConstants.radiusS,
+        // Use BaseCard or AppCard based on config
+        if (config.useBaseCard) {
+          return BaseCard(
+            title: title,
+            expandChild: expand,
+            actions:
+                showActions
+                    ? [
+                      ElevatedButton.icon(
+                        onPressed: () => _downloadCsv(context),
+                        icon: const Icon(Icons.download, size: 16),
+                        label: const Text('Baixar CSV'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.success,
+                          foregroundColor: Colors.white,
+                          textStyle: AppTextStyles.bodySmall.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                        ),
-                      ),
-                    ),
-                  ]
-                  : [],
-          child:
-              sortedItems.isEmpty
-                  ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.inbox_outlined,
-                            size: 80,
-                            color: AppColors.textSecondary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Nenhum item encontrado.',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.radiusS,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  )
-                  : SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        headingRowColor: WidgetStateProperty.all(
-                          isDark ? Colors.grey[800] : Colors.grey[100],
                         ),
-                        columns: [
-                          ...columns.map(
-                            (col) => DataColumn(label: Text(col.label)),
+                      ),
+                    ]
+                    : [],
+            child:
+                sortedItems.isEmpty
+                    ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 32.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.inbox_outlined,
+                              size: 80,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Nenhum item encontrado.',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                    : SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          headingRowColor: WidgetStateProperty.all(
+                            isDark ? Colors.grey[800] : Colors.grey[100],
                           ),
-                          if (actions != null)
-                            const DataColumn(label: Text('Ações')),
-                        ],
-                        rows:
-                            sortedItems.map((item) {
-                              return DataRow(
-                                cells: [
-                                  ...columns.map(
-                                    (col) => DataCell(col.builder(item)),
-                                  ),
-                                  if (actions != null) DataCell(actions!(item)),
-                                ],
-                              );
-                            }).toList(),
+                          columns: [
+                            ...columns.map(
+                              (col) => DataColumn(label: Text(col.label)),
+                            ),
+                            if (actions != null)
+                              const DataColumn(label: Text('Ações')),
+                          ],
+                          rows:
+                              sortedItems.map((item) {
+                                return DataRow(
+                                  cells: [
+                                    ...columns.map(
+                                      (col) => DataCell(col.builder(item)),
+                                    ),
+                                    if (actions != null)
+                                      DataCell(actions!(item)),
+                                  ],
+                                );
+                              }).toList(),
+                        ),
                       ),
                     ),
-                  ),
-        );
-      }
+          );
+        }
 
-      return AppCard(child: content);
-    });
+        return AppCard(child: content);
+      },
+    );
   }
 }
