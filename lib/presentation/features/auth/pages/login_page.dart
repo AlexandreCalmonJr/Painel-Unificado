@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/presentation/bloc/auth/auth_bloc.dart';
 import 'package:painel_windowns/presentation/bloc/auth/auth_event.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/features/home/pages/home_page.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
@@ -111,9 +112,9 @@ class _LoginScreenState extends State<LoginScreen>
         if (result['success'] as bool) {
           // Animação de sucesso antes da navegação
           _showSuccessSnackbar('Login realizado com sucesso!');
-          await Future.delayed(const Duration(milliseconds: 1000));
+          await Future<void>.delayed(const Duration(milliseconds: 1000));
           Navigator.of(context).pushReplacement(
-            PageRouteBuilder(
+            PageRouteBuilder<void>(
               pageBuilder:
                   (context, animation, _) =>
                       HomeScreen(authService: widget.authService),
@@ -160,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen>
 
     // Tenta conectar o WebSocket com as novas configurações
     try {
-      final wsService = Get.find<WebSocketService>();
+      final wsService = getIt<WebSocketService>();
       final baseUrl = 'http://${_ipController.text}:${_portController.text}';
       wsService.connect(baseUrl);
     } catch (e) {
@@ -210,209 +211,213 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final palette = themeController.currentPalette;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.isDarkMode;
+        final palette = themeState.currentPalette;
 
-      return Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient:
-                isDark
-                    ? const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [AppColors.background, AppColors.surface],
-                    )
-                    : const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.backgroundLight,
-                        AppColors.surfaceLightVariant,
+        return Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              gradient:
+                  isDark
+                      ? const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [AppColors.background, AppColors.surface],
+                      )
+                      : const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.backgroundLight,
+                          AppColors.surfaceLightVariant,
+                        ],
+                      ),
+            ),
+            child: Center(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Container(
+                    width: 420,
+                    padding: const EdgeInsets.all(32.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      color:
+                          isDark
+                              ? AppColors.surface
+                              : AppColors.surfaceLightMode,
+                      border: Border.all(
+                        color:
+                            isDark ? AppColors.border : AppColors.borderLight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
                       ],
                     ),
-          ),
-          child: Center(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: Container(
-                  width: 420,
-                  padding: const EdgeInsets.all(32.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    color:
-                        isDark ? AppColors.surface : AppColors.surfaceLightMode,
-                    border: Border.all(
-                      color: isDark ? AppColors.border : AppColors.borderLight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Logo e título
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: palette['primary']!.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.admin_panel_settings,
-                          size: 48,
-                          color: palette['primary'],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'MDM Control Panel',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color:
-                              isDark
-                                  ? AppColors.textPrimary
-                                  : AppColors.textPrimaryLight,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Tabs com design melhorado
-                      Container(
-                        decoration: BoxDecoration(
-                          color:
-                              isDark
-                                  ? AppColors.background
-                                  : AppColors.surfaceLightVariant,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color:
-                                isDark
-                                    ? AppColors.border
-                                    : AppColors.borderLight,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Logo e título
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: palette['primary']!.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.admin_panel_settings,
+                            size: 48,
+                            color: palette['primary'],
                           ),
                         ),
-                        padding: const EdgeInsets.all(4),
-                        child: TabBar(
-                          controller: _tabController,
-                          indicator: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: palette['primary'],
-                            boxShadow: [
-                              BoxShadow(
-                                color: palette['primary']!.withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                        const SizedBox(height: 24),
+                        Text(
+                          'MDM Control Panel',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                isDark
+                                    ? AppColors.textPrimary
+                                    : AppColors.textPrimaryLight,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Tabs com design melhorado
+                        Container(
+                          decoration: BoxDecoration(
+                            color:
+                                isDark
+                                    ? AppColors.background
+                                    : AppColors.surfaceLightVariant,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color:
+                                  isDark
+                                      ? AppColors.border
+                                      : AppColors.borderLight,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: TabBar(
+                            controller: _tabController,
+                            indicator: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: palette['primary'],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: palette['primary']!.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            labelColor: Colors.white,
+                            unselectedLabelColor:
+                                isDark
+                                    ? AppColors.textSecondary
+                                    : AppColors.textSecondaryLight,
+                            dividerColor: Colors.transparent,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            splashFactory: NoSplash.splashFactory,
+                            overlayColor: WidgetStateProperty.all(
+                              Colors.transparent,
+                            ),
+                            tabs: const [
+                              Tab(
+                                icon: Icon(Icons.login, size: 20),
+                                text: 'Login',
+                                height: 56,
+                              ),
+                              Tab(
+                                icon: Icon(Icons.settings, size: 20),
+                                text: 'Servidor',
+                                height: 56,
                               ),
                             ],
                           ),
-                          labelColor: Colors.white,
-                          unselectedLabelColor:
-                              isDark
-                                  ? AppColors.textSecondary
-                                  : AppColors.textSecondaryLight,
-                          dividerColor: Colors.transparent,
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          splashFactory: NoSplash.splashFactory,
-                          overlayColor: WidgetStateProperty.all(
-                            Colors.transparent,
-                          ),
-                          tabs: const [
-                            Tab(
-                              icon: Icon(Icons.login, size: 20),
-                              text: 'Login',
-                              height: 56,
-                            ),
-                            Tab(
-                              icon: Icon(Icons.settings, size: 20),
-                              text: 'Servidor',
-                              height: 56,
-                            ),
-                          ],
                         ),
-                      ),
-                      const SizedBox(height: 32),
+                        const SizedBox(height: 32),
 
-                      // Conteúdo das tabs
-                      SizedBox(
-                        height: 280,
-                        child: TabBarView(
-                          controller: _tabController,
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: [
-                            _buildLoginForm(isDark, palette),
-                            _buildServerConfigForm(isDark, palette),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Assinatura do desenvolvedor
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: (isDark
-                                  ? AppColors.background
-                                  : AppColors.surfaceLightVariant)
-                              .withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color:
-                                isDark
-                                    ? AppColors.border
-                                    : AppColors.borderLight,
+                        // Conteúdo das tabs
+                        SizedBox(
+                          height: 280,
+                          child: TabBarView(
+                            controller: _tabController,
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: [
+                              _buildLoginForm(isDark, palette),
+                              _buildServerConfigForm(isDark, palette),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.code,
-                              size: 18,
+
+                        const SizedBox(height: 24),
+
+                        // Assinatura do desenvolvedor
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: (isDark
+                                    ? AppColors.background
+                                    : AppColors.surfaceLightVariant)
+                                .withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
                               color:
                                   isDark
-                                      ? AppColors.textSecondary
-                                      : AppColors.textSecondaryLight,
+                                      ? AppColors.border
+                                      : AppColors.borderLight,
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Desenvolvido por Alexandre Calmon - TI Bahia',
-                              style: TextStyle(
-                                fontSize: 12,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.code,
+                                size: 18,
                                 color:
                                     isDark
                                         ? AppColors.textSecondary
                                         : AppColors.textSecondaryLight,
-                                fontWeight: FontWeight.w500,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 8),
+                              Text(
+                                'Desenvolvido por Alexandre Calmon - TI Bahia',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color:
+                                      isDark
+                                          ? AppColors.textSecondary
+                                          : AppColors.textSecondaryLight,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget _buildLoginForm(bool isDark, Map<String, Color> palette) {
@@ -507,7 +512,7 @@ class _LoginScreenState extends State<LoginScreen>
     TextInputAction? textInputAction,
     TextInputType? keyboardType,
     Widget? suffixIcon,
-    Function(String)? onFieldSubmitted,
+    void Function(String)? onFieldSubmitted,
   }) {
     return TextFormField(
       controller: controller,
