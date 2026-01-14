@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/logger.dart';
 import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/presentation/bloc/auth/auth_bloc.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
@@ -14,22 +13,23 @@ import 'package:painel_windowns/presentation/shared/theme/app_theme.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 import 'package:painel_windowns/services/websocket_service.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize timeago Portuguese locale
+  timeago.setLocaleMessages('pt_BR', timeago.PtBrMessages());
 
   // Configurar Dependency Injection
   await configureDependencies();
 
   await ServerConfigService.instance.initialize();
 
-  final authService = AuthService();
+  final authService = getIt<AuthService>();
   await authService.initializeFromStorage();
 
   // Inicializa WebSocketService e registra no DI
-  final logger = Logger();
-  final wsService = WebSocketService(logger);
-  getIt.registerSingleton<WebSocketService>(wsService);
 
   runApp(MyApp(authService: authService));
 }

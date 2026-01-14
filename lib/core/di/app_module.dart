@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
+import 'package:logger/logger.dart';
 import 'package:painel_windowns/core/network/network_info.dart';
 import 'package:painel_windowns/data/datasources/local/auth_local_datasource.dart';
 import 'package:painel_windowns/data/datasources/local/mobile_local_datasource.dart';
@@ -15,6 +16,7 @@ import 'package:painel_windowns/domain/repositories/i_device_repository.dart';
 import 'package:painel_windowns/domain/repositories/i_totem_repository.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/status_service.dart';
+import 'package:painel_windowns/services/websocket_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Injectable module for registering dependencies that cannot use
@@ -38,13 +40,21 @@ abstract class AppModule {
   Future<SharedPreferences> get sharedPreferences =>
       SharedPreferences.getInstance();
 
+  /// Provides Logger
+  @lazySingleton
+  Logger get logger => Logger();
+
+  /// Provides WebSocketService
+  @lazySingleton
+  WebSocketService websocketService(Logger logger) => WebSocketService(logger);
+
   /// Provides StatusService
   @lazySingleton
   StatusService get statusService => StatusService();
 
   /// Provides DeviceRemoteDataSource
   @lazySingleton
-  DeviceRemoteDataSource deviceRemoteDataSource(http.Client client) =>
+  DeviceRemoteDataSource deviceRemoteDataSource(http.Client client, SharedPreferences sharedPreferences) =>
       DeviceRemoteDataSourceImpl(
         client: client,
         baseUrl: 'http://localhost:3000/api', // TODO: Move to config
@@ -57,7 +67,7 @@ abstract class AppModule {
 
   /// Provides TotemRemoteDataSource
   @lazySingleton
-  TotemRemoteDataSource totemRemoteDataSource(http.Client client) =>
+  TotemRemoteDataSource totemRemoteDataSource(http.Client client, SharedPreferences sharedPreferences) =>
       TotemRemoteDataSourceImpl(
         client: client,
         baseUrl: 'http://localhost:3000/api', // TODO: Move to config
@@ -70,7 +80,7 @@ abstract class AppModule {
 
   /// Provides AuthRemoteDataSource
   @lazySingleton
-  AuthRemoteDataSource authRemoteDataSource(http.Client client) =>
+  AuthRemoteDataSource authRemoteDataSource(http.Client client, SharedPreferences sharedPreferences) =>
       AuthRemoteDataSourceImpl(
         client: client,
         baseUrl: 'http://localhost:3000/api', // TODO: Move to config

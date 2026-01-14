@@ -27,3 +27,13 @@ class LoadDeviceById extends DeviceEvent {
   @override
   List<Object?> get props => [deviceId];
 }
+
+/// Event triggered when a device is updated via WebSocket
+class DeviceUpdatedFromWebSocket extends DeviceEvent {
+  const DeviceUpdatedFromWebSocket(this.updateData);
+  
+  final Map<String, dynamic> updateData;
+
+  @override
+  List<Object?> get props => [updateData];
+}

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/core/error/exceptions.dart';
+import 'package:painel_windowns/services/server_config_service.dart';
 
 /// Data Source remoto para autenticação
 abstract class AuthRemoteDataSource {
@@ -15,16 +16,20 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-
   AuthRemoteDataSourceImpl({required this.client, required this.baseUrl});
   final http.Client client;
   final String baseUrl;
+
+  String get _currentBaseUrl {
+    final config = ServerConfigService.instance.loadConfig();
+    return 'http://${config['ip']}:${config['port']}/api';
+  }
 
   @override
   Future<Map<String, dynamic>> login(String username, String password) async {
     try {
       final response = await client.post(
-        Uri.parse('$baseUrl/auth/login'),
+        Uri.parse('$_currentBaseUrl/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'username': username, 'password': password}),
       );
@@ -48,7 +53,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<bool> validateToken(String token) async {
     try {
       final response = await client.get(
-        Uri.parse('$baseUrl/auth/validate'),
+        Uri.parse('$_currentBaseUrl/auth/validate'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -65,7 +70,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<Map<String, dynamic>> getCurrentUser(String token) async {
     try {
       final response = await client.get(
-        Uri.parse('$baseUrl/auth/me'),
+        Uri.parse('$_currentBaseUrl/auth/me'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

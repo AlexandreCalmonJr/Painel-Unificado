@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/core/error/exceptions.dart';
 import 'package:painel_windowns/data/models/totem_model.dart';
+import 'package:painel_windowns/services/server_config_service.dart';
 
 /// Data Source remoto para totems
 abstract class TotemRemoteDataSource {
@@ -12,16 +13,20 @@ abstract class TotemRemoteDataSource {
 }
 
 class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
-
   TotemRemoteDataSourceImpl({required this.client, required this.baseUrl});
   final http.Client client;
   final String baseUrl;
+
+  String get _currentBaseUrl {
+    final config = ServerConfigService.instance.loadConfig();
+    return 'http://${config['ip']}:${config['port']}/api';
+  }
 
   @override
   Future<List<Totem>> getTotems(String token) async {
     try {
       final response = await client.get(
-        Uri.parse('$baseUrl/totems'),
+        Uri.parse('$_currentBaseUrl/totems'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -51,7 +56,7 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
   Future<Totem> getTotemById(String token, String totemId) async {
     try {
       final response = await client.get(
-        Uri.parse('$baseUrl/totems/$totemId'),
+        Uri.parse('$_currentBaseUrl/totems/$totemId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -87,7 +92,7 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
   Future<void> sendCommand(String token, String totemId, String command) async {
     try {
       final response = await client.post(
-        Uri.parse('$baseUrl/totems/$totemId/command'),
+        Uri.parse('$_currentBaseUrl/totems/$totemId/command'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -120,7 +125,7 @@ class TotemRemoteDataSourceImpl implements TotemRemoteDataSource {
   Future<void> updateTotem(String token, Totem totem) async {
     try {
       final response = await client.put(
-        Uri.parse('$baseUrl/totems/${totem.id}'),
+        Uri.parse('$_currentBaseUrl/totems/${totem.id}'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

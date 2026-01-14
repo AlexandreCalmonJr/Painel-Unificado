@@ -31,6 +31,7 @@
         "rxdart",
         "shared_preferences",
         "synchronized",
+        "timeago",
         "universal_platform",
         "web_socket_channel"
       ],
@@ -196,6 +197,13 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "timeago",
+      "version": "3.7.1",
+      "dependencies": [
+        "intl"
       ]
     },
     {

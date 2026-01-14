@@ -12,7 +12,6 @@ import 'package:painel_windowns/services/token_service.dart';
 /// and returns them as a list of [DeviceEntity].
 @lazySingleton
 class GetDevicesUseCase implements UseCase<List<DeviceEntity>, NoParams> {
-
   GetDevicesUseCase(this.repository, this.tokenService);
   final IDeviceRepository repository;
   final TokenService tokenService;
@@ -22,7 +21,9 @@ class GetDevicesUseCase implements UseCase<List<DeviceEntity>, NoParams> {
     final token = tokenService.getToken();
 
     if (token == null) {
-      return const Left(UnauthorizedFailure());
+      return const Left(
+        UnauthorizedFailure(message: 'Token não encontrado (Local)'),
+      );
     }
 
     return repository.getDevices(token);

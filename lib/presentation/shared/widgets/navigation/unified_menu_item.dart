@@ -15,7 +15,7 @@ enum MenuItemStyle {
   sidebar,
 
   /// Card-based hub style
-  hub,
+  hub, compact,
 }
 
 /// Unified menu item widget

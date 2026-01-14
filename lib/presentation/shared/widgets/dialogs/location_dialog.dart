@@ -28,6 +28,8 @@ class _LocationDialogState extends State<LocationDialog> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
+  late TextEditingController _ipStartController;
+  late TextEditingController _ipEndController;
   bool _isSaving = false;
 
   @override
@@ -37,12 +39,16 @@ class _LocationDialogState extends State<LocationDialog> {
     _descriptionController = TextEditingController(
       text: widget.location?.description ?? '',
     );
+    _ipStartController = TextEditingController();
+    _ipEndController = TextEditingController();
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    _ipStartController.dispose();
+    _ipEndController.dispose();
     super.dispose();
   }
 
@@ -55,6 +61,12 @@ class _LocationDialogState extends State<LocationDialog> {
       final data = {
         'name': _nameController.text.trim(),
         'description': _descriptionController.text.trim(),
+        'ip_ranges': [
+          {
+            'start': _ipStartController.text.trim(),
+            'end': _ipEndController.text.trim(),
+          },
+        ],
       };
 
       await widget.onSave(data);
@@ -117,6 +129,48 @@ class _LocationDialogState extends State<LocationDialog> {
                     prefixIcon: Icon(Icons.description),
                   ),
                   maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _ipStartController,
+                  decoration: const InputDecoration(
+                    labelText: 'IP Inicial',
+                    hintText: 'Ex: 192.168.1.1',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.router),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'IP inicial é obrigatório';
+                    }
+                    // Basic IPv4 validation
+                    final ipRegex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}$');
+                    if (!ipRegex.hasMatch(value.trim())) {
+                      return 'IP inválido';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _ipEndController,
+                  decoration: const InputDecoration(
+                    labelText: 'IP Final',
+                    hintText: 'Ex: 192.168.1.254',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.router),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'IP final é obrigatório';
+                    }
+                    // Basic IPv4 validation
+                    final ipRegex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}$');
+                    if (!ipRegex.hasMatch(value.trim())) {
+                      return 'IP inválido';
+                    }
+                    return null;
+                  },
                 ),
               ],
             ),

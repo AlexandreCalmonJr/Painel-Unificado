@@ -8,10 +8,12 @@ import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/module.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
+import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/module_dialog.dart';
 // import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
+import 'package:painel_windowns/presentation/features/admin/pages/module_details_page.dart';
 
 class AdminModulesTab extends StatefulWidget {
   const AdminModulesTab({required this.authService, super.key});
@@ -78,7 +80,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                   name: data['name'] as String,
                   description: data['description'] as String,
                   type: moduleType,
-                  tableColumns: List<Map<String, String>>.from(
+                  tableColumns: List<Map<String, dynamic>>.from(
                     data['table_columns'] as List? ?? [],
                   ),
                 );
@@ -90,7 +92,7 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
                   description: data['description'] as String?,
                   isActive: data['is_active'] as bool?,
                   type: module.type,
-                  tableColumns: List<Map<String, String>>.from(
+                  tableColumns: List<Map<String, dynamic>>.from(
                     data['table_columns'] as List? ?? [],
                   ),
                 );
@@ -157,15 +159,47 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro ao excluir: $e'),
-              backgroundColor: AppColors.danger,
-            ),
-          );
+          // Check for specific error content if possible, or just show dialog
+          if (e.toString().contains('400')) {
+            await showDialog<void>(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    title: const Text('Não é possível excluir'),
+                    content: const Text(
+                      'Este módulo possui ativos vinculados.\nRemova todos os ativos antes de excluir o módulo.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Erro ao excluir: $e'),
+                backgroundColor: AppColors.danger,
+              ),
+            );
+          }
         }
       }
     }
+  }
+
+  void _navigateToModuleDetails(Module module) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder:
+            (context) => ModuleDetailsPage(
+              module: module,
+              authService: widget.authService,
+            ),
+      ),
+    );
   }
 
   @override
@@ -243,32 +277,29 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
             Row(
               children: [
                 Expanded(
-                  child: _buildStatCard(
-                    'Total de Módulos',
-                    _modules.length.toString(),
-                    Icons.apps,
-                    palette['primary']!,
-                    isDark,
+                  child: StatCard(
+                    title: 'Total de Módulos',
+                    value: _modules.length.toString(),
+                    icon: Icons.apps,
+                    color: palette['primary']!,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildStatCard(
-                    'Módulos Ativos',
-                    activeModules.toString(),
-                    Icons.check_circle,
-                    AppColors.success,
-                    isDark,
+                  child: StatCard(
+                    title: 'Módulos Ativos',
+                    value: activeModules.toString(),
+                    icon: Icons.check_circle,
+                    color: AppColors.success,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildStatCard(
-                    'Módulos Inativos',
-                    (_modules.length - activeModules).toString(),
-                    Icons.pause_circle,
-                    AppColors.warning,
-                    isDark,
+                  child: StatCard(
+                    title: 'Módulos Inativos',
+                    value: (_modules.length - activeModules).toString(),
+                    icon: Icons.pause_circle,
+                    color: AppColors.warning,
                   ),
                 ),
               ],
@@ -411,66 +442,6 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
     );
   }
 
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-    bool isDark,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.border : AppColors.borderLight,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color:
-                        isDark
-                            ? AppColors.textPrimary
-                            : AppColors.textPrimaryLight,
-                  ),
-                ),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color:
-                        isDark
-                            ? AppColors.textSecondary
-                            : AppColors.textSecondaryLight,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildModuleCard(
     Module module,
     bool isDark,
@@ -478,161 +449,169 @@ class _AdminModulesTabState extends State<AdminModulesTab> {
   ) {
     final isActive = module.isActive;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+    return Material(
+      color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
+        side: BorderSide(
           color: isDark ? AppColors.border : AppColors.borderLight,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _navigateToModuleDetails(module),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [palette['primary']!, palette['accent']!],
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [palette['primary']!, palette['accent']!],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(module.icon, color: Colors.white, size: 28),
                   ),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(module.icon, color: Colors.white, size: 28),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          isActive
+                              ? AppColors.success.withOpacity(0.1)
+                              : AppColors.textSecondary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color:
+                                isActive
+                                    ? AppColors.success
+                                    : AppColors.textSecondary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          module.statusText,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color:
+                                isActive
+                                    ? AppColors.success
+                                    : AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
+
+              const SizedBox(height: 16),
+
+              Text(
+                module.name,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                   color:
-                      isActive
-                          ? AppColors.success.withOpacity(0.1)
-                          : AppColors.textSecondary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color:
-                            isActive
-                                ? AppColors.success
-                                : AppColors.textSecondary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      module.statusText,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color:
-                            isActive
-                                ? AppColors.success
-                                : AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
+                      isDark
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimaryLight,
                 ),
               ),
-            ],
-          ),
 
-          const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
-          Text(
-            module.name,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color:
-                  isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            module.description,
-            style: TextStyle(
-              fontSize: 13,
-              color:
-                  isDark
-                      ? AppColors.textSecondary
-                      : AppColors.textSecondaryLight,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-
-          const Spacer(),
-
-          Divider(color: isDark ? AppColors.border : AppColors.borderLight),
-
-          const SizedBox(height: 12),
-
-          Row(
-            children: [
-              Icon(
-                Icons.category_outlined,
-                size: 16,
-                color:
-                    isDark
-                        ? AppColors.textSecondary
-                        : AppColors.textSecondaryLight,
+              Text(
+                module.description,
+                style: TextStyle(
+                  fontSize: 13,
+                  color:
+                      isDark
+                          ? AppColors.textSecondary
+                          : AppColors.textSecondaryLight,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  module.type.displayName,
-                  style: TextStyle(
-                    fontSize: 12,
+
+              const Spacer(),
+
+              Divider(color: isDark ? AppColors.border : AppColors.borderLight),
+
+              const SizedBox(height: 12),
+
+              Row(
+                children: [
+                  Icon(
+                    Icons.category_outlined,
+                    size: 16,
                     color:
                         isDark
                             ? AppColors.textSecondary
                             : AppColors.textSecondaryLight,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      module.type.displayName,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color:
+                            isDark
+                                ? AppColors.textSecondary
+                                : AppColors.textSecondaryLight,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: () => _showModuleDialog(module: module),
+                    icon: const Icon(Icons.edit, size: 18),
+                    style: IconButton.styleFrom(
+                      backgroundColor: palette['primary']!.withOpacity(0.1),
+                      foregroundColor: palette['primary'],
+                    ),
+                    tooltip: 'Editar',
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed: () => _deleteModule(module),
+                    icon: const Icon(Icons.delete, size: 18),
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.danger.withOpacity(0.1),
+                      foregroundColor: AppColors.danger,
+                    ),
+                    tooltip: 'Excluir',
+                  ),
+                ],
               ),
             ],
           ),
-
-          const SizedBox(height: 12),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: () => _showModuleDialog(module: module),
-                icon: const Icon(Icons.edit, size: 18),
-                style: IconButton.styleFrom(
-                  backgroundColor: palette['primary']!.withOpacity(0.1),
-                  foregroundColor: palette['primary'],
-                ),
-                tooltip: 'Editar',
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: () => _deleteModule(module),
-                icon: const Icon(Icons.delete, size: 18),
-                style: IconButton.styleFrom(
-                  backgroundColor: AppColors.danger.withOpacity(0.1),
-                  foregroundColor: AppColors.danger,
-                ),
-                tooltip: 'Excluir',
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

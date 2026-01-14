@@ -1,20 +1,28 @@
 // File: lib/services/report_generator.dart
-import 'dart:typed_data'; // Necess·rio para Uint8List
 
-import 'package:excel/excel.dart'; // Necess·rio para Excel
-import 'package:painel_windowns/data/models/asset_module_base_model.dart'; // Import presumido
+import 'dart:typed_data';
+
+import 'package:excel/excel.dart';
+import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw; // Necess·rio para PDF
+import 'package:pdf/widgets.dart' as pw;
 
+/// Servi√ßo respons√°vel por gerar relat√≥rios em PDF e Excel
+/// para os ativos gerenciados no sistema
 class ReportGenerator {
-  /// Gera relatÛrio PDF com gr·ficos
+  /// Gera relat√≥rio em formato PDF com sum√°rio executivo e lista detalhada
+  ///
+  /// [assets] - Lista de ativos a serem inclu√≠dos no relat√≥rio
+  /// [module] - Configura√ß√£o do m√≥dulo com informa√ß√µes de colunas
+  ///
+  /// Retorna um [Uint8List] contendo os bytes do PDF gerado
   Future<Uint8List> generatePdfReport({
     required List<ManagedAsset> assets,
     required AssetModuleConfig module,
   }) async {
     final pdf = pw.Document();
 
-    // P·gina 1: Sum·rio Executivo
+    // P√°gina 1: Sum√°rio Executivo
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Column(
@@ -22,22 +30,20 @@ class ReportGenerator {
           children: [
             pw.Header(
               level: 0,
-              child: pw.Text('RelatÛrio de Ativos - ${module.name}'),
+              child: pw.Text('Relat√≥rio de Ativos - ${module.name}'),
             ),
             pw.SizedBox(height: 20),
             _buildSummaryTable(assets),
             pw.SizedBox(height: 20),
-            // ? M…TODO ADICIONADO (PLACEHOLDER)
             _buildStatusChart(assets),
           ],
         ),
       ),
     );
 
-    // P·gina 2: Lista Detalhada
+    // P√°gina 2: Lista Detalhada
     pdf.addPage(
       pw.Page(
-        // ? M…TODO ADICIONADO
         build: (context) => _buildDetailedTable(assets, module),
       ),
     );
@@ -45,8 +51,11 @@ class ReportGenerator {
     return pdf.save();
   }
 
+  /// Constr√≥i tabela resumida com estat√≠sticas dos ativos
   pw.Widget _buildSummaryTable(List<ManagedAsset> assets) {
-    if (assets.isEmpty) return pw.Text('Nenhum ativo para exibir.');
+    if (assets.isEmpty) {
+      return pw.Text('Nenhum ativo para exibir.');
+    }
 
     final total = assets.length;
     final online = assets.where((a) => a.status == 'online').length;
@@ -56,46 +65,53 @@ class ReportGenerator {
     return pw.Table(
       border: pw.TableBorder.all(),
       children: [
-        pw.TableRow(children: [
-          pw.Padding(
-              padding: const pw.EdgeInsets.all(8),
-              child: pw.Text('Total de Ativos',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
-          pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('$total')),
-        ]),
-        pw.TableRow(children: [
-          pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Online')),
-          pw.Padding(
-              padding: const pw.EdgeInsets.all(8),
-              child: pw.Text(
-                  '$online (${(online / total * 100).toStringAsFixed(1)}%)')),
-        ]),
-        pw.TableRow(children: [
-          pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Offline')),
-          pw.Padding(
-              padding: const pw.EdgeInsets.all(8),
-              child: pw.Text(
-                  '$offline (${(offline / total * 100).toStringAsFixed(1)}%)')),
-        ]),
-        pw.TableRow(children: [
-          pw.Padding(
-              padding: const pw.EdgeInsets.all(8), child: pw.Text('Em ManutenÁ„o')),
-          pw.Padding(
-              padding: const pw.EdgeInsets.all(8),
-              child: pw.Text(
-                  '$maintenance (${(maintenance / total * 100).toStringAsFixed(1)}%)')),
-        ]),
+        _buildTableRow('Total de Ativos', '$total', isBold: true),
+        _buildTableRow(
+          'Online',
+          '$online (${_calculatePercentage(online, total)}%)',
+        ),
+        _buildTableRow(
+          'Offline',
+          '$offline (${_calculatePercentage(offline, total)}%)',
+        ),
+        _buildTableRow(
+          'Em Manuten√ß√£o',
+          '$maintenance (${_calculatePercentage(maintenance, total)}%)',
+        ),
       ],
     );
   }
 
-  // ===================================================================
-  // ? M…TODOS QUE FALTAVAM (FORAM ADICIONADOS)
-  // ===================================================================
+  /// Helper para criar linhas da tabela de resumo
+  pw.TableRow _buildTableRow(String label, String value, {bool isBold = false}) {
+    return pw.TableRow(
+      children: [
+        pw.Padding(
+          padding: const pw.EdgeInsets.all(8),
+          child: pw.Text(
+            label,
+            style: isBold ? pw.TextStyle(fontWeight: pw.FontWeight.bold) : null,
+          ),
+        ),
+        pw.Padding(
+          padding: const pw.EdgeInsets.all(8),
+          child: pw.Text(value),
+        ),
+      ],
+    );
+  }
 
-  /// ConstrÛi a tabela detalhada para o PDF
+  /// Calcula porcentagem com uma casa decimal
+  String _calculatePercentage(int part, int total) {
+    if (total == 0) return '0.0';
+    return (part / total * 100).toStringAsFixed(1);
+  }
+
+  /// Constr√≥i a tabela detalhada dos ativos para o PDF
   pw.Widget _buildDetailedTable(
-      List<ManagedAsset> assets, AssetModuleConfig module) {
+    List<ManagedAsset> assets,
+    AssetModuleConfig module,
+  ) {
     final headers = module.tableColumns.map((c) => c.label).toList();
 
     final data = assets.map((asset) {
@@ -106,26 +122,28 @@ class ReportGenerator {
     }).toList();
 
     return pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Header(level: 1, text: 'Lista Detalhada de Ativos'),
-          pw.Table.fromTextArray(
-            headers: headers,
-            data: data,
-            border: pw.TableBorder.all(),
-            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            cellStyle: const pw.TextStyle(fontSize: 8),
-            cellAlignment: pw.Alignment.centerLeft,
-            headerAlignment: pw.Alignment.centerLeft,
-          ),
-        ]);
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Header(level: 1, child: pw.Text('Lista Detalhada de Ativos')),
+        pw.SizedBox(height: 10),
+        pw.Table.fromTextArray(
+          headers: headers,
+          data: data,
+          border: pw.TableBorder.all(),
+          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          cellStyle: const pw.TextStyle(fontSize: 8),
+          cellAlignment: pw.Alignment.centerLeft,
+          headerAlignment: pw.Alignment.centerLeft,
+        ),
+      ],
+    );
   }
 
-  /// ConstrÛi um placeholder para o gr·fico de status no PDF
+  /// Placeholder para gr√°fico de status no PDF
+  ///
+  /// Nota: Para gr√°ficos reais, considere usar a biblioteca charts_flutter
+  /// e converter para imagem, ou usar pdf_widgets com gr√°ficos customizados
   pw.Widget _buildStatusChart(List<ManagedAsset> assets) {
-    // Gerar gr·ficos em PDF È complexo e requer a biblioteca pdf/charts
-    // ou uma imagem est·tica de um gr·fico.
-    // Este È um placeholder.
     return pw.Container(
       padding: const pw.EdgeInsets.all(20),
       decoration: pw.BoxDecoration(
@@ -133,17 +151,18 @@ class ReportGenerator {
         color: PdfColors.grey100,
       ),
       child: pw.Text(
-        'Placeholder para Gr·fico de Status (Online, Offline, ManutenÁ„o)',
+        'Placeholder para Gr√°fico de Status (Online, Offline, Manuten√ß√£o)',
         style: const pw.TextStyle(color: PdfColors.grey600),
       ),
     );
   }
 
-  // ===================================================================
-  // FIM DOS M…TODOS ADICIONADOS
-  // ===================================================================
-
-  /// Gera relatÛrio Excel com m˙ltiplas abas
+  /// Gera relat√≥rio em formato Excel com m√∫ltiplas abas
+  ///
+  /// [assets] - Lista de ativos a serem inclu√≠dos no relat√≥rio
+  /// [module] - Configura√ß√£o do m√≥dulo com informa√ß√µes de colunas
+  ///
+  /// Retorna [List<int>?] com os bytes do arquivo Excel ou null em caso de erro
   Future<List<int>?> generateExcelReport({
     required List<ManagedAsset> assets,
     required AssetModuleConfig module,
@@ -151,40 +170,91 @@ class ReportGenerator {
     final excel = Excel.createExcel();
 
     // Aba 1: Resumo
-    final summarySheet = excel['Resumo'];
-    summarySheet.appendRow(['MÈtrica', 'Valor']);
-    summarySheet.appendRow(['Total de Ativos', assets.length]);
-    summarySheet
-        .appendRow(['Online', assets.where((a) => a.status == 'online').length]);
-    summarySheet.appendRow(
-        ['Offline', assets.where((a) => a.status == 'offline').length]);
+    _createSummarySheet(excel, assets);
 
     // Aba 2: Detalhes
-    final detailsSheet = excel['Detalhes'];
-    detailsSheet
-        .appendRow(module.tableColumns.map((c) => c.label).toList());
+    _createDetailsSheet(excel, assets, module);
 
-    for (final asset in assets) {
-      final row = module.tableColumns.map((col) {
-        final value = asset.toJson()[col.dataKey];
-        return value?.toString() ?? 'N/D';
-      }).toList();
-      detailsSheet.appendRow(row);
-    }
+    // Aba 3: Por Localiza√ß√£o
+    _createLocationSheet(excel, assets);
 
-    // Aba 3: Por LocalizaÁ„o
-    final locationSheet = excel['Por LocalizaÁ„o'];
-    final groupedByUnit = _groupByLocation(assets);
-    locationSheet.appendRow(['Unidade', 'Setor', 'Andar', 'Total']);
-
-    groupedByUnit.forEach((key, list) {
-      final parts = key.split('|');
-      locationSheet.appendRow([parts[0], parts[1], parts[2], list.length]);
-    });
+    // Remove a aba padr√£o se existir
+    excel.delete('Sheet1');
 
     return excel.encode();
   }
 
+  /// Cria a aba de resumo no Excel
+  void _createSummarySheet(Excel excel, List<ManagedAsset> assets) {
+    final summarySheet = excel['Resumo'];
+    summarySheet.appendRow([TextCellValue('M√©trica'), TextCellValue('Valor')]);
+    summarySheet.appendRow([
+      TextCellValue('Total de Ativos'),
+      IntCellValue(assets.length),
+    ]);
+    summarySheet.appendRow([
+      TextCellValue('Online'),
+      IntCellValue(assets.where((a) => a.status == 'online').length),
+    ]);
+    summarySheet.appendRow([
+      TextCellValue('Offline'),
+      IntCellValue(assets.where((a) => a.status == 'offline').length),
+    ]);
+    summarySheet.appendRow([
+      TextCellValue('Em Manuten√ß√£o'),
+      IntCellValue(assets.where((a) => a.status == 'maintenance').length),
+    ]);
+  }
+
+  /// Cria a aba de detalhes no Excel
+  void _createDetailsSheet(
+    Excel excel,
+    List<ManagedAsset> assets,
+    AssetModuleConfig module,
+  ) {
+    final detailsSheet = excel['Detalhes'];
+    
+    // Adiciona cabe√ßalhos
+    detailsSheet.appendRow(
+      module.tableColumns.map((c) => TextCellValue(c.label)).toList(),
+    );
+
+    // Adiciona dados dos ativos
+    for (final asset in assets) {
+      final row = module.tableColumns.map((col) {
+        final value = asset.toJson()[col.dataKey];
+        return TextCellValue(value?.toString() ?? 'N/D');
+      }).toList();
+      detailsSheet.appendRow(row);
+    }
+  }
+
+  /// Cria a aba de agrupamento por localiza√ß√£o no Excel
+  void _createLocationSheet(Excel excel, List<ManagedAsset> assets) {
+    final locationSheet = excel['Por Localiza√ß√£o'];
+    final groupedByUnit = _groupByLocation(assets);
+
+    // Adiciona cabe√ßalhos
+    locationSheet.appendRow([
+      TextCellValue('Unidade'),
+      TextCellValue('Setor'),
+      TextCellValue('Andar'),
+      TextCellValue('Total'),
+    ]);
+
+    // Adiciona dados agrupados
+    groupedByUnit.forEach((key, list) {
+      final parts = key.split('|');
+      locationSheet.appendRow([
+        TextCellValue(parts[0]),
+        TextCellValue(parts[1]),
+        TextCellValue(parts[2]),
+        IntCellValue(list.length),
+      ]);
+    });
+  }
+
+  /// Agrupa ativos por localiza√ß√£o (unidade, setor e andar)
   Map<String, List<ManagedAsset>> _groupByLocation(List<ManagedAsset> assets) {
     final Map<String, List<ManagedAsset>> grouped = {};
 

@@ -1,4 +1,5 @@
 ﻿import 'dart:async';
+import 'package:painel_windowns/core/di/injection.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -15,7 +16,7 @@ const int kMaxRetries = 3;
 const Duration kRetryDelay = Duration(seconds: 2);
 
 class DeviceService extends GetxService {
-  final AuthService _authService = Get.find<AuthService>();
+  final AuthService _authService = getIt<AuthService>();
 
   Future<http.Response> _performHttpRequest({
     required Future<http.Response> Function() request,
@@ -88,7 +89,7 @@ class DeviceService extends GetxService {
     try {
       final response = await http.get(
         uri,
-        headers: {'Authorization': 'Bearer ${_authService.currentToken}'},
+        headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
@@ -102,8 +103,11 @@ class DeviceService extends GetxService {
         // Ideally, the backend should return mapped data.
         // For this implementation, I will assume simple parsing or that we pass empty lists if not critical for the list view.
         final devices =
-            devicesJson.map((json) => Device.fromJson(
-              json as Map<String, dynamic>, [])).toList();
+            devicesJson
+                .map(
+                  (json) => Device.fromJson(json as Map<String, dynamic>, []),
+                )
+                .toList();
 
         return {
           'devices': devices,

@@ -79,17 +79,21 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
         counts[unitName] = (counts[unitName] ?? 0) + 1;
       }
 
-      setState(() {
-        _locations = locations;
-        _units = units;
-        _bssidCounts = counts;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _locations = locations;
+          _units = units;
+          _bssidCounts = counts;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:painel_windowns/core/di/injection.dart';
 
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -6,7 +7,7 @@ import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 
 class ConfigProfileService extends GetxService {
-  final AuthService _authService = Get.find<AuthService>();
+  final AuthService _authService = getIt<AuthService>();
 
   String get _baseUrl {
     final config = ServerConfigService.instance.loadConfig();

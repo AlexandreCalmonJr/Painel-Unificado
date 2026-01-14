@@ -8,10 +8,15 @@ import 'package:painel_windowns/presentation/bloc/totem/totem_event.dart';
 import 'package:painel_windowns/presentation/bloc/totem/totem_state.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
 import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
+import 'package:painel_windowns/presentation/shared/widgets/controls/unified_command_controls.dart'
+    hide SendCommandDialog;
+import 'package:painel_windowns/presentation/shared/widgets/dialogs/send_command_dialog.dart';
+import 'package:painel_windowns/presentation/shared/widgets/menus/base_command_menu.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_dashboard_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_list_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/device_service.dart';
 
 class TotemDashboardScreen extends StatefulWidget {
   const TotemDashboardScreen({required this.authService, super.key});
@@ -422,12 +427,13 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       case 0:
         return _buildDashboardWithTable(allTotems);
       case 1:
+
         // Convert table columns and create config
         final columns = convertTableColumns([
           TableColumnConfig(dataKey: 'hostname', label: 'Hostname'),
           TableColumnConfig(dataKey: 'status', label: 'Status'),
           TableColumnConfig(dataKey: 'serialNumber', label: 'Serial'),
-          TableColumnConfig(dataKey: 'location', label: 'Localiza��o'),
+          TableColumnConfig(dataKey: 'location', label: 'Localização'),
         ]);
         final config = createAssetCardConfig('totens_export');
 
@@ -452,11 +458,12 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
             });
           },
           title: 'Totens',
-          searchHint: 'Buscar por hostname, IP, localiza��o...',
+          searchHint: 'Buscar por hostname, IP, localização...',
           searchLabel: 'Buscar Totens',
-          // required callback for asset taps; no-op implementation for now
           onAssetTap: (ManagedAsset asset) async {},
           isLoading: state is TotemLoading,
+          showActions: true,
+          actions: (asset) => _buildActions(asset),
         );
       default:
         return _buildDashboardWithTable(allTotems);
@@ -517,7 +524,72 @@ class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
       stats: stats,
       title: 'Visão Geral dos Totens',
       showActions: false,
+      actions: (asset) => _buildActions(asset),
       onAssetTap: (ManagedAsset asset) async {},
     );
+  }
+
+  Widget _buildActions(ManagedAsset asset) {
+    return UnifiedCommandControls<ManagedAsset>(
+      item: asset,
+      authService: widget.authService,
+      token: widget.authService.currentToken,
+      customActions: [
+        CommandAction<ManagedAsset>(
+          label: 'Enviar Comando',
+          icon: Icons.terminal,
+          onTap: (context, item) async {
+            await showDialog<void>(
+              context: context,
+              builder:
+                  (context) => SendCommandDialog(
+                    asset: item,
+                    moduleId: '',
+                    authService: widget.authService,
+                    onCommandSent: () {},
+                  ),
+            );
+          },
+          color: Colors.blue,
+        ),
+        CommandAction<ManagedAsset>(
+          label: 'Excluir Totem',
+          icon: Icons.delete_forever,
+          onTap: (context, item) async {
+            await _deleteTotem(context, item);
+          },
+          requiresConfirmation: true,
+          confirmTitle: 'Excluir Totem?',
+          confirmMessage:
+              'Tem certeza que deseja excluir este totem? A ação é irreversível.',
+          isDestructive: true,
+          color: Colors.red,
+        ),
+      ],
+      onCommandExecuted:
+          () => context.read<TotemBloc>().add(const LoadTotems()),
+    );
+  }
+
+  Future<void> _deleteTotem(BuildContext context, ManagedAsset asset) async {
+    try {
+      final service = getIt<DeviceService>();
+      await service.deleteTotem(asset.serialNumber);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Totem excluído com sucesso')),
+        );
+        context.read<TotemBloc>().add(const LoadTotems());
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao excluir: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
