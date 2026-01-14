@@ -146,7 +146,12 @@ class _MobileDashboardPageState extends State<MobileDashboardPage> {
                   )
                   .toList();
 
-          _updateDisplayedDevices(allDevices);
+          // Defer state update to after build completes
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              _updateDisplayedDevices(allDevices);
+            }
+          });
 
           return Container(
             decoration: BoxDecoration(

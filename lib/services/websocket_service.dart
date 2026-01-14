@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:logger/src/logger.dart';
-import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketService extends GetxService {
@@ -42,10 +41,8 @@ class WebSocketService extends GetxService {
       final wsUrl = '${_lastUrl!.replaceFirst('http', 'ws')}/ws';
       print('Tentando conectar WebSocket: $wsUrl');
 
-      _channel = IOWebSocketChannel.connect(
-        Uri.parse(wsUrl),
-        pingInterval: const Duration(seconds: 30),
-      );
+      // Usa WebSocketChannel.connect que funciona em todas as plataformas
+      _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
       _channel!.stream.listen(
         (message) {
@@ -76,9 +73,7 @@ class WebSocketService extends GetxService {
 
   void _onMessage(dynamic message) {
     try {
-      final data = jsonDecode(
-        message as String,
-      ) as Map<String, dynamic>;
+      final data = jsonDecode(message as String) as Map<String, dynamic>;
 
       switch (data['type']) {
         case 'heartbeat_ack':
