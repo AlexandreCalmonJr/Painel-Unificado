@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 
 /// Model for sidebar menu items
 class SidebarMenuItem {
-
   const SidebarMenuItem({
     required this.icon,
     required this.title,
@@ -24,9 +24,13 @@ class SidebarMenuItem {
 
 /// Reusable sidebar widget for all dashboard screens
 class CustomSidebar extends StatelessWidget {
-
   const CustomSidebar({
-    required this.title, required this.titleIcon, required this.menuItems, required this.selectedIndex, required this.onItemTap, super.key,
+    required this.title,
+    required this.titleIcon,
+    required this.menuItems,
+    required this.selectedIndex,
+    required this.onItemTap,
+    super.key,
     this.footerText,
     this.isAdmin = false,
   });
@@ -41,49 +45,50 @@ class CustomSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
 
-      // Professional Minimalist Colors
-      final backgroundColor = isDark ? const Color(0xFF1A202C) : Colors.white;
-      final textPrimary = isDark ? Colors.white : const Color(0xFF2D3748);
-      final textSecondary =
-          isDark ? Colors.grey[400]! : const Color(0xFF718096);
-      final dividerColor = isDark ? Colors.white10 : Colors.grey[200]!;
+        // Professional Minimalist Colors
+        final backgroundColor = isDark ? const Color(0xFF1A202C) : Colors.white;
+        final textPrimary = isDark ? Colors.white : const Color(0xFF2D3748);
+        final textSecondary =
+            isDark ? Colors.grey[400]! : const Color(0xFF718096);
+        final dividerColor = isDark ? Colors.white10 : Colors.grey[200]!;
 
-      return Container(
-        width: 260,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          border: Border(right: BorderSide(color: dividerColor)),
-        ),
-        child: Column(
-          children: [
-            // Header
-            _buildHeader(textPrimary, dividerColor),
+        return Container(
+          width: 260,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border(right: BorderSide(color: dividerColor)),
+          ),
+          child: Column(
+            children: [
+              // Header
+              _buildHeader(textPrimary, dividerColor),
 
-            // Menu Items
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 12,
-                ),
-                children: _buildMenuItems(
-                  textPrimary,
-                  textSecondary,
-                  dividerColor,
+              // Menu Items
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 12,
+                  ),
+                  children: _buildMenuItems(
+                    textPrimary,
+                    textSecondary,
+                    dividerColor,
+                  ),
                 ),
               ),
-            ),
 
-            // Footer
-            if (footerText != null) _buildFooter(textSecondary, dividerColor),
-          ],
-        ),
-      );
-    });
+              // Footer
+              if (footerText != null) _buildFooter(textSecondary, dividerColor),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildHeader(Color textColor, Color dividerColor) {

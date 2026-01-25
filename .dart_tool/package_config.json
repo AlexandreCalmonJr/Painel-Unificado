@@ -279,7 +279,7 @@
     },
     {
       "name": "flutter",
-      "rootUri": "file:///C:/Users/Administrator/SDK/flutter/packages/flutter",
+      "rootUri": "file:///C:/Users/Administrator/flutter/packages/flutter",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
@@ -339,13 +339,13 @@
     },
     {
       "name": "flutter_test",
-      "rootUri": "file:///C:/Users/Administrator/SDK/flutter/packages/flutter_test",
+      "rootUri": "file:///C:/Users/Administrator/flutter/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
     {
       "name": "flutter_web_plugins",
-      "rootUri": "file:///C:/Users/Administrator/SDK/flutter/packages/flutter_web_plugins",
+      "rootUri": "file:///C:/Users/Administrator/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
@@ -735,7 +735,7 @@
     },
     {
       "name": "sky_engine",
-      "rootUri": "file:///C:/Users/Administrator/SDK/flutter/bin/cache/pkg/sky_engine",
+      "rootUri": "file:///C:/Users/Administrator/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
@@ -822,6 +822,12 @@
       "rootUri": "file:///C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/test_core-0.6.12",
       "packageUri": "lib/",
       "languageVersion": "3.5"
+    },
+    {
+      "name": "timeago",
+      "rootUri": "file:///C:/Users/Administrator/AppData/Local/Pub/Cache/hosted/pub.dev/timeago-3.7.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "timing",
@@ -916,7 +922,7 @@
   ],
   "generator": "pub",
   "generatorVersion": "3.10.7",
-  "flutterRoot": "file:///C:/Users/Administrator/SDK/flutter",
+  "flutterRoot": "file:///C:/Users/Administrator/flutter",
   "flutterVersion": "3.38.6",
   "pubCache": "file:///C:/Users/Administrator/AppData/Local/Pub/Cache"
 }

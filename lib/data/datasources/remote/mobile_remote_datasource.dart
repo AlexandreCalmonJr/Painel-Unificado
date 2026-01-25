@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:painel_windowns/core/error/exceptions.dart';
 import 'package:painel_windowns/data/models/mobile_model.dart';
+import 'package:painel_windowns/services/server_config_service.dart';
 
 /// Data Source remoto para dispositivos
 ///
@@ -21,16 +22,20 @@ abstract class DeviceRemoteDataSource {
 }
 
 class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
-
   DeviceRemoteDataSourceImpl({required this.client, required this.baseUrl});
   final http.Client client;
   final String baseUrl;
+
+  String get _currentBaseUrl {
+    final config = ServerConfigService.instance.loadConfig();
+    return 'http://${config['ip']}:${config['port']}/api';
+  }
 
   @override
   Future<List<Device>> getDevices(String token) async {
     try {
       final response = await client.get(
-        Uri.parse('$baseUrl/devices'),
+        Uri.parse('$_currentBaseUrl/devices'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -38,13 +43,25 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final jsonList = json.decode(response.body) as List<dynamic>;
-        // Nota: Device.fromJson precisa de units, por enquanto passamos lista vazia
+        final decoded = json.decode(response.body);
+        List<dynamic> jsonList;
+
+        if (decoded is List) {
+          jsonList = decoded;
+        } else if (decoded is Map && decoded.containsKey('devices')) {
+          jsonList = decoded['devices'] as List<dynamic>;
+        } else if (decoded is Map && decoded.containsKey('data')) {
+          jsonList = decoded['data'] as List<dynamic>;
+        } else {
+          // Fallback or empty if structure is unknown but success
+          jsonList = [];
+        }
+
         return jsonList
             .map((json) => Device.fromJson(json as Map<String, dynamic>, []))
             .toList();
       } else if (response.statusCode == 401) {
-        throw const UnauthorizedException(message: 'Unauthorized access');
+        throw const UnauthorizedException(message: 'Acesso Negado API (401)');
       } else {
         throw ServerException(
           message: 'Failed to load devices: ${response.statusCode}',
@@ -62,7 +79,7 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
   Future<Device> getDeviceById(String token, String deviceId) async {
     try {
       final response = await client.get(
-        Uri.parse('$baseUrl/devices/$deviceId'),
+        Uri.parse('$_currentBaseUrl/devices/$deviceId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -99,7 +116,7 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
   ) async {
     try {
       final response = await client.post(
-        Uri.parse('$baseUrl/devices/$deviceId/command'),
+        Uri.parse('$_currentBaseUrl/devices/$deviceId/command'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -132,7 +149,7 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
   Future<void> updateDevice(String token, Device device) async {
     try {
       final response = await client.put(
-        Uri.parse('$baseUrl/devices/${device.id}'),
+        Uri.parse('$_currentBaseUrl/devices/${device.id}'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

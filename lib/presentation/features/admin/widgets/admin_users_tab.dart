@@ -2,10 +2,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:painel_windowns/core/config/theme_models.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/core/utils/theme_utils.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/user_dialog.dart';
 import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
 import 'package:painel_windowns/services/auth_service.dart';
@@ -59,58 +62,61 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final palette = themeController.currentPalette;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
+        final palette = ColorPalettes.getPalette(themeState.config.colorScheme);
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header com estatísticas
-          _buildStatsCards(isDark, palette),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header com estatísticas
+            _buildStatsCards(isDark, palette),
 
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-          // Barra de busca e filtros
-          _buildSearchAndFilters(isDark, palette),
+            // Barra de busca e filtros
+            _buildSearchAndFilters(isDark, palette),
 
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-          // Lista de usuários
-          Expanded(
-            child: FutureBuilder<Map<String, dynamic>>(
-              future: _usersFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(color: palette['primary']),
-                  );
-                }
+            // Lista de usuários
+            Expanded(
+              child: FutureBuilder<Map<String, dynamic>>(
+                future: _usersFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: palette['primary'],
+                      ),
+                    );
+                  }
 
-                if (snapshot.hasError) {
-                  return _buildErrorState(isDark, palette);
-                }
+                  if (snapshot.hasError) {
+                    return _buildErrorState(isDark, palette);
+                  }
 
-                final result = snapshot.data ?? {};
-                final allUsers = result['users'] as List<dynamic>? ?? [];
-                final filteredUsers = _filterUsers(allUsers);
+                  final result = snapshot.data ?? {};
+                  final allUsers = result['users'] as List<dynamic>? ?? [];
+                  final filteredUsers = _filterUsers(allUsers);
 
-                if (filteredUsers.isEmpty && _searchQuery.isEmpty) {
-                  return _buildEmptyState(isDark, palette);
-                }
+                  if (filteredUsers.isEmpty && _searchQuery.isEmpty) {
+                    return _buildEmptyState(isDark, palette);
+                  }
 
-                if (filteredUsers.isEmpty) {
-                  return _buildNoResultsState(isDark, palette);
-                }
+                  if (filteredUsers.isEmpty) {
+                    return _buildNoResultsState(isDark, palette);
+                  }
 
-                return _buildUsersList(filteredUsers, isDark, palette);
-              },
+                  return _buildUsersList(filteredUsers, isDark, palette);
+                },
+              ),
             ),
-          ),
-        ],
-      );
-    });
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildStatsCards(bool isDark, Map<String, Color> palette) {

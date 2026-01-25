@@ -1,8 +1,10 @@
 // File: lib/widgets/app_bar_widget.dart
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/core/utils/theme_utils.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/profile_page.dart';
 import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
 import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widget.dart';
@@ -39,99 +41,100 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final palette = themeController.currentPalette;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
+        final palette = ColorPalettes.getPalette(themeState.config.colorScheme);
 
-      return Container(
-        height: 70,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-        ),
-        child: SafeArea(
-          child: Row(
-            children: [
-              // Menu/Back button
-              if (showMenuButton && onMenuPressed != null)
-                IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: palette['primary']!.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.menu, color: palette['primary']),
-                  ),
-                  onPressed: onMenuPressed,
-                  tooltip: 'Menu',
-                )
-              else if (showBackButton)
-                IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: palette['primary']!.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.arrow_back, color: palette['primary']),
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                  tooltip: 'Voltar',
-                ),
-
-              const SizedBox(width: 12),
-
-              // Ícone e título
-              Icon(Icons.dashboard, color: palette['primary'], size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    color:
-                        isDark
-                            ? AppColors.textPrimary
-                            : AppColors.textPrimaryLight,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+        return Container(
+          height: 70,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
-
-              // Actions customizadas
-              if (actions != null) ...actions!,
-
-              // Botão de tema
-              if (showThemeButton) ...[
-                const SizedBox(width: 8),
-                const ThemeSelectorButton(),
-              ],
-
-              // Botão de perfil
-              if (showProfileButton) ...[
-                const SizedBox(width: 8),
-                _buildProfileButton(context, isDark, palette),
-              ],
             ],
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
           ),
-        ),
-      );
-    });
+          child: SafeArea(
+            child: Row(
+              children: [
+                // Menu/Back button
+                if (showMenuButton && onMenuPressed != null)
+                  IconButton(
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: palette['primary']!.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.menu, color: palette['primary']),
+                    ),
+                    onPressed: onMenuPressed,
+                    tooltip: 'Menu',
+                  )
+                else if (showBackButton)
+                  IconButton(
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: palette['primary']!.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.arrow_back, color: palette['primary']),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: 'Voltar',
+                  ),
+
+                const SizedBox(width: 12),
+
+                // Ícone e título
+                Icon(Icons.dashboard, color: palette['primary'], size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color:
+                          isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryLight,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+
+                // Actions customizadas
+                if (actions != null) ...actions!,
+
+                // Botão de tema
+                if (showThemeButton) ...[
+                  const SizedBox(width: 8),
+                  const ThemeSelectorButton(),
+                ],
+
+                // Botão de perfil
+                if (showProfileButton) ...[
+                  const SizedBox(width: 8),
+                  _buildProfileButton(context, isDark, palette),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildProfileButton(
@@ -256,7 +259,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             );
             break;
           case 'settings':
-            ThemeSelectorWidget.showDialog(context);
+            ThemeSelectorWidget.show(context);
             break;
           case 'logout':
             _handleLogout(context);
@@ -267,29 +270,27 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   void _handleLogout(BuildContext context) {
-    // ignore: inference_failure_on_function_invocation
+    final themeCubit = context.read<ThemeCubit>();
+    final isDark = themeCubit.state.effectiveDarkMode;
+
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
+          (dialogContext) => AlertDialog(
             backgroundColor:
-                ThemeController.to.isDarkMode
-                    ? AppColors.surface
-                    : AppColors.surfaceLightMode,
+                isDark ? AppColors.surface : AppColors.surfaceLightMode,
             title: Text(
               'Confirmar Saída',
               style: TextStyle(
                 color:
-                    ThemeController.to.isDarkMode
-                        ? AppColors.textPrimary
-                        : AppColors.textPrimaryLight,
+                    isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
               ),
             ),
             content: Text(
               'Tem certeza que deseja sair?',
               style: TextStyle(
                 color:
-                    ThemeController.to.isDarkMode
+                    isDark
                         ? AppColors.textSecondary
                         : AppColors.textSecondaryLight,
               ),

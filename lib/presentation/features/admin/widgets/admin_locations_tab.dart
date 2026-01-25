@@ -1,12 +1,15 @@
 ﻿// File: lib/admin/tabs/admin_locations_tab.dart
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:painel_windowns/core/config/theme_models.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/core/utils/theme_utils.dart';
 // ignore: library_prefixes
 import 'package:painel_windowns/data/models/location.dart' as LocationModel;
 import 'package:painel_windowns/data/models/unit_model.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/features/admin/pages/unit_bssids_page.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/location_dialog.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
@@ -76,17 +79,21 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
         counts[unitName] = (counts[unitName] ?? 0) + 1;
       }
 
-      setState(() {
-        _locations = locations;
-        _units = units;
-        _bssidCounts = counts;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _locations = locations;
+          _units = units;
+          _bssidCounts = counts;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -273,102 +280,103 @@ class _AdminLocationsTabState extends State<AdminLocationsTab>
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final palette = themeController.currentPalette;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
+        final palette = ColorPalettes.getPalette(themeState.config.colorScheme);
 
-      if (_isLoading) {
-        return const Center(child: CircularProgressIndicator());
-      }
+        if (_isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-      if (_error != null) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: AppColors.danger,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Erro ao carregar dados',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color:
-                      isDark
-                          ? AppColors.textPrimary
-                          : AppColors.textPrimaryLight,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _error!,
-                style: TextStyle(
-                  color:
-                      isDark
-                          ? AppColors.textSecondary
-                          : AppColors.textSecondaryLight,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _loadData,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Tentar Novamente'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        );
-      }
-
-      return Column(
-        children: [
-          // TabBar
-          Container(
-            margin: const EdgeInsets.only(bottom: 20),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isDark ? AppColors.border : AppColors.borderLight,
-              ),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              indicatorColor: palette['primary'],
-              labelColor: palette['primary'],
-              unselectedLabelColor:
-                  isDark
-                      ? AppColors.textSecondary
-                      : AppColors.textSecondaryLight,
-              tabs: const [
-                Tab(text: 'Localiza��es', icon: Icon(Icons.location_on)),
-                Tab(text: 'Unidades', icon: Icon(Icons.business)),
-              ],
-            ),
-          ),
-
-          // TabBarView
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
+        if (_error != null) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildLocationsTab(isDark, palette),
-                _buildUnitsTab(isDark, palette),
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: AppColors.danger,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Erro ao carregar dados',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        isDark
+                            ? AppColors.textPrimary
+                            : AppColors.textPrimaryLight,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _error!,
+                  style: TextStyle(
+                    color:
+                        isDark
+                            ? AppColors.textSecondary
+                            : AppColors.textSecondaryLight,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: _loadData,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Tentar Novamente'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      );
-    });
+          );
+        }
+
+        return Column(
+          children: [
+            // TabBar
+            Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? AppColors.border : AppColors.borderLight,
+                ),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                indicatorColor: palette['primary'],
+                labelColor: palette['primary'],
+                unselectedLabelColor:
+                    isDark
+                        ? AppColors.textSecondary
+                        : AppColors.textSecondaryLight,
+                tabs: const [
+                  Tab(text: 'Localiza��es', icon: Icon(Icons.location_on)),
+                  Tab(text: 'Unidades', icon: Icon(Icons.business)),
+                ],
+              ),
+            ),
+
+            // TabBarView
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildLocationsTab(isDark, palette),
+                  _buildUnitsTab(isDark, palette),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildLocationsTab(bool isDark, Map<String, Color> palette) {

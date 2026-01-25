@@ -12,18 +12,19 @@
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:http/http.dart' as _i519;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:logger/logger.dart' as _i974;
 import 'package:painel_windowns/core/di/app_module.dart' as _i836;
 import 'package:painel_windowns/core/network/network_info.dart' as _i958;
 import 'package:painel_windowns/data/datasources/local/auth_local_datasource.dart'
     as _i441;
 import 'package:painel_windowns/data/datasources/local/mobile_local_datasource.dart'
-    as _i1022;
+    as _i1052;
 import 'package:painel_windowns/data/datasources/local/totem_local_datasource.dart'
     as _i1028;
 import 'package:painel_windowns/data/datasources/remote/auth_remote_datasource.dart'
     as _i552;
 import 'package:painel_windowns/data/datasources/remote/mobile_remote_datasource.dart'
-    as _i1054;
+    as _i250;
 import 'package:painel_windowns/data/datasources/remote/totem_remote_datasource.dart'
     as _i711;
 import 'package:painel_windowns/domain/repositories/i_auth_repository.dart'
@@ -58,6 +59,7 @@ import 'package:painel_windowns/presentation/bloc/totem/totem_bloc.dart'
 import 'package:painel_windowns/services/auth_service.dart' as _i474;
 import 'package:painel_windowns/services/status_service.dart' as _i80;
 import 'package:painel_windowns/services/token_service.dart' as _i262;
+import 'package:painel_windowns/services/websocket_service.dart' as _i284;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -75,8 +77,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i474.AuthService>(() => appModule.authService);
     gh.lazySingleton<_i958.NetworkInfo>(() => appModule.networkInfo);
     gh.lazySingleton<_i519.Client>(() => appModule.httpClient);
+    gh.lazySingleton<_i974.Logger>(() => appModule.logger);
     gh.lazySingleton<_i80.StatusService>(() => appModule.statusService);
-    gh.lazySingleton<_i1022.DeviceLocalDataSource>(
+    gh.lazySingleton<_i1052.DeviceLocalDataSource>(
       () => appModule.deviceLocalDataSource(gh<_i460.SharedPreferences>()),
     );
     gh.lazySingleton<_i1028.TotemLocalDataSource>(
@@ -85,17 +88,67 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i441.AuthLocalDataSource>(
       () => appModule.authLocalDataSource(gh<_i460.SharedPreferences>()),
     );
+    gh.lazySingleton<_i250.DeviceRemoteDataSource>(
+      () => appModule.deviceRemoteDataSource(
+        gh<_i519.Client>(),
+        gh<_i460.SharedPreferences>(),
+      ),
+    );
+    gh.lazySingleton<_i711.TotemRemoteDataSource>(
+      () => appModule.totemRemoteDataSource(
+        gh<_i519.Client>(),
+        gh<_i460.SharedPreferences>(),
+      ),
+    );
+    gh.lazySingleton<_i552.AuthRemoteDataSource>(
+      () => appModule.authRemoteDataSource(
+        gh<_i519.Client>(),
+        gh<_i460.SharedPreferences>(),
+      ),
+    );
     gh.lazySingleton<_i262.TokenService>(
       () => _i262.TokenService(gh<_i474.AuthService>()),
     );
-    gh.lazySingleton<_i1054.DeviceRemoteDataSource>(
-      () => appModule.deviceRemoteDataSource(gh<_i519.Client>()),
+    gh.lazySingleton<_i284.WebSocketService>(
+      () => appModule.websocketService(gh<_i974.Logger>()),
     );
-    gh.lazySingleton<_i711.TotemRemoteDataSource>(
-      () => appModule.totemRemoteDataSource(gh<_i519.Client>()),
+    gh.lazySingleton<_i868.IAuthRepository>(
+      () => appModule.authRepository(
+        gh<_i552.AuthRemoteDataSource>(),
+        gh<_i441.AuthLocalDataSource>(),
+      ),
     );
-    gh.lazySingleton<_i552.AuthRemoteDataSource>(
-      () => appModule.authRemoteDataSource(gh<_i519.Client>()),
+    gh.lazySingleton<_i576.IDeviceRepository>(
+      () => appModule.deviceRepository(
+        gh<_i250.DeviceRemoteDataSource>(),
+        gh<_i1052.DeviceLocalDataSource>(),
+        gh<_i958.NetworkInfo>(),
+        gh<_i80.StatusService>(),
+      ),
+    );
+    gh.lazySingleton<_i491.LoginUseCase>(
+      () => _i491.LoginUseCase(gh<_i868.IAuthRepository>()),
+    );
+    gh.lazySingleton<_i963.LogoutUseCase>(
+      () => _i963.LogoutUseCase(gh<_i868.IAuthRepository>()),
+    );
+    gh.lazySingleton<_i848.GetDevicesUseCase>(
+      () => _i848.GetDevicesUseCase(
+        gh<_i576.IDeviceRepository>(),
+        gh<_i262.TokenService>(),
+      ),
+    );
+    gh.factory<_i746.DeviceBloc>(
+      () => _i746.DeviceBloc(
+        getDevicesUseCase: gh<_i848.GetDevicesUseCase>(),
+        websocketService: gh<_i284.WebSocketService>(),
+      ),
+    );
+    gh.factory<_i931.AuthBloc>(
+      () => _i931.AuthBloc(
+        loginUseCase: gh<_i491.LoginUseCase>(),
+        logoutUseCase: gh<_i963.LogoutUseCase>(),
+      ),
     );
     gh.lazySingleton<_i888.ITotemRepository>(
       () => appModule.totemRepository(
@@ -111,14 +164,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i262.TokenService>(),
       ),
     );
-    gh.lazySingleton<_i576.IDeviceRepository>(
-      () => appModule.deviceRepository(
-        gh<_i1054.DeviceRemoteDataSource>(),
-        gh<_i1022.DeviceLocalDataSource>(),
-        gh<_i958.NetworkInfo>(),
-        gh<_i80.StatusService>(),
-      ),
-    );
     gh.lazySingleton<_i568.GetDeviceByIdUseCase>(
       () => _i568.GetDeviceByIdUseCase(gh<_i576.IDeviceRepository>()),
     );
@@ -128,12 +173,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i138.UpdateDeviceUseCase>(
       () => _i138.UpdateDeviceUseCase(gh<_i576.IDeviceRepository>()),
     );
-    gh.lazySingleton<_i868.IAuthRepository>(
-      () => appModule.authRepository(
-        gh<_i552.AuthRemoteDataSource>(),
-        gh<_i441.AuthLocalDataSource>(),
-      ),
-    );
     gh.factory<_i738.TotemBloc>(
       () => _i738.TotemBloc(getTotemsUseCase: gh<_i407.GetTotemsUseCase>()),
     );
@@ -142,27 +181,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1005.UpdateTotemUseCase>(
       () => _i1005.UpdateTotemUseCase(gh<_i888.ITotemRepository>()),
-    );
-    gh.lazySingleton<_i491.LoginUseCase>(
-      () => _i491.LoginUseCase(gh<_i868.IAuthRepository>()),
-    );
-    gh.lazySingleton<_i963.LogoutUseCase>(
-      () => _i963.LogoutUseCase(gh<_i868.IAuthRepository>()),
-    );
-    gh.lazySingleton<_i848.GetDevicesUseCase>(
-      () => _i848.GetDevicesUseCase(
-        gh<_i576.IDeviceRepository>(),
-        gh<_i262.TokenService>(),
-      ),
-    );
-    gh.factory<_i931.AuthBloc>(
-      () => _i931.AuthBloc(
-        loginUseCase: gh<_i491.LoginUseCase>(),
-        logoutUseCase: gh<_i963.LogoutUseCase>(),
-      ),
-    );
-    gh.factory<_i746.DeviceBloc>(
-      () => _i746.DeviceBloc(getDevicesUseCase: gh<_i848.GetDevicesUseCase>()),
     );
     return this;
   }

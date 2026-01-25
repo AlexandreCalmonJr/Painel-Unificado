@@ -48,6 +48,7 @@ dependencies:
   synchronized: ^3.3.1
   csv: ^6.0.0
   logger: ^2.6.2
+  # GetX mantido APENAS para serviços (GetxService) - State management usa BLoC
   get: ^4.7.2
   pdf: ^3.11.3
   
@@ -64,6 +65,7 @@ dependencies:
   flutter_bloc: ^9.1.1  # State management
   get_it: ^9.2.0  # Dependency injection
   injectable: ^2.3.2  # Code generation for DI
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:

@@ -7,9 +7,10 @@ import 'dart:io';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/base_card.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,11 +21,13 @@ class AssetTableColumn<T> {
     required this.label,
     required this.builder,
     this.csvBuilder,
+    this.flex = 1,
   });
 
   final String label;
   final Widget Function(T item) builder;
   final String Function(T item)? csvBuilder;
+  final int flex;
 }
 
 /// Configuration for the ManagedAssetsCard behavior
@@ -44,6 +47,18 @@ class AssetCardConfig<T> {
 
 /// Unified widget for displaying managed assets in a table with CSV export
 class ManagedAssetsCard<T> extends StatelessWidget {
+  final String title;
+  final List<T> items;
+  final List<AssetTableColumn<T>> columns;
+  final AssetCardConfig<T> config;
+  final bool showActions;
+  final bool expand;
+  final VoidCallback? onItemUpdate;
+  final Map<String, dynamic>? currentUser;
+  final String? subtitle;
+  final Widget Function(T item)? actions;
+  final void Function(BuildContext context, T item)? onItemTap;
+
   const ManagedAssetsCard({
     required this.title,
     required this.items,
@@ -56,18 +71,8 @@ class ManagedAssetsCard<T> extends StatelessWidget {
     this.currentUser,
     this.subtitle,
     this.actions,
+    this.onItemTap,
   });
-
-  final String title;
-  final List<T> items;
-  final List<AssetTableColumn<T>> columns;
-  final AssetCardConfig<T> config;
-  final bool showActions;
-  final bool expand;
-  final VoidCallback? onItemUpdate;
-  final Map<String, dynamic>? currentUser;
-  final String? subtitle;
-  final Widget Function(T item)? actions;
 
   Future<void> _downloadCsv(BuildContext context) async {
     final headers = columns.map((col) => col.label).toList();
@@ -128,183 +133,188 @@ class ManagedAssetsCard<T> extends StatelessWidget {
       sortedItems.sort(config.sortComparator);
     }
 
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final titleColor =
-          isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
-      final subtitleColor =
-          isDark ? AppColors.textSecondary : AppColors.textSecondaryLight;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
+        final titleColor =
+            isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
+        final subtitleColor =
+            isDark ? AppColors.textSecondary : AppColors.textSecondaryLight;
+        final borderColor = isDark ? Colors.white10 : Colors.black12;
 
-      final content = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: titleColor,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle!,
-                      style: TextStyle(color: subtitleColor, fontSize: 12),
-                    ),
-                  ],
-                ],
-              ),
-              if (showActions)
-                ElevatedButton.icon(
-                  onPressed: () => _downloadCsv(context),
-                  icon: const Icon(Icons.download, size: 16),
-                  label: const Text('Baixar CSV'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    textStyle: const TextStyle(fontSize: 12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          // Content
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  headingRowColor: WidgetStateProperty.all(
-                    isDark ? Colors.grey[800] : Colors.grey[100],
-                  ),
-                  columns: [
-                    ...columns.map((col) => DataColumn(label: Text(col.label))),
-                    if (actions != null) const DataColumn(label: Text('Ações')),
-                  ],
-                  rows:
-                      sortedItems.map((item) {
-                        return DataRow(
-                          cells: [
-                            ...columns.map(
-                              (col) => DataCell(col.builder(item)),
-                            ),
-                            if (actions != null) DataCell(actions!(item)),
-                          ],
-                        );
-                      }).toList(),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
+        final content = LayoutBuilder(
+          builder: (context, constraints) {
+            // Se tiver altura definida (finitas constraints), usa Expanded/scroll interno
+            // Se for infinito (ex: dentro de SingleChildScrollView), usa shrinkWrap
+            final useExpanded = constraints.maxHeight.isFinite;
 
-      // Use BaseCard or AppCard based on config
-      if (config.useBaseCard) {
-        return BaseCard(
-          title: title,
-          expandChild: expand,
-          actions:
-              showActions
-                  ? [
-                    ElevatedButton.icon(
-                      onPressed: () => _downloadCsv(context),
-                      icon: const Icon(Icons.download, size: 16),
-                      label: const Text('Baixar CSV'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.success,
-                        foregroundColor: Colors.white,
-                        textStyle: AppTextStyles.bodySmall.copyWith(
-                          fontWeight: FontWeight.bold,
+            // Lista de itens construção
+            Widget buildList({required bool shrinkWrap}) {
+              if (sortedItems.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.inbox_outlined,
+                          size: 48,
+                          color: subtitleColor.withOpacity(0.5),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
+                        const SizedBox(height: 16),
+                        Text(
+                          'Nenhum item encontrado.',
+                          style: TextStyle(color: subtitleColor),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppConstants.radiusS,
-                          ),
-                        ),
-                      ),
+                      ],
                     ),
-                  ]
-                  : [],
-          child:
-              sortedItems.isEmpty
-                  ? Center(
+                  ),
+                );
+              }
+
+              return ListView.separated(
+                shrinkWrap: shrinkWrap,
+                physics:
+                    shrinkWrap
+                        ? const NeverScrollableScrollPhysics()
+                        : const AlwaysScrollableScrollPhysics(),
+                itemCount: sortedItems.length,
+                separatorBuilder:
+                    (context, index) => Divider(height: 1, color: borderColor),
+                itemBuilder: (context, index) {
+                  final item = sortedItems[index];
+                  return InkWell(
+                    onTap:
+                        (onItemTap ?? config.onItemTap) != null
+                            ? () =>
+                                (onItemTap ?? config.onItemTap)!(context, item)
+                            : null,
+                    hoverColor:
+                        isDark
+                            ? Colors.white.withOpacity(0.05)
+                            : Colors.black.withOpacity(0.05),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      child: Row(
                         children: [
-                          const Icon(
-                            Icons.inbox_outlined,
-                            size: 80,
-                            color: AppColors.textSecondary,
+                          ...columns.map(
+                            (col) => Expanded(
+                              flex: col.flex,
+                              child: col.builder(item),
+                            ),
                           ),
-                          const SizedBox(height: 16),
+                          if (showActions && actions != null)
+                            SizedBox(width: 48, child: actions!(item)),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min, // Important if not expanding
+              children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: titleColor,
+                          ),
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 4),
                           Text(
-                            'Nenhum item encontrado.',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
+                            subtitle!,
+                            style: TextStyle(
+                              color: subtitleColor,
+                              fontSize: 12,
                             ),
                           ),
                         ],
-                      ),
+                      ],
                     ),
-                  )
-                  : SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        headingRowColor: WidgetStateProperty.all(
-                          isDark ? Colors.grey[800] : Colors.grey[100],
-                        ),
-                        columns: [
-                          ...columns.map(
-                            (col) => DataColumn(label: Text(col.label)),
+                    if (showActions)
+                      ElevatedButton.icon(
+                        onPressed: () => _downloadCsv(context),
+                        icon: const Icon(Icons.download, size: 16),
+                        label: const Text('Baixar CSV'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          textStyle: const TextStyle(fontSize: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
                           ),
-                          if (actions != null)
-                            const DataColumn(label: Text('Ações')),
-                        ],
-                        rows:
-                            sortedItems.map((item) {
-                              return DataRow(
-                                cells: [
-                                  ...columns.map(
-                                    (col) => DataCell(col.builder(item)),
-                                  ),
-                                  if (actions != null) DataCell(actions!(item)),
-                                ],
-                              );
-                            }).toList(),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                       ),
-                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Table Header
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: borderColor)),
+                  ),
+                  child: Row(
+                    children: [
+                      ...columns.map(
+                        (col) => Expanded(
+                          flex: col.flex,
+                          child: Text(
+                            col.label,
+                            style: TextStyle(
+                              color: subtitleColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (showActions && actions != null)
+                        const SizedBox(width: 48),
+                    ],
+                  ),
+                ),
+                // Table Content w/ adaptive scroll
+                if (useExpanded)
+                  Expanded(child: buildList(shrinkWrap: false))
+                else
+                  buildList(shrinkWrap: true),
+              ],
+            );
+          },
         );
-      }
 
-      return AppCard(child: content);
-    });
+        if (config.useBaseCard) {
+          return BaseCard(title: title, expandChild: expand, child: content);
+        }
+
+        return AppCard(child: content);
+      },
+    );
   }
 }

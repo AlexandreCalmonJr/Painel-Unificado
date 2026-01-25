@@ -1,14 +1,18 @@
 // File: lib/widgets/common/stat_card.dart (ENHANCED)
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/presentation/features/auth/bloc/theme_controller.dart';
+import 'package:painel_windowns/core/utils/theme_utils.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
+import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 
 /// Widget reutilizável para cards de estatística com animações e efeitos modernos
 class StatCard extends StatefulWidget {
-
   const StatCard({
-    required this.title, required this.value, required this.icon, super.key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    super.key,
     this.color,
     this.onTap,
     this.subtitle,
@@ -75,82 +79,85 @@ class _StatCardState extends State<StatCard>
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final themeController = ThemeController.to;
-      final isDark = themeController.isDarkMode;
-      final palette = themeController.currentPalette;
-      final cardColor = widget.color ?? palette['primary']!;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark = themeState.effectiveDarkMode;
+        final palette = ColorPalettes.getPalette(themeState.config.colorScheme);
+        final cardColor = widget.color ?? palette['primary']!;
 
-      return MouseRegion(
-        onEnter: (_) => _onHover(true),
-        onExit: (_) => _onHover(false),
-        cursor:
-            widget.onTap != null
-                ? SystemMouseCursors.click
-                : SystemMouseCursors.basic,
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder:
-              (context, child) => Transform.scale(
-                scale: _isHovered ? _scaleAnimation.value : 1.0,
-                child: child,
-              ),
-          child: GestureDetector(
-            onTap: widget.onTap,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              decoration: BoxDecoration(
-                color:
-                    widget.showGradient
-                        ? null
-                        : (isDark
-                            ? AppColors.surface
-                            : AppColors.surfaceLightMode),
-                gradient:
-                    widget.showGradient
-                        ? LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [cardColor.withOpacity(0.8), cardColor],
-                        )
-                        : null,
-                borderRadius: BorderRadius.circular(AppConstants.radiusM),
-                boxShadow: [
-                  BoxShadow(
+        return MouseRegion(
+          onEnter: (_) => _onHover(true),
+          onExit: (_) => _onHover(false),
+          cursor:
+              widget.onTap != null
+                  ? SystemMouseCursors.click
+                  : SystemMouseCursors.basic,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder:
+                (context, child) => Transform.scale(
+                  scale: _isHovered ? _scaleAnimation.value : 1.0,
+                  child: child,
+                ),
+            child: GestureDetector(
+              onTap: widget.onTap,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color:
+                      widget.showGradient
+                          ? null
+                          : (isDark
+                              ? AppColors.surface
+                              : AppColors.surfaceLightMode),
+                  gradient:
+                      widget.showGradient
+                          ? LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [cardColor.withOpacity(0.8), cardColor],
+                          )
+                          : null,
+                  borderRadius: BorderRadius.circular(AppConstants.radiusM),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          _isHovered
+                              ? cardColor.withOpacity(0.3)
+                              : Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                      blurRadius: _isHovered ? 12 : 4,
+                      offset: Offset(0, _isHovered ? 6 : 2),
+                      spreadRadius: _isHovered ? 2 : 0,
+                    ),
+                  ],
+                  border: Border.all(
                     color:
                         _isHovered
-                            ? cardColor.withOpacity(0.3)
-                            : Colors.black.withOpacity(isDark ? 0.3 : 0.1),
-                    blurRadius: _isHovered ? 12 : 4,
-                    offset: Offset(0, _isHovered ? 6 : 2),
-                    spreadRadius: _isHovered ? 2 : 0,
+                            ? cardColor.withOpacity(0.5)
+                            : (isDark
+                                    ? AppColors.border
+                                    : AppColors.borderLight)
+                                .withOpacity(0.1),
+                    width: _isHovered ? 2 : 1,
                   ),
-                ],
-                border: Border.all(
-                  color:
-                      _isHovered
-                          ? cardColor.withOpacity(0.5)
-                          : (isDark ? AppColors.border : AppColors.borderLight)
-                              .withOpacity(0.1),
-                  width: _isHovered ? 2 : 1,
                 ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(
-                  widget.isCompact
-                      ? AppConstants.spacingM
-                      : AppConstants.spacingL,
-                ),
-                child:
+                child: Padding(
+                  padding: EdgeInsets.all(
                     widget.isCompact
-                        ? _buildCompactContent(isDark, cardColor)
-                        : _buildFullContent(isDark, cardColor),
+                        ? AppConstants.spacingM
+                        : AppConstants.spacingL,
+                  ),
+                  child:
+                      widget.isCompact
+                          ? _buildCompactContent(isDark, cardColor)
+                          : _buildFullContent(isDark, cardColor),
+                ),
               ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   void _onHover(bool isHovered) {

@@ -28,6 +28,7 @@ class UnifiedDashboardTab<T> extends StatefulWidget {
     required this.columns,
     required this.config,
     required this.stats,
+    required this.onAssetTap,
     super.key,
     this.title = 'Painel',
     this.subtitle,
@@ -36,7 +37,7 @@ class UnifiedDashboardTab<T> extends StatefulWidget {
     this.onItemUpdate,
     this.currentUser,
     this.filterOptions,
-    this.onFilterChanged, required Future<void> Function(ManagedAsset asset) onAssetTap,
+    this.onFilterChanged,
   });
 
   final List<T> items;
@@ -52,6 +53,7 @@ class UnifiedDashboardTab<T> extends StatefulWidget {
   final List<String>? filterOptions;
   // ignore: inference_failure_on_function_return_type
   final Function(String)? onFilterChanged;
+  final Future<void> Function(ManagedAsset asset) onAssetTap;
 
   @override
   State<UnifiedDashboardTab<T>> createState() => _UnifiedDashboardTabState<T>();
@@ -152,6 +154,11 @@ class _UnifiedDashboardTabState<T> extends State<UnifiedDashboardTab<T>> {
             actions: widget.actions,
             onItemUpdate: widget.onItemUpdate,
             currentUser: widget.currentUser,
+            onItemTap: (context, item) async {
+              if (item is ManagedAsset) {
+                await widget.onAssetTap(item);
+              }
+            },
           ),
         ),
       ],

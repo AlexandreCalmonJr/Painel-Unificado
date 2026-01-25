@@ -11,8 +11,23 @@ List<AssetTableColumn<ManagedAsset>> convertTableColumns(
   List<TableColumnConfig> configs,
 ) {
   return configs.map((config) {
+    int flex = 1;
+    if (config.width != null) {
+      if (config.width! >= 200)
+        flex = 3;
+      else if (config.width! >= 100)
+        flex = 2;
+    } else {
+      // Default flex based on content type heuristic
+      if (config.dataKey == 'assetName' || config.dataKey == 'hostname')
+        flex = 2;
+      if (config.dataKey == 'serialNumber') flex = 2;
+      if (config.dataKey == 'status') flex = 1;
+    }
+
     return AssetTableColumn<ManagedAsset>(
       label: config.label,
+      flex: flex,
       builder: (asset) {
         // Extract value from asset using dataKey
         final value = _getValueFromAsset(asset, config.dataKey);

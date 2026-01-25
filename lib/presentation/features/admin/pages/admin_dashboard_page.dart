@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/core/constants/layout_constants.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/features/admin/widgets/admin_apk_manager_tab.dart';
@@ -9,6 +10,7 @@ import 'package:painel_windowns/presentation/features/admin/widgets/admin_locati
 import 'package:painel_windowns/presentation/features/admin/widgets/admin_modules_tab.dart';
 import 'package:painel_windowns/presentation/features/admin/widgets/admin_users_tab.dart';
 import 'package:painel_windowns/presentation/shared/widgets/app_bar_widget.dart';
+import 'package:painel_windowns/presentation/shared/widgets/navigation/breadcrumbs.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
@@ -29,7 +31,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, themeState) {
-        final isDark = themeState.isDarkMode;
+        final isDark = themeState.effectiveDarkMode;
 
         return Container(
           decoration: BoxDecoration(
@@ -60,13 +62,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 setState(() => _isSidebarVisible = !_isSidebarVisible);
               },
             ),
-            body: Row(
+            body: Column(
               children: [
-                if (_isSidebarVisible) _buildSidebar(),
+                _buildBreadcrumbs(isDark),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: _buildTabContent(),
+                  child: Row(
+                    children: [
+                      if (_isSidebarVisible) _buildSidebar(),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(LayoutConstants.spaceL),
+                          child: _buildTabContent(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -75,6 +84,31 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         );
       },
     );
+  }
+
+  Widget _buildBreadcrumbs(bool isDark) {
+    return Breadcrumbs(
+      isDark: isDark,
+      items: BreadcrumbsHelper.withHome(
+        context: context,
+        path: ['Administrativo', _getTabName()],
+      ),
+    );
+  }
+
+  String _getTabName() {
+    switch (selectedIndex) {
+      case 0:
+        return 'Utilizadores';
+      case 1:
+        return 'Localização';
+      case 2:
+        return 'Módulos';
+      case 3:
+        return 'Gestor de APKs';
+      default:
+        return 'Utilizadores';
+    }
   }
 
   Widget _buildSidebar() {
