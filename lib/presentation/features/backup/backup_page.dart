@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/data/models/homelab_models.dart';
 
-class BackupView extends StatelessWidget {
-  const BackupView({Key? key}) : super(key: key);
+class BackupPage extends StatelessWidget {
+  const BackupPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/presentation/widgets/common_widgets.dart';
 
-class MonitoringView extends StatelessWidget {
-  const MonitoringView({Key? key}) : super(key: key);
+class MonitoringPage extends StatelessWidget {
+  const MonitoringPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +17,11 @@ class MonitoringView extends StatelessWidget {
               border: Border.all(color: const Color(0xFF1E293B)),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Column(
+            child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: const [
+                  children: [
                     Icon(LucideIcons.cpu, color: Color(0xFF818CF8), size: 20),
                     SizedBox(width: 8),
                     Text(
@@ -35,8 +35,8 @@ class MonitoringView extends StatelessWidget {
                   ],
                 ),
                 SimpleBarChart(
-                  data: const [20, 40, 60, 30, 50, 45],
-                  color: const Color(0xFF6366F1),
+                  data: [20, 40, 60, 30, 50, 45],
+                  color: Color(0xFF6366F1),
                 ),
               ],
             ),
@@ -51,11 +51,11 @@ class MonitoringView extends StatelessWidget {
               border: Border.all(color: const Color(0xFF1E293B)),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Column(
+            child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: const [
+                  children: [
                     Icon(
                       LucideIcons.activity,
                       color: Color(0xFFA855F7),
@@ -73,8 +73,8 @@ class MonitoringView extends StatelessWidget {
                   ],
                 ),
                 SimpleBarChart(
-                  data: const [60, 65, 62, 68, 70, 72],
-                  color: const Color(0xFFA855F7),
+                  data: [60, 65, 62, 68, 70, 72],
+                  color: Color(0xFFA855F7),
                 ),
               ],
             ),

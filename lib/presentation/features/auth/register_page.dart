@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
   final VoidCallback onSwitchToLogin;
 
-  const RegisterScreen({Key? key, required this.onSwitchToLogin})
+  const RegisterPage({Key? key, required this.onSwitchToLogin})
     : super(key: key);
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();

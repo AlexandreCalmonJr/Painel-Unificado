@@ -3,14 +3,14 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/data/models/homelab_models.dart';
 import 'package:painel_windowns/presentation/widgets/common_widgets.dart';
 
-class AIView extends StatefulWidget {
-  const AIView({Key? key}) : super(key: key);
+class AIPage extends StatefulWidget {
+  const AIPage({Key? key}) : super(key: key);
 
   @override
-  State<AIView> createState() => _AIViewState();
+  State<AIPage> createState() => _AIPageState();
 }
 
-class _AIViewState extends State<AIView> {
+class _AIPageState extends State<AIPage> {
   late List<AIModel> _models;
   final GPUStats _gpuStats = GPUStats(
     name: 'NVIDIA GeForce RTX 3090',

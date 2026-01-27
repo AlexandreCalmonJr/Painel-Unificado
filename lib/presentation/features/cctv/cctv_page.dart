@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class CCTVView extends StatelessWidget {
-  const CCTVView({Key? key}) : super(key: key);
+class CCTVPage extends StatelessWidget {
+  const CCTVPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

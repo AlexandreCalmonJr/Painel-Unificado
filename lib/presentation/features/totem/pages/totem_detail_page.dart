@@ -1,12 +1,12 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:painel_windowns/data/models/totem_model.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/app_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
-class TotemDetailScreen extends StatelessWidget {
+class TotemDetailPage extends StatelessWidget {
 
-  const TotemDetailScreen({
+  const TotemDetailPage({
     required this.totem, required this.authService, super.key,
   });
   final Totem totem;
@@ -30,7 +30,7 @@ class TotemDetailScreen extends StatelessWidget {
         break;
       case 'maintenance':
       case 'com erro':
-        status = 'Manuten��o';
+        status = 'Manuten??o';
         statusColor = Colors.orange;
         statusIcon = Icons.build_outlined;
         break;
@@ -135,7 +135,7 @@ class TotemDetailScreen extends StatelessWidget {
         Expanded(
           child: _buildStatCard(
             icon: Icons.location_on,
-            label: 'Localiza��o',
+            label: 'Localiza??o',
             value: totem.unit ?? totem.location ?? 'N/A',
             color: Colors.blue,
           ),
@@ -144,8 +144,8 @@ class TotemDetailScreen extends StatelessWidget {
         Expanded(
           child: _buildStatCard(
             icon: Icons.access_time,
-            label: '�ltima Conex�o',
-            value: '$minutesSinceLastSeen min atr�s',
+            label: '?ltima Conex?o',
+            value: '$minutesSinceLastSeen min atr?s',
             color: Colors.purple,
           ),
         ),
@@ -225,9 +225,9 @@ class TotemDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('Informa��es Gerais', Icons.computer),
+          _buildCardTitle('Informa??es Gerais', Icons.computer),
           const SizedBox(height: 24),
-          _buildSectionTitle('Identifica��o'),
+          _buildSectionTitle('Identifica??o'),
           _buildDetailRow('Hostname', totem.hostname),
           _buildDetailRow('Unidade', totem.unit ?? totem.location ?? 'N/A'),
           _buildDetailRow('Tipo', totem.totemType),
@@ -238,7 +238,7 @@ class TotemDetailScreen extends StatelessWidget {
           _buildDetailRow('MAC Address', totem.macAddress),
           _buildDetailRow('BSSID', totem.macAddressRadio),
           _buildDetailRow(
-            '�ltima vez visto',
+            '?ltima vez visto',
             DateFormat('dd/MM/yyyy HH:mm:ss').format(totem.lastSeen.toLocal()),
           ),
         ],
@@ -251,18 +251,18 @@ class TotemDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle('Hardware e Perif�ricos', Icons.memory),
+          _buildCardTitle('Hardware e Perif?ricos', Icons.memory),
           const SizedBox(height: 24),
-          _buildSectionTitle('Especifica��es'),
+          _buildSectionTitle('Especifica??es'),
           _buildDetailRow('Serial', totem.serialNumber),
           _buildDetailRow('Service Tag', totem.serviceTag),
-          _buildDetailRow('Mem�ria RAM', totem.ram),
+          _buildDetailRow('Mem?ria RAM', totem.ram),
           _buildDetailRow(
             'Armazenamento',
             '${totem.hdType} ${totem.hdStorage}',
           ),
           const Divider(height: 32),
-          _buildSectionTitle('Perif�ricos'),
+          _buildSectionTitle('Perif?ricos'),
           _buildPeripheralStatus(
             'Impressora Zebra',
             totem.zebraStatus,
@@ -274,12 +274,12 @@ class TotemDetailScreen extends StatelessWidget {
             Icons.print_outlined,
           ),
           _buildPeripheralStatus(
-            'Impressora Padr�o',
+            'Impressora Padr?o',
             totem.printerStatus,
             Icons.print_outlined,
           ),
           _buildPeripheralStatus(
-            'Leitor Biom�trico',
+            'Leitor Biom?trico',
             totem.biometricReaderStatus,
             Icons.fingerprint,
           ),
@@ -295,7 +295,7 @@ class TotemDetailScreen extends StatelessWidget {
         children: [
           _buildCardTitle('Software Instalado', Icons.apps),
           const SizedBox(height: 24),
-          _buildSectionTitle('Vers�es'),
+          _buildSectionTitle('Vers?es'),
           _buildDetailRow('Mozilla Firefox', totem.mozillaVersion),
           _buildDetailRow('Java', totem.javaVersion),
           const Divider(height: 32),

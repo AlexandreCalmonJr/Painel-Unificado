@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:painel_windowns/data/models/homelab_models.dart';
 import 'package:painel_windowns/presentation/widgets/common_widgets.dart';
 
-class WorkstationsView extends StatelessWidget {
-  const WorkstationsView({Key? key}) : super(key: key);
+class WorkstationsPage extends StatelessWidget {
+  const WorkstationsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
-import 'package:painel_windowns/presentation/features/modules/pages/asset_detail_screen.dart';
+import 'package:painel_windowns/presentation/features/modules/pages/asset_detail_page.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/base_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/controls/unified_command_controls.dart';
 import 'package:painel_windowns/presentation/shared/widgets/status/status_chip.dart';
@@ -169,7 +169,7 @@ class UnifiedManagedAssetsCard extends StatelessWidget {
 
                                     MaterialPageRoute(
                                       builder:
-                                          (context) => AssetDetailScreen(
+                                          (context) => AssetDetailPage(
                                             asset: asset,
 
                                             authService: authService,

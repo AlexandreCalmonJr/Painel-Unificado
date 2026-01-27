@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:painel_windowns/core/utils/status_formatter.dart';
 import 'package:painel_windowns/data/models/totem_model.dart';
-import 'package:painel_windowns/presentation/features/totem/pages/totem_detail_screen.dart';
+import 'package:painel_windowns/presentation/features/totem/pages/totem_detail_page.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/managed_assets_card.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
@@ -117,7 +117,7 @@ AssetCardConfig<Totem> buildTotemCardConfig(
         MaterialPageRoute(
           builder:
               (context) =>
-                  TotemDetailScreen(totem: totem, authService: authService),
+                  TotemDetailPage(totem: totem, authService: authService),
         ),
       );
     },

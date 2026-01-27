@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/data/models/homelab_models.dart';
 
-class CommandsView extends StatefulWidget {
-  const CommandsView({Key? key}) : super(key: key);
+class CommandsPage extends StatefulWidget {
+  const CommandsPage({super.key});
 
   @override
-  State<CommandsView> createState() => _CommandsViewState();
+  State<CommandsPage> createState() => _CommandsPageState();
 }
 
-class _CommandsViewState extends State<CommandsView> {
+class _CommandsPageState extends State<CommandsPage> {
   final List<CommandTarget> _allTargets = [];
   final List<int> _selectedTargets = [];
   final List<CommandLog> _commandLog = [];
@@ -121,6 +121,7 @@ class _CommandsViewState extends State<CommandsView> {
     }
 
     if (isDangerous) {
+      // ignore: inference_failure_on_function_invocation
       showDialog(
         context: context,
         builder:
@@ -217,8 +218,8 @@ class _CommandsViewState extends State<CommandsView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: const [
+                            const Row(
+                              children: [
                                 Icon(
                                   LucideIcons.checkSquare,
                                   color: Color(0xFF818CF8),
@@ -370,8 +371,8 @@ class _CommandsViewState extends State<CommandsView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: const [
+                      const Row(
+                        children: [
                           Icon(
                             LucideIcons.terminal,
                             color: Color(0xFF10B981),
@@ -436,8 +437,8 @@ class _CommandsViewState extends State<CommandsView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: const [
+                      const Row(
+                        children: [
                           Icon(
                             LucideIcons.hash,
                             color: Color(0xFF64748B),

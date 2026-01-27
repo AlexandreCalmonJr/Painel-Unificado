@@ -3,14 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class ProvisioningView extends StatefulWidget {
-  const ProvisioningView({super.key});
+class ProvisioningPage extends StatefulWidget {
+   ProvisioningPage({super.key});
 
   @override
-  State<ProvisioningView> createState() => _ProvisioningViewState();
+  State<ProvisioningPage> createState() => _ProvisioningPageState();
 }
 
-class _ProvisioningViewState extends State<ProvisioningView> {
+class _ProvisioningPageState extends State<ProvisioningPage> {
   String _deviceType = 'mobile'; // 'mobile', 'desktop', 'server'
   final String _enrollToken = 'NX-7823-99XA-K2L1';
 

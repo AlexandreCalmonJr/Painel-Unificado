@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class SecurityView extends StatelessWidget {
-  const SecurityView({Key? key}) : super(key: key);
+class SecurityPage extends StatelessWidget {
+  const SecurityPage({super.key});
 
   @override
   Widget build(BuildContext context) {

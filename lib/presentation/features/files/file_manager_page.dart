@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/data/models/homelab_models.dart';
 
-class FileManagerView extends StatefulWidget {
-  const FileManagerView({Key? key}) : super(key: key);
+class FileManagerPage extends StatefulWidget {
+  const FileManagerPage({super.key});
 
   @override
-  State<FileManagerView> createState() => _FileManagerViewState();
+  State<FileManagerPage> createState() => _FileManagerPageState();
 }
 
-class _FileManagerViewState extends State<FileManagerView> {
+class _FileManagerPageState extends State<FileManagerPage> {
   final List<FileItem> _files = [
     FileItem(
       name: 'backup_config_2024.zip',

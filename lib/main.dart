@@ -8,7 +8,7 @@ import 'package:painel_windowns/presentation/features/admin/pages/admin_dashboar
 import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
 import 'package:painel_windowns/presentation/features/homelab/homelab_app.dart';
 import 'package:painel_windowns/presentation/features/mobile/pages/mobile_dashboard_page.dart';
-import 'package:painel_windowns/presentation/features/totem/pages/totem_dashboard_screen.dart';
+import 'package:painel_windowns/presentation/features/totem/pages/totem_dashboard_page.dart';
 import 'package:painel_windowns/presentation/shared/theme/app_theme.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
@@ -102,10 +102,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       MobileDashboardPage(authService: widget.authService),
               '/totem_dashboard':
                   (context) =>
-                      TotemDashboardScreen(authService: widget.authService),
+                      TotemDashboardPage(authService: widget.authService),
               '/admin_dashboard':
                   (context) =>
-                      AdminDashboardScreen(authService: widget.authService),
+                      AdminDashboardPage(authService: widget.authService),
             },
           );
         },

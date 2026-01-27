@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/data/models/homelab_models.dart';
 
-class PowerView extends StatefulWidget {
-  const PowerView({Key? key}) : super(key: key);
+class PowerPage extends StatefulWidget {
+  const PowerPage({Key? key}) : super(key: key);
 
   @override
-  State<PowerView> createState() => _PowerViewState();
+  State<PowerPage> createState() => _PowerPageState();
 }
 
-class _PowerViewState extends State<PowerView> {
+class _PowerPageState extends State<PowerPage> {
   PowerData? _powerData;
 
   @override

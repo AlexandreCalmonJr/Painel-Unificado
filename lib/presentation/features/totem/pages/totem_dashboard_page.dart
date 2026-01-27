@@ -18,16 +18,16 @@ import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_list_ta
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/device_service.dart';
 
-class TotemDashboardScreen extends StatefulWidget {
-  const TotemDashboardScreen({required this.authService, super.key});
+class TotemDashboardPage extends StatefulWidget {
+  const TotemDashboardPage({required this.authService, super.key});
   final AuthService authService;
 
   @override
   // ignore: library_private_types_in_public_api
-  _TotemDashboardScreenState createState() => _TotemDashboardScreenState();
+  _TotemDashboardPageState createState() => _TotemDashboardPageState();
 }
 
-class _TotemDashboardScreenState extends State<TotemDashboardScreen> {
+class _TotemDashboardPageState extends State<TotemDashboardPage> {
   int selectedIndex = 0;
   bool _isSidebarVisible = true;
 

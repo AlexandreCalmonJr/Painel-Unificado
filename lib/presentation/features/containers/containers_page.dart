@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/data/models/homelab_models.dart';
 
-class ContainersView extends StatelessWidget {
-  const ContainersView({Key? key}) : super(key: key);
+class ContainersPage extends StatelessWidget {
+  const ContainersPage({super.key});
 
   @override
   Widget build(BuildContext context) {

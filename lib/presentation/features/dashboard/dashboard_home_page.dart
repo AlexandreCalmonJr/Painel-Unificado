@@ -3,10 +3,10 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/data/models/homelab_models.dart';
 import 'package:painel_windowns/presentation/widgets/common_widgets.dart';
 
-class DashboardHomeView extends StatelessWidget {
-  final List<dynamic> devices;
+class DashboardHomePage extends StatelessWidget {
 
-  const DashboardHomeView({Key? key, required this.devices}) : super(key: key);
+  const DashboardHomePage({required this.devices, super.key});
+  final List<dynamic> devices;
 
   @override
   Widget build(BuildContext context) {

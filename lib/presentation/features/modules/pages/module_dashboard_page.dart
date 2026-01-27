@@ -7,7 +7,7 @@ import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/bssid_mapping.dart';
 import 'package:painel_windowns/data/models/unit_model.dart';
-import 'package:painel_windowns/presentation/features/modules/pages/asset_detail_screen.dart';
+import 'package:painel_windowns/presentation/features/modules/pages/asset_detail_page.dart';
 import 'package:painel_windowns/presentation/shared/utils/widget_adapters.dart';
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_dashboard_tab.dart';
@@ -210,7 +210,7 @@ class _GenericDashboardScreenState extends State<GenericDashboardScreen> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => AssetDetailScreen(
+            (context) => AssetDetailPage(
               asset: asset,
               authService: widget.authService,
               moduleConfig: widget.moduleConfig,

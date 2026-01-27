@@ -14,8 +14,8 @@ import 'package:painel_windowns/presentation/shared/widgets/navigation/breadcrum
 import 'package:painel_windowns/presentation/shared/widgets/navigation/custom_sidebar.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 
-class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({required this.authService, super.key});
+class AdminDashboardPage extends StatefulWidget {
+  const AdminDashboardPage({required this.authService, super.key});
   final AuthService authService;
 
   @override
@@ -23,7 +23,7 @@ class AdminDashboardScreen extends StatefulWidget {
   _AdminDashboardScreenState createState() => _AdminDashboardScreenState();
 }
 
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+class _AdminDashboardScreenState extends State<AdminDashboardPage> {
   int selectedIndex = 0;
   bool _isSidebarVisible = true;
 

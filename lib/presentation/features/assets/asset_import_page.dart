@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/data/models/homelab_models.dart';
 
-class AssetImportView extends StatefulWidget {
-  const AssetImportView({Key? key}) : super(key: key);
+class AssetImportPage extends StatefulWidget {
+  const AssetImportPage({Key? key}) : super(key: key);
 
   @override
-  State<AssetImportView> createState() => _AssetImportViewState();
+  State<AssetImportPage> createState() => _AssetImportPageState();
 }
 
-class _AssetImportViewState extends State<AssetImportView> {
+class _AssetImportPageState extends State<AssetImportPage> {
   String _activeTab = 'manual'; // 'manual' | 'import'
   List<AssetImportData> _importedData = [];
   String? _notification;

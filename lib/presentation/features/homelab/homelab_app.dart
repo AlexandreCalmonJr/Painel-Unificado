@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:painel_windowns/presentation/features/ai/ai_view.dart';
-import 'package:painel_windowns/presentation/features/apps/app_manager_view.dart';
-import 'package:painel_windowns/presentation/features/assets/asset_import_view.dart';
-import 'package:painel_windowns/presentation/features/backup/backup_view.dart';
-import 'package:painel_windowns/presentation/features/cctv/cctv_view.dart';
-import 'package:painel_windowns/presentation/features/commands/commands_view.dart';
-import 'package:painel_windowns/presentation/features/containers/containers_view.dart';
-// Import all views
-import 'package:painel_windowns/presentation/features/dashboard/dashboard_home_view.dart';
-import 'package:painel_windowns/presentation/features/files/file_manager_view.dart';
-import 'package:painel_windowns/presentation/features/infrastructure/infrastructure_view.dart';
-import 'package:painel_windowns/presentation/features/mdm/mdm_view.dart';
-import 'package:painel_windowns/presentation/features/modules/modules_view.dart';
-import 'package:painel_windowns/presentation/features/monitoring/monitoring_view.dart';
-import 'package:painel_windowns/presentation/features/power/power_view.dart';
-import 'package:painel_windowns/presentation/features/provisioning/provisioning_view.dart';
-import 'package:painel_windowns/presentation/features/security/security_view.dart';
-import 'package:painel_windowns/presentation/features/settings/settings_view.dart';
-import 'package:painel_windowns/presentation/features/workstations/workstations_view.dart';
+import 'package:painel_windowns/presentation/features/ai/ai_page.dart';
+import 'package:painel_windowns/presentation/features/apps/app_manager_page.dart';
+import 'package:painel_windowns/presentation/features/assets/asset_import_page.dart';
+import 'package:painel_windowns/presentation/features/backup/backup_page.dart';
+import 'package:painel_windowns/presentation/features/cctv/cctv_page.dart';
+import 'package:painel_windowns/presentation/features/commands/commands_page.dart';
+import 'package:painel_windowns/presentation/features/containers/containers_page.dart';
+// Import all pages
+import 'package:painel_windowns/presentation/features/dashboard/dashboard_home_page.dart';
+import 'package:painel_windowns/presentation/features/files/file_manager_page.dart';
+import 'package:painel_windowns/presentation/features/infrastructure/infrastructure_page.dart';
+import 'package:painel_windowns/presentation/features/mdm/mdm_page.dart';
+import 'package:painel_windowns/presentation/features/modules/modules_page.dart';
+import 'package:painel_windowns/presentation/features/monitoring/monitoring_page.dart';
+import 'package:painel_windowns/presentation/features/power/power_page.dart';
+import 'package:painel_windowns/presentation/features/provisioning/provisioning_page.dart';
+import 'package:painel_windowns/presentation/features/security/security_page.dart';
+import 'package:painel_windowns/presentation/features/settings/settings_page.dart';
+import 'package:painel_windowns/presentation/features/workstations/workstations_page.dart';
 import 'package:painel_windowns/presentation/widgets/common_widgets.dart';
 
 class HomelabApp extends StatefulWidget {
@@ -103,43 +103,43 @@ class _HomelabAppState extends State<HomelabApp> {
   Widget _getCurrentView() {
     switch (_currentView) {
       case 'dashboard':
-        return DashboardHomeView(devices: _mockDevices);
+        return DashboardHomePage(devices: _mockDevices);
       case 'assets':
-        return const AssetImportView();
+        return const AssetImportPage();
       case 'ai':
-        return const AIView();
+        return const AIPage();
       case 'power':
-        return const PowerView();
+        return const PowerPage();
       case 'files':
-        return const FileManagerView();
+        return const FileManagerPage();
       case 'cctv':
-        return const CCTVView();
+        return const CCTVPage();
       case 'backup':
-        return const BackupView();
+        return const BackupPage();
       case 'commands':
-        return const CommandsView();
+        return const CommandsPage();
       case 'provisioning':
-        return const ProvisioningView();
+        return ProvisioningPage();
       case 'monitoring':
-        return const MonitoringView();
+        return const MonitoringPage();
       case 'security':
-        return const SecurityView();
+        return const SecurityPage();
       case 'infrastructure':
-        return const InfrastructureView();
+        return const InfrastructurePage();
       case 'workstations':
-        return const WorkstationsView();
+        return const WorkstationsPage();
       case 'apps':
-        return const AppManagerView();
+        return const AppManagerPage();
       case 'containers':
-        return const ContainersView();
+        return const ContainersPage();
       case 'modules':
-        return const ModulesView();
+        return const ModulesPage();
       case 'mdm':
-        return const MDMView();
+        return MDMPage();
       case 'settings':
-        return const SettingsView();
+        return const SettingsPage();
       default:
-        return DashboardHomeView(devices: _mockDevices);
+        return DashboardHomePage(devices: _mockDevices);
     }
   }
 

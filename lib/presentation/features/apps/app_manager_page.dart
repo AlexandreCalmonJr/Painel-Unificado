@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class AppManagerView extends StatefulWidget {
-  const AppManagerView({super.key});
+class AppManagerPage extends StatefulWidget {
+  const AppManagerPage({super.key});
 
   @override
-  State<AppManagerView> createState() => _AppManagerViewState();
+  State<AppManagerPage> createState() => _AppManagerPageState();
 }
 
-class _AppManagerViewState extends State<AppManagerView> {
+class _AppManagerPageState extends State<AppManagerPage> {
   final List<Map<String, dynamic>> _modules = [
     {
       'id': 1,

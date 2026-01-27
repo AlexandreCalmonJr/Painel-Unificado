@@ -9,8 +9,8 @@ import 'package:painel_windowns/services/asset_maintenance_service.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
-class AssetDetailScreen extends StatefulWidget {
-  const AssetDetailScreen({
+class AssetDetailPage extends StatefulWidget {
+  const AssetDetailPage({
     required this.asset,
     required this.authService,
     required this.moduleConfig,
@@ -21,10 +21,10 @@ class AssetDetailScreen extends StatefulWidget {
   final AssetModuleConfig moduleConfig;
 
   @override
-  State<AssetDetailScreen> createState() => _AssetDetailScreenState();
+  State<AssetDetailPage> createState() => _AssetDetailPageState();
 }
 
-class _AssetDetailScreenState extends State<AssetDetailScreen> {
+class _AssetDetailPageState extends State<AssetDetailPage> {
   late final ModuleManagementService _moduleService;
   late Future<List<Map<String, dynamic>>> _assetHistoryFuture;
   bool _isLoadingHistory = false;
