@@ -15,7 +15,10 @@ import 'package:painel_windowns/domain/repositories/i_auth_repository.dart';
 import 'package:painel_windowns/domain/repositories/i_device_repository.dart';
 import 'package:painel_windowns/domain/repositories/i_totem_repository.dart';
 import 'package:painel_windowns/services/auth_service.dart';
+import 'package:painel_windowns/services/device_service.dart';
+import 'package:painel_windowns/services/module_management_service.dart';
 import 'package:painel_windowns/services/status_service.dart';
+import 'package:painel_windowns/services/totem_service.dart';
 import 'package:painel_windowns/services/websocket_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,13 +55,28 @@ abstract class AppModule {
   @lazySingleton
   StatusService get statusService => StatusService();
 
+  /// Provides ModuleManagementService
+  @lazySingleton
+  ModuleManagementService moduleManagementService(AuthService authService) =>
+      ModuleManagementService(authService: authService);
+
+  /// Provides DeviceService
+  @lazySingleton
+  DeviceService get deviceService => DeviceService();
+
+  /// Provides TotemService
+  @lazySingleton
+  TotemService get totemService => TotemService();
+
   /// Provides DeviceRemoteDataSource
   @lazySingleton
-  DeviceRemoteDataSource deviceRemoteDataSource(http.Client client, SharedPreferences sharedPreferences) =>
-      DeviceRemoteDataSourceImpl(
-        client: client,
-        baseUrl: 'http://localhost:3000/api', // TODO: Move to config
-      );
+  DeviceRemoteDataSource deviceRemoteDataSource(
+    http.Client client,
+    SharedPreferences sharedPreferences,
+  ) => DeviceRemoteDataSourceImpl(
+    client: client,
+    baseUrl: 'http://localhost:3000/api', // TODO: Move to config
+  );
 
   /// Provides DeviceLocalDataSource
   @lazySingleton
@@ -67,11 +85,13 @@ abstract class AppModule {
 
   /// Provides TotemRemoteDataSource
   @lazySingleton
-  TotemRemoteDataSource totemRemoteDataSource(http.Client client, SharedPreferences sharedPreferences) =>
-      TotemRemoteDataSourceImpl(
-        client: client,
-        baseUrl: 'http://localhost:3000/api', // TODO: Move to config
-      );
+  TotemRemoteDataSource totemRemoteDataSource(
+    http.Client client,
+    SharedPreferences sharedPreferences,
+  ) => TotemRemoteDataSourceImpl(
+    client: client,
+    baseUrl: 'http://localhost:3000/api', // TODO: Move to config
+  );
 
   /// Provides TotemLocalDataSource
   @lazySingleton
@@ -80,11 +100,13 @@ abstract class AppModule {
 
   /// Provides AuthRemoteDataSource
   @lazySingleton
-  AuthRemoteDataSource authRemoteDataSource(http.Client client, SharedPreferences sharedPreferences) =>
-      AuthRemoteDataSourceImpl(
-        client: client,
-        baseUrl: 'http://localhost:3000/api', // TODO: Move to config
-      );
+  AuthRemoteDataSource authRemoteDataSource(
+    http.Client client,
+    SharedPreferences sharedPreferences,
+  ) => AuthRemoteDataSourceImpl(
+    client: client,
+    baseUrl: 'http://localhost:3000/api', // TODO: Move to config
+  );
 
   /// Provides AuthLocalDataSource
   @lazySingleton

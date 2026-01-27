@@ -25,9 +25,11 @@
         "injectable",
         "intl",
         "logger",
+        "lucide_icons",
         "path_provider",
         "pdf",
         "process",
+        "qr_flutter",
         "rxdart",
         "shared_preferences",
         "synchronized",
@@ -197,6 +199,21 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "qr_flutter",
+      "version": "4.1.0",
+      "dependencies": [
+        "flutter",
+        "qr"
+      ]
+    },
+    {
+      "name": "lucide_icons",
+      "version": "0.257.0",
+      "dependencies": [
+        "flutter"
       ]
     },
     {
@@ -866,6 +883,13 @@
       ]
     },
     {
+      "name": "qr",
+      "version": "3.0.2",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
       "name": "provider",
       "version": "6.1.5+1",
       "dependencies": [
@@ -1417,13 +1441,6 @@
       "version": "7.0.1",
       "dependencies": [
         "collection",
-        "meta"
-      ]
-    },
-    {
-      "name": "qr",
-      "version": "3.0.2",
-      "dependencies": [
         "meta"
       ]
     },

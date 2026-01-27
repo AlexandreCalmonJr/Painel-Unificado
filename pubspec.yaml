@@ -66,6 +66,8 @@ dependencies:
   get_it: ^9.2.0  # Dependency injection
   injectable: ^2.3.2  # Code generation for DI
   timeago: ^3.7.1
+  lucide_icons: ^0.257.0
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

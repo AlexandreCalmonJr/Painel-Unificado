@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:painel_windowns/core/config/theme_models.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
+import 'package:painel_windowns/core/di/injection.dart';
+import 'package:painel_windowns/core/utils/theme_utils.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/data/models/module.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
+import 'package:painel_windowns/presentation/features/admin/pages/module_details_page.dart';
 import 'package:painel_windowns/presentation/shared/widgets/cards/stat_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/dialogs/module_dialog.dart';
 // import 'package:painel_windowns/presentation/shared/widgets/tabs/unified_permissions_tab.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
-import 'package:painel_windowns/presentation/features/admin/pages/module_details_page.dart';
 
 class AdminModulesTab extends StatefulWidget {
   const AdminModulesTab({required this.authService, super.key});
