@@ -1,34 +1,30 @@
-// File: lib/presentation/features/home/pages/home_page.dart
+// File: lib/presentation/features/homelab/widgets/dashboard_home_content.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
-import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/data/models/asset_module_base_model.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
-import 'package:painel_windowns/presentation/features/auth/pages/profile_page.dart';
 import 'package:painel_windowns/presentation/shared/widgets/homelab/activity_feed_item.dart';
 import 'package:painel_windowns/presentation/shared/widgets/homelab/animated_stat_card.dart';
 import 'package:painel_windowns/presentation/shared/widgets/homelab/system_health_widget.dart';
-import 'package:painel_windowns/presentation/shared/widgets/profile_avatar_widget.dart';
-import 'package:painel_windowns/presentation/shared/widgets/theme_selector_widget.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/homelab_service.dart';
 import 'package:painel_windowns/services/module_management_service.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({required this.authService, super.key});
+/// Widget de conteúdo do Dashboard principal
+/// Extraído de HomeScreen para ser usado dentro do HomelabApp
+class DashboardHomeContent extends StatefulWidget {
+  const DashboardHomeContent({required this.authService, super.key});
   final AuthService authService;
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<DashboardHomeContent> createState() => _DashboardHomeContentState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
-
+class _DashboardHomeContentState extends State<DashboardHomeContent> {
   late final ModuleManagementService _moduleService;
   late final HomelabService _homelabService;
 
@@ -44,26 +40,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
     _moduleService = ModuleManagementService(authService: widget.authService);
-
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
-    );
-
-    _fadeController.forward();
+    _homelabService = HomelabService(authService: widget.authService);
     _loadData();
-  }
-
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -110,15 +89,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  void _logout(BuildContext context) async {
-    await widget.authService.logout();
-    if (mounted) {
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
-    }
-  }
-
   bool _hasPermission(String module) {
     final permissions = widget.authService.permissions;
     if (widget.authService.isAdmin) return true;
@@ -128,21 +98,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   IconData _getModuleIcon(AssetModuleType type) {
     switch (type) {
       case AssetModuleType.mobile:
-        return Icons.phone_android;
+        return LucideIcons.smartphone;
       case AssetModuleType.totem:
-        return Icons.desktop_windows;
+        return LucideIcons.monitor;
       case AssetModuleType.desktop:
-        return Icons.computer;
+        return LucideIcons.monitor;
       case AssetModuleType.notebook:
-        return Icons.laptop;
+        return LucideIcons.laptop;
       case AssetModuleType.panel:
-        return Icons.tv;
+        return LucideIcons.tv;
       case AssetModuleType.printer:
-        return Icons.print;
+        return LucideIcons.printer;
       case AssetModuleType.scanner:
-        return Icons.qr_code_scanner;
+        return LucideIcons.scan;
       default:
-        return Icons.category;
+        return LucideIcons.box;
     }
   }
 
@@ -153,162 +123,44 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         final isDark = themeState.isDarkMode;
         final palette = themeState.currentPalette;
 
-        return Scaffold(
-          body: Container(
-            decoration: BoxDecoration(
-              gradient:
-                  isDark
-                      ? const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [AppColors.background, AppColors.surface],
-                      )
-                      : const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.backgroundLight,
-                          AppColors.surfaceLightVariant,
-                        ],
-                      ),
-            ),
-            child: Stack(
-              children: [
-                // Header com botões (Top Right)
-                Positioned(
-                  top: 24,
-                  right: 24,
-                  child: Row(
-                    children: [
-                      const ThemeSelectorButton(),
-                      const SizedBox(width: 12),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder:
-                                  (context) => ProfileScreen(
-                                    authService: widget.authService,
-                                  ),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(50),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: (isDark
-                                    ? AppColors.surface
-                                    : AppColors.surfaceLightMode)
-                                .withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(50),
-                            border: Border.all(
-                              color: palette['primary']!.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              ProfileAvatarWidget(
-                                username:
-                                    (widget.authService.currentUser?['username']
-                                        as String?) ??
-                                    'User',
-                                size: 32,
-                                isOnline: true,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                (widget.authService.currentUser?['username']
-                                        as String?) ??
-                                    'Usuário',
-                                style: TextStyle(
-                                  color:
-                                      isDark
-                                          ? AppColors.textPrimary
-                                          : AppColors.textPrimaryLight,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      IconButton(
-                        onPressed: () => _logout(context),
-                        icon: const Icon(Icons.logout),
-                        style: IconButton.styleFrom(
-                          backgroundColor: AppColors.danger.withOpacity(0.2),
-                          foregroundColor: AppColors.danger,
-                          padding: const EdgeInsets.all(12),
-                        ),
-                        tooltip: 'Sair',
-                      ),
-                    ],
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Hero Section
+              _buildHeroSection(isDark, palette),
+              const SizedBox(height: 32),
+
+              // Stats Cards
+              if (_isLoadingStats)
+                const Center(child: CircularProgressIndicator())
+              else
+                _buildStatsCards(),
+              const SizedBox(height: 32),
+
+              // Module Shortcuts
+              _buildModuleShortcuts(isDark, palette),
+              const SizedBox(height: 32),
+
+              // Quick Actions + System Health
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 2, child: _buildQuickActions(isDark)),
+                  const SizedBox(width: 24),
+                  Expanded(
+                    child:
+                        _systemHealth != null
+                            ? SystemHealthWidget(health: _systemHealth!)
+                            : const SizedBox(),
                   ),
-                ),
+                ],
+              ),
+              const SizedBox(height: 32),
 
-                // Main Content
-                Center(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 1400),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Hero Section
-                            _buildHeroSection(isDark, palette),
-                            const SizedBox(height: 32),
-
-                            // Stats Cards
-                            if (_isLoadingStats)
-                              const Center(child: CircularProgressIndicator())
-                            else
-                              _buildStatsCards(),
-                            const SizedBox(height: 32),
-
-                            // Module Shortcuts
-                            _buildModuleShortcuts(isDark, palette),
-                            const SizedBox(height: 32),
-
-                            // Quick Actions + System Health
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: _buildQuickActions(isDark),
-                                ),
-                                const SizedBox(width: 24),
-                                Expanded(
-                                  child:
-                                      _systemHealth != null
-                                          ? SystemHealthWidget(
-                                            health: _systemHealth!,
-                                          )
-                                          : const SizedBox(),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 32),
-
-                            // Activity Feed
-                            _buildActivityFeed(isDark),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              // Activity Feed
+              _buildActivityFeed(isDark),
+            ],
           ),
         );
       },
@@ -319,33 +171,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: (isDark ? AppColors.border : AppColors.borderLight)
-              .withOpacity(0.1),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            palette['primary']!.withOpacity(0.1),
+            palette['primary']!.withOpacity(0.05),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: palette['primary']!.withOpacity(0.2)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: palette['primary']!.withOpacity(0.1),
+              color: palette['primary']!.withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(
-              Icons.home_rounded,
-              size: 48,
-              color: palette['primary'],
-            ),
+            child: Icon(LucideIcons.home, size: 48, color: palette['primary']),
           ),
           const SizedBox(width: 24),
           Expanded(
@@ -394,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         AnimatedStatCard(
           title: 'Total de Dispositivos',
           value: _stats.totalDevices,
-          icon: Icons.devices,
+          icon: LucideIcons.smartphone,
           color: AppColors.primary,
           subtitle: 'Ativos no sistema',
           onTap: () => Navigator.pushNamed(context, '/dashboard'),
@@ -402,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         AnimatedStatCard(
           title: 'Dispositivos Online',
           value: _stats.onlineDevices,
-          icon: Icons.check_circle,
+          icon: LucideIcons.checkCircle,
           color: AppColors.success,
           subtitle:
               '${_stats.onlinePercentage.toStringAsFixed(0)}% disponíveis',
@@ -411,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         AnimatedStatCard(
           title: 'Alertas Ativos',
           value: _stats.alerts,
-          icon: Icons.warning_amber,
+          icon: LucideIcons.alertTriangle,
           color:
               _stats.alerts > 0 ? AppColors.warning : AppColors.textSecondary,
           subtitle: _stats.alerts > 0 ? 'Requer atenção' : 'Tudo funcionando',
@@ -428,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (_hasPermission('mobile')) {
       moduleWidgets.add(
         _buildModuleButton(
-          icon: Icons.phone_android,
+          icon: LucideIcons.smartphone,
           label: 'Mobile',
           color: AppColors.primary,
           onTap: () => Navigator.pushNamed(context, '/dashboard'),
@@ -440,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (_hasPermission('totem')) {
       moduleWidgets.add(
         _buildModuleButton(
-          icon: Icons.desktop_windows,
+          icon: LucideIcons.monitor,
           label: 'Totem',
           color: AppColors.info,
           onTap: () => Navigator.pushNamed(context, '/totem_dashboard'),
@@ -471,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (widget.authService.isAdmin) {
       moduleWidgets.add(
         _buildModuleButton(
-          icon: Icons.admin_panel_settings,
+          icon: LucideIcons.shieldCheck,
           label: 'Admin',
           color: AppColors.danger,
           onTap: () => Navigator.pushNamed(context, '/admin_dashboard'),
@@ -487,29 +332,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+        color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: (isDark ? AppColors.border : AppColors.borderLight)
-              .withOpacity(0.1),
-        ),
+        border: Border.all(color: const Color(0xFF1E293B)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.apps, color: palette['primary'], size: 24),
+              Icon(LucideIcons.grid, color: palette['primary'], size: 24),
               const SizedBox(width: 12),
-              Text(
+              const Text(
                 'Módulos',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color:
-                      isDark
-                          ? AppColors.textPrimary
-                          : AppColors.textPrimaryLight,
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -545,11 +384,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             const SizedBox(width: 12),
             Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color:
-                    isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                color: Colors.white,
               ),
             ),
           ],
@@ -562,29 +400,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+        color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: (isDark ? AppColors.border : AppColors.borderLight)
-              .withOpacity(0.1),
-        ),
+        border: Border.all(color: const Color(0xFF1E293B)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.flash_on, color: AppColors.primary, size: 24),
+              Icon(LucideIcons.zap, color: AppColors.primary, size: 24),
               const SizedBox(width: 12),
-              Text(
+              const Text(
                 'Ações Rápidas',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color:
-                      isDark
-                          ? AppColors.textPrimary
-                          : AppColors.textPrimaryLight,
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -595,19 +427,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             runSpacing: 12,
             children: [
               _buildQuickActionChip(
-                icon: Icons.refresh,
+                icon: LucideIcons.refreshCw,
                 label: 'Atualizar',
                 onTap: _loadData,
                 isDark: isDark,
               ),
               _buildQuickActionChip(
-                icon: Icons.notifications,
+                icon: LucideIcons.bell,
                 label: 'Alertas',
                 onTap: () {},
                 isDark: isDark,
               ),
               _buildQuickActionChip(
-                icon: Icons.settings,
+                icon: LucideIcons.settings,
                 label: 'Configurações',
                 onTap: () {},
                 isDark: isDark,
@@ -631,13 +463,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: (isDark ? AppColors.background : AppColors.surfaceLightVariant)
-              .withOpacity(0.5),
+          color: const Color(0xFF1E293B),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: (isDark ? AppColors.border : AppColors.borderLight)
-                .withOpacity(0.3),
-          ),
+          border: Border.all(color: const Color(0xFF334155)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -646,11 +474,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             const SizedBox(width: 8),
             Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color:
-                    isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                color: Colors.white,
               ),
             ),
           ],
@@ -667,12 +494,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surface : AppColors.surfaceLightMode,
+        color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: (isDark ? AppColors.border : AppColors.borderLight)
-              .withOpacity(0.1),
-        ),
+        border: Border.all(color: const Color(0xFF1E293B)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -682,24 +506,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             children: [
               Row(
                 children: [
-                  Icon(Icons.history, color: AppColors.primary, size: 24),
+                  Icon(
+                    LucideIcons.activity,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
                   const SizedBox(width: 12),
-                  Text(
+                  const Text(
                     'Atividades Recentes',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color:
-                          isDark
-                              ? AppColors.textPrimary
-                              : AppColors.textPrimaryLight,
+                      color: Colors.white,
                     ),
                   ),
                 ],
               ),
               TextButton.icon(
                 onPressed: () {},
-                icon: const Icon(Icons.arrow_forward, size: 16),
+                icon: const Icon(LucideIcons.arrowRight, size: 16),
                 label: const Text('Ver tudo'),
               ),
             ],

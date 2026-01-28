@@ -15,12 +15,21 @@ class _CommandsPageState extends State<CommandsPage> {
   final List<CommandLog> _commandLog = [];
   final _customCmdController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
     _initializeTargets();
-    _addLog('Console de comandos inicializado.', 'System');
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _addLog('Console de comandos inicializado.', 'System');
+      _initialized = true;
+    }
   }
 
   void _initializeTargets() {
@@ -72,6 +81,8 @@ class _CommandsPageState extends State<CommandsPage> {
   }
 
   void _addLog(String msg, String source) {
+    if (!mounted) return;
+
     setState(() {
       _commandLog.add(
         CommandLog(

@@ -7,9 +7,8 @@ import 'package:painel_windowns/presentation/features/backup/backup_page.dart';
 import 'package:painel_windowns/presentation/features/cctv/cctv_page.dart';
 import 'package:painel_windowns/presentation/features/commands/commands_page.dart';
 import 'package:painel_windowns/presentation/features/containers/containers_page.dart';
-// Import all pages
-import 'package:painel_windowns/presentation/features/dashboard/dashboard_home_page.dart';
 import 'package:painel_windowns/presentation/features/files/file_manager_page.dart';
+import 'package:painel_windowns/presentation/features/homelab/widgets/dashboard_home_content.dart';
 import 'package:painel_windowns/presentation/features/infrastructure/infrastructure_page.dart';
 import 'package:painel_windowns/presentation/features/mdm/mdm_page.dart';
 import 'package:painel_windowns/presentation/features/modules/modules_page.dart';
@@ -20,20 +19,22 @@ import 'package:painel_windowns/presentation/features/security/security_page.dar
 import 'package:painel_windowns/presentation/features/settings/settings_page.dart';
 import 'package:painel_windowns/presentation/features/workstations/workstations_page.dart';
 import 'package:painel_windowns/presentation/widgets/common_widgets.dart';
+import 'package:painel_windowns/services/auth_service.dart';
 
 class HomelabApp extends StatefulWidget {
-  const HomelabApp({super.key});
+  const HomelabApp({required this.authService, super.key});
+  final AuthService authService;
 
   @override
   State<HomelabApp> createState() => _HomelabAppState();
 }
 
-class _HomelabAppState extends State<HomelabApp> {
+class _HomelabAppState extends State<HomelabApp>
+    with SingleTickerProviderStateMixin {
   String _currentView = 'dashboard';
-  final List<dynamic> _mockDevices = [
-    {'name': 'Proxmox Node 01', 'ip': '192.168.1.10', 'status': 'online'},
-    {'name': 'TrueNAS Core', 'ip': '192.168.1.20', 'status': 'online'},
-  ];
+  bool _isSidebarCollapsed = false;
+  late AnimationController _sidebarAnimationController;
+  late Animation<double> _sidebarAnimation;
 
   final Map<String, Map<String, dynamic>> _menuItems = {
     'dashboard': {
@@ -100,10 +101,51 @@ class _HomelabAppState extends State<HomelabApp> {
     },
   };
 
+  @override
+  void initState() {
+    super.initState();
+    _sidebarAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _sidebarAnimation = Tween<double>(begin: 280, end: 70).animate(
+      CurvedAnimation(
+        parent: _sidebarAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _sidebarAnimationController.dispose();
+    super.dispose();
+  }
+
+  void _toggleSidebar() {
+    setState(() {
+      _isSidebarCollapsed = !_isSidebarCollapsed;
+      if (_isSidebarCollapsed) {
+        _sidebarAnimationController.forward();
+      } else {
+        _sidebarAnimationController.reverse();
+      }
+    });
+  }
+
+  Future<void> _logout() async {
+    await widget.authService.logout();
+    if (mounted) {
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+    }
+  }
+
   Widget _getCurrentView() {
     switch (_currentView) {
       case 'dashboard':
-        return DashboardHomePage(devices: _mockDevices);
+        return DashboardHomeContent(authService: widget.authService);
       case 'assets':
         return const AssetImportPage();
       case 'ai':
@@ -139,7 +181,7 @@ class _HomelabAppState extends State<HomelabApp> {
       case 'settings':
         return const SettingsPage();
       default:
-        return DashboardHomePage(devices: _mockDevices);
+        return DashboardHomeContent(authService: widget.authService);
     }
   }
 
@@ -154,147 +196,200 @@ class _HomelabAppState extends State<HomelabApp> {
       body: Row(
         children: [
           // Sidebar
-          Container(
-            width: 280,
-            decoration: const BoxDecoration(
-              color: Color(0xFF0F172A),
-              border: Border(right: BorderSide(color: Color(0xFF1E293B))),
-            ),
-            child: Column(
-              children: [
-                // Logo/Header
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Color(0xFF1E293B)),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4F46E5),
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF4F46E5).withOpacity(0.3),
-                              blurRadius: 12,
+          AnimatedBuilder(
+            animation: _sidebarAnimation,
+            builder: (context, child) {
+              return Container(
+                width: _sidebarAnimation.value,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF0F172A),
+                  border: Border(right: BorderSide(color: Color(0xFF1E293B))),
+                ),
+                child: Column(
+                  children: [
+                    // Logo/Header
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Color(0xFF1E293B)),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4F46E5),
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFF4F46E5,
+                                  ).withOpacity(0.3),
+                                  blurRadius: 12,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              LucideIcons.server,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          if (!_isSidebarCollapsed) ...[
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Homelab',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
-                        ),
-                        child: const Icon(
-                          LucideIcons.server,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Homelab',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Menu Items
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          child: Text(
-                            'NAVEGAÇÃO',
-                            style: TextStyle(
-                              color: Color(0xFF64748B),
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ),
-                        ..._menuItems.entries.map((entry) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            child: SidebarItem(
-                              icon: entry.value['icon'] as IconData,
-                              label: entry.value['label'] as String,
-                              active: _currentView == entry.key,
-                              onClick:
-                                  () =>
-                                      setState(() => _currentView = entry.key),
-                              badgeCount: entry.value['badge'] as int,
-                            ),
-                          );
-                        }),
-                      ],
                     ),
-                  ),
-                ),
 
-                // User Profile
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    border: Border(top: BorderSide(color: Color(0xFF1E293B))),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Icon(
-                          LucideIcons.user,
-                          color: Color(0xFF94A3B8),
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
+                    // Menu Items
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Admin User',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                            if (!_isSidebarCollapsed)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                child: Text(
+                                  'NAVEGAÇÃO',
+                                  style: TextStyle(
+                                    color: Color(0xFF64748B),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
                               ),
-                            ),
-                            Text(
-                              'admin@homelab.local',
-                              style: TextStyle(
-                                color: Color(0xFF64748B),
-                                fontSize: 12,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            ..._menuItems.entries.map((entry) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: SidebarItem(
+                                  icon: entry.value['icon'] as IconData,
+                                  label: entry.value['label'] as String,
+                                  active: _currentView == entry.key,
+                                  onClick:
+                                      () => setState(
+                                        () => _currentView = entry.key,
+                                      ),
+                                  badgeCount: entry.value['badge'] as int,
+                                  isCollapsed: _isSidebarCollapsed,
+                                ),
+                              );
+                            }),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+
+                    // Toggle Button
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Color(0xFF1E293B)),
+                        ),
+                      ),
+                      child: Center(
+                        child: IconButton(
+                          icon: Icon(
+                            _isSidebarCollapsed
+                                ? LucideIcons.chevronRight
+                                : LucideIcons.chevronLeft,
+                            color: const Color(0xFF94A3B8),
+                            size: 20,
+                          ),
+                          onPressed: _toggleSidebar,
+                          tooltip:
+                              _isSidebarCollapsed ? 'Expandir' : 'Recolher',
+                        ),
+                      ),
+                    ),
+
+                    // User Profile
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Color(0xFF1E293B)),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E293B),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Icon(
+                              LucideIcons.user,
+                              color: Color(0xFF94A3B8),
+                              size: 20,
+                            ),
+                          ),
+                          if (!_isSidebarCollapsed) ...[
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.authService.currentUser?['username']
+                                            as String? ??
+                                        'Usuário',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    widget.authService.currentUser?['email']
+                                            as String? ??
+                                        'user@homelab.local',
+                                    style: const TextStyle(
+                                      color: Color(0xFF64748B),
+                                      fontSize: 12,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                LucideIcons.logOut,
+                                size: 18,
+                                color: Color(0xFF94A3B8),
+                              ),
+                              onPressed: _logout,
+                              tooltip: 'Sair',
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
 
           // Main Content Area

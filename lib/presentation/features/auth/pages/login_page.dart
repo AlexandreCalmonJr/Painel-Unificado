@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:painel_windowns/core/constants/app_constants.dart';
 import 'package:painel_windowns/core/di/injection.dart';
 import 'package:painel_windowns/presentation/bloc/auth/auth_bloc.dart';
 import 'package:painel_windowns/presentation/bloc/auth/auth_event.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
-import 'package:painel_windowns/presentation/features/home/pages/home_page.dart';
+import 'package:painel_windowns/presentation/features/homelab/homelab_app.dart';
 import 'package:painel_windowns/services/auth_service.dart';
 import 'package:painel_windowns/services/server_config_service.dart';
 import 'package:painel_windowns/services/websocket_service.dart';
@@ -117,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen>
             PageRouteBuilder<void>(
               pageBuilder:
                   (context, animation, _) =>
-                      HomeScreen(authService: widget.authService),
+                      HomelabApp(authService: widget.authService),
               transitionDuration: const Duration(milliseconds: 500),
               transitionsBuilder: (context, animation, _, child) {
                 return FadeTransition(
@@ -274,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen>
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              Icons.admin_panel_settings,
+                              LucideIcons.shieldCheck,
                               size: 48,
                               color: palette['primary'],
                             ),
@@ -336,12 +337,12 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                               tabs: const [
                                 Tab(
-                                  icon: Icon(Icons.login, size: 20),
+                                  icon: Icon(LucideIcons.logIn, size: 20),
                                   text: 'Login',
                                   height: 56,
                                 ),
                                 Tab(
-                                  icon: Icon(Icons.settings, size: 20),
+                                  icon: Icon(LucideIcons.server, size: 20),
                                   text: 'Servidor',
                                   height: 56,
                                 ),
@@ -388,7 +389,7 @@ class _LoginScreenState extends State<LoginScreen>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.code,
+                                  LucideIcons.code,
                                   size: 18,
                                   color:
                                       isDark
@@ -430,7 +431,7 @@ class _LoginScreenState extends State<LoginScreen>
           _buildTextField(
             controller: _usernameController,
             label: 'Usuário',
-            icon: Icons.person,
+            icon: LucideIcons.user,
             textInputAction: TextInputAction.next,
             isDark: isDark,
             palette: palette,
@@ -439,7 +440,7 @@ class _LoginScreenState extends State<LoginScreen>
           _buildTextField(
             controller: _passwordController,
             label: 'Senha',
-            icon: Icons.lock,
+            icon: LucideIcons.lock,
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) => _login(),
@@ -447,7 +448,7 @@ class _LoginScreenState extends State<LoginScreen>
             palette: palette,
             suffixIcon: IconButton(
               icon: Icon(
-                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                _obscurePassword ? LucideIcons.eye : LucideIcons.eyeOff,
                 color:
                     isDark
                         ? AppColors.textSecondary
@@ -461,9 +462,39 @@ class _LoginScreenState extends State<LoginScreen>
           _buildActionButton(
             onPressed: _login,
             text: 'Entrar',
-            icon: Icons.login,
+            icon: LucideIcons.logIn,
             color: palette['primary'],
             isLoading: _isLoading,
+          ),
+          const SizedBox(height: 16),
+          // Link para registro
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Não tem acesso? ',
+                style: TextStyle(
+                  color:
+                      isDark
+                          ? AppColors.textSecondary
+                          : AppColors.textSecondaryLight,
+                  fontSize: 14,
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pushNamed('/register'),
+                style: TextButton.styleFrom(
+                  foregroundColor: palette['primary'],
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text(
+                  'Solicitar cadastro',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -477,7 +508,7 @@ class _LoginScreenState extends State<LoginScreen>
           _buildTextField(
             controller: _ipController,
             label: 'IP do Servidor',
-            icon: Icons.computer,
+            icon: LucideIcons.server,
             textInputAction: TextInputAction.next,
             isDark: isDark,
             palette: palette,
@@ -486,7 +517,7 @@ class _LoginScreenState extends State<LoginScreen>
           _buildTextField(
             controller: _portController,
             label: 'Porta do Servidor',
-            icon: Icons.lan,
+            icon: LucideIcons.network,
             textInputAction: TextInputAction.done,
             keyboardType: TextInputType.number,
             onFieldSubmitted: (_) => _saveServerConfig(),
@@ -497,7 +528,7 @@ class _LoginScreenState extends State<LoginScreen>
           _buildActionButton(
             onPressed: _saveServerConfig,
             text: 'Salvar Configuração',
-            icon: Icons.save,
+            icon: LucideIcons.save,
             color: AppColors.success,
           ),
         ],

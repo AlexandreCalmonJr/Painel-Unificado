@@ -6,6 +6,7 @@ import 'package:painel_windowns/presentation/bloc/theme/theme_cubit.dart';
 import 'package:painel_windowns/presentation/bloc/theme/theme_state.dart';
 import 'package:painel_windowns/presentation/features/admin/pages/admin_dashboard_page.dart';
 import 'package:painel_windowns/presentation/features/auth/pages/login_page.dart';
+import 'package:painel_windowns/presentation/features/auth/pages/register_page.dart';
 import 'package:painel_windowns/presentation/features/homelab/homelab_app.dart';
 import 'package:painel_windowns/presentation/features/mobile/pages/mobile_dashboard_page.dart';
 import 'package:painel_windowns/presentation/features/totem/pages/totem_dashboard_page.dart';
@@ -88,14 +89,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             // Caso contrário, vai para a LoginScreen.
             home:
                 widget.authService.isLoggedIn
-                    ? const HomelabApp()
+                    ? HomelabApp(authService: widget.authService)
                     : LoginScreen(authService: widget.authService),
 
             // As rotas são usadas para a navegação a partir do HomelabApp.
             routes: {
-              '/home': (context) => const HomelabApp(),
+              '/home': (context) => HomelabApp(authService: widget.authService),
               '/login':
                   (context) => LoginScreen(authService: widget.authService),
+              '/register':
+                  (context) => RegisterScreen(authService: widget.authService),
               // A rota '/dashboard' agora aponta para a sua tela original, que é o Módulo Mobile.
               '/dashboard':
                   (context) =>
